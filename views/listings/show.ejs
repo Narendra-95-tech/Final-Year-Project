@@ -70,8 +70,15 @@
             <input type="date" id="endDate" class="form-control form-control-sm" required>
           </div>
           <div class="mb-2">
+            <label for="guests" class="form-label small-label">Guests</label>
+            <input type="number" id="guests" class="form-control form-control-sm" min="1" value="1" required>
+          </div>
+          <div class="mb-2">
             <label for="totalPrice" class="form-label small-label">Total (₹)</label>
             <input type="text" id="totalPrice" class="form-control form-control-sm" readonly value="<%= listing.price %>">
+          </div>
+          <div class="d-flex align-items-center mb-2">
+            <span id="availability-status" class="small ms-1"></span>
           </div>
           <button type="submit" class="btn btn-success btn-sm w-100">Book Now</button>
         </form>
@@ -85,29 +92,60 @@
     const startDateInput = document.getElementById("startDate");
     const endDateInput = document.getElementById("endDate");
     const totalPriceInput = document.getElementById("totalPrice");
+    const guestsInput = document.getElementById("guests");
+    const availabilityStatus = document.getElementById("availability-status");
     const pricePerNight = listing.price;
 
     function updateTotalPrice() {
       const startDate = new Date(startDateInput.value);
       const endDate = new Date(endDateInput.value);
+      const guests = Math.max(1, Number(guestsInput.value || 1));
       if (startDate && endDate && endDate > startDate) {
         const nights = Math.ceil((endDate - startDate) / (1000 * 60 * 60 * 24));
-        totalPriceInput.value = (nights * pricePerNight).toLocaleString("en-IN");
+        totalPriceInput.value = (nights * pricePerNight * guests).toLocaleString("en-IN");
       } else {
         totalPriceInput.value = pricePerNight.toLocaleString("en-IN");
       }
     }
 
-    if(startDateInput && endDateInput){
-      startDateInput.addEventListener("change", updateTotalPrice);
-      endDateInput.addEventListener("change", updateTotalPrice);
+    async function checkAvailability(){
+      availabilityStatus.textContent = "";
+      const startDate = startDateInput.value;
+      const endDate = endDateInput.value;
+      if(!startDate || !endDate) return;
+      try{
+        const res = await fetch(`/bookings/${listing._id}/availability`,{
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ startDate, endDate })
+        });
+        const data = await res.json();
+        if(data.available){
+          availabilityStatus.textContent = "Available";
+          availabilityStatus.className = "text-success small ms-1";
+        } else {
+          availabilityStatus.textContent = data.error || "Unavailable";
+          availabilityStatus.className = "text-danger small ms-1";
+        }
+      } catch(err){ console.error(err); }
     }
+
+    const today = new Date().toISOString().split('T')[0];
+    if (startDateInput) startDateInput.min = today;
+    if (endDateInput) endDateInput.min = today;
+
+    if(startDateInput && endDateInput){
+      startDateInput.addEventListener("change", ()=>{ updateTotalPrice(); checkAvailability(); });
+      endDateInput.addEventListener("change", ()=>{ updateTotalPrice(); checkAvailability(); });
+    }
+    if(guestsInput){ guestsInput.addEventListener("input", updateTotalPrice); }
 
     if (bookingForm) {
       bookingForm.addEventListener("submit", async (e) => {
         e.preventDefault();
         const startDate = startDateInput.value;
         const endDate = endDateInput.value;
+        const guests = Math.max(1, Number(guestsInput.value || 1));
         if (!startDate || !endDate || new Date(endDate) <= new Date(startDate)) {
           alert("Please select valid dates!");
           return;
@@ -117,7 +155,7 @@
           const res = await fetch(`/bookings/${listing._id}/book`, {
             method: "POST",
             headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ startDate, endDate }),
+            body: JSON.stringify({ startDate, endDate, guests }),
             credentials: "same-origin"
           });
           const data = await res.json();

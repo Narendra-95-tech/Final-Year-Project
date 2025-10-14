@@ -19,11 +19,14 @@ router.post("/:id/book", isLoggedIn, async (req, res) => {
     const nights = Math.ceil((end - start) / (1000 * 60 * 60 * 24));
     if (nights <= 0) return res.status(400).json({ error: "End date must be after start date" });
 
-    const totalPrice = listing.price * nights * (guests || 1);
+    const safeGuests = Math.max(1, Number(guests || 1));
+    const totalPrice = listing.price * nights * safeGuests;
 
+    // Overlap condition: (existing.start <= newEnd) && (existing.end >= newStart)
     const overlapping = await Booking.findOne({
       listing: listing._id,
-      $or: [{ startDate: { $lte: end }, endDate: { $gte: start } }]
+      startDate: { $lte: end },
+      endDate: { $gte: start }
     });
     if (overlapping) return res.status(400).json({ error: "Selected dates are already booked!" });
 
@@ -32,7 +35,7 @@ router.post("/:id/book", isLoggedIn, async (req, res) => {
       user: req.user._id,
       startDate: start,
       endDate: end,
-      guests: guests || 1,
+      guests: safeGuests,
       totalPrice
     });
     await booking.save();
@@ -56,6 +59,29 @@ router.post("/:id/book", isLoggedIn, async (req, res) => {
   } catch (err) {
     console.error(err);
     res.status(500).json({ error: "Something went wrong!" });
+  }
+});
+
+// AVAILABILITY CHECK
+router.post("/:id/availability", async (req, res) => {
+  try {
+    const listing = await Listing.findById(req.params.id);
+    if (!listing) return res.status(404).json({ available: false, error: "Listing not found" });
+    const { startDate, endDate } = req.body;
+    if (!startDate || !endDate) return res.status(400).json({ available: false, error: "Invalid dates" });
+    const start = new Date(startDate);
+    const end = new Date(endDate);
+    if (!(end > start)) return res.status(400).json({ available: false, error: "End must be after start" });
+
+    const overlapping = await Booking.findOne({
+      listing: listing._id,
+      startDate: { $lte: end },
+      endDate: { $gte: start }
+    });
+    res.json({ available: !overlapping });
+  } catch (e) {
+    console.error(e);
+    res.status(500).json({ available: false, error: "Server error" });
   }
 });
 

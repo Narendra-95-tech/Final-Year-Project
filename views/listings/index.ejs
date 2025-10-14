@@ -39,52 +39,142 @@
     display: flex;
     align-items: center;
   }
+  /* Result header & chips */
+  .result-header {
+    background: linear-gradient(90deg, #fff, #fafafa);
+    border: 1px solid #eee;
+    border-radius: 12px;
+    padding: .75rem 1rem;
+  }
+  .chip {
+    display: inline-flex;
+    align-items: center;
+    gap: .35rem;
+    border: 1px solid #ddd;
+    border-radius: 999px;
+    padding: .25rem .6rem;
+    font-size: .85rem;
+    background: #fff;
+    margin-left: .35rem;
+  }
+  .chip a { text-decoration: none; color: #555; }
+  .chip i { color: #999; cursor: pointer; }
+  /* Card polish */
+  .listing-card {
+    transition: transform .2s ease, box-shadow .2s ease;
+    border: none;
+    box-shadow: 0 2px 8px rgba(0,0,0,.06);
+    border-radius: 16px;
+    overflow: hidden;
+  }
+  .listing-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 16px rgba(0,0,0,.12);
+  }
+  .price-badge {
+    background: #fe424d;
+    color: #fff;
+    padding: .2rem .5rem;
+    border-radius: 8px;
+    font-size: .8rem;
+  }
+  .location-badge {
+    background: #f1f3f5;
+    color: #555;
+    padding: .2rem .5rem;
+    border-radius: 8px;
+    font-size: .75rem;
+  }
 </style>    
+<div class="d-flex justify-content-between align-items-center mt-2 result-header">
+  <div>
+    <% const resultsCount = allListings.length; %>
+    <span>
+      <% if (typeof query !== 'undefined' && query) { %>
+        Results for "<span style="color:#fe424d"><%= query %></span>"
+      <% } else { %>
+        <b><%= resultsCount %></b> <%= resultsCount === 1 ? 'result' : 'results' %>
+      <% } %>
+    </span>
+  </div>
+  <form method="GET" action="/listings" class="d-flex align-items-center" style="gap: .5rem;">
+    <input type="hidden" name="q" value="<%= query || '' %>">
+    <input type="hidden" name="sort" value="<%= sort || '' %>">
+    <input type="hidden" name="category" value="<%= category || '' %>">
+    <input class="form-control" style="max-width: 120px; border-radius: 50px;" type="number" min="1" name="guests" placeholder="Guests" value="<%= guests || '' %>">
+    <input class="form-control" style="max-width: 120px; border-radius: 50px;" type="number" name="minPrice" placeholder="Min ₹" value="<%= minPrice || '' %>">
+    <input class="form-control" style="max-width: 120px; border-radius: 50px;" type="number" name="maxPrice" placeholder="Max ₹" value="<%= maxPrice || '' %>">
+    <button class="btn btn-dark" style="border-radius: 50px;" type="submit">Apply</button>
+  </form>
+</div>
+<div class="mt-2">
+  <% if (query) { %>
+    <span class="chip">Query: <b><%= query %></b> <a href="/listings?sort=<%= sort || '' %>&category=<%= category || '' %>&minPrice=<%= minPrice || '' %>&maxPrice=<%= maxPrice || '' %>&guests=<%= guests || '' %>"><i class="fa fa-times"></i></a></span>
+  <% } %>
+  <% if (category) { %>
+    <span class="chip">Category: <b><%= category %></b> <a href="/listings?q=<%= query || '' %>&sort=<%= sort || '' %>&minPrice=<%= minPrice || '' %>&maxPrice=<%= maxPrice || '' %>&guests=<%= guests || '' %>"><i class="fa fa-times"></i></a></span>
+  <% } %>
+  <% if (minPrice) { %>
+    <span class="chip">Min: ₹<b><%= Number(minPrice).toLocaleString('en-IN') %></b> <a href="/listings?q=<%= query || '' %>&sort=<%= sort || '' %>&category=<%= category || '' %>&maxPrice=<%= maxPrice || '' %>&guests=<%= guests || '' %>"><i class="fa fa-times"></i></a></span>
+  <% } %>
+  <% if (maxPrice) { %>
+    <span class="chip">Max: ₹<b><%= Number(maxPrice).toLocaleString('en-IN') %></b> <a href="/listings?q=<%= query || '' %>&sort=<%= sort || '' %>&category=<%= category || '' %>&minPrice=<%= minPrice || '' %>&guests=<%= guests || '' %>"><i class="fa fa-times"></i></a></span>
+  <% } %>
+  <% if (guests) { %>
+    <span class="chip">Guests: <b><%= guests %></b> <a href="/listings?q=<%= query || '' %>&sort=<%= sort || '' %>&category=<%= category || '' %>&minPrice=<%= minPrice || '' %>&maxPrice=<%= maxPrice || '' %>"><i class="fa fa-times"></i></a></span>
+  <% } %>
+  <% if (!query && !category && !minPrice && !maxPrice && !guests) { %>
+    <a class="btn btn-sm btn-outline-secondary" href="/listings">Reset filters</a>
+  <% } else { %>
+    <a class="btn btn-sm btn-outline-secondary" href="/listings">Clear all</a>
+  <% } %>
+  
+</div>
 <div id="filters">
-  <div class="filter">
+  <a class="filter text-decoration-none <%= category==='trending' ? 'fw-bold' : '' %>" href="/listings?category=trending&sort=<%= sort || '' %>&q=<%= query || '' %>&minPrice=<%= minPrice || '' %>&maxPrice=<%= maxPrice || '' %>">
     <div><i class=" fa-solid fa-fire"></i></div>
      <p>Trending</p> 
-  </div>
-  <div class="filter">
+  </a>
+  <a class="filter text-decoration-none <%= category==='rooms' ? 'fw-bold' : '' %>" href="/listings?category=rooms&sort=<%= sort || '' %>&q=<%= query || '' %>&minPrice=<%= minPrice || '' %>&maxPrice=<%= maxPrice || '' %>">
     <div><i class=" fa-solid fa-bed"></i></div>
      <p>Rooms</p> 
-  </div>
-  <div class="filter">
+  </a>
+  <a class="filter text-decoration-none <%= category==='iconic cities' ? 'fw-bold' : '' %>" href="/listings?category=iconic cities&sort=<%= sort || '' %>&q=<%= query || '' %>&minPrice=<%= minPrice || '' %>&maxPrice=<%= maxPrice || '' %>">
     <div><i class="fa-solid fa-mountain-city"></i></div>
      <p>Iconic cities</p> 
-  </div>
-  <div class="filter">
+  </a>
+  <a class="filter text-decoration-none <%= category==='mountains' ? 'fw-bold' : '' %>" href="/listings?category=mountains&sort=<%= sort || '' %>&q=<%= query || '' %>&minPrice=<%= minPrice || '' %>&maxPrice=<%= maxPrice || '' %>">
     <div><i class=" fa-solid fa-mountain"></i></div>
      <p>Mountains</p> 
-  </div>
-  <div class="filter">
+  </a>
+  <a class="filter text-decoration-none <%= category==='castles' ? 'fw-bold' : '' %>" href="/listings?category=castles&sort=<%= sort || '' %>&q=<%= query || '' %>&minPrice=<%= minPrice || '' %>&maxPrice=<%= maxPrice || '' %>">
     <div><i class=" fa-brands fa-fort-awesome"></i></div>
      <p>Castles</p> 
-  </div>
-  <div class="filter">
+  </a>
+  <a class="filter text-decoration-none <%= category==='pools' ? 'fw-bold' : '' %>" href="/listings?category=pools&sort=<%= sort || '' %>&q=<%= query || '' %>&minPrice=<%= minPrice || '' %>&maxPrice=<%= maxPrice || '' %>">
     <div><i class=" fa-solid fa-person-swimming"></i></div>
      <p>Amazing Pools</p> 
-  </div>
-  <div class="filter">
+  </a>
+  <a class="filter text-decoration-none <%= category==='camping' ? 'fw-bold' : '' %>" href="/listings?category=camping&sort=<%= sort || '' %>&q=<%= query || '' %>&minPrice=<%= minPrice || '' %>&maxPrice=<%= maxPrice || '' %>">
     <div><i class=" fa-solid fa-campground"></i></div>
      <p>Camping</p> 
-  </div>
-  <div class="filter">
+  </a>
+  <a class="filter text-decoration-none <%= category==='farms' ? 'fw-bold' : '' %>" href="/listings?category=farms&sort=<%= sort || '' %>&q=<%= query || '' %>&minPrice=<%= minPrice || '' %>&maxPrice=<%= maxPrice || '' %>">
     <div><i class=" fa-solid fa-cow"></i></div>
      <p>Farms</p> 
-  </div>
-  <div class="filter">
+  </a>
+  <a class="filter text-decoration-none <%= category==='arctic' ? 'fw-bold' : '' %>" href="/listings?category=arctic&sort=<%= sort || '' %>&q=<%= query || '' %>&minPrice=<%= minPrice || '' %>&maxPrice=<%= maxPrice || '' %>">
     <div><i class=" fa-regular fa-snowflake"></i></div>
      <p>Arctic</p> 
-  </div>
-  <div class="filter">
+  </a>
+  <a class="filter text-decoration-none <%= category==='domes' ? 'fw-bold' : '' %>" href="/listings?category=domes&sort=<%= sort || '' %>&q=<%= query || '' %>&minPrice=<%= minPrice || '' %>&maxPrice=<%= maxPrice || '' %>">
     <div><i class=" fa-solid fa-igloo"></i></div>
      <p>Domes</p> 
-  </div>
-  <div class="filter">
+  </a>
+  <a class="filter text-decoration-none <%= category==='boats' ? 'fw-bold' : '' %>" href="/listings?category=boats&sort=<%= sort || '' %>&q=<%= query || '' %>&minPrice=<%= minPrice || '' %>&maxPrice=<%= maxPrice || '' %>">
     <div><i class=" fa-solid fa-ship"></i></div>
      <p>Boats</p> 
-  </div>
+  </a>
 
   <div class="tax-toggle">
   <div class="form-check-reverse form-switch">
@@ -93,8 +183,35 @@
 </div>
 </div>
 </div>    
+<h4 class="mt-4">Today's Trending</h4>
+<div class="row row-cols-lg-3 row-cols-md-3 row-cols-sm-1 mt-2">
+  <% if (typeof trendingListings !== 'undefined' && trendingListings.length > 0) { %>
+    <% for (let t of trendingListings) { %>
+      <a href="/listings/<%= t._id %>" class="listing-link">
+<div class="card col listing-card">
+  <img src="<%= t.image.url %>" class="card-img-top" alt="listing_image" style="height:20rem"/>
+  <div class="card-img-overlay"></div>
+
+  <div class="card-body">
+    <p class="card-text">
+       <b><%= t.title %> </b></br>
+     <%= t.price ? Number(t.price).toLocaleString("en-IN") : "Price not available" %> / night
+     <span class="badge bg-danger ms-2">Trending</span>
+    </p>
+  </div>
+</div>
+</a>
+    <% } %>
+  <% } else { %>
+    <div class="col-12 text-muted">No trending listings right now.</div>
+  <% } %>
+</div>
+
 <div class="row row-cols-lg-3 row-cols-md-3 row-cols-sm-1 mt-3">
-    <% for (let listing of allListings) {%>
+    <% if (allListings.length === 0) { %>
+      <div class="col-12 text-center text-muted py-5">No listings match your filters.</div>
+    <% } %>
+    <% for (let listing of allListings) { %>
       <a href="/listings/<%= listing._id %>" class="listing-link">
 <div class="card col listing-card">
   <img src="<%= listing.image.url %>" class="card-img-top" alt="listing_image" style="height:20rem"/>
@@ -102,10 +219,12 @@
 
   <div class="card-body">
     <p class="card-text">
-       <b><%= listing.title %> </b></br>
-     
-     <%= listing.price ? Number(listing.price).toLocaleString("en-IN") : "Price not available" %> / night
-     <i class="tax-info"> &nbsp; &nbsp;+18% GST</i>
+       <b><%= listing.title %></b><br/>
+       <span class="price-badge">₹<%= listing.price ? Number(listing.price).toLocaleString("en-IN") : "N/A" %> / night</span>
+       <% if (listing.location) { %>
+         <span class="location-badge ms-2"><i class="fa fa-location-dot"></i> <%= listing.location %></span>
+       <% } %>
+       <i class="tax-info"> &nbsp; &nbsp;+18% GST</i>
     </p>
   </div>
 </div>

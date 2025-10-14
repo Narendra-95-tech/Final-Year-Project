@@ -1,13 +1,88 @@
 const Listing = require("../models/listing");
+const Booking = require("../models/booking");
 const mbxGeocoding = require('@mapbox/mapbox-sdk/services/geocoding');
 const mapToken = process.env.MAP_TOKEN;
 const geocodingClient = mbxGeocoding({ accessToken: mapToken });
 
 
-module.exports.index =async (req, res) => {
-    const allListings =await Listing.find({});
-    res.render("listings/index", {allListings});
+module.exports.index = async (req, res) => {
+    const { q, minPrice, maxPrice, sort, category, startDate, endDate, guests } = req.query;
 
+    const filter = {};
+
+    if (q && q.trim().length > 0) {
+        const regex = new RegExp(q.trim(), "i");
+        filter.$or = [
+            { title: regex },
+            { location: regex },
+            { country: regex },
+            { description: regex }
+        ];
+    }
+
+    if (minPrice || maxPrice) {
+        filter.price = {};
+        if (minPrice) filter.price.$gte = Number(minPrice);
+        if (maxPrice) filter.price.$lte = Number(maxPrice);
+    }
+
+    const sortMap = {
+        price_asc: { price: 1 },
+        price_desc: { price: -1 },
+        newest: { _id: -1 },
+    };
+
+    const sortOption = sortMap[sort] || {};
+
+    // Category filter: rely on tags in description/title/location/country keywords for now
+    if (category && category.trim()) {
+        const cat = category.trim().toLowerCase();
+        const catRegex = new RegExp(cat.replace(/[-_\s]+/g, ".*"), "i");
+        filter.$or = (filter.$or || []).concat([
+            { title: catRegex },
+            { description: catRegex },
+            { location: catRegex },
+            { country: catRegex }
+        ]);
+    }
+
+    // Availability filter: exclude listings with overlapping bookings
+    if (startDate && endDate) {
+        const start = new Date(startDate);
+        const end = new Date(endDate);
+        if (!isNaN(start) && !isNaN(end) && end > start) {
+            const overlappingBookings = await Booking.find({
+                $or: [
+                    { startDate: { $lte: end } },
+                    { endDate: { $gte: start } }
+                ]
+            }).select("listing");
+            const excludedListingIds = overlappingBookings.map(b => b.listing);
+            if (excludedListingIds.length > 0) {
+                filter._id = { $nin: excludedListingIds };
+            }
+        }
+    }
+
+    const allListings = await Listing.find(filter).sort(sortOption);
+
+    // Compute a simple trending list: highest price items today
+    const trendingListings = await Listing.find({})
+        .sort({ price: -1 })
+        .limit(6);
+
+    res.render("listings/index", {
+        allListings,
+        trendingListings,
+        query: q || "",
+        sort: sort || "",
+        minPrice: minPrice || "",
+        maxPrice: maxPrice || "",
+        category: category || "",
+        startDate: startDate || "",
+        endDate: endDate || "",
+        guests: guests || ""
+    });
 };
 
 

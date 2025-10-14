@@ -86,6 +86,15 @@ app.use((req, res, next) => {
   res.locals.currUser = req.user || null;
   res.locals.success = req.flash("success");
   res.locals.error = req.flash("error");
+  // Defaults for navbar search controls so includes don't throw on undefined
+  res.locals.query = typeof req.query.q === "string" ? req.query.q : "";
+  res.locals.sort = typeof req.query.sort === "string" ? req.query.sort : "";
+  res.locals.minPrice = typeof req.query.minPrice === "string" ? req.query.minPrice : "";
+  res.locals.maxPrice = typeof req.query.maxPrice === "string" ? req.query.maxPrice : "";
+  res.locals.category = typeof req.query.category === "string" ? req.query.category : "";
+  res.locals.startDate = typeof req.query.startDate === "string" ? req.query.startDate : "";
+  res.locals.endDate = typeof req.query.endDate === "string" ? req.query.endDate : "";
+  res.locals.guests = typeof req.query.guests === "string" ? req.query.guests : "";
   next();
 });
 
