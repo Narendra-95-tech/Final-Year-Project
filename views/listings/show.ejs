@@ -1,52 +1,145 @@
 <% layout("/layouts/boilerplate") -%>
+
 <body>
-  <script>
-    const mapToken = "<%= process.env.MAP_TOKEN %>"
-    const listing = <%- JSON.stringify(listing) %>;
-    
+  <!-- Mapbox CSS -->
+  <link href="https://api.mapbox.com/mapbox-gl-js/v2.20.0/mapbox-gl.css" rel="stylesheet" />
+
+  <script type="application/json" id="listing-data">
+    <%- JSON.stringify(listing) %>
   </script>
-  
-    <div class="row mt-3">
-        <div class="col-8 offset-3">
+  <script>
+    const mapToken = "<%= process.env.MAP_TOKEN %>";
+    const listing = JSON.parse(document.getElementById('listing-data').textContent);
+  </script>
 
-      
-    <h3><%=listing.title%></h3>
+  <!-- Listing Title -->
+  <div class="row mt-3 justify-content-center">
+    <div class="col-md-8 text-center">
+      <h3><%= listing.title %></h3>
     </div>
-   <div class="card col-6 offset-3 show-card listing-card">
+  </div>
+
+  <!-- Listing Card -->
+  <div class="row justify-content-center mb-4">
+    <div class="col-md-6">
+      <div class="card listing-card">
         <img src="<%= listing.image.url %>" class="card-img-top show-img" alt="listing_image">
-       <div class="card-body">
-    <h5 class="card-title">Card title</h5>
-    <p class="card-text"> <i>Owned by <%= listing.owner.username %></i></p>
-        
-        <p class="card-text"> <%= listing.description %> </p>
-        <p class="card-text"> &#8377;<%= listing.price.toLocaleString("en-IN") %> </p>
-        <p class="card-text"><%= listing.location %></p>
-        <p class="card-text"><%= listing.country %> </p>
+        <div class="card-body">
+          <p class="card-text"><i>Owned by <%= listing.owner.username %></i></p>
+          <p class="card-text"><%= listing.description %></p>
+          <p class="card-text">&#8377;<%= listing.price.toLocaleString("en-IN") %></p>
+          <p class="card-text"><%= listing.location %></p>
+          <p class="card-text"><%= listing.country %></p>
+        </div>
+      </div>
     </div>
+  </div>
+
+  <!-- Owner: Manage Listing Card -->
+  <% if(currUser && listing.owner._id.equals(currUser._id)) { %>
+    <div class="row justify-content-center mb-4">
+      <div class="col-md-6">
+        <div class="card shadow-sm p-2 compact-card">
+          <div class="d-flex justify-content-between align-items-center">
+            <h6 class="mb-0">Manage Listing</h6>
+            <div>
+              <a href="/listings/<%= listing._id %>/edit" class="btn btn-sm btn-dark me-1">Edit</a>
+              <form method="POST" action="/listings/<%= listing._id %>?_method=DELETE" class="d-inline">
+                <button class="btn btn-sm btn-danger">Delete</button>
+              </form>
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
+  <% } %>
 
-    <br>
-    <% if(currUser && listing.owner._id.equals(currUser._id)) { %>
-    <div class="btns">
-        <a href="/listings/<%=listing._id %>/edit" class="btn btn-dark col-1 offset-3 edit-btn">Edit</a>
-        <form method="POST" action="/listings/<%=listing._id%>?_method=DELETE" >
-        <button class="btn btn-dark  offset-5">Delete</button>
-    </form>
+  <!-- Booking Form -->
+  <% if(currUser && !listing.owner._id.equals(currUser._id)) { %>
+  <div class="row mb-4">
+    <div class="col-12 col-md-6 offset-md-3">
+      <div class="card shadow-sm p-3 compact-card">
+        <h6 class="mb-2">Book This Listing</h6>
+        <form id="booking-form">
+          <div class="mb-2">
+            <label for="startDate" class="form-label small-label">Check-in</label>
+            <input type="date" id="startDate" class="form-control form-control-sm" required>
+          </div>
+          <div class="mb-2">
+            <label for="endDate" class="form-label small-label">Check-out</label>
+            <input type="date" id="endDate" class="form-control form-control-sm" required>
+          </div>
+          <div class="mb-2">
+            <label for="totalPrice" class="form-label small-label">Total (₹)</label>
+            <input type="text" id="totalPrice" class="form-control form-control-sm" readonly value="<%= listing.price %>">
+          </div>
+          <button type="submit" class="btn btn-success btn-sm w-100">Book Now</button>
+        </form>
+      </div>
     </div>
-    <% } %>
+  </div>
+  <% } %>
 
+  <script>
+    const bookingForm = document.getElementById("booking-form");
+    const startDateInput = document.getElementById("startDate");
+    const endDateInput = document.getElementById("endDate");
+    const totalPriceInput = document.getElementById("totalPrice");
+    const pricePerNight = listing.price;
 
-  
-  <div class="col-8 offset-3 mb-3 ">
-    
-     <% if(currUser) { %>
-      <hr> 
-    <h4>Leave a review</h4>
-    <form action="/listings/<%= listing._id %>/reviews" method="POST" novalidate class="needs-validation">
-        
+    function updateTotalPrice() {
+      const startDate = new Date(startDateInput.value);
+      const endDate = new Date(endDateInput.value);
+      if (startDate && endDate && endDate > startDate) {
+        const nights = Math.ceil((endDate - startDate) / (1000 * 60 * 60 * 24));
+        totalPriceInput.value = (nights * pricePerNight).toLocaleString("en-IN");
+      } else {
+        totalPriceInput.value = pricePerNight.toLocaleString("en-IN");
+      }
+    }
+
+    if(startDateInput && endDateInput){
+      startDateInput.addEventListener("change", updateTotalPrice);
+      endDateInput.addEventListener("change", updateTotalPrice);
+    }
+
+    if (bookingForm) {
+      bookingForm.addEventListener("submit", async (e) => {
+        e.preventDefault();
+        const startDate = startDateInput.value;
+        const endDate = endDateInput.value;
+        if (!startDate || !endDate || new Date(endDate) <= new Date(startDate)) {
+          alert("Please select valid dates!");
+          return;
+        }
+
+        try {
+          const res = await fetch(`/bookings/${listing._id}/book`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ startDate, endDate }),
+            credentials: "same-origin"
+          });
+          const data = await res.json();
+          if(data.error){ alert(data.error); return; }
+          window.location.href = data.sessionUrl;
+        } catch(err){
+          console.error(err);
+          alert("Something went wrong!");
+        }
+      });
+    }
+  </script>
+
+  <!-- Reviews Section -->
+  <div class="col-8 offset-3 mb-3">
+    <% if(currUser) { %>
+      <hr>
+      <h4>Leave a review</h4>
+      <form action="/listings/<%= listing._id %>/reviews" method="POST" novalidate class="needs-validation">
         <div class="mb-3 mt-3">
-        <label for="rating" class="form-label">Rating</label>
-        <fieldset class="starability-slot">
+          <label for="rating" class="form-label">Rating</label>
+          <fieldset class="starability-slot">
             <input type="radio" id="no-rate" class="input-no-rate" name="review[rating]" value="1" checked aria-label="No rating." />
             <input type="radio" id="first-rate1" name="review[rating]" value="1" />
             <label for="first-rate1" title="Terrible">1 star</label>
@@ -58,46 +151,210 @@
             <label for="first-rate4" title="Very good">4 stars</label>
             <input type="radio" id="first-rate5" name="review[rating]" value="5" />
             <label for="first-rate5" title="Amazing">5 stars</label>
-        </fieldset>
+          </fieldset>
         </div>
         <div class="mb-3 mt-3">
-          <label for="comment" class="form-label">Comments</label>  
+          <label for="comment" class="form-label">Comments</label>
           <textarea name="review[comment]" id="comment" cols="30" rows="5" class="form-control" required></textarea>
-          <div class="invalid-feedback">
-            Please add some comments for review
-          </div>
+          <div class="invalid-feedback">Please add some comments for review</div>
         </div>
         <button class="btn btn-outline-dark">Submit</button>
-    </form>
-     <hr>
+      </form>
+      <hr>
     <% } %>
-    
-    
-  
-    <% if(listing.reviews.length > 0) { %>
-    <div class="row">
-      <p><b>All Reviews</b></p>
-        <% for(review of listing.reviews) { %>
-         <div class="card col-5 mb-3 ms-3">
-          <div class="card-body">
-            <h5 class="card-title">@<%= review.author.username %></h5>
-            <p class="starability-result card-text" data-rating="<%= review.rating%>"></p>
-            <p class="card-text"><%= review.comment%></p>
-          </div>
-          <form class="mb-3" method="POST" action="/listings/<%=listing._id %>/reviews/<%= review._id %>?_method=DELETE">
-            <button class="btn btn-sm btn-dark">Delete</button>
-          </form>
-        </div>
-        <% } %>
-        </div>
-       <% } %>
-      </div>
-        <div class="col-6 offset-3 mb-3 ">
-          <h3>Where you'll be</h3>
-          <div id="map"></div>
-        </div>
-        
-    </div>
 
-   <script src="/js/map.js"></script>
-  </body>
+    <% if(listing.reviews.length > 0) { %>
+      <div class="row">
+        <p><b>All Reviews</b></p>
+        <% for(review of listing.reviews) { %>
+          <div class="card col-5 mb-3 ms-3">
+            <div class="card-body">
+              <h5 class="card-title">@<%= review.author.username %></h5>
+              <p class="starability-result card-text" data-rating="<%= review.rating%>"></p>
+              <p class="card-text"><%= review.comment %></p>
+            </div>
+            <form class="mb-3" method="POST" action="/listings/<%=listing._id %>/reviews/<%= review._id %>?_method=DELETE">
+              <button class="btn btn-sm btn-dark">Delete</button>
+            </form>
+          </div>
+        <% } %>
+      </div>
+    <% } %>
+  </div>
+
+  <!-- Map Section -->
+  <div class="col-6 offset-3 mb-3">
+    <h3>Where you'll be</h3>
+    <div id="map" style="height:400px;border-radius:15px;"></div>
+  </div>
+
+<!-- Mapbox CSS -->
+<link href="https://api.mapbox.com/mapbox-gl-js/v2.20.0/mapbox-gl.css" rel="stylesheet" />
+
+<!-- Mapbox JS -->
+<script src="https://api.mapbox.com/mapbox-gl-js/v2.20.0/mapbox-gl.js"></script>
+
+<!-- Transport Mode Selection -->
+<div class="text-center mb-2">
+  <label for="transport-mode" class="fw-bold">Select Transport:</label>
+  <select id="transport-mode" class="form-select form-select-sm d-inline w-auto">
+    <option value="driving" data-icon="https://cdn-icons-png.flaticon.com/512/743/743920.png">Car</option>
+    <option value="walking" data-icon="https://cdn-icons-png.flaticon.com/512/892/892781.png">Walking</option>
+    <option value="cycling" data-icon="https://cdn-icons-png.flaticon.com/512/194/194938.png">Cycling</option>
+    <option value="bus" data-icon="https://cdn-icons-png.flaticon.com/512/61/61088.png">Bus</option>
+  </select>
+</div>
+
+<!-- Distance & ETA Info -->
+<div class="text-center mb-2">
+  <span id="route-info" class="fw-bold"></span>
+</div>
+
+<!-- Refresh Location Button -->
+<div class="text-center mb-3">
+  <button id="refresh-location" class="btn btn-primary btn-sm">Refresh My Location</button>
+</div>
+
+<!-- Map Container -->
+<div id="map" style="height: 400px; border-radius: 15px;"></div>
+
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+  const listingCoords = listing.geometry.coordinates;
+  if (!listingCoords || listingCoords.length !== 2) {
+    document.getElementById("map").innerHTML = "<p class='text-center mt-3'>Map location not available</p>";
+    return;
+  }
+
+  // FIXED user location for Bharaj Bk, Maharashtra
+  const userLat = 19.85;  // replace with actual latitude of Bharaj Bk
+  const userLng = 75.93;  // replace with actual longitude of Bharaj Bk
+
+  mapboxgl.accessToken = mapToken;
+  const map = new mapboxgl.Map({
+    container: "map",
+    style: "mapbox://styles/mapbox/streets-v12",
+    center: listingCoords,
+    zoom: 12
+  });
+
+  // Listing marker
+  new mapboxgl.Marker({ color: "red" }).setLngLat(listingCoords).addTo(map);
+
+  let userMarker, vehicleMarker, animationFrameId;
+
+  function calculateBearing(lng1, lat1, lng2, lat2) {
+    const toRad = deg => deg * Math.PI / 180;
+    const toDeg = rad => rad * 180 / Math.PI;
+    const φ1 = toRad(lat1), φ2 = toRad(lat2);
+    const Δλ = toRad(lng2 - lng1);
+    const y = Math.sin(Δλ) * Math.cos(φ2);
+    const x = Math.cos(φ1)*Math.sin(φ2) - Math.sin(φ1)*Math.cos(φ2)*Math.cos(Δλ);
+    return (toDeg(Math.atan2(y,x)) + 360) % 360;
+  }
+
+  function formatETA(minutes){
+    const h = Math.floor(minutes/60);
+    const m = minutes % 60;
+    return h>0 ? `${h} h ${m} min` : `${m} min`;
+  }
+
+  async function showRoute() {
+    const transportSelect = document.getElementById("transport-mode");
+    const transportMode = transportSelect.value;
+    const iconUrl = transportSelect.selectedOptions[0].dataset.icon;
+
+    // User marker
+    if(userMarker) userMarker.remove();
+    userMarker = new mapboxgl.Marker({ color: "blue" }).setLngLat([userLng,userLat]).addTo(map);
+
+    // Vehicle marker
+    if(vehicleMarker) vehicleMarker.remove();
+    const el = document.createElement("div");
+    el.style.width="32px";
+    el.style.height="32px";
+    el.style.backgroundImage=`url('${iconUrl}')`;
+    el.style.backgroundSize="contain";
+    el.style.backgroundRepeat="no-repeat";
+    el.style.transformOrigin="center";
+    vehicleMarker = new mapboxgl.Marker(el).setLngLat([userLng,userLat]).addTo(map);
+
+    // Directions API
+    const url = `https://api.mapbox.com/directions/v5/mapbox/${transportMode}/${userLng},${userLat};${listingCoords[0]},${listingCoords[1]}?geometries=geojson&access_token=${mapToken}`;
+    try {
+      const res = await fetch(url);
+      const data = await res.json();
+      if (!data.routes || data.routes.length === 0) {
+        document.getElementById("route-info").textContent = "Route not found";
+        return;
+      }
+
+      const route = data.routes[0].geometry;
+      const distanceKm = (data.routes[0].distance / 1000).toFixed(1);
+      const durationMin = Math.round(data.routes[0].duration / 60);
+      document.getElementById("route-info").textContent = `Distance: ${distanceKm} km | ETA: ${formatETA(durationMin)}`;
+
+      // Draw route
+      if (map.getLayer("route-line")) { map.removeLayer("route-line"); map.removeSource("route"); }
+      map.addSource("route", { type:"geojson", data: { type:"Feature", geometry:{type:"LineString", coordinates:[]}} });
+      map.addLayer({ id:"route-line", type:"line", source:"route", layout:{"line-join":"round","line-cap":"round"}, paint:{"line-width":4,"line-color":"#007bff"} });
+
+      const coordsArray = route.coordinates;
+      let segmentIndex = 0, progress = 0;
+      const speedMap = { driving:0.003, walking:0.001, cycling:0.0015, bus:0.003 };
+      const speed = speedMap[transportMode] || 0.002;
+
+      function animate(){
+        if(segmentIndex >= coordsArray.length-1) return;
+        const [lng1, lat1] = coordsArray[segmentIndex];
+        const [lng2, lat2] = coordsArray[segmentIndex+1];
+        const currentLng = lng1 + (lng2-lng1)*progress;
+        const currentLat = lat1 + (lat2-lat1)*progress;
+
+        vehicleMarker.setLngLat([currentLng,currentLat]);
+        vehicleMarker.getElement().style.transform = `rotate(${calculateBearing(lng1,lat1,lng2,lat2)}deg)`;
+
+        // Update line up to vehicle tip
+        map.getSource("route").setData({
+          type: "Feature",
+          geometry: { type: "LineString", coordinates: coordsArray.slice(0, segmentIndex+1).concat([[currentLng,currentLat]]) }
+        });
+
+        progress += speed;
+        if(progress >= 1){ progress=0; segmentIndex++; }
+        animationFrameId = requestAnimationFrame(animate);
+      }
+      animate();
+
+      // Fit map bounds
+      const bounds = new mapboxgl.LngLatBounds();
+      bounds.extend([userLng,userLat]); bounds.extend(listingCoords);
+      map.fitBounds(bounds,{padding:50});
+
+    } catch(err){
+      console.error(err);
+      document.getElementById("route-info").textContent="Error fetching route";
+    }
+  }
+
+  showRoute();
+
+  document.getElementById("refresh-location").addEventListener("click", ()=>{
+    if(animationFrameId) cancelAnimationFrame(animationFrameId);
+    showRoute();
+  });
+
+  document.getElementById("transport-mode").addEventListener("change", ()=>{
+    if(animationFrameId) cancelAnimationFrame(animationFrameId);
+    showRoute();
+  });
+});
+</script>
+
+
+
+
+</body>
+
+
+

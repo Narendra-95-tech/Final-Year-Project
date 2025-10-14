@@ -1,0 +1,21 @@
+<% if(bookings.length === 0) { %>
+  <p>No bookings yet.</p>
+<% } else { %>
+  <% bookings.forEach(booking => { %>
+    <div class="card mb-3">
+      <div class="card-body">
+        <h5><%= booking.listing.title %></h5>
+        <p>Check-in: <%= booking.startDate.toDateString() %></p>
+        <p>Check-out: <%= booking.endDate.toDateString() %></p>
+        <p>Total: ₹<%= booking.totalPrice %></p>
+        <p>Status: 
+          <% if(booking.isPaid){ %>
+            <span class="text-success">Paid</span>
+          <% } else { %>
+            <span class="text-danger">Pending Payment</span>
+          <% } %>
+        </p>
+      </div>
+    </div>
+  <% }) %>
+<% } %>

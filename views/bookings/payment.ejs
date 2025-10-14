@@ -1,0 +1,21 @@
+<% layout("/layouts/boilerplate") -%>
+
+<body>
+  <div class="container mt-4">
+    <h2 class="mb-4">Payment for <%= booking.listing.title %></h2>
+
+    <div class="card p-3">
+      <p>Check-in: <%= booking.startDate.toDateString() %></p>
+      <p>Check-out: <%= booking.endDate.toDateString() %></p>
+      <p>Guests: <%= booking.guests %></p>
+      <h4>Total: ₹<%= booking.totalPrice.toLocaleString("en-IN") %></h4>
+
+      <form action="/bookings/<%= booking._id %>/pay" method="POST">
+        <button type="submit" class="btn btn-success w-100">Pay with Card</button>
+      </form>
+    </div>
+  </div>
+
+  <!-- Optional: Stripe JS (if you want client-side checkout in future) -->
+  <script src="https://js.stripe.com/v3/"></script>
+</body>
