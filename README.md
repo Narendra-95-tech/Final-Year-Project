@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 # WanderLust - Complete Travel Platform
 
 A comprehensive travel platform that combines vacation rentals, vehicle rentals, and local dhaba (restaurant) listings in one seamless experience.
@@ -276,3 +277,7 @@ For support and questions:
 ---
 
 **WanderLust** - Your complete travel companion! 🏖️🚗🍽️
+=======
+# Full-Project
+This My First Project
+>>>>>>> 1e071d2d7663b48f93775652bdb0ffcfaad76660
