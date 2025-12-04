@@ -1,0 +1,48 @@
+const express = require("express");
+const router = express.Router();
+const multer = require("multer");
+const { storage } = require("../cloudConfig.js");
+const upload = multer({ storage });
+
+const wrapAsync = require("../utils/wrapAsync");
+const dhabaController = require("../controllers/dhabas_simple");
+const { isLoggedIn, isOwner, validateDhaba, normalizeDhabaForm } = require("../middleware");
+
+// ============================
+// DHABA ROUTES
+// ============================
+
+// GET all dhabas or POST new dhaba
+router
+  .route("/")
+  .get(wrapAsync(dhabaController.index))
+  .post(
+    isLoggedIn,
+    upload.single("dhaba[image]"),
+    normalizeDhabaForm,
+    validateDhaba,
+    wrapAsync(dhabaController.createDhaba)
+  );
+
+// New Dhaba Form
+router.get("/new", isLoggedIn, dhabaController.renderNewForm);
+
+// ============================
+// SINGLE DHABA ROUTES
+// ============================
+router
+  .route("/:id")
+  .get(wrapAsync(dhabaController.showDhaba))
+  .put(
+    isLoggedIn,
+    isOwner,
+    upload.single("dhaba[image]"),
+    validateDhaba,
+    wrapAsync(dhabaController.updateDhaba)
+  )
+  .delete(isLoggedIn, isOwner, wrapAsync(dhabaController.destroyDhaba));
+
+// Edit Form
+router.get("/:id/edit", isLoggedIn, isOwner, wrapAsync(dhabaController.renderEditForm));
+
+module.exports = router;

@@ -1,0 +1,532 @@
+<section class="feature-section mb-5" aria-labelledby="feature-section-<%= title.toLowerCase().replace(/\s+/g, '-') %>">
+  <div class="container">
+    <h2 id="feature-section-<%= title.toLowerCase().replace(/\s+/g, '-') %>" class="text-center mb-5 position-relative">
+      <span class="section-title" tabindex="-1">
+        <i class="<%= icon %> me-2" aria-hidden="true"></i>
+        <%= title %>
+        <span class="visually-hidden">features</span>
+      </span>
+    </h2>
+    <div class="row g-4" role="list">
+      <% features.forEach((feature, index) => { %>
+        <div class="col-xxl-3 col-lg-4 col-md-6 col-sm-6" role="listitem">
+          <article class="feature-card h-100" 
+               data-bs-toggle="tooltip" 
+               data-bs-placement="top" 
+               title="<%= feature.title %>: <%= feature.description %>"
+               data-aos="fade-up" 
+               data-aos-delay="<%= (index % 3) * 100 %>"
+               tabindex="0">
+            <div class="feature-icon" aria-hidden="true">
+              <i class="<%= feature.icon %>"></i>
+              <span class="pulse-dot"></span>
+            </div>
+            <h3 class="feature-title h5"><%= feature.title %></h3>
+            <p class="feature-desc mb-0"><%= feature.description %></p>
+            <% if (feature.moreInfo) { %>
+              <button class="btn btn-sm btn-link mt-2 p-0 feature-more" 
+                      type="button" 
+                      data-bs-toggle="collapse" 
+                      data-bs-target="#feature<%= index %>"
+                      aria-expanded="false"
+                      aria-controls="feature<%= index %>">
+                <span class="d-flex align-items-center">
+                  <span>More info</span>
+                  <i class="fas fa-chevron-down ms-1" aria-hidden="true"></i>
+                </span>
+              </button>
+              <div class="collapse mt-2" id="feature<%= index %>">
+                <div class="card card-body bg-light">
+                  <%= feature.moreInfo %>
+                </div>
+              </div>
+            <% } %>
+          </article>
+        </div>
+      <% }) %>
+    </div>
+  </div>
+</section>
+
+<style>
+:root {
+  --feature-bg: #ffffff;
+  --feature-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+  --feature-hover-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+  --primary-color: #0d6efd;
+  --primary-light: rgba(13, 110, 253, 0.1);
+  --border-gradient: linear-gradient(135deg, var(--primary-color), #6610f2);
+  --transition-base: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  --card-border-radius: 12px;
+  --card-padding: 1.75rem 1.5rem;
+  --min-tap-target: 44px;
+}
+
+.feature-section {
+  padding: 4rem 0;
+  background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+  position: relative;
+  overflow: hidden;
+  will-change: transform, opacity;
+  contain: content;
+  
+  /* Optimize for reduced motion */
+  @media (prefers-reduced-motion: reduce) {
+    * {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+      scroll-behavior: auto !important;
+    }
+  }
+}
+
+.section-title {
+  position: relative;
+  display: inline-block;
+  padding: 0 1rem;
+  background: linear-gradient(to right, var(--primary-color), #6610f2);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+}
+
+.section-title::before,
+.section-title::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  width: 30px;
+  height: 2px;
+  background: linear-gradient(90deg, var(--primary-color), transparent);
+}
+
+.section-title::before {
+  right: 100%;
+}
+
+.section-title::after {
+  left: 100%;
+  background: linear-gradient(-90deg, var(--primary-color), transparent);
+}
+
+.feature-card {
+  --border-width: 2px;
+  background: var(--feature-bg);
+  padding: var(--card-padding);
+  border-radius: var(--card-border-radius);
+  text-align: center;
+  transition: var(--transition-base);
+  height: 100%;
+  position: relative;
+  overflow: hidden;
+  z-index: 1;
+  will-change: transform, box-shadow;
+  min-height: 200px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  
+  /* Gradient Border Effect */
+  border: var(--border-width) solid transparent;
+  background-clip: padding-box;
+  background-origin: padding-box;
+  position: relative;
+  
+  &::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    border-radius: var(--card-border-radius);
+    padding: var(--border-width);
+    background: var(--border-gradient);
+    -webkit-mask: 
+      linear-gradient(#fff 0 0) content-box, 
+      linear-gradient(#fff 0 0);
+    -webkit-mask-composite: xor;
+    mask-composite: exclude;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+    pointer-events: none;
+  }
+  
+  &:hover::before,
+  &:focus-within::before,
+  &:focus-visible::before {
+    opacity: 1;
+  }
+
+.feature-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(135deg, rgba(13, 110, 253, 0.1) 0%, rgba(102, 16, 242, 0.05) 100%);
+  opacity: 0;
+  transition: opacity 0.3s ease;
+  z-index: -1;
+}
+
+.feature-card:hover {
+  transform: translateY(-8px);
+  box-shadow: var(--feature-hover-shadow);
+  border-color: rgba(13, 110, 253, 0.2);
+}
+
+.feature-card:hover::before {
+  opacity: 1;
+}
+
+.feature-icon {
+  font-size: 2.25rem;
+  color: var(--primary-color);
+  margin-bottom: 1.25rem;
+  position: relative;
+  display: inline-flex;
+  justify-content: center;
+  align-items: center;
+  width: 70px;
+  height: 70px;
+  background: var(--primary-light);
+  border-radius: 50%;
+  transition: all 0.3s ease;
+}
+
+.feature-card:hover .feature-icon {
+  transform: rotateY(180deg);
+  background: linear-gradient(135deg, var(--primary-color), #6610f2);
+  color: white;
+}
+
+.pulse-dot {
+  position: absolute;
+  width: 8px;
+  height: 8px;
+  background: #ff4d4d;
+  border-radius: 50%;
+  top: 5px;
+  right: 5px;
+  opacity: 0;
+  animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+  0% {
+    transform: scale(0.95);
+    box-shadow: 0 0 0 0 rgba(255, 82, 82, 0.7);
+  }
+  70% {
+    transform: scale(1);
+    box-shadow: 0 0 0 10px rgba(255, 82, 82, 0);
+  }
+  100% {
+    transform: scale(0.95);
+    box-shadow: 0 0 0 0 rgba(255, 82, 82, 0);
+  }
+}
+
+.feature-card:hover .pulse-dot {
+  opacity: 1;
+}
+
+.feature-title {
+  color: #2d3748;
+  margin-bottom: 0.75rem;
+  font-weight: 700;
+  font-size: 1.1rem;
+  position: relative;
+  display: inline-block;
+}
+
+.feature-title::after {
+  content: '';
+  position: absolute;
+  bottom: -5px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 40px;
+  height: 2px;
+  background: var(--primary-color);
+  transition: width 0.3s ease;
+}
+
+.feature-card:hover .feature-title::after {
+  width: 60px;
+}
+
+.feature-desc {
+  color: #4a5568;
+  font-size: 0.95rem;
+  line-height: 1.6;
+  margin-bottom: 0.5rem;
+  transition: color 0.3s ease;
+}
+
+.feature-more {
+  color: var(--primary-color);
+  text-decoration: none;
+  font-size: 0.85rem;
+  font-weight: 500;
+  transition: all 0.3s ease;
+}
+
+.feature-more:hover {
+  color: #0b5ed7;
+  text-decoration: underline;
+}
+
+.feature-more[aria-expanded="true"] .fa-chevron-down {
+  transform: rotate(180deg);
+}
+
+.feature-more .fa-chevron-down {
+  transition: transform 0.3s ease;
+  font-size: 0.7rem;
+}
+
+/* Dark mode support */
+[data-bs-theme="dark"] .feature-section {
+  background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+}
+
+[data-bs-theme="dark"] .feature-card {
+  background: #1e293b;
+  border-color: #2d3748;
+}
+
+[data-bs-theme="dark"] .feature-title {
+  color: #f8fafc;
+}
+
+[data-bs-theme="dark"] .feature-desc {
+  color: #cbd5e1;
+}
+
+/* Responsive adjustments */
+/* Responsive Adjustments */
+@media (max-width: 1399.98px) {
+  .feature-card {
+    min-height: 180px;
+  }
+}
+
+@media (max-width: 991.98px) {
+  .feature-section {
+    padding: 2.5rem 0;
+  }
+  
+  .feature-card {
+    padding: 1.5rem 1.25rem;
+    min-height: 160px;
+  }
+  
+  .section-title {
+    font-size: 1.75rem;
+  }
+}
+
+@media (max-width: 767.98px) {
+  .feature-section {
+    padding: 2rem 0;
+  }
+  
+  .feature-card {
+    min-height: auto;
+    padding: 1.5rem 1rem;
+  }
+  
+  .section-title {
+    font-size: 1.5rem;
+    
+    &::before,
+    &::after {
+      width: 20px;
+    }
+  }
+  
+  .feature-icon {
+    width: 60px;
+    height: 60px;
+    font-size: 1.5rem;
+  }
+}
+
+@media (max-width: 575.98px) {
+  .feature-section {
+    padding: 1.5rem 0;
+  }
+  
+  .section-title {
+    font-size: 1.4rem;
+    
+    &::before,
+    &::after {
+      width: 15px;
+    }
+  }
+  
+  .feature-card {
+    padding: 1.25rem 0.75rem;
+    min-height: 140px;
+  }
+  
+  .feature-title {
+    font-size: 1rem;
+  }
+  
+  .feature-desc {
+    font-size: 0.85rem;
+  }
+}
+
+@media (max-width: 767.98px) {
+  .section-title::before,
+  .section-title::after {
+    width: 20px;
+  }
+  
+  .feature-icon {
+    width: 60px;
+    height: 60px;
+    font-size: 1.75rem;
+  }
+}
+
+/* Animation */
+[data-aos] {
+  opacity: 0;
+  transition-property: opacity, transform;
+}
+
+[data-aos].aos-animate {
+  opacity: 1;
+  transform: translateZ(0);
+}
+
+[data-aos="fade-up"] {
+  transform: translateY(20px);
+}
+
+[data-aos="fade-up"].aos-animate {
+  transform: translateY(0);
+}
+</style>
+
+<script>
+// Wait for the DOM to be fully loaded
+document.addEventListener('DOMContentLoaded', function() {
+  // Initialize Bootstrap tooltips with accessibility enhancements
+  const tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
+  tooltipTriggerList.forEach(function (tooltipTriggerEl) {
+    // Skip if already initialized
+    if (tooltipTriggerEl._tooltip) return;
+    
+    new bootstrap.Tooltip(tooltipTriggerEl, {
+      trigger: 'hover focus',
+      customClass: 'feature-tooltip',
+      boundary: 'window',
+      delay: { show: 300, hide: 100 },
+      container: 'body',
+      html: true
+    });
+    
+    // Add keyboard support
+    tooltipTriggerEl.addEventListener('keydown', function(e) {
+      if (e.key === 'Enter' || e.key === ' ') {
+        e.preventDefault();
+        const tooltip = bootstrap.Tooltip.getInstance(tooltipTriggerEl);
+        if (tooltip) {
+          const isShown = tooltip._isShown();
+          if (isShown) {
+            tooltip.hide();
+          } else {
+            tooltip.show();
+          }
+        }
+      }
+    });
+  });
+
+  // Initialize AOS with performance optimizations
+  if (typeof AOS !== 'undefined') {
+    // Only initialize AOS if not in reduced motion mode
+    const mediaQuery = window.matchMedia('(prefers-reduced-motion: reduce)');
+    if (!mediaQuery || !mediaQuery.matches) {
+      AOS.init({
+        duration: 600,
+        once: true,
+        easing: 'ease-out-cubic',
+        disable: window.innerWidth < 768, // Disable on mobile for better performance
+        debounceDelay: 50,
+        throttleDelay: 99,
+        offset: 100,
+        delay: 0
+      });
+    }
+  }
+  
+  // Lazy load images in feature cards
+  if ('loading' in HTMLImageElement.prototype) {
+    // Native lazy loading is supported
+    const lazyImages = document.querySelectorAll('.feature-card img[loading="lazy"]');
+    lazyImages.forEach(img => {
+      img.src = img.dataset.src || '';
+      if (img.dataset.srcset) img.srcset = img.dataset.srcset;
+    });
+  } else {
+    // Fallback for browsers that don't support native lazy loading
+    const lazyLoad = function() {
+      const lazyImages = document.querySelectorAll('.feature-card img[loading="lazy"]');
+      
+      const imageObserver = new IntersectionObserver(function(entries, observer) {
+        entries.forEach(function(entry) {
+          if (entry.isIntersecting) {
+            const img = entry.target;
+            img.src = img.dataset.src || '';
+            if (img.dataset.srcset) img.srcset = img.dataset.srcset;
+            img.removeAttribute('data-src');
+            img.removeAttribute('data-srcset');
+            imageObserver.unobserve(img);
+          }
+        });
+      });
+
+      lazyImages.forEach(function(img) {
+        imageObserver.observe(img);
+      });
+    };
+
+    // Run after a short delay to avoid blocking the main thread
+    setTimeout(lazyLoad, 100);
+  }
+  
+  // Add touch feedback for mobile devices
+  const featureCards = document.querySelectorAll('.feature-card');
+  featureCards.forEach(card => {
+    // Add touch feedback
+    card.addEventListener('touchstart', function() {
+      this.classList.add('touch-active');
+    }, { passive: true });
+    
+    card.addEventListener('touchend', function() {
+      this.classList.remove('touch-active');
+    }, { passive: true });
+    
+    // Ensure proper focus states for keyboard navigation
+    card.addEventListener('focus', function() {
+      this.classList.add('keyboard-focus');
+    });
+    
+    card.addEventListener('blur', function() {
+      this.classList.remove('keyboard-focus');
+    });
+  });
+});
+</script>

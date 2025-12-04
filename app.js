@@ -1,5 +1,8 @@
 if (process.env.NODE_ENV !== "production") {
-  require("dotenv").config();
+  require("dotenv").config({
+    override: true,
+    processEnv: process.env
+  });
 }
 
 const express = require("express");
@@ -12,135 +15,395 @@ const MongoStore = require("connect-mongo");
 const flash = require("connect-flash");
 const passport = require("passport");
 const LocalStrategy = require("passport-local");
+const http = require('http');
+const socketIo = require('socket.io');
+const multer = require('multer');
 
 const ExpressError = require("./utils/ExpressError");
 const User = require("./models/user");
+const cors = require('cors');
 
 const listingRouter = require("./routes/listing");
+const vehicleRouter = require("./routes/vehicles");
+const dhabaRouter = require("./routes/dhabas");
 const reviewRouter = require("./routes/review");
 const userRouter = require("./routes/user");
 const bookingRoutes = require("./routes/bookings");
+const aiRoutes = require("./routes/ai");
+const socialRoutes = require("./routes/social");
+const socialInteractions = require("./routes/socialInteractions");
+const adminRoutes = require("./routes/admin");
+const tripPlannerRoutes = require("./routes/tripPlanner");
 
 // --------------------
-// MongoDB Connection
+// Database Connection
 // --------------------
 const dbUrl = process.env.ATLASDB_URL || "mongodb://127.0.0.1:27017/wanderlust";
-mongoose.connect(dbUrl, {
-  useNewUrlParser: true,
-  useUnifiedTopology: true
-})
-.then(() => console.log("Connected to MongoDB"))
-.catch(err => console.log("MongoDB connection error:", err));
+
+mongoose.connect(dbUrl);
+
+const db = mongoose.connection;
+db.on("error", console.error.bind(console, "connection error:"));
+db.once("open", () => {
+  console.log("Database connected");
+});
 
 // --------------------
 // Express Setup
 // --------------------
 const app = express();
+const server = http.createServer(app);
+const io = socketIo(server, {
+  cors: {
+    origin: process.env.CLIENT_URL || "http://localhost:3000",
+    methods: ["GET", "POST"],
+    credentials: true
+  }
+});
+
+// Socket.IO connection handling
+const connectedUsers = new Map();
+
+io.on('connection', (socket) => {
+  console.log('New client connected');
+  
+  // Handle user authentication and store socket with user ID
+  socket.on('authenticate', (userId) => {
+    if (userId) {
+      connectedUsers.set(userId.toString(), socket.id);
+      console.log(`User ${userId} connected with socket ${socket.id}`);
+    }
+  });
+
+  // Handle disconnection
+  socket.on('disconnect', () => {
+    // Remove user from connected users
+    for (const [userId, socketId] of connectedUsers.entries()) {
+      if (socketId === socket.id) {
+        connectedUsers.delete(userId);
+        console.log(`User ${userId} disconnected`);
+        break;
+      }
+    }
+  });
+
+  // Handle real-time notifications
+  socket.on('notification', async ({ userId, type, data }) => {
+    try {
+      // Emit to the specific user if online
+      const recipientSocketId = connectedUsers.get(userId.toString());
+      if (recipientSocketId) {
+        io.to(recipientSocketId).emit('newNotification', { type, data });
+      }
+    } catch (error) {
+      console.error('Error sending notification:', error);
+    }
+  });
+});
+
+// Make io accessible in routes
+app.set('io', io);
 
 app.engine("ejs", ejsMate);
 app.set("view engine", "ejs");
 app.set("views", path.join(__dirname, "views"));
 
-app.use(express.urlencoded({ extended: true }));
-app.use(express.json());
+// Serve static files from public directory
+app.use(express.static(path.join(__dirname, 'public'), {
+    setHeaders: (res, path) => {
+        // Set proper MIME types for specific file types if needed
+        if (path.endsWith('.css')) {
+            res.setHeader('Content-Type', 'text/css');
+        } else if (path.endsWith('.js')) {
+            res.setHeader('Content-Type', 'application/javascript');
+        } else if (path.endsWith('.ico')) {
+            res.setHeader('Content-Type', 'image/x-icon');
+        }
+    }
+}));
+
+// Configure CORS
+app.use(cors({
+    origin: process.env.CLIENT_URL || 'http://localhost:3000',
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+    allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With', 'X-CSRF-Token'],
+    credentials: true,
+    optionsSuccessStatus: 200 // Some legacy browsers choke on 204
+}));
+
+// Parse JSON and urlencoded request bodies
+app.use(express.json({ limit: '10mb' }));
+app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 app.use(methodOverride("_method"));
-app.use(express.static(path.join(__dirname, "public")));
+app.use('/uploads', express.static('uploads'));
 
 // --------------------
 // Session Configuration
 // --------------------
+const secret = process.env.SECRET || "thisshouldbeabettersecret";
+
 const store = MongoStore.create({
   mongoUrl: dbUrl,
-  crypto: { secret: process.env.SECRET || "thisshouldbeabettersecret" },
-  touchAfter: 24 * 3600
+  touchAfter: 24 * 60 * 60,
+  crypto: {
+    secret: process.env.SECRET || 'thisshouldbeabettersecret!'
+  }
 });
-store.on("error", e => console.log("SESSION STORE ERROR", e));
 
 const sessionConfig = {
   store,
-  secret: process.env.SECRET || "thisshouldbeabettersecret",
+  name: 'session',
+  secret: process.env.SECRET || 'thisshouldbeabettersecret!',
   resave: false,
   saveUninitialized: true,
   cookie: {
     httpOnly: true,
-    expires: Date.now() + 7*24*60*60*1000,
-    maxAge: 7*24*60*60*1000
-  }
+    // secure: true,
+    expires: Date.now() + 1000 * 60 * 60 * 24 * 7,
+    maxAge: 1000 * 60 * 60 * 24 * 7,
+  },
 };
+
 app.use(session(sessionConfig));
 app.use(flash());
 
 // --------------------
-// Passport Setup
+// Passport Configuration
 // --------------------
 app.use(passport.initialize());
 app.use(passport.session());
 passport.use(new LocalStrategy(User.authenticate()));
-passport.serializeUser(User.serializeUser());
-passport.deserializeUser(User.deserializeUser());
+
+passport.serializeUser((user, done) => {
+  done(null, user.id);
+});
+
+passport.deserializeUser(async (id, done) => {
+  try {
+    const user = await User.findById(id);
+    done(null, user);
+  } catch (error) {
+    done(error, null);
+  }
+});
 
 // --------------------
-// Middleware for locals
-// --------------------
+// Middleware
+// Make user and flash messages available in all templates
 app.use((req, res, next) => {
-  res.locals.currUser = req.user || null;
+  res.locals.currUser = req.user;  // For EJS templates using currUser
+  res.locals.currentUser = req.user; // For any components using currentUser
+  res.locals.success = req.flash('success');
+  res.locals.error = req.flash('error');
+  res.locals.currentPath = req.path;
+  next();
+});
+
+app.use(flash());
+
+app.use((req, res, next) => {
+  res.locals.currentUser = req.user;
   res.locals.success = req.flash("success");
   res.locals.error = req.flash("error");
-  // Defaults for navbar search controls so includes don't throw on undefined
-  res.locals.query = typeof req.query.q === "string" ? req.query.q : "";
-  res.locals.sort = typeof req.query.sort === "string" ? req.query.sort : "";
-  res.locals.minPrice = typeof req.query.minPrice === "string" ? req.query.minPrice : "";
-  res.locals.maxPrice = typeof req.query.maxPrice === "string" ? req.query.maxPrice : "";
-  res.locals.category = typeof req.query.category === "string" ? req.query.category : "";
-  res.locals.startDate = typeof req.query.startDate === "string" ? req.query.startDate : "";
-  res.locals.endDate = typeof req.query.endDate === "string" ? req.query.endDate : "";
-  res.locals.guests = typeof req.query.guests === "string" ? req.query.guests : "";
+  res.locals.isAdmin = req.user && req.user.role === 'admin';
   next();
 });
 
 // --------------------
 // Routes
 // --------------------
-app.use("/listings", listingRouter);
-app.use("/listings/:id/reviews", reviewRouter);
 app.use("/", userRouter);
+app.use("/listings", listingRouter);
+app.use("/vehicles", vehicleRouter);
+app.use("/dhabas", dhabaRouter);
+app.use("/listings/:id/reviews", reviewRouter);
+app.use("/vehicles/:id/reviews", reviewRouter);
+app.use("/dhabas/:id/reviews", reviewRouter);
+app.use("/admin", adminRoutes);
 app.use("/bookings", bookingRoutes);
+app.use("/ai", aiRoutes);
+app.use("/social", socialRoutes);
+app.use("/api/social", socialInteractions);
+app.use("/api/trip", tripPlannerRoutes);
 
-// Home route
-app.get("/", (req, res) => {
-  res.redirect("/listings");
+// Error handling middleware
+app.use((err, req, res, next) => {
+    console.error('Error stack:', err.stack);
+    console.error('Error details:', err);
+    
+    const statusCode = err.statusCode || 500;
+    const message = err.message || 'Internal Server Error';
+    
+    res.status(statusCode).json({
+        success: false,
+        error: process.env.NODE_ENV === 'development' ? err.stack : message
+    });
 });
 
-// --------------------
+// Trip planner page route
+app.get("/trip-planner", (req, res) => {
+    res.render("trip-planner", { 
+        title: "AI Trip Planner | WanderLust",
+        description: "Plan your perfect trip with our AI-powered trip planner. Get personalized travel itineraries, budget estimates, and local recommendations."
+    });
+});
+
+// Debug route to test if server is responding
+app.get('/test', (req, res) => {
+  res.send('Server is running!');
+});
+
+// Home route - render homepage directly
+app.get("/", async (req, res) => {
+  try {
+    const Listing = require("./models/listing");
+    const Vehicle = require("./models/vehicle");
+    const Dhaba = require("./models/dhaba");
+
+    // Get featured items from each section
+    const featuredListings = await Listing.find({}).sort({ _id: -1 }).limit(3);
+    const featuredVehicles = await Vehicle.find({}).sort({ _id: -1 }).limit(3);
+    const featuredDhabas = await Dhaba.find({}).sort({ _id: -1 }).limit(3);
+
+    res.render("home", {
+      featuredListings,
+      featuredVehicles,
+      featuredDhabas,
+      mapToken: process.env.MAP_TOKEN,
+    });
+  } catch (err) {
+    console.error(err);
+    res.status(500).send("Error loading homepage");
+  }
+});
+
+// Global Search Route
+app.get("/search", async (req, res) => {
+  const { q } = req.query;
+  if (!q) {
+    return res.redirect("/home");
+  }
+  
+  try {
+    const Listing = require("./models/listing");
+    const Vehicle = require("./models/vehicle");
+    const Dhaba = require("./models/dhaba");
+
+    const [listings, vehicles, dhabas] = await Promise.all([
+      Listing.find({ $text: { $search: q } }),
+      Vehicle.find({ $text: { $search: q } }),
+      Dhaba.find({ $text: { $search: q } }),
+    ]);
+
+    res.render("search", {
+      query: q,
+      listings,
+      vehicles,
+      dhabas,
+      mapToken: process.env.MAP_TOKEN,
+    });
+  } catch (error) {
+    console.error("Search error:", error);
+    req.flash("error", "Error performing search");
+    res.redirect("/home");
+  }
+});
+
+// Homepage with all sections
+app.get("/home", async (req, res) => {
+  try {
+    const Listing = require("./models/listing");
+    const Vehicle = require("./models/vehicle");
+    const Dhaba = require("./models/dhaba");
+
+    // Get featured items from each section
+    const featuredListings = await Listing.find({}).sort({ _id: -1 }).limit(3);
+    const featuredVehicles = await Vehicle.find({}).sort({ _id: -1 }).limit(3);
+    const featuredDhabas = await Dhaba.find({}).sort({ _id: -1 }).limit(3);
+
+    res.render("home", {
+      featuredListings,
+      featuredVehicles,
+      featuredDhabas,
+      mapToken: process.env.MAP_TOKEN,
+    });
+  } catch (err) {
+    console.error(err);
+    res.render("error", { message: "Error loading homepage" });
+  }
+});
+
 // 404 Handler
-// --------------------
-app.all("/", (req, res, next) => {
+app.use((req, res, next) => {
   next(new ExpressError(404, "Page Not Found"));
 });
 
-// --------------------
 // Error Handler
-// --------------------
 app.use((err, req, res, next) => {
-  const { statusCode = 500, message = "Something went wrong!" } = err;
-  res.status(statusCode).render("error", { message });
-});
-
-// --------------------
-// Start Server
-// --------------------
-const PORT = process.env.PORT || 8080;
-app.listen(PORT, () => {
-  console.log(`Server is running on port ${PORT}`);
-});
-
-// --------------------
-// Middleware: isLoggedIn
-// --------------------
-module.exports.isLoggedIn = (req, res, next) => {
-  if (!req.isAuthenticated || !req.isAuthenticated()) {
-    req.flash("error", "You must be logged in first!");
-    return res.redirect("/login");
+  console.error('Error:', err);
+  
+  // Handle file upload errors
+  if (err instanceof multer.MulterError) {
+    if (err.code === 'LIMIT_FILE_SIZE') {
+      req.flash('error', 'File too large. Maximum size is 10MB');
+      return res.redirect('back');
+    }
+    if (err.code === 'LIMIT_UNEXPECTED_FILE') {
+      req.flash('error', 'Too many files. Maximum 10 files allowed');
+      return res.redirect('back');
+    }
   }
-  next();
-};
+  
+  // Handle validation errors
+  if (err.name === 'ValidationError') {
+    const messages = Object.values(err.errors).map(val => val.message);
+    req.flash('error', messages.join(', '));
+    return res.redirect('back');
+  }
+
+  // Handle other errors
+  const { statusCode = 500, message = 'Something went wrong!' } = err;
+  
+  // If the request is an API request, return JSON
+  if (req.originalUrl.startsWith('/api')) {
+    return res.status(statusCode).json({
+      success: false,
+      error: message
+    });
+  }
+  
+  // Otherwise, render an error page
+  res.status(statusCode).render('error', { 
+    title: 'Error',
+    message: statusCode === 404 ? 'Page Not Found' : message 
+  });
+});
+
+// Start Server
+const PORT = process.env.PORT || 8080;
+
+function startServer(port) {
+  try {
+    server.on('error', (error) => {
+      if (error.code === 'EADDRINUSE') {
+        console.log(`Port ${port} is in use, trying port ${port + 1}...`);
+        server.close();
+        startServer(port + 1);
+      } else {
+        console.error('Server error:', error);
+        process.exit(1);
+      }
+    });
+
+    server.listen(port, () => {
+      console.log(`Server is running on port ${port}`);
+      console.log(`WebSocket server is running on port ${port}`);
+    });
+  } catch (error) {
+    console.error('Failed to start server:', error);
+    process.exit(1);
+  }
+}
+
+// Start the server
+startServer(PORT);

@@ -1,0 +1,107 @@
+<%- include('partials/header') %>
+
+<div class="container my-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <div class="card shadow-sm">
+                <div class="card-header bg-primary text-white">
+                    <h2 class="h4 mb-0">AI Trip Planner</h2>
+                    <p class="mb-0">Let's plan your perfect trip with AI</p>
+                </div>
+                
+                <div class="card-body">
+                    <form id="trip-planner-form">
+                        <div class="mb-3">
+                            <label for="destination" class="form-label">Destination</label>
+                            <input type="text" class="form-control" id="destination" name="destination" 
+                                   placeholder="Where do you want to go?" required>
+                        </div>
+                        
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="duration" class="form-label">Duration (days)</label>
+                                <input type="number" class="form-control" id="duration" name="duration" 
+                                       min="1" max="30" value="3" required>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="budget" class="form-label">Total Budget (₹)</label>
+                                <div class="input-group">
+                                    <span class="input-group-text">₹</span>
+                                    <input type="number" class="form-control" id="budget" name="budget" 
+                                           min="1000" value="15000" required>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="preferences" class="form-label">Preferences (optional)</label>
+                            <textarea class="form-control" id="preferences" name="preferences" 
+                                     rows="3" placeholder="E.g., Family trip, Adventure activities, Luxury stays, etc."></textarea>
+                        </div>
+                        
+                        <button type="submit" class="btn btn-primary w-100">
+                            <i class="fas fa-magic me-2"></i> Generate Trip Plan
+                        </button>
+                    </form>
+                    
+                    <div id="trip-loading" class="text-center my-4" style="display: none;">
+                        <div class="spinner-border text-primary" role="status">
+                            <span class="visually-hidden">Loading...</span>
+                        </div>
+                        <p class="mt-2">Crafting your perfect trip plan...</p>
+                    </div>
+                    
+                    <div id="trip-error" class="alert alert-danger mt-3" style="display: none;"></div>
+                    
+                    <div id="trip-results" class="mt-4" style="display: none;">
+                        <!-- Results will be inserted here by JavaScript -->
+                    </div>
+                </div>
+            </div>
+            
+            <div class="card mt-4 shadow-sm">
+                <div class="card-header bg-light">
+                    <h3 class="h5 mb-0">How It Works</h3>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-4 text-center mb-3 mb-md-0">
+                            <div class="bg-primary bg-opacity-10 p-3 rounded-circle d-inline-block mb-2">
+                                <i class="fas fa-map-marked-alt text-primary fa-2x"></i>
+                            </div>
+                            <h5>1. Enter Details</h5>
+                            <p class="text-muted">Tell us where you want to go and your budget.</p>
+                        </div>
+                        <div class="col-md-4 text-center mb-3 mb-md-0">
+                            <div class="bg-primary bg-opacity-10 p-3 rounded-circle d-inline-block mb-2">
+                                <i class="fas fa-robot text-primary fa-2x"></i>
+                            </div>
+                            <h5>2. AI Magic</h5>
+                            <p class="text-muted">Our AI creates a personalized itinerary.</p>
+                        </div>
+                        <div class="col-md-4 text-center">
+                            <div class="bg-primary bg-opacity-10 p-3 rounded-circle d-inline-block mb-2">
+                                <i class="fas fa-plane-departure text-primary fa-2x"></i>
+                            </div>
+                            <h5>3. Enjoy Your Trip</h5>
+                            <p class="text-muted">Save, share, and enjoy your perfect trip!</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<%- include('partials/footer') %>
+
+<!-- Add trip planner JavaScript -->
+<script src="/js/tripPlanner.js"></script>
+
+<!-- Add any additional scripts needed for the trip planner -->
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Initialize any additional trip planner functionality here
+        console.log('Trip planner page loaded');
+    });
+</script>

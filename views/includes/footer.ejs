@@ -1,15 +1,327 @@
-<footer>
-    <div class="f-info">
-        <div class="f-info-socials">
-        <i class="fa-brands fa-square-facebook"></i>
-        <i class="fa-brands fa-square-instagram"></i>
-        <i class="fa-brands fa-linkedin"></i>
+<style>
+  /* ===== MODERN FOOTER DESIGN ===== */
+  footer {
+    background: linear-gradient(135deg, var(--gray-900), var(--gray-800));
+    color: var(--gray-900);
+    margin-top: auto;
+    padding: 4rem 0 2rem 0;
+    position: relative;
+    overflow: hidden;
+    transition: all var(--transition-normal);
+  }
 
+  [data-theme="dark"] footer {
+    background: linear-gradient(135deg, #0a0e27, #1a1f3a);
+    color: var(--gray-100);
+  }
+
+  footer::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 4px;
+    background: linear-gradient(90deg, var(--primary-orange), var(--secondary-blue), var(--primary-orange));
+    background-size: 200% 100%;
+    animation: gradientShift 3s ease-in-out infinite;
+  }
+
+  @keyframes gradientShift {
+    0%, 100% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+  }
+
+  .footer-brand {
+    font-weight: 700;
+    font-size: 1.5rem;
+    color: var(--primary-orange) !important;
+    text-decoration: none;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-bottom: 1rem;
+    transition: all var(--transition-fast);
+  }
+
+  .footer-brand:hover {
+    color: var(--primary-orange-hover) !important;
+    transform: translateY(-2px);
+  }
+
+  .footer-brand i {
+    font-size: 1.8rem;
+  }
+
+  /* Footer Description */
+  .footer-description {
+    color: var(--gray-300);
+    font-size: 0.9rem;
+    line-height: 1.6;
+    max-width: 300px;
+  }
+
+  /* Social Links */
+  .social-links {
+    display: flex;
+    gap: 1rem;
+    margin-top: 1.5rem;
+  }
+
+  .social-link {
+    width: 45px;
+    height: 45px;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.1);
+    color: var(--white);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.1rem;
+    text-decoration: none;
+    transition: all var(--transition-fast);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+  }
+
+  .social-link:hover {
+    background: var(--primary-orange);
+    color: var(--white);
+    transform: translateY(-3px) scale(1.1);
+    box-shadow: var(--shadow-lg);
+    border-color: var(--primary-orange);
+  }
+
+  /* Footer Links */
+  .footer-heading {
+    color: var(--white);
+    font-weight: 600;
+    font-size: 1.1rem;
+    margin-bottom: 1.5rem;
+    position: relative;
+  }
+
+  .footer-heading::after {
+    content: '';
+    position: absolute;
+    bottom: -5px;
+    left: 0;
+    width: 30px;
+    height: 2px;
+    background: var(--primary-orange);
+    border-radius: var(--radius-full);
+  }
+
+  .footer-links {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+  }
+
+  .footer-links li {
+    margin-bottom: 0.75rem;
+  }
+
+  .footer-link {
+    color: var(--gray-300);
+    text-decoration: none;
+    font-size: 0.9rem;
+    transition: all var(--transition-fast);
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+
+  .footer-link:hover {
+    color: var(--primary-orange);
+    text-decoration: none;
+    transform: translateX(5px);
+  }
+
+  .footer-link i {
+    font-size: 0.8rem;
+    opacity: 0.7;
+    transition: all var(--transition-fast);
+  }
+
+  .footer-link:hover i {
+    opacity: 1;
+    color: var(--primary-orange);
+  }
+
+  /* Footer Bottom */
+  .footer-bottom {
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+    padding-top: 2rem;
+    margin-top: 3rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 1rem;
+  }
+
+  .footer-copyright {
+    color: var(--gray-400);
+    font-size: 0.85rem;
+    margin: 0;
+  }
+
+  .footer-contact {
+    color: var(--gray-400);
+    font-size: 0.85rem;
+    margin: 0;
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+  }
+
+  .footer-contact a {
+    color: var(--gray-400);
+    text-decoration: none;
+    transition: color var(--transition-fast);
+  }
+
+  .footer-contact a:hover {
+    color: var(--primary-orange);
+  }
+
+  /* Responsive Design */
+  @media (max-width: 768px) {
+    footer {
+      padding: 3rem 0 1.5rem 0;
+      text-align: center;
+    }
+
+    .footer-bottom {
+      flex-direction: column;
+      gap: 1.5rem;
+      text-align: center;
+    }
+
+    .footer-contact {
+      flex-direction: column;
+      gap: 0.5rem;
+    }
+
+    .social-links {
+      justify-content: center;
+    }
+  }
+
+  @media (max-width: 576px) {
+    .footer-description {
+      max-width: none;
+    }
+
+    .social-links {
+      flex-wrap: wrap;
+      gap: 0.75rem;
+    }
+
+    .social-link {
+      width: 40px;
+      height: 40px;
+      font-size: 1rem;
+    }
+  }
+</style>
+
+<footer>
+  <div class="container">
+    <div class="row g-4">
+      <!-- Company Info -->
+      <div class="col-lg-4 col-md-6">
+        <a class="footer-brand" href="/">
+          <i class="fas fa-compass"></i>
+          WanderLust
+        </a>
+        <p class="footer-description">
+          Your complete travel companion. Find perfect stays, rent vehicles, and discover authentic local dhabas all in one place.
+        </p>
+        <div class="social-links">
+          <a href="#" class="social-link" title="Facebook">
+            <i class="fab fa-facebook-f"></i>
+          </a>
+          <a href="#" class="social-link" title="Instagram">
+            <i class="fab fa-instagram"></i>
+          </a>
+          <a href="#" class="social-link" title="Twitter">
+            <i class="fab fa-twitter"></i>
+          </a>
+          <a href="#" class="social-link" title="LinkedIn">
+            <i class="fab fa-linkedin-in"></i>
+          </a>
+          <a href="#" class="social-link" title="YouTube">
+            <i class="fab fa-youtube"></i>
+          </a>
+        </div>
+      </div>
+
+      <!-- Explore -->
+      <div class="col-lg-2 col-md-3 col-6">
+        <h5 class="footer-heading">Explore</h5>
+        <ul class="footer-links">
+          <li><a href="/listings" class="footer-link"><i class="fas fa-chevron-right"></i>Vacation Rentals</a></li>
+          <li><a href="/vehicles" class="footer-link"><i class="fas fa-chevron-right"></i>Vehicle Rentals</a></li>
+          <li><a href="/dhabas" class="footer-link"><i class="fas fa-chevron-right"></i>Local Dhabas</a></li>
+          <li><a href="/search" class="footer-link"><i class="fas fa-chevron-right"></i>Search</a></li>
+          <li><a href="#" class="footer-link"><i class="fas fa-chevron-right"></i>Featured Places</a></li>
+        </ul>
+      </div>
+
+      <!-- Support -->
+      <div class="col-lg-2 col-md-3 col-6">
+        <h5 class="footer-heading">Support</h5>
+        <ul class="footer-links">
+          <li><a href="#" class="footer-link"><i class="fas fa-chevron-right"></i>Help Center</a></li>
+          <li><a href="#" class="footer-link"><i class="fas fa-chevron-right"></i>Contact Us</a></li>
+          <li><a href="#" class="footer-link"><i class="fas fa-chevron-right"></i>Safety</a></li>
+          <li><a href="#" class="footer-link"><i class="fas fa-chevron-right"></i>Trust & Safety</a></li>
+          <li><a href="#" class="footer-link"><i class="fas fa-chevron-right"></i>Cancellation</a></li>
+        </ul>
+      </div>
+
+      <!-- Host -->
+      <div class="col-lg-2 col-md-6 col-6">
+        <h5 class="footer-heading">Host</h5>
+        <ul class="footer-links">
+          <li><a href="/listings/new" class="footer-link"><i class="fas fa-chevron-right"></i>List Property</a></li>
+          <li><a href="/vehicles/new" class="footer-link"><i class="fas fa-chevron-right"></i>List Vehicle</a></li>
+          <li><a href="/dhabas/new" class="footer-link"><i class="fas fa-chevron-right"></i>List Dhaba</a></li>
+          <li><a href="#" class="footer-link"><i class="fas fa-chevron-right"></i>Host Resources</a></li>
+          <li><a href="#" class="footer-link"><i class="fas fa-chevron-right"></i>Community</a></li>
+        </ul>
+      </div>
+
+      <!-- Legal -->
+      <div class="col-lg-2 col-md-6 col-6">
+        <h5 class="footer-heading">Legal</h5>
+        <ul class="footer-links">
+          <li><a href="#" class="footer-link"><i class="fas fa-chevron-right"></i>Privacy Policy</a></li>
+          <li><a href="#" class="footer-link"><i class="fas fa-chevron-right"></i>Terms of Service</a></li>
+          <li><a href="#" class="footer-link"><i class="fas fa-chevron-right"></i>Cookie Policy</a></li>
+          <li><a href="#" class="footer-link"><i class="fas fa-chevron-right"></i>Accessibility</a></li>
+          <li><a href="#" class="footer-link"><i class="fas fa-chevron-right"></i>Sitemap</a></li>
+        </ul>
+      </div>
     </div>
-    <div class="f-info-brand">&copy; Wanderlust Private Limited</div>
-    <div class="f-info-links">
-        <a href="/privay">Privacy</a>
-        <a href="/terms">Terms</a>
+
+    <!-- Footer Bottom -->
+    <div class="footer-bottom">
+      <p class="footer-copyright">
+        &copy; <%= new Date().getFullYear() %> WanderLust Private Limited. All rights reserved.
+      </p>
+      <p class="footer-contact">
+        <a href="mailto:support@wanderlust.com">
+          <i class="fas fa-envelope"></i>
+          support@wanderlust.com
+        </a>
+        <a href="tel:+919876543210">
+          <i class="fas fa-phone"></i>
+          +91 98765 43210
+        </a>
+      </p>
     </div>
   </div>
 </footer>

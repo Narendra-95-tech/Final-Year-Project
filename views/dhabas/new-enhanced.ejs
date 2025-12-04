@@ -1,0 +1,642 @@
+<% layout("/layouts/boilerplate") -%>
+
+<style>
+  .form-container {
+    max-width: 1000px;
+    margin: 2rem auto;
+    background: var(--white);
+    border-radius: var(--radius-xl);
+    box-shadow: var(--shadow-lg);
+    padding: 2.5rem;
+    border: 1px solid var(--gray-200);
+  }
+
+  .form-header {
+    text-align: center;
+    margin-bottom: 2rem;
+    padding-bottom: 1.5rem;
+    border-bottom: 2px solid var(--gray-200);
+  }
+
+  .form-title {
+    font-size: 2rem;
+    font-weight: 700;
+    color: var(--gray-900);
+    margin-bottom: 0.5rem;
+  }
+
+  .form-subtitle {
+    color: var(--gray-600);
+    font-size: 1rem;
+  }
+
+  .form-section {
+    margin-bottom: 2rem;
+  }
+
+  .section-title {
+    font-size: 1.25rem;
+    font-weight: 600;
+    color: var(--gray-900);
+    margin-bottom: 1rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+
+  .section-icon {
+    color: var(--primary-orange);
+    font-size: 1.5rem;
+  }
+
+  .form-label {
+    font-weight: 600;
+    color: var(--gray-700);
+    margin-bottom: 0.5rem;
+    display: block;
+  }
+
+  .form-control, .form-select {
+    border: 2px solid var(--gray-200);
+    border-radius: var(--radius-lg);
+    padding: 0.75rem 1rem;
+    transition: all var(--transition-fast);
+    font-size: 0.95rem;
+  }
+
+  .form-control:focus, .form-select:focus {
+    border-color: var(--primary-orange);
+    box-shadow: 0 0 0 3px rgba(253, 126, 20, 0.1);
+    outline: none;
+  }
+
+  .image-upload-area {
+    border: 2px dashed var(--gray-300);
+    border-radius: var(--radius-lg);
+    padding: 2rem;
+    text-align: center;
+    cursor: pointer;
+    transition: all var(--transition-fast);
+    background: var(--gray-50);
+  }
+
+  .image-upload-area:hover {
+    border-color: var(--primary-orange);
+    background: var(--primary-orange-light);
+  }
+
+  .image-upload-icon {
+    font-size: 3rem;
+    color: var(--gray-400);
+    margin-bottom: 1rem;
+  }
+
+  .image-preview {
+    max-width: 100%;
+    max-height: 300px;
+    border-radius: var(--radius-lg);
+    margin-top: 1rem;
+    display: none;
+  }
+
+  .btn-submit {
+    width: 100%;
+    padding: 1rem;
+    background: linear-gradient(135deg, var(--primary-orange), var(--primary-orange-hover));
+    color: var(--white);
+    border: none;
+    border-radius: var(--radius-lg);
+    font-weight: 600;
+    font-size: 1.1rem;
+    cursor: pointer;
+    transition: all var(--transition-fast);
+    margin-top: 1.5rem;
+  }
+
+  .btn-submit:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-lg);
+  }
+
+  .required-indicator {
+    color: var(--secondary-red);
+    margin-left: 0.25rem;
+  }
+
+  .help-text {
+    font-size: 0.85rem;
+    color: var(--gray-600);
+    margin-top: 0.25rem;
+  }
+
+  .facilities-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 1rem;
+  }
+
+  .facility-checkbox {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.75rem;
+    background: var(--gray-50);
+    border: 2px solid var(--gray-200);
+    border-radius: var(--radius-lg);
+    cursor: pointer;
+    transition: all var(--transition-fast);
+  }
+
+  .facility-checkbox:hover {
+    border-color: var(--primary-orange);
+    background: var(--primary-orange-light);
+  }
+
+  .menu-item-row {
+    background: var(--gray-50);
+    padding: 1rem;
+    border-radius: var(--radius-lg);
+    margin-bottom: 1rem;
+    border: 1px solid var(--gray-200);
+  }
+
+  .btn-add-menu {
+    background: var(--secondary-green);
+    color: var(--white);
+    border: none;
+    padding: 0.5rem 1rem;
+    border-radius: var(--radius-lg);
+    cursor: pointer;
+    transition: all var(--transition-fast);
+  }
+
+  .btn-add-menu:hover {
+    background: #0d9488;
+  }
+
+  .btn-remove-menu {
+    background: var(--secondary-red);
+    color: var(--white);
+    border: none;
+    padding: 0.5rem 1rem;
+    border-radius: var(--radius-lg);
+    cursor: pointer;
+  }
+
+  [data-theme="dark"] .form-container {
+    background: var(--gray-100);
+    border-color: var(--gray-200);
+  }
+
+  [data-theme="dark"] .image-upload-area,
+  [data-theme="dark"] .facility-checkbox,
+  [data-theme="dark"] .menu-item-row {
+    background: var(--gray-200);
+    border-color: var(--gray-300);
+  }
+</style>
+
+<div class="container">
+  <div class="form-container animate-fade-in">
+    <div class="form-header">
+      <h1 class="form-title">
+        <i class="fas fa-utensils me-2"></i>
+        Add New Dhaba/Restaurant
+      </h1>
+      <p class="form-subtitle">Share your culinary delights with food lovers</p>
+    </div>
+
+    <form method="POST" action="/dhabas" enctype="multipart/form-data" novalidate class="needs-validation">
+      
+      <!-- Basic Information -->
+      <div class="form-section">
+        <h3 class="section-title">
+          <i class="fas fa-info-circle section-icon"></i>
+          Basic Information
+        </h3>
+
+        <div class="mb-3">
+          <label for="title" class="form-label">
+            Restaurant Name<span class="required-indicator">*</span>
+          </label>
+          <input 
+            type="text" 
+            class="form-control" 
+            id="title" 
+            name="dhaba[title]" 
+            placeholder="e.g., Punjabi Dhaba - Authentic North Indian Cuisine"
+            required
+          >
+          <div class="help-text">Make it memorable and descriptive</div>
+          <div class="invalid-feedback">Please provide a name</div>
+        </div>
+
+        <div class="mb-3">
+          <label for="description" class="form-label">
+            Description<span class="required-indicator">*</span>
+          </label>
+          <textarea 
+            class="form-control" 
+            id="description" 
+            name="dhaba[description]" 
+            rows="5"
+            placeholder="Describe your restaurant, specialties, ambience..."
+            required
+          ></textarea>
+          <div class="invalid-feedback">Please provide a description</div>
+        </div>
+
+        <div class="row">
+          <div class="col-md-6 mb-3">
+            <label for="cuisine" class="form-label">
+              Cuisine Type<span class="required-indicator">*</span>
+            </label>
+            <select class="form-select" id="cuisine" name="dhaba[cuisine]" required>
+              <option value="">Select cuisine...</option>
+              <option value="North Indian">North Indian</option>
+              <option value="South Indian">South Indian</option>
+              <option value="Punjabi">Punjabi</option>
+              <option value="Chinese">Chinese</option>
+              <option value="Multi-Cuisine">Multi-Cuisine</option>
+              <option value="Street Food">Street Food</option>
+              <option value="Rajasthani">Rajasthani</option>
+              <option value="Gujarati">Gujarati</option>
+              <option value="Bengali">Bengali</option>
+              <option value="Continental">Continental</option>
+            </select>
+            <div class="invalid-feedback">Please select cuisine</div>
+          </div>
+
+          <div class="col-md-6 mb-3">
+            <label for="category" class="form-label">
+              Category<span class="required-indicator">*</span>
+            </label>
+            <select class="form-select" id="category" name="dhaba[category]" required>
+              <option value="">Select category...</option>
+              <option value="Fine Dining">Fine Dining</option>
+              <option value="Casual Dining">Casual Dining</option>
+              <option value="Fast Food">Fast Food</option>
+              <option value="Cafe">Cafe</option>
+              <option value="Food Truck">Food Truck</option>
+              <option value="Buffet">Buffet</option>
+              <option value="Family Restaurant">Family Restaurant</option>
+            </select>
+            <div class="invalid-feedback">Please select category</div>
+          </div>
+        </div>
+
+        <div class="row">
+          <div class="col-md-4 mb-3">
+            <label for="price" class="form-label">
+              Average Price (₹)<span class="required-indicator">*</span>
+            </label>
+            <input 
+              type="number" 
+              class="form-control" 
+              id="price" 
+              name="dhaba[price]" 
+              placeholder="300"
+              min="0"
+              required
+            >
+            <div class="help-text">Per person average</div>
+            <div class="invalid-feedback">Please provide price</div>
+          </div>
+
+          <div class="col-md-4 mb-3">
+            <label for="establishedYear" class="form-label">
+              Established Year
+            </label>
+            <input 
+              type="number" 
+              class="form-control" 
+              id="establishedYear" 
+              name="dhaba[establishedYear]" 
+              placeholder="2010"
+              min="1900"
+              max="2025"
+            >
+          </div>
+
+          <div class="col-md-4 mb-3">
+            <label class="form-label">Dietary Options</label>
+            <div class="d-flex gap-3">
+              <div class="form-check">
+                <input class="form-check-input" type="checkbox" id="isVegetarian" name="dhaba[isVegetarian]">
+                <label class="form-check-label" for="isVegetarian">Vegetarian</label>
+              </div>
+              <div class="form-check">
+                <input class="form-check-input" type="checkbox" id="isVegan" name="dhaba[isVegan]">
+                <label class="form-check-label" for="isVegan">Vegan</label>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Operating Hours -->
+      <div class="form-section">
+        <h3 class="section-title">
+          <i class="fas fa-clock section-icon"></i>
+          Operating Hours
+        </h3>
+
+        <div class="row">
+          <div class="col-md-5 mb-3">
+            <label for="opens" class="form-label">
+              Opens At<span class="required-indicator">*</span>
+            </label>
+            <input 
+              type="time" 
+              class="form-control" 
+              id="opens" 
+              name="dhaba[operatingHours][opens]" 
+              required
+            >
+            <div class="invalid-feedback">Please provide opening time</div>
+          </div>
+
+          <div class="col-md-5 mb-3">
+            <label for="closes" class="form-label">
+              Closes At<span class="required-indicator">*</span>
+            </label>
+            <input 
+              type="time" 
+              class="form-control" 
+              id="closes" 
+              name="dhaba[operatingHours][closes]" 
+              required
+            >
+            <div class="invalid-feedback">Please provide closing time</div>
+          </div>
+
+          <div class="col-md-2 mb-3">
+            <label class="form-label">24 Hours?</label>
+            <div class="form-check mt-2">
+              <input class="form-check-input" type="checkbox" id="isOpen24Hours" name="dhaba[operatingHours][isOpen24Hours]">
+              <label class="form-check-label" for="isOpen24Hours">Yes</label>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Contact Information -->
+      <div class="form-section">
+        <h3 class="section-title">
+          <i class="fas fa-phone section-icon"></i>
+          Contact Information
+        </h3>
+
+        <div class="row">
+          <div class="col-md-6 mb-3">
+            <label for="phone" class="form-label">
+              Phone Number<span class="required-indicator">*</span>
+            </label>
+            <input 
+              type="tel" 
+              class="form-control" 
+              id="phone" 
+              name="dhaba[phone]" 
+              placeholder="+91 98765 43210"
+              required
+            >
+            <div class="invalid-feedback">Please provide phone number</div>
+          </div>
+
+          <div class="col-md-6 mb-3">
+            <label for="email" class="form-label">
+              Email
+            </label>
+            <input 
+              type="email" 
+              class="form-control" 
+              id="email" 
+              name="dhaba[email]" 
+              placeholder="contact@restaurant.com"
+            >
+          </div>
+        </div>
+
+        <div class="mb-3">
+          <label for="website" class="form-label">
+            Website
+          </label>
+          <input 
+            type="url" 
+            class="form-control" 
+            id="website" 
+            name="dhaba[website]" 
+            placeholder="https://www.restaurant.com"
+          >
+        </div>
+      </div>
+
+      <!-- Facilities -->
+      <div class="form-section">
+        <h3 class="section-title">
+          <i class="fas fa-check-circle section-icon"></i>
+          Facilities & Amenities
+        </h3>
+
+        <div class="facilities-grid">
+          <label class="facility-checkbox">
+            <input type="checkbox" name="dhaba[facilities][]" value="AC">
+            <span>Air Conditioned</span>
+          </label>
+          <label class="facility-checkbox">
+            <input type="checkbox" name="dhaba[facilities][]" value="Parking">
+            <span>Parking</span>
+          </label>
+          <label class="facility-checkbox">
+            <input type="checkbox" name="dhaba[facilities][]" value="WiFi">
+            <span>Free WiFi</span>
+          </label>
+          <label class="facility-checkbox">
+            <input type="checkbox" name="dhaba[facilities][]" value="Home Delivery">
+            <span>Home Delivery</span>
+          </label>
+          <label class="facility-checkbox">
+            <input type="checkbox" name="dhaba[facilities][]" value="Takeaway">
+            <span>Takeaway</span>
+          </label>
+          <label class="facility-checkbox">
+            <input type="checkbox" name="dhaba[facilities][]" value="Outdoor Seating">
+            <span>Outdoor Seating</span>
+          </label>
+          <label class="facility-checkbox">
+            <input type="checkbox" name="dhaba[facilities][]" value="Live Music">
+            <span>Live Music</span>
+          </label>
+          <label class="facility-checkbox">
+            <input type="checkbox" name="dhaba[facilities][]" value="Bar">
+            <span>Bar</span>
+          </label>
+        </div>
+      </div>
+
+      <!-- Signature Dishes -->
+      <div class="form-section">
+        <h3 class="section-title">
+          <i class="fas fa-star section-icon"></i>
+          Signature Dishes
+        </h3>
+
+        <div class="mb-3">
+          <label class="form-label">Add Your Best Dishes (comma separated)</label>
+          <input 
+            type="text" 
+            class="form-control" 
+            name="dhaba[specialties]" 
+            placeholder="e.g., Butter Chicken, Dal Makhani, Naan"
+          >
+          <div class="help-text">List your most popular dishes</div>
+        </div>
+      </div>
+
+      <!-- Location -->
+      <div class="form-section">
+        <h3 class="section-title">
+          <i class="fas fa-map-marker-alt section-icon"></i>
+          Location
+        </h3>
+
+        <div class="row">
+          <div class="col-md-8 mb-3">
+            <label for="location" class="form-label">
+              Address<span class="required-indicator">*</span>
+            </label>
+            <input 
+              type="text" 
+              class="form-control" 
+              id="location" 
+              name="dhaba[location]" 
+              placeholder="e.g., Connaught Place, New Delhi"
+              required
+            >
+            <div class="invalid-feedback">Please provide address</div>
+          </div>
+
+          <div class="col-md-4 mb-3">
+            <label for="country" class="form-label">
+              Country<span class="required-indicator">*</span>
+            </label>
+            <input 
+              type="text" 
+              class="form-control" 
+              id="country" 
+              name="dhaba[country]" 
+              placeholder="India"
+              required
+            >
+            <div class="invalid-feedback">Please provide country</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Image Upload -->
+      <div class="form-section">
+        <h3 class="section-title">
+          <i class="fas fa-image section-icon"></i>
+          Restaurant Image
+        </h3>
+
+        <div class="image-upload-area" onclick="document.getElementById('dhaba-image-input').click()">
+          <i class="fas fa-cloud-upload-alt image-upload-icon"></i>
+          <p class="mb-0"><strong>Click to upload</strong> or drag and drop</p>
+          <p class="help-text">PNG, JPG, JPEG (Max 5MB)</p>
+          <input 
+            type="file" 
+            id="dhaba-image-input" 
+            name="dhaba[image]" 
+            accept="image/*"
+            style="display: none;"
+            onchange="previewImage(event)"
+            required
+          >
+          <img id="dhaba-image-preview" class="image-preview" alt="Preview">
+        </div>
+        <div class="invalid-feedback">Please upload an image</div>
+      </div>
+
+      <!-- Submit Button -->
+      <button type="submit" class="btn-submit">
+        <i class="fas fa-plus-circle me-2"></i>
+        Add Dhaba/Restaurant
+      </button>
+    </form>
+  </div>
+</div>
+
+<script>
+  (function() {
+    'use strict';
+    const forms = document.querySelectorAll('.needs-validation');
+    Array.from(forms).forEach(form => {
+      form.addEventListener('submit', event => {
+        if (!form.checkValidity()) {
+          event.preventDefault();
+          event.stopPropagation();
+        }
+        form.classList.add('was-validated');
+      }, false);
+    });
+  })();
+
+  function previewImage(event) {
+    const file = event.target.files[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onload = function(e) {
+        const preview = document.getElementById('dhaba-image-preview');
+        preview.src = e.target.result;
+        preview.style.display = 'block';
+      };
+      reader.readAsDataURL(file);
+    }
+  }
+
+  const uploadArea = document.querySelector('.image-upload-area');
+  
+  ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+    uploadArea.addEventListener(eventName, (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+    }, false);
+  });
+
+  ['dragenter', 'dragover'].forEach(eventName => {
+    uploadArea.addEventListener(eventName, () => {
+      uploadArea.style.borderColor = 'var(--primary-orange)';
+      uploadArea.style.background = 'var(--primary-orange-light)';
+    });
+  });
+
+  ['dragleave', 'drop'].forEach(eventName => {
+    uploadArea.addEventListener(eventName, () => {
+      uploadArea.style.borderColor = 'var(--gray-300)';
+      uploadArea.style.background = 'var(--gray-50)';
+    });
+  });
+
+  uploadArea.addEventListener('drop', (e) => {
+    const dt = e.dataTransfer;
+    const files = dt.files;
+    document.getElementById('dhaba-image-input').files = files;
+    previewImage({ target: { files: files } });
+  });
+
+  // 24 hours checkbox handler
+  document.getElementById('isOpen24Hours').addEventListener('change', function() {
+    const opensInput = document.getElementById('opens');
+    const closesInput = document.getElementById('closes');
+    if (this.checked) {
+      opensInput.disabled = true;
+      closesInput.disabled = true;
+      opensInput.value = '00:00';
+      closesInput.value = '23:59';
+    } else {
+      opensInput.disabled = false;
+      closesInput.disabled = false;
+    }
+  });
+</script>

@@ -1,0 +1,593 @@
+<% layout("/layouts/boilerplate") -%>
+
+<style>
+  .form-container {
+    max-width: 900px;
+    margin: 2rem auto;
+    background: var(--white);
+    border-radius: var(--radius-xl);
+    box-shadow: var(--shadow-lg);
+    padding: 2.5rem;
+    border: 1px solid var(--gray-200);
+  }
+
+  .form-header {
+    text-align: center;
+    margin-bottom: 2rem;
+    padding-bottom: 1.5rem;
+    border-bottom: 2px solid var(--gray-200);
+  }
+
+  .form-title {
+    font-size: 2rem;
+    font-weight: 700;
+    color: var(--gray-900);
+    margin-bottom: 0.5rem;
+  }
+
+  .form-subtitle {
+    color: var(--gray-600);
+    font-size: 1rem;
+  }
+
+  .form-section {
+    margin-bottom: 2rem;
+  }
+
+  .section-title {
+    font-size: 1.25rem;
+    font-weight: 600;
+    color: var(--gray-900);
+    margin-bottom: 1rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+
+  .section-icon {
+    color: var(--secondary-green);
+    font-size: 1.5rem;
+  }
+
+  .form-label {
+    font-weight: 600;
+    color: var(--gray-700);
+    margin-bottom: 0.5rem;
+    display: block;
+  }
+
+  .form-control, .form-select {
+    border: 2px solid var(--gray-200);
+    border-radius: var(--radius-lg);
+    padding: 0.75rem 1rem;
+    transition: all var(--transition-fast);
+    font-size: 0.95rem;
+  }
+
+  .form-control:focus, .form-select:focus {
+    border-color: var(--secondary-green);
+    box-shadow: 0 0 0 3px rgba(40, 167, 69, 0.1);
+    outline: none;
+  }
+
+  .image-upload-area {
+    border: 2px dashed var(--gray-300);
+    border-radius: var(--radius-lg);
+    padding: 2rem;
+    text-align: center;
+    cursor: pointer;
+    transition: all var(--transition-fast);
+    background: var(--gray-50);
+  }
+
+  .image-upload-area:hover {
+    border-color: var(--secondary-green);
+    background: rgba(40, 167, 69, 0.05);
+  }
+
+  .image-upload-icon {
+    font-size: 3rem;
+    color: var(--gray-400);
+    margin-bottom: 1rem;
+  }
+
+  .image-preview {
+    max-width: 100%;
+    max-height: 300px;
+    border-radius: var(--radius-lg);
+    margin-top: 1rem;
+    display: none;
+  }
+
+  .btn-submit {
+    width: 100%;
+    padding: 1rem;
+    background: linear-gradient(135deg, var(--secondary-green), #0d9488);
+    color: var(--white);
+    border: none;
+    border-radius: var(--radius-lg);
+    font-weight: 600;
+    font-size: 1.1rem;
+    cursor: pointer;
+    transition: all var(--transition-fast);
+    margin-top: 1.5rem;
+  }
+
+  .btn-submit:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-lg);
+  }
+
+  .required-indicator {
+    color: var(--secondary-red);
+    margin-left: 0.25rem;
+  }
+
+  .help-text {
+    font-size: 0.85rem;
+    color: var(--gray-600);
+    margin-top: 0.25rem;
+  }
+
+  .features-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 1rem;
+  }
+
+  .feature-checkbox {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.75rem;
+    background: var(--gray-50);
+    border: 2px solid var(--gray-200);
+    border-radius: var(--radius-lg);
+    cursor: pointer;
+    transition: all var(--transition-fast);
+  }
+
+  .feature-checkbox:hover {
+    border-color: var(--secondary-green);
+    background: rgba(40, 167, 69, 0.05);
+  }
+
+  .feature-checkbox input[type="checkbox"]:checked + label {
+    color: var(--secondary-green);
+    font-weight: 600;
+  }
+
+  [data-theme="dark"] .form-container {
+    background: var(--gray-100);
+    border-color: var(--gray-200);
+  }
+
+  [data-theme="dark"] .image-upload-area {
+    background: var(--gray-200);
+    border-color: var(--gray-300);
+  }
+
+  [data-theme="dark"] .feature-checkbox {
+    background: var(--gray-200);
+    border-color: var(--gray-300);
+  }
+</style>
+
+<div class="container">
+  <div class="form-container animate-fade-in">
+    <div class="form-header">
+      <h1 class="form-title">
+        <i class="fas fa-car me-2"></i>
+        Add New Vehicle
+      </h1>
+      <p class="form-subtitle">List your vehicle for rent and start earning</p>
+    </div>
+
+    <form method="POST" action="/vehicles" enctype="multipart/form-data" novalidate class="needs-validation">
+      
+      <!-- Basic Information -->
+      <div class="form-section">
+        <h3 class="section-title">
+          <i class="fas fa-info-circle section-icon"></i>
+          Basic Information
+        </h3>
+
+        <div class="mb-3">
+          <label for="title" class="form-label">
+            Vehicle Title<span class="required-indicator">*</span>
+          </label>
+          <input 
+            type="text" 
+            class="form-control" 
+            id="title" 
+            name="vehicle[title]" 
+            placeholder="e.g., Honda City 2022 - Automatic"
+            required
+          >
+          <div class="help-text">Include brand, model, and key features</div>
+          <div class="invalid-feedback">Please provide a title</div>
+        </div>
+
+        <div class="mb-3">
+          <label for="description" class="form-label">
+            Description<span class="required-indicator">*</span>
+          </label>
+          <textarea 
+            class="form-control" 
+            id="description" 
+            name="vehicle[description]" 
+            rows="4"
+            placeholder="Describe your vehicle's condition, features, and any special notes..."
+            required
+          ></textarea>
+          <div class="invalid-feedback">Please provide a description</div>
+        </div>
+
+        <div class="row">
+          <div class="col-md-4 mb-3">
+            <label for="vehicleType" class="form-label">
+              Vehicle Type<span class="required-indicator">*</span>
+            </label>
+            <select class="form-select" id="vehicleType" name="vehicle[vehicleType]" required>
+              <option value="">Select type...</option>
+              <option value="car">Car</option>
+              <option value="bike">Bike</option>
+              <option value="scooter">Scooter</option>
+              <option value="van">Van</option>
+              <option value="truck">Truck</option>
+            </select>
+            <div class="invalid-feedback">Please select a type</div>
+          </div>
+
+          <div class="col-md-4 mb-3">
+            <label for="brand" class="form-label">
+              Brand<span class="required-indicator">*</span>
+            </label>
+            <input 
+              type="text" 
+              class="form-control" 
+              id="brand" 
+              name="vehicle[brand]" 
+              placeholder="e.g., Honda"
+              required
+            >
+            <div class="invalid-feedback">Please provide brand</div>
+          </div>
+
+          <div class="col-md-4 mb-3">
+            <label for="model" class="form-label">
+              Model<span class="required-indicator">*</span>
+            </label>
+            <input 
+              type="text" 
+              class="form-control" 
+              id="model" 
+              name="vehicle[model]" 
+              placeholder="e.g., City"
+              required
+            >
+            <div class="invalid-feedback">Please provide model</div>
+          </div>
+        </div>
+
+        <div class="row">
+          <div class="col-md-3 mb-3">
+            <label for="year" class="form-label">
+              Year<span class="required-indicator">*</span>
+            </label>
+            <input 
+              type="number" 
+              class="form-control" 
+              id="year" 
+              name="vehicle[year]" 
+              placeholder="2022"
+              min="1990"
+              max="2025"
+              required
+            >
+            <div class="invalid-feedback">Valid year required</div>
+          </div>
+
+          <div class="col-md-3 mb-3">
+            <label for="fuelType" class="form-label">
+              Fuel Type<span class="required-indicator">*</span>
+            </label>
+            <select class="form-select" id="fuelType" name="vehicle[fuelType]" required>
+              <option value="">Select...</option>
+              <option value="petrol">Petrol</option>
+              <option value="diesel">Diesel</option>
+              <option value="electric">Electric</option>
+              <option value="hybrid">Hybrid</option>
+            </select>
+            <div class="invalid-feedback">Please select fuel type</div>
+          </div>
+
+          <div class="col-md-3 mb-3">
+            <label for="transmission" class="form-label">
+              Transmission<span class="required-indicator">*</span>
+            </label>
+            <select class="form-select" id="transmission" name="vehicle[transmission]" required>
+              <option value="">Select...</option>
+              <option value="manual">Manual</option>
+              <option value="automatic">Automatic</option>
+            </select>
+            <div class="invalid-feedback">Please select transmission</div>
+          </div>
+
+          <div class="col-md-3 mb-3">
+            <label for="seats" class="form-label">
+              Seats<span class="required-indicator">*</span>
+            </label>
+            <input 
+              type="number" 
+              class="form-control" 
+              id="seats" 
+              name="vehicle[seats]" 
+              placeholder="5"
+              min="1"
+              max="20"
+              required
+            >
+            <div class="invalid-feedback">Valid seats required</div>
+          </div>
+        </div>
+
+        <div class="row">
+          <div class="col-md-6 mb-3">
+            <label for="mileage" class="form-label">
+              Mileage
+            </label>
+            <input 
+              type="text" 
+              class="form-control" 
+              id="mileage" 
+              name="vehicle[mileage]" 
+              placeholder="e.g., 18 km/l"
+            >
+            <div class="help-text">Optional but recommended</div>
+          </div>
+
+          <div class="col-md-6 mb-3">
+            <label for="registrationNumber" class="form-label">
+              Registration Number
+            </label>
+            <input 
+              type="text" 
+              class="form-control" 
+              id="registrationNumber" 
+              name="vehicle[registrationNumber]" 
+              placeholder="e.g., MH 01 AB 1234"
+            >
+          </div>
+        </div>
+      </div>
+
+      <!-- Pricing -->
+      <div class="form-section">
+        <h3 class="section-title">
+          <i class="fas fa-rupee-sign section-icon"></i>
+          Pricing
+        </h3>
+
+        <div class="row">
+          <div class="col-md-4 mb-3">
+            <label for="pricePerDay" class="form-label">
+              Price per Day (₹)<span class="required-indicator">*</span>
+            </label>
+            <input 
+              type="number" 
+              class="form-control" 
+              id="pricePerDay" 
+              name="vehicle[price]" 
+              placeholder="2500"
+              min="0"
+              required
+            >
+            <div class="invalid-feedback">Please provide price</div>
+          </div>
+
+          <div class="col-md-4 mb-3">
+            <label for="pricePerHour" class="form-label">
+              Price per Hour (₹)
+            </label>
+            <input 
+              type="number" 
+              class="form-control" 
+              id="pricePerHour" 
+              name="vehicle[pricePerHour]" 
+              placeholder="300"
+              min="0"
+            >
+          </div>
+
+          <div class="col-md-4 mb-3">
+            <label for="securityDeposit" class="form-label">
+              Security Deposit (₹)
+            </label>
+            <input 
+              type="number" 
+              class="form-control" 
+              id="securityDeposit" 
+              name="vehicle[securityDeposit]" 
+              placeholder="5000"
+              min="0"
+            >
+          </div>
+        </div>
+      </div>
+
+      <!-- Features -->
+      <div class="form-section">
+        <h3 class="section-title">
+          <i class="fas fa-star section-icon"></i>
+          Features
+        </h3>
+
+        <div class="features-grid">
+          <label class="feature-checkbox">
+            <input type="checkbox" name="vehicle[features][]" value="AC">
+            <span>Air Conditioning</span>
+          </label>
+          <label class="feature-checkbox">
+            <input type="checkbox" name="vehicle[features][]" value="GPS">
+            <span>GPS Navigation</span>
+          </label>
+          <label class="feature-checkbox">
+            <input type="checkbox" name="vehicle[features][]" value="Bluetooth">
+            <span>Bluetooth</span>
+          </label>
+          <label class="feature-checkbox">
+            <input type="checkbox" name="vehicle[features][]" value="USB Charging">
+            <span>USB Charging</span>
+          </label>
+          <label class="feature-checkbox">
+            <input type="checkbox" name="vehicle[features][]" value="Music System">
+            <span>Music System</span>
+          </label>
+          <label class="feature-checkbox">
+            <input type="checkbox" name="vehicle[features][]" value="Power Steering">
+            <span>Power Steering</span>
+          </label>
+          <label class="feature-checkbox">
+            <input type="checkbox" name="vehicle[features][]" value="Airbags">
+            <span>Airbags</span>
+          </label>
+          <label class="feature-checkbox">
+            <input type="checkbox" name="vehicle[features][]" value="ABS">
+            <span>ABS</span>
+          </label>
+        </div>
+      </div>
+
+      <!-- Location -->
+      <div class="form-section">
+        <h3 class="section-title">
+          <i class="fas fa-map-marker-alt section-icon"></i>
+          Location
+        </h3>
+
+        <div class="row">
+          <div class="col-md-8 mb-3">
+            <label for="location" class="form-label">
+              Pickup Location<span class="required-indicator">*</span>
+            </label>
+            <input 
+              type="text" 
+              class="form-control" 
+              id="location" 
+              name="vehicle[location]" 
+              placeholder="e.g., Mumbai, Andheri West"
+              required
+            >
+            <div class="invalid-feedback">Please provide location</div>
+          </div>
+
+          <div class="col-md-4 mb-3">
+            <label for="country" class="form-label">
+              Country<span class="required-indicator">*</span>
+            </label>
+            <input 
+              type="text" 
+              class="form-control" 
+              id="country" 
+              name="vehicle[country]" 
+              placeholder="India"
+              required
+            >
+            <div class="invalid-feedback">Please provide country</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Image Upload -->
+      <div class="form-section">
+        <h3 class="section-title">
+          <i class="fas fa-image section-icon"></i>
+          Vehicle Image
+        </h3>
+
+        <div class="image-upload-area" onclick="document.getElementById('vehicle-image-input').click()">
+          <i class="fas fa-cloud-upload-alt image-upload-icon"></i>
+          <p class="mb-0"><strong>Click to upload</strong> or drag and drop</p>
+          <p class="help-text">PNG, JPG, JPEG (Max 5MB)</p>
+          <input 
+            type="file" 
+            id="vehicle-image-input" 
+            name="vehicle[image]" 
+            accept="image/*"
+            style="display: none;"
+            onchange="previewImage(event)"
+            required
+          >
+          <img id="vehicle-image-preview" class="image-preview" alt="Preview">
+        </div>
+        <div class="invalid-feedback">Please upload an image</div>
+      </div>
+
+      <!-- Submit Button -->
+      <button type="submit" class="btn-submit">
+        <i class="fas fa-plus-circle me-2"></i>
+        Add Vehicle
+      </button>
+    </form>
+  </div>
+</div>
+
+<script>
+  (function() {
+    'use strict';
+    const forms = document.querySelectorAll('.needs-validation');
+    Array.from(forms).forEach(form => {
+      form.addEventListener('submit', event => {
+        if (!form.checkValidity()) {
+          event.preventDefault();
+          event.stopPropagation();
+        }
+        form.classList.add('was-validated');
+      }, false);
+    });
+  })();
+
+  function previewImage(event) {
+    const file = event.target.files[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onload = function(e) {
+        const preview = document.getElementById('vehicle-image-preview');
+        preview.src = e.target.result;
+        preview.style.display = 'block';
+      };
+      reader.readAsDataURL(file);
+    }
+  }
+
+  const uploadArea = document.querySelector('.image-upload-area');
+  
+  ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+    uploadArea.addEventListener(eventName, (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+    }, false);
+  });
+
+  ['dragenter', 'dragover'].forEach(eventName => {
+    uploadArea.addEventListener(eventName, () => {
+      uploadArea.style.borderColor = 'var(--secondary-green)';
+      uploadArea.style.background = 'rgba(40, 167, 69, 0.05)';
+    });
+  });
+
+  ['dragleave', 'drop'].forEach(eventName => {
+    uploadArea.addEventListener(eventName, () => {
+      uploadArea.style.borderColor = 'var(--gray-300)';
+      uploadArea.style.background = 'var(--gray-50)';
+    });
+  });
+
+  uploadArea.addEventListener('drop', (e) => {
+    const dt = e.dataTransfer;
+    const files = dt.files;
+    document.getElementById('vehicle-image-input').files = files;
+    previewImage({ target: { files: files } });
+  });
+</script>

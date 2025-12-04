@@ -1,0 +1,81 @@
+<%- include('../partials/header') %>
+
+<div class="container-fluid py-5">
+    <div class="container">
+        <div class="text-center mb-5">
+            <h1 class="display-4">Travel Gallery</h1>
+            <p class="lead">Explore photos shared by our community</p>
+        </div>
+        
+        <% if (photos && photos.length > 0) { %>
+            <div class="row g-4" data-masonry='{"percentPosition": true }'>
+                <% photos.forEach(photo => { %>
+                    <div class="col-sm-6 col-md-4 col-lg-3">
+                        <div class="card shadow-sm h-100">
+                            <img src="<%= photo.url %>" class="card-img-top" alt="<%= photo.caption %>" style="height: 200px; object-fit: cover;">
+                            <div class="card-body">
+                                <p class="card-text"><%= photo.caption %></p>
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <small class="text-muted">
+                                        <i class="fas fa-user"></i> <%= photo.author %>
+                                    </small>
+                                    <small class="text-muted">
+                                        <i class="fas fa-map-marker-alt"></i> <%= photo.location %>
+                                    </small>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                <% }) %>
+            </div>
+        <% } else { %>
+            <div class="text-center py-5">
+                <div class="display-1 text-muted mb-4">
+                    <i class="far fa-images"></i>
+                </div>
+                <h3>No photos shared yet</h3>
+                <p class="lead">Be the first to share your travel photos!</p>
+                <a href="/social/journal" class="btn btn-primary">Share Your Experience</a>
+            </div>
+        <% } %>
+    </div>
+</div>
+
+<!-- Masonry Layout -->
+<script src="https://cdn.jsdelivr.net/npm/masonry-layout@4.2.2/dist/masonry.pkgd.min.js"></script>
+<script>
+    // Initialize Masonry after images are loaded
+    document.addEventListener('DOMContentLoaded', function() {
+        const grid = document.querySelector('.row');
+        if (grid) {
+            const msnry = new Masonry(grid, {
+                itemSelector: '.col',
+                columnWidth: '.col',
+                percentPosition: true
+            });
+            
+            // Refresh Masonry after images are loaded
+            const images = grid.getElementsByTagName('img');
+            let loadedImages = 0;
+            
+            Array.from(images).forEach(img => {
+                if (img.complete) {
+                    loadedImages++;
+                } else {
+                    img.addEventListener('load', () => {
+                        loadedImages++;
+                        if (loadedImages === images.length) {
+                            msnry.layout();
+                        }
+                    });
+                }
+            });
+            
+            if (loadedImages === images.length) {
+                msnry.layout();
+            }
+        }
+    });
+</script>
+
+<%- include('../partials/footer') %>

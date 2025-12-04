@@ -1,0 +1,319 @@
+/* AI Trip Planner Styles */
+.trip-planner {
+    max-width: 100%;
+    margin: 0 auto;
+    padding: 2rem 0;
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+}
+
+.trip-planner .card {
+    border: none;
+    border-radius: 12px;
+    overflow: hidden;
+    margin-bottom: 2rem;
+}
+
+.trip-planner .card-header {
+    padding: 1.5rem;
+    border-bottom: 1px solid rgba(0,0,0,0.05);
+}
+
+.trip-planner .form-control, .trip-planner .form-select {
+    padding: 0.75rem 1rem;
+    border-radius: 8px;
+    border: 1px solid #dee2e6;
+    transition: all 0.3s ease;
+}
+
+.trip-planner .form-control:focus, .trip-planner .form-select:focus {
+    border-color: #0d6efd;
+    box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.15);
+}
+
+/* Trip Results */
+.trip-summary {
+    background: #fff;
+    border-radius: 12px;
+    padding: 2rem;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+}
+
+.trip-summary h3 {
+    color: #0d6efd;
+    margin-bottom: 1.5rem;
+    font-weight: 700;
+}
+
+.budget, .estimated-cost {
+    font-size: 1.1rem;
+    font-weight: 500;
+    margin-bottom: 1.5rem;
+    padding: 0.75rem 1rem;
+    background: #f8f9fa;
+    border-radius: 8px;
+}
+
+.estimated-cost {
+    color: #198754;
+    background: #e8f5e9;
+    border-left: 4px solid #198754;
+}
+
+/* Day Cards */
+.day-card {
+    margin-bottom: 2rem;
+    background: #fff;
+    border-radius: 10px;
+    overflow: hidden;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+}
+
+.day-card h4 {
+    background: #f8f9fa;
+    padding: 1rem 1.5rem;
+    margin: 0;
+    border-bottom: 1px solid #eee;
+    font-size: 1.1rem;
+    color: #333;
+}
+
+.activities {
+    padding: 1.5rem;
+}
+
+.activity {
+    display: flex;
+    margin-bottom: 1.5rem;
+    padding-bottom: 1.5rem;
+    border-bottom: 1px dashed #eee;
+}
+
+.activity:last-child {
+    margin-bottom: 0;
+    padding-bottom: 0;
+    border-bottom: none;
+}
+
+.activity .time {
+    flex: 0 0 120px;
+    font-weight: 600;
+    color: #666;
+    font-size: 0.9rem;
+}
+
+.activity .details {
+    flex: 1;
+}
+
+.activity h5 {
+    margin: 0 0 0.5rem 0;
+    font-size: 1rem;
+    color: #333;
+}
+
+.activity .location {
+    font-size: 0.85rem;
+    color: #6c757d;
+    margin: 0.25rem 0;
+}
+
+.activity .cost {
+    font-weight: 600;
+    color: #198754;
+    margin: 0.25rem 0 0 0;
+    font-size: 0.9rem;
+}
+
+/* Activity Type Indicators */
+.activity.stay {
+    border-left: 3px solid #0d6efd;
+    padding-left: 1rem;
+}
+
+.activity.food {
+    border-left: 3px solid #fd7e14;
+    padding-left: 1rem;
+}
+
+.activity.transportation {
+    border-left: 3px solid #6f42c1;
+    padding-left: 1rem;
+}
+
+/* Money Saving Tips */
+.money-saving-tips {
+    background: #fff8e1;
+    border-radius: 8px;
+    padding: 1.5rem;
+    margin: 2rem 0;
+}
+
+.money-saving-tips h4 {
+    color: #ff9800;
+    margin-top: 0;
+}
+
+.money-saving-tips ul {
+    padding-left: 1.5rem;
+    margin-bottom: 0;
+}
+
+.money-saving-tips li {
+    margin-bottom: 0.5rem;
+}
+
+/* Emergency Contacts */
+.emergency-contacts {
+    background: #f8f9fa;
+    border-radius: 8px;
+    padding: 1.5rem;
+    margin-top: 2rem;
+}
+
+.emergency-contacts h4 {
+    margin-top: 0;
+    color: #dc3545;
+    margin-bottom: 1rem;
+}
+
+.contacts-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 1rem;
+}
+
+.contact {
+    background: #fff;
+    padding: 1rem;
+    border-radius: 6px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+}
+
+.contact .label {
+    display: block;
+    font-weight: 600;
+    color: #6c757d;
+    font-size: 0.85rem;
+    margin-bottom: 0.25rem;
+}
+
+/* Action Buttons */
+.actions {
+    display: flex;
+    gap: 1rem;
+    margin-top: 2rem;
+}
+
+.btn {
+    padding: 0.75rem 1.5rem;
+    border-radius: 8px;
+    font-weight: 600;
+    transition: all 0.3s ease;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    cursor: pointer;
+}
+
+.btn i {
+    margin-right: 0.5rem;
+}
+
+.btn-primary {
+    background: #0d6efd;
+    color: white;
+    border: none;
+}
+
+.btn-primary:hover {
+    background: #0b5ed7;
+    transform: translateY(-2px);
+}
+
+.btn-secondary {
+    background: #6c757d;
+    color: white;
+    border: none;
+}
+
+.btn-secondary:hover {
+    background: #5c636a;
+    transform: translateY(-2px);
+}
+
+/* Responsive Adjustments */
+@media (max-width: 768px) {
+    .activity {
+        flex-direction: column;
+    }
+    
+    .activity .time {
+        margin-bottom: 0.5rem;
+    }
+    
+    .actions {
+        flex-direction: column;
+    }
+    
+    .contacts-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+/* Loading Animation */
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+.spinner-border {
+    width: 2.5rem;
+    height: 2.5rem;
+    border-width: 0.25rem;
+    animation: spin 0.75s linear infinite;
+}
+
+/* Dark Mode Support */
+[data-theme="dark"] .trip-planner .card,
+[data-theme="dark"] .trip-summary,
+[data-theme="dark"] .day-card {
+    background: #2d3748;
+    color: #e2e8f0;
+}
+
+[data-theme="dark"] .trip-planner .card-header,
+[data-theme="dark"] .day-card h4 {
+    background: #2d3748;
+    border-color: #4a5568;
+    color: #e2e8f0;
+}
+
+[data-theme="dark"] .activity h5 {
+    color: #e2e8f0;
+}
+
+[data-theme="dark"] .budget,
+[data-theme="dark"] .activity .location {
+    color: #a0aec0;
+}
+
+[data-theme="dark"] .form-control,
+[data-theme="dark"] .form-select {
+    background-color: #2d3748;
+    border-color: #4a5568;
+    color: #e2e8f0;
+}
+
+[data-theme="dark"] .money-saving-tips {
+    background: #443a26;
+}
+
+[data-theme="dark"] .emergency-contacts {
+    background: #2d3748;
+}
+
+[data-theme="dark"] .contact {
+    background: #1a202c;
+    color: #e2e8f0;
+}

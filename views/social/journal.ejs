@@ -1,0 +1,80 @@
+<%- include('../partials/header') %>
+
+<div class="container my-5">
+    <div class="row">
+        <div class="col-lg-8 mx-auto">
+            <div class="card shadow-sm mb-5">
+                <div class="card-header bg-primary text-white">
+                    <h3 class="mb-0">Create a New Journal Entry</h3>
+                </div>
+                <div class="card-body">
+                    <form action="/social/journal" method="POST" enctype="multipart/form-data">
+                        <div class="mb-3">
+                            <label for="title" class="form-label">Title</label>
+                            <input type="text" class="form-control" id="title" name="title" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="location" class="form-label">Location</label>
+                            <input type="text" class="form-control" id="location" name="location" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="content" class="form-label">Your Experience</label>
+                            <textarea class="form-control" id="content" name="content" rows="5" required></textarea>
+                        </div>
+                        <div class="mb-3">
+                            <label for="images" class="form-label">Upload Photos</label>
+                            <input type="file" class="form-control" id="images" name="images" multiple accept="image/*">
+                        </div>
+                        <button type="submit" class="btn btn-primary">Share Your Experience</button>
+                    </form>
+                </div>
+            </div>
+
+            <h2 class="mb-4">Your Travel Journals</h2>
+            <% if (journals && journals.length > 0) { %>
+                <% journals.forEach(journal => { %>
+                    <div class="card mb-4 shadow-sm">
+                        <% if (journal.images && journal.images.length > 0) { %>
+                            <div class="row g-0">
+                                <div class="col-md-4">
+                                    <img src="<%= journal.images[0].url %>" class="img-fluid rounded-start" alt="<%= journal.title %>">
+                                </div>
+                                <div class="col-md-8">
+                                    <div class="card-body">
+                                        <h5 class="card-title"><%= journal.title %></h5>
+                                        <h6 class="card-subtitle mb-2 text-muted"><i class="fas fa-map-marker-alt"></i> <%= journal.location %></h6>
+                                        <p class="card-text"><%= journal.content.substring(0, 150) %>...</p>
+                                        <div class="d-flex justify-content-between align-items-center">
+                                            <small class="text-muted">
+                                                <i class="far fa-calendar-alt"></i> <%= journal.createdAt.toLocaleDateString() %>
+                                            </small>
+                                            <a href="/social/journal/<%= journal._id %>" class="btn btn-sm btn-outline-primary">Read More</a>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        <% } else { %>
+                            <div class="card-body">
+                                <h5 class="card-title"><%= journal.title %></h5>
+                                <h6 class="card-subtitle mb-2 text-muted"><i class="fas fa-map-marker-alt"></i> <%= journal.location %></h6>
+                                <p class="card-text"><%= journal.content.substring(0, 300) %>...</p>
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <small class="text-muted">
+                                        <i class="far fa-calendar-alt"></i> <%= journal.createdAt.toLocaleDateString() %>
+                                    </small>
+                                    <a href="/social/journal/<%= journal._id %>" class="btn btn-sm btn-outline-primary">Read More</a>
+                                </div>
+                            </div>
+                        <% } %>
+                    </div>
+                <% }) %>
+            <% } else { %>
+                <div class="alert alert-info">
+                    You haven't created any travel journals yet. Share your first experience!
+                </div>
+            <% } %>
+        </div>
+    </div>
+</div>
+
+<%- include('../partials/footer') %>

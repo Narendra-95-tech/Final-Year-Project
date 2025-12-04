@@ -1,0 +1,261 @@
+<% layout("/layouts/boilerplate") -%>
+
+<style>
+  .bookings-hero {
+    background: linear-gradient(135deg, var(--primary-orange), var(--primary-orange-hover));
+    color: var(--white);
+    padding: 3rem 0;
+    margin-bottom: 2rem;
+  }
+
+  .bookings-title {
+    font-size: 2.5rem;
+    font-weight: 700;
+    margin-bottom: 0.5rem;
+  }
+
+  .bookings-subtitle {
+    font-size: 1.1rem;
+    opacity: 0.9;
+  }
+
+  .booking-card {
+    background: var(--white);
+    border-radius: var(--radius-xl);
+    overflow: hidden;
+    box-shadow: var(--shadow-sm);
+    transition: all var(--transition-normal);
+    border: 1px solid var(--gray-200);
+    margin-bottom: 1.5rem;
+  }
+
+  .booking-card:hover {
+    box-shadow: var(--shadow-lg);
+    transform: translateY(-2px);
+  }
+
+  .booking-type-badge {
+    position: absolute;
+    top: 10px;
+    left: 10px;
+    padding: 0.25rem 0.75rem;
+    border-radius: var(--radius-full);
+    font-size: 0.75rem;
+    font-weight: 600;
+  }
+
+  .booking-type-listing {
+    background: var(--secondary-blue);
+    color: var(--white);
+  }
+
+  .booking-type-dhaba {
+    background: var(--primary-orange);
+    color: var(--white);
+  }
+
+  .booking-type-vehicle {
+    background: var(--secondary-green);
+    color: var(--white);
+  }
+
+  .booking-status {
+    padding: 0.25rem 0.75rem;
+    border-radius: var(--radius-full);
+    font-size: 0.75rem;
+    font-weight: 600;
+  }
+
+  .booking-status-paid {
+    background: var(--secondary-green);
+    color: var(--white);
+  }
+
+  .booking-status-pending {
+    background: var(--secondary-yellow);
+    color: var(--gray-800);
+  }
+
+  .booking-status-failed {
+    background: var(--secondary-red);
+    color: var(--white);
+  }
+</style>
+
+<section class="bookings-hero">
+  <div class="container text-center">
+    <h1 class="bookings-title">Admin Bookings</h1>
+    <p class="bookings-subtitle">Manage all bookings across WanderLust</p>
+  </div>
+</section>
+
+<div class="container">
+  <!-- Filters -->
+  <div class="card mb-4">
+    <div class="card-header">
+      <h5 class="mb-0">Filters</h5>
+    </div>
+    <div class="card-body">
+      <form method="GET" action="/bookings/admin" class="row g-3">
+        <div class="col-md-3">
+          <label class="form-label">Status</label>
+          <select name="status" class="form-select">
+            <option value="">All Statuses</option>
+            <option value="Pending" <%= filters.status === 'Pending' ? 'selected' : '' %>>Pending</option>
+            <option value="Confirmed" <%= filters.status === 'Confirmed' ? 'selected' : '' %>>Confirmed</option>
+            <option value="Cancelled" <%= filters.status === 'Cancelled' ? 'selected' : '' %>>Cancelled</option>
+          </select>
+        </div>
+        <div class="col-md-3">
+          <label class="form-label">Payment Status</label>
+          <select name="paymentStatus" class="form-select">
+            <option value="">All Payments</option>
+            <option value="Pending" <%= filters.paymentStatus === 'Pending' ? 'selected' : '' %>>Pending</option>
+            <option value="Paid" <%= filters.paymentStatus === 'Paid' ? 'selected' : '' %>>Paid</option>
+            <option value="Failed" <%= filters.paymentStatus === 'Failed' ? 'selected' : '' %>>Failed</option>
+          </select>
+        </div>
+        <div class="col-md-3">
+          <label class="form-label">Type</label>
+          <select name="type" class="form-select">
+            <option value="">All Types</option>
+            <option value="listing" <%= filters.type === 'listing' ? 'selected' : '' %>>Listings</option>
+            <option value="vehicle" <%= filters.type === 'vehicle' ? 'selected' : '' %>>Vehicles</option>
+            <option value="dhaba" <%= filters.type === 'dhaba' ? 'selected' : '' %>>Dhabas</option>
+          </select>
+        </div>
+        <div class="col-md-3 d-flex align-items-end">
+          <button type="submit" class="btn btn-primary w-100">Apply Filters</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <% if(bookings.length === 0) { %>
+    <div class="text-center py-5">
+      <i class="fas fa-calendar-times fa-4x text-muted mb-3"></i>
+      <h4 class="text-muted">No bookings found</h4>
+      <p class="text-muted">No bookings match the current filters.</p>
+    </div>
+  <% } else { %>
+    <div class="row">
+      <% bookings.forEach(booking => { %>
+        <div class="col-12">
+          <div class="booking-card animate-fade-in">
+            <div class="position-relative">
+              <% if (booking.type === 'listing' && booking.listing) { %>
+                <span class="booking-type-badge booking-type-listing">🏠 Stay</span>
+                <img src="<%= booking.listing.image?.url || 'https://images.unsplash.com/photo-1502672260266-1c1ef2d93688?w=400&h=200&fit=crop&crop=center' %>"
+                     class="card-img-top" alt="<%= booking.listing.title %>" style="height: 200px; object-fit: cover;">
+                <div class="card-body">
+                  <h5 class="card-title"><%= booking.listing.title %></h5>
+                  <p class="card-text text-muted">
+                    <i class="fas fa-map-marker-alt me-1"></i>
+                    <%= booking.listing.location %>, <%= booking.listing.country %>
+                  </p>
+                  <div class="row">
+                    <div class="col-md-6">
+                      <p><strong>Check-in:</strong> <%= booking.startDate.toLocaleDateString() %></p>
+                      <p><strong>Guests:</strong> <%= booking.guests %></p>
+                      <p><strong>User:</strong> <%= booking.user.username %></p>
+                    </div>
+                    <div class="col-md-6 text-md-end">
+                      <p><strong>Check-out:</strong> <%= booking.endDate.toLocaleDateString() %></p>
+                      <p><strong>Total:</strong> ₹<%= booking.totalPrice.toLocaleString("en-IN") %></p>
+                      <p><strong>Payment:</strong> <%= booking.paymentStatus %></p>
+                    </div>
+                  </div>
+                  <div class="d-flex justify-content-between align-items-center mt-3">
+                    <span class="booking-status <%= booking.status === 'Confirmed' ? 'booking-status-paid' : booking.status === 'Cancelled' ? 'booking-status-failed' : 'booking-status-pending' %>">
+                      <%= booking.status %>
+                    </span>
+                    <form method="POST" action="/bookings/admin/<%= booking._id %>/status" class="d-inline">
+                      <select name="status" class="form-select form-select-sm d-inline w-auto me-2">
+                        <option value="Pending" <%= booking.status === 'Pending' ? 'selected' : '' %>>Pending</option>
+                        <option value="Confirmed" <%= booking.status === 'Confirmed' ? 'selected' : '' %>>Confirmed</option>
+                        <option value="Cancelled" <%= booking.status === 'Cancelled' ? 'selected' : '' %>>Cancelled</option>
+                      </select>
+                      <button type="submit" class="btn btn-sm btn-primary">Update</button>
+                    </form>
+                  </div>
+                </div>
+              <% } else if (booking.type === 'dhaba' && booking.dhaba) { %>
+                <span class="booking-type-badge booking-type-dhaba">🍽️ Dining</span>
+                <img src="<%= booking.dhaba.image?.url || 'https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?w=400&h=200&fit=crop&crop=center' %>"
+                     class="card-img-top" alt="<%= booking.dhaba.title %>" style="height: 200px; object-fit: cover;">
+                <div class="card-body">
+                  <h5 class="card-title"><%= booking.dhaba.title %></h5>
+                  <p class="card-text text-muted">
+                    <i class="fas fa-map-marker-alt me-1"></i>
+                    <%= booking.dhaba.location %>, <%= booking.dhaba.country %>
+                  </p>
+                  <div class="row">
+                    <div class="col-md-6">
+                      <p><strong>Reservation Date:</strong> <%= booking.startDate.toLocaleDateString() %></p>
+                      <p><strong>Guests:</strong> <%= booking.guests %></p>
+                      <p><strong>User:</strong> <%= booking.user.username %></p>
+                    </div>
+                    <div class="col-md-6 text-md-end">
+                      <p><strong>Cuisine:</strong> <%= booking.dhaba.cuisine %></p>
+                      <p><strong>Total:</strong> ₹<%= booking.totalPrice.toLocaleString("en-IN") %></p>
+                      <p><strong>Payment:</strong> <%= booking.paymentStatus %></p>
+                    </div>
+                  </div>
+                  <div class="d-flex justify-content-between align-items-center mt-3">
+                    <span class="booking-status <%= booking.status === 'Confirmed' ? 'booking-status-paid' : booking.status === 'Cancelled' ? 'booking-status-failed' : 'booking-status-pending' %>">
+                      <%= booking.status %>
+                    </span>
+                    <form method="POST" action="/bookings/admin/<%= booking._id %>/status" class="d-inline">
+                      <select name="status" class="form-select form-select-sm d-inline w-auto me-2">
+                        <option value="Pending" <%= booking.status === 'Pending' ? 'selected' : '' %>>Pending</option>
+                        <option value="Confirmed" <%= booking.status === 'Confirmed' ? 'selected' : '' %>>Confirmed</option>
+                        <option value="Cancelled" <%= booking.status === 'Cancelled' ? 'selected' : '' %>>Cancelled</option>
+                      </select>
+                      <button type="submit" class="btn btn-sm btn-primary">Update</button>
+                    </form>
+                  </div>
+                </div>
+              <% } else if (booking.type === 'vehicle' && booking.vehicle) { %>
+                <span class="booking-type-badge booking-type-vehicle">🚗 Rental</span>
+                <img src="<%= booking.vehicle.image?.url || 'https://images.unsplash.com/photo-1549317336-206569e8475c?w=400&h=200&fit=crop&crop=center' %>"
+                     class="card-img-top" alt="<%= booking.vehicle.title %>" style="height: 200px; object-fit: cover;">
+                <div class="card-body">
+                  <h5 class="card-title"><%= booking.vehicle.title %></h5>
+                  <p class="card-text text-muted">
+                    <i class="fas fa-map-marker-alt me-1"></i>
+                    <%= booking.vehicle.location %>, <%= booking.vehicle.country %>
+                  </p>
+                  <div class="row">
+                    <div class="col-md-6">
+                      <p><strong>Rental Start:</strong> <%= booking.startDate.toLocaleDateString() %> <%= booking.startTime %></p>
+                      <p><strong>Pickup Location:</strong> <%= booking.pickupLocation || 'N/A' %></p>
+                      <p><strong>User:</strong> <%= booking.user.username %></p>
+                    </div>
+                    <div class="col-md-6 text-md-end">
+                      <p><strong>Rental End:</strong> <%= booking.endDate.toLocaleDateString() %> <%= booking.endTime %></p>
+                      <p><strong>Total:</strong> ₹<%= booking.totalPrice.toLocaleString("en-IN") %></p>
+                      <p><strong>Payment:</strong> <%= booking.paymentStatus %></p>
+                    </div>
+                  </div>
+                  <div class="d-flex justify-content-between align-items-center mt-3">
+                    <span class="booking-status <%= booking.status === 'Confirmed' ? 'booking-status-paid' : booking.status === 'Cancelled' ? 'booking-status-failed' : 'booking-status-pending' %>">
+                      <%= booking.status %>
+                    </span>
+                    <form method="POST" action="/bookings/admin/<%= booking._id %>/status" class="d-inline">
+                      <select name="status" class="form-select form-select-sm d-inline w-auto me-2">
+                        <option value="Pending" <%= booking.status === 'Pending' ? 'selected' : '' %>>Pending</option>
+                        <option value="Confirmed" <%= booking.status === 'Confirmed' ? 'selected' : '' %>>Confirmed</option>
+                        <option value="Cancelled" <%= booking.status === 'Cancelled' ? 'selected' : '' %>>Cancelled</option>
+                      </select>
+                      <button type="submit" class="btn btn-sm btn-primary">Update</button>
+                    </form>
+                  </div>
+                </div>
+              <% } %>
+            </div>
+          </div>
+        </div>
+      <% }); %>
+    </div>
+  <% } %>
+</div>

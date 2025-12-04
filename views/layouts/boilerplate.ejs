@@ -7,48 +7,1218 @@
   <!-- Safe Page Title -->
   <title><%= typeof pageTitle !== 'undefined' ? pageTitle : "WanderLust" %></title>
 
-  <!-- Bootstrap & Font Awesome -->
+  <!-- Google Fonts - Poppins -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+
+  <!-- Bootstrap 5 & Font Awesome -->
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/css/bootstrap.min.css" rel="stylesheet">
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.0/css/all.min.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
 
-  <!-- Mapbox CSS (optional) -->
+  <!-- FullCalendar -->
+  <link href='https://cdn.jsdelivr.net/npm/@fullcalendar/core@6.1.10/main.min.css' rel='stylesheet' />
+  <link href='https://cdn.jsdelivr.net/npm/@fullcalendar/daygrid@6.1.10/main.min.css' rel='stylesheet' />
+  <script src='https://cdn.jsdelivr.net/npm/@fullcalendar/core@6.1.10/main.min.js'></script>
+  <script src='https://cdn.jsdelivr.net/npm/@fullcalendar/daygrid@6.1.10/main.min.js'></script>
+  <script src='https://cdn.jsdelivr.net/npm/@fullcalendar/interaction@6.1.10/main.min.js'></script>
+
+  <!-- Custom Calendar CSS -->
+  <link rel="stylesheet" href="/css/calendar.css">
+
+  <!-- Mapbox CSS & JS -->
   <link href="https://api.mapbox.com/mapbox-gl-js/v3.15.0/mapbox-gl.css" rel="stylesheet">
-  <script src="https://api.mapbox.com/mapbox-gl-js/v2.20.0/mapbox-gl.js"></script>
+  <script src="https://api.mapbox.com/mapbox-gl-js/v3.15.0/mapbox-gl.js"></script>
 
+  <!-- AOS (Animate On Scroll) -->
+  <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
+  
   <!-- Custom Styles -->
   <link rel="stylesheet" href="/css/style.css">
   <link rel="stylesheet" href="/css/rating.css">
+  <link rel="stylesheet" href="/css/booking.css">
+  <link rel="stylesheet" href="/css/vehicles.css">
+  <link rel="stylesheet" href="/css/dhabas.css">
+  <link rel="stylesheet" href="/css/ai-assistant.css">
+  <link rel="stylesheet" href="/css/language-selector.css">
+  <link rel="stylesheet" href="/css/enhanced-map.css">
+  <link rel="stylesheet" href="/css/map-listings-view.css">
+  
+  <!-- RTL Support -->
+  <style>
+    /* RTL Layout */
+    .rtl {
+      direction: rtl;
+      text-align: right;
+    }
+    
+    /* Adjust navbar for RTL */
+    .rtl .me-auto {
+      margin-right: 0 !important;
+      margin-left: auto !important;
+    }
+    
+    .rtl .ms-2 {
+      margin-right: 0.5rem !important;
+      margin-left: 0 !important;
+    }
+    
+    .rtl .me-2 {
+      margin-left: 0.5rem !important;
+      margin-right: 0 !important;
+    }
+  </style>
+  
+  <style>
+    /* Calendar Styles */
+    .wanderlust-calendar {
+      --primary-color: #FF385C;
+      --primary-light: #FF5A5F;
+      --text-primary: #222222;
+      --text-secondary: #717171;
+      --border-color: #EBEBEB;
+      --today-bg: #FFF0F0;
+      --hover-bg: #F8F8F8;
+      --shadow: 0 15px 40px rgba(0, 0, 0, 0.08);
+      --border-radius: 12px;
+      --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', sans-serif;
+      color: var(--text-primary);
+      background: white;
+      border-radius: var(--border-radius);
+      box-shadow: var(--shadow);
+      overflow: hidden;
+      width: 100%;
+      max-width: 100%;
+      margin: 0 auto;
+    }
+
+    .calendar-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 15px 20px;
+      background: linear-gradient(135deg, var(--primary-color), var(--primary-light));
+      color: white;
+      position: relative;
+      z-index: 1;
+    }
+
+    .calendar-title {
+      font-size: 1.1rem;
+      font-weight: 600;
+      margin: 0;
+      text-align: center;
+      flex-grow: 1;
+    }
+
+    .calendar-nav-button {
+      background: rgba(255, 255, 255, 0.2);
+      border: none;
+      border-radius: 50%;
+      width: 32px;
+      height: 32px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+      cursor: pointer;
+      transition: var(--transition);
+    }
+
+    .calendar-nav-button:hover {
+      background: rgba(255, 255, 255, 0.3);
+      transform: scale(1.1);
+    }
+
+    .calendar-weekdays {
+      display: grid;
+      grid-template-columns: repeat(7, 1fr);
+      background-color: #f8f9fa;
+      padding: 10px 0;
+      font-weight: 500;
+      color: var(--text-secondary);
+      text-align: center;
+    }
+
+    .calendar-days {
+      display: grid;
+      grid-template-columns: repeat(7, 1fr);
+      gap: 1px;
+      background-color: var(--border-color);
+      padding: 1px;
+    }
+
+    .calendar-day {
+      aspect-ratio: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background-color: white;
+      cursor: pointer;
+      transition: var(--transition);
+      position: relative;
+      font-size: 0.9rem;
+    }
+
+    .calendar-day:hover:not(.empty):not(.disabled) {
+      background-color: var(--hover-bg);
+      transform: translateY(-2px);
+      z-index: 1;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    }
+
+    .calendar-day.today {
+      background: linear-gradient(135deg, #FF385C, #FF5A5F);
+      color: white !important;
+      font-weight: 700;
+      border-radius: 50%;
+      transform: scale(1.15);
+      box-shadow: 0 3px 10px rgba(255, 56, 92, 0.3);
+      position: relative;
+      z-index: 2;
+      border: 2px solid white;
+      animation: pulse 2s infinite;
+    }
+    
+    @keyframes pulse {
+      0% { box-shadow: 0 0 0 0 rgba(255, 56, 92, 0.4); }
+      70% { box-shadow: 0 0 0 8px rgba(255, 56, 92, 0); }
+      100% { box-shadow: 0 0 0 0 rgba(255, 56, 92, 0); }
+    }
+    
+    .calendar-day.today::after {
+      content: 'TODAY';
+      position: absolute;
+      bottom: -20px;
+      left: 50%;
+      transform: translateX(-50%);
+      font-size: 9px;
+      font-weight: 700;
+      color: #FF385C;
+      background: white;
+      padding: 1px 5px;
+      border-radius: 10px;
+      white-space: nowrap;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+    }
+
+    .calendar-day.selected {
+      background-color: var(--primary-color);
+      color: white;
+      font-weight: 600;
+    }
+
+    .calendar-day.disabled {
+      color: #ccc;
+      background-color: #fafafa;
+      cursor: not-allowed;
+      opacity: 0.6;
+    }
+
+    .calendar-day.empty {
+      background-color: transparent;
+      cursor: default;
+    }
+
+    /* Dark mode support */
+    .dark .wanderlust-calendar {
+      background: #1f2937;
+      color: #f3f4f6;
+    }
+
+    .dark .calendar-day {
+      background-color: #1f2937;
+      color: #f3f4f6;
+    }
+
+    .dark .calendar-day.empty {
+      background-color: transparent;
+    }
+
+    .dark .calendar-day.disabled {
+      color: #4b5563;
+      background-color: #111827;
+    }
+
+    .dark .calendar-weekdays {
+      background-color: #111827;
+      color: #9ca3af;
+    }
+  </style>
+  
+  <!-- Calendar Component -->
+  <script>
+    // Define the WanderlustCalendar class in the global scope
+    window.WanderlustCalendar = class {
+      constructor(containerId, options = {}) {
+        this.container = document.getElementById(containerId);
+        if (!this.container) {
+          console.error(`Calendar container with ID '${containerId}' not found`);
+          return;
+        }
+        
+        this.options = {
+          showHeader: true,
+          showWeekdays: true,
+          showToday: true,
+          showClearBtn: false,
+          showWeekNumbers: false,
+          minDate: null,
+          maxDate: null,
+          onDateSelect: null,
+          onMonthChange: null,
+          ...options
+        };
+        
+        this.currentDate = new Date();
+        this.selectedDate = null;
+        
+        this.init();
+      }
+      
+      init() {
+        this.render();
+        this.bindEvents();
+      }
+      
+      render() {
+        if (!this.container) return;
+        
+        const year = this.currentDate.getFullYear();
+        const month = this.currentDate.getMonth();
+        const daysInMonth = new Date(year, month + 1, 0).getDate();
+        const firstDay = new Date(year, month, 1).getDay();
+        
+        // Clear container
+        this.container.innerHTML = '';
+        
+        // Create calendar container
+        const calendarEl = document.createElement('div');
+        calendarEl.className = 'wanderlust-calendar';
+        
+        // Add header
+        if (this.options.showHeader) {
+          const headerEl = document.createElement('div');
+          headerEl.className = 'calendar-header';
+          
+          // Previous month button
+          const prevBtn = document.createElement('button');
+          prevBtn.className = 'calendar-nav-button prev-month';
+          prevBtn.innerHTML = '&lt;';
+          prevBtn.addEventListener('click', () => this.previousMonth());
+          
+          // Month/year display
+          const titleEl = document.createElement('div');
+          titleEl.className = 'calendar-title';
+          titleEl.textContent = `${this.getMonthName(month)} ${year}`;
+          
+          // Next month button
+          const nextBtn = document.createElement('button');
+          nextBtn.className = 'calendar-nav-button next-month';
+          nextBtn.innerHTML = '&gt;';
+          nextBtn.addEventListener('click', () => this.nextMonth());
+          
+          headerEl.appendChild(prevBtn);
+          headerEl.appendChild(titleEl);
+          headerEl.appendChild(nextBtn);
+          calendarEl.appendChild(headerEl);
+        }
+        
+        // Add weekdays
+        if (this.options.showWeekdays) {
+          const weekdaysEl = document.createElement('div');
+          weekdaysEl.className = 'calendar-weekdays';
+          
+          const weekdays = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+          weekdays.forEach(day => {
+            const dayEl = document.createElement('div');
+            dayEl.className = 'weekday';
+            dayEl.textContent = day;
+            weekdaysEl.appendChild(dayEl);
+          });
+          
+          calendarEl.appendChild(weekdaysEl);
+        }
+        
+        // Add days
+        const daysEl = document.createElement('div');
+        daysEl.className = 'calendar-days';
+        
+        // Add empty cells for days before the first day of the month
+        for (let i = 0; i < firstDay; i++) {
+          const emptyDay = document.createElement('div');
+          emptyDay.className = 'calendar-day empty';
+          daysEl.appendChild(emptyDay);
+        }
+        
+        // Add days of the month
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
+        
+        for (let day = 1; day <= daysInMonth; day++) {
+          const date = new Date(year, month, day);
+          date.setHours(0, 0, 0, 0); // Normalize time
+          
+          const dayEl = document.createElement('div');
+          dayEl.className = 'calendar-day';
+          dayEl.textContent = day;
+          dayEl.dataset.date = date.toISOString().split('T')[0];
+          
+          // Highlight today - compare dates without time
+          if (date.getDate() === today.getDate() && 
+              date.getMonth() === today.getMonth() && 
+              date.getFullYear() === today.getFullYear()) {
+            dayEl.classList.add('today');
+            console.log('Today highlighted:', date);
+          }
+          
+          // Highlight selected date
+          if (this.selectedDate && this.isSameDay(date, this.selectedDate)) {
+            dayEl.classList.add('selected');
+          }
+          
+          // Disable dates outside min/max range
+          if ((this.options.minDate && date < this.options.minDate) || 
+              (this.options.maxDate && date > this.options.maxDate)) {
+            dayEl.classList.add('disabled');
+          } else {
+            dayEl.addEventListener('click', () => this.selectDate(date));
+          }
+          
+          daysEl.appendChild(dayEl);
+        }
+        
+        calendarEl.appendChild(daysEl);
+        this.container.appendChild(calendarEl);
+      }
+      
+      bindEvents() {
+        // Event delegation for day clicks
+        this.container.addEventListener('click', (e) => {
+          const dayEl = e.target.closest('.calendar-day:not(.disabled):not(.empty)');
+          if (dayEl && dayEl.dataset.date) {
+            const date = new Date(dayEl.dataset.date);
+            this.selectDate(date);
+          }
+        });
+      }
+      
+      previousMonth() {
+        this.currentDate.setMonth(this.currentDate.getMonth() - 1);
+        this.render();
+        this.triggerMonthChange();
+      }
+      
+      nextMonth() {
+        this.currentDate.setMonth(this.currentDate.getMonth() + 1);
+        this.render();
+        this.triggerMonthChange();
+      }
+      
+      selectDate(date) {
+        this.selectedDate = date;
+        this.render();
+        
+        if (typeof this.options.onDateSelect === 'function') {
+          this.options.onDateSelect(date);
+        }
+      }
+      
+      triggerMonthChange() {
+        if (typeof this.options.onMonthChange === 'function') {
+          this.options.onMonthChange(
+            this.currentDate.getMonth(),
+            this.currentDate.getFullYear()
+          );
+        }
+      }
+      
+      isSameDay(date1, date2) {
+        return date1.getFullYear() === date2.getFullYear() &&
+               date1.getMonth() === date2.getMonth() &&
+               date1.getDate() === date2.getDate();
+      }
+      
+      static getMonthName(monthIndex) {
+        const months = [
+          'January', 'February', 'March', 'April', 'May', 'June',
+          'July', 'August', 'September', 'October', 'November', 'December'
+        ];
+        return months[monthIndex];
+      }
+      
+      getMonthName(monthIndex) {
+        return WanderlustCalendar.getMonthName(monthIndex);
+      }
+    };
+    
+    // Log that the calendar is loaded
+    console.log('WanderlustCalendar class loaded');
+  </script>
+
+  <!-- Favicon -->
+  <link rel="icon" href="/favicon.ico" type="image/x-icon">
+  
+  <!-- AI Trip Planner Styles -->
+  <style>
+    /* AI Trip Planner Floating Button */
+    .ai-trip-planner-float {
+      position: fixed;
+      bottom: 100px; /* Moved up to avoid footer */
+      right: 30px;
+      z-index: 1000; /* Above most content but below modals */
+      transition: all 0.3s ease;
+      pointer-events: none; /* Allow clicks to pass through when not visible */
+    }
+    
+    /* Ensure it doesn't interfere with other fixed elements */
+    @media (max-width: 1199.98px) {
+      .ai-trip-planner-float {
+        bottom: 90px;
+        right: 20px;
+      }
+    }
+    
+    @media (max-width: 767.98px) {
+      .ai-trip-planner-float {
+        bottom: 80px;
+        right: 15px;
+      }
+    }
+
+    .ai-trip-planner-btn {
+      width: 56px;
+      height: 56px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #ff6b6b, #ff8e53);
+      color: white;
+      border: 2px solid white;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 22px;
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      position: relative;
+      z-index: 1000; /* Same as parent */
+      pointer-events: auto; /* Enable button clicks */
+    }
+    
+    /* Add pulse animation */
+    @keyframes pulse {
+      0% { transform: scale(1); }
+      50% { transform: scale(1.05); }
+      100% { transform: scale(1); }
+    }
+    
+    .ai-trip-planner-btn.pulse {
+      animation: pulse 2s infinite;
+    }
+
+    .ai-trip-planner-btn:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 8px 25px rgba(255, 107, 107, 0.4);
+    }
+
+    .ai-trip-planner-panel {
+      position: fixed;
+      bottom: 180px; /* Positioned above the button */
+      right: 30px;
+      width: 350px;
+      max-width: calc(100vw - 60px);
+      background: white;
+      border-radius: 16px;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+      z-index: 1001; /* Above the button */
+      transform: translateY(20px);
+      opacity: 0;
+      visibility: hidden;
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      overflow: hidden;
+      border: 1px solid rgba(0, 0, 0, 0.05);
+      pointer-events: auto; /* Enable clicks when visible */
+    }
+    
+    /* Adjust position on smaller screens */
+    @media (max-width: 991.98px) {
+      .ai-trip-planner-panel {
+        bottom: 150px;
+        right: 20px;
+        width: calc(100% - 40px);
+        max-width: 400px;
+      }
+    }
+    
+    @media (max-width: 575.98px) {
+      .ai-trip-planner-panel {
+        bottom: 140px;
+        right: 10px;
+        width: calc(100% - 20px);
+        max-width: none;
+      }
+    }
+
+    .ai-trip-planner-panel.visible {
+      transform: translateY(0);
+      opacity: 1;
+      visibility: visible;
+    }
+
+    .ai-trip-planner-header {
+      padding: 15px 20px;
+      background: linear-gradient(135deg, #ff6b6b, #ff8e53);
+      color: white;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .ai-trip-planner-header h5 {
+      margin: 0;
+      font-weight: 600;
+    }
+
+    .ai-trip-planner-close {
+      background: none;
+      border: none;
+      color: white;
+      font-size: 20px;
+      cursor: pointer;
+      padding: 5px;
+    }
+
+    .ai-trip-planner-body {
+      padding: 20px;
+      max-height: 60vh;
+      overflow-y: auto;
+    }
+
+    .ai-trip-planner-input {
+      display: flex;
+      gap: 10px;
+      margin-top: 15px;
+    }
+
+    .ai-trip-planner-input input {
+      flex: 1;
+      padding: 12px 15px;
+      border: 1px solid #e0e0e0;
+      border-radius: 8px;
+      font-size: 14px;
+      transition: border-color 0.3s;
+    }
+
+    .ai-trip-planner-input input:focus {
+      outline: none;
+      border-color: #ff6b6b;
+      box-shadow: 0 0 0 3px rgba(255, 107, 107, 0.1);
+    }
+
+    .ai-trip-planner-input button {
+      background: #ff6b6b;
+      color: white;
+      border: none;
+      border-radius: 8px;
+      padding: 0 20px;
+      cursor: pointer;
+      transition: background 0.3s;
+    }
+
+    .ai-trip-planner-input button:hover {
+      background: #ff5252;
+    }
+
+    @media (max-width: 576px) {
+      .ai-trip-planner-float {
+        bottom: 20px;
+        right: 20px;
+      }
+      
+      .ai-trip-planner-panel {
+        right: 20px;
+        width: calc(100% - 40px);
+      }
+    }
+  </style>
 </head>
 <body>
+
+  <!-- AI Trip Planner Floating Button -->
+  <div class="ai-trip-planner-float">
+    <button class="ai-trip-planner-btn pulse" id="aiTripPlannerBtn" aria-label="Open Trip Planner" title="Plan your trip with AI" style="pointer-events: auto;">
+      <i class="fas fa-route"></i>
+    </button>
+    
+    <div class="ai-trip-planner-panel" id="aiTripPlannerPanel">
+      <div class="ai-trip-planner-header">
+        <h5>AI Trip Planner</h5>
+        <button class="ai-trip-planner-close" id="aiTripPlannerClose">
+          <i class="fas fa-times"></i>
+        </button>
+      </div>
+      <div class="ai-trip-planner-body">
+        <p>Plan your perfect trip with our AI assistant. Just describe what you're looking for!</p>
+        <div class="ai-trip-planner-input">
+          <input type="text" id="aiTripQuery" placeholder="e.g., 3-day trip to Manali under ₹10,000">
+          <button id="aiTripPlanBtn">Plan</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Flash Messages (Top) -->
+  <div class="position-fixed top-0 end-0 p-3" style="z-index: 9999;">
+    <% if (typeof success !== 'undefined') { %>
+      <div class="toast show align-items-center text-white bg-success border-0" role="alert" aria-live="assertive" aria-atomic="true">
+        <div class="d-flex">
+          <div class="toast-body">
+            <i class="fas fa-check-circle me-2"></i><%= success %>
+          </div>
+          <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"></button>
+        </div>
+      </div>
+    <% } %>
+    <% if (typeof error !== 'undefined') { %>
+      <div class="toast show align-items-center text-white bg-danger border-0" role="alert" aria-live="assertive" aria-atomic="true">
+        <div class="d-flex">
+          <div class="toast-body">
+            <i class="fas fa-exclamation-triangle me-2"></i><%= error %>
+          </div>
+          <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"></button>
+        </div>
+      </div>
+    <% } %>
+  </div>
 
   <!-- Navbar -->
   <%- include("../includes/navbar.ejs") %>
 
-  <!-- Flash Messages -->
-  <div class="container mt-4">
-    <% if (typeof success !== 'undefined') { %>
-      <div class="alert alert-success"><%= success %></div>
-    <% } %>
-    <% if (typeof error !== 'undefined') { %>
-      <div class="alert alert-danger"><%= error %></div>
-    <% } %>
-  </div>
-
   <!-- Main Content -->
-  <main class="container mt-4 py-3">
+  <main>
     <%- body %>
   </main>
 
   <!-- Footer -->
   <%- include("../includes/footer.ejs") %>
 
-  <!-- JS Libraries -->
-  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/js/bootstrap.bundle.min.js"></script>
-  <script src="https://api.mapbox.com/mapbox-gl-js/v3.15.0/mapbox-gl.js"></script>
-
+  <!-- Bootstrap JS Bundle with Popper -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+  
+  <!-- AOS (Animate On Scroll) -->
+  <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
+  
   <!-- Custom Scripts -->
+  <script src="/js/language-manager.js"></script>
+  
+  <!-- Custom Scripts -->
+  <script src="/js/main.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
   <script src="/js/script.js"></script>
-  <script src="/chatbot.js"></script>
+  <script src="/js/aiAssistant.js"></script>
+  <script src="/js/booking.js"></script>
+  <script src="/js/vehicles.js"></script>
+  <script src="/js/dhabas.js"></script>
+  <script src="/js/enhanced-map.js"></script>
+  <script src="/js/map-listings-view.js"></script>
+  
+  <!-- Google Maps API (add your API key) -->
+  <script src="https://maps.googleapis.com/maps/api/js?key=YOUR_GOOGLE_MAPS_API_KEY&libraries=places" async defer></script>
+  
+  <!-- Stripe JS -->
+  <script src="https://js.stripe.com/v3/"></script>
 
+  <!-- Toast Auto-dismiss -->
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      const toasts = document.querySelectorAll('.toast');
+      toasts.forEach(function(toast) {
+        let dismissTimer;
+        
+        const dismissToast = () => {
+          toast.classList.remove('show');
+          // Remove the toast from DOM after transition
+          setTimeout(() => toast.remove(), 300);
+        };
+        
+        // Auto-dismiss after 5 seconds
+        const startDismissTimer = () => {
+          dismissTimer = setTimeout(dismissToast, 5000);
+        };
+        
+        startDismissTimer();
+        
+        // Clear timeout if user hovers over toast
+        toast.addEventListener('mouseenter', () => {
+          clearTimeout(dismissTimer);
+        });
+        
+        // Restart timeout when mouse leaves
+        toast.addEventListener('mouseleave', startDismissTimer);
+      });
+    });
+  </script>
+  
+  <!-- AI Assistant Script -->
+  <script src="/js/ai-assistant-fixed.js" defer></script>
+  <style>
+    /* AI Assistant Floating Button */
+    .ai-assistant-float {
+      position: fixed;
+      bottom: 30px;
+      right: 30px;
+      width: 64px;
+      height: 64px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #4a6fa5, #2c4d7b);
+      color: white;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 28px;
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+      cursor: pointer;
+      z-index: 9999;
+      transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+      border: 2px solid rgba(255, 255, 255, 0.15);
+      animation: float 3s ease-in-out infinite;
+    }
+    
+    @keyframes float {
+      0% { transform: translateY(0px); }
+      50% { transform: translateY(-8px); }
+      100% { transform: translateY(0px); }
+    }
+    
+    .ai-assistant-float:hover {
+      transform: translateY(-5px) scale(1.05);
+      box-shadow: 0 12px 28px rgba(0, 0, 0, 0.2);
+      background: linear-gradient(135deg, #5a7fb5, #3c5d8b);
+    }
+    
+    .ai-assistant-float i {
+      color: white;
+      filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.2));
+    }
+    
+    /* AI Assistant Chat Container */
+    .ai-assistant {
+      position: fixed;
+      bottom: 100px;
+      right: 30px;
+      width: 380px;
+      max-width: calc(100vw - 60px);
+      height: 600px;
+      max-height: calc(100vh - 150px);
+      border-radius: 16px;
+      background: rgba(255, 255, 255, 0.98);
+      backdrop-filter: blur(10px);
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+      display: flex;
+      flex-direction: column;
+      z-index: 9998;
+      overflow: hidden;
+      transform: translateY(20px);
+      opacity: 0;
+      visibility: hidden;
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      border: 1px solid rgba(0, 0, 0, 0.05);
+    }
+    
+    .ai-assistant.visible {
+      transform: translateY(0);
+      opacity: 1;
+      visibility: visible;
+    }
+    
+    /* Header */
+    .ai-assistant-header {
+      padding: 18px 24px;
+      background: linear-gradient(135deg, #4a6fa5, #2c4d7b);
+      color: white;
+      display: flex;
+      align-items: center;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    }
+    
+    .ai-avatar {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      background: rgba(255, 255, 255, 0.2);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-right: 12px;
+      font-size: 20px;
+    }
+    
+    .header-content h3 {
+      margin: 0;
+      font-size: 16px;
+      font-weight: 600;
+      letter-spacing: 0.3px;
+    }
+    
+    .ai-status {
+      font-size: 12px;
+      opacity: 0.9;
+      display: flex;
+      align-items: center;
+      margin-top: 2px;
+    }
+    
+    .ai-status::before {
+      content: '';
+      display: inline-block;
+      width: 8px;
+      height: 8px;
+      background: #4caf50;
+      border-radius: 50%;
+      margin-right: 6px;
+      animation: pulse 2s infinite;
+    }
+    
+    @keyframes pulse {
+      0% { transform: scale(1); opacity: 1; }
+      50% { transform: scale(1.2); opacity: 0.8; }
+      100% { transform: scale(1); opacity: 1; }
+    }
+    
+    /* Messages */
+    .ai-assistant-messages {
+      flex: 1;
+      overflow-y: auto;
+      padding: 20px;
+      background: #f8f9fa;
+      background-image: radial-gradient(#e0e0e0 1px, transparent 1px);
+      background-size: 20px 20px;
+    }
+    
+    .message {
+      margin-bottom: 16px;
+      opacity: 0;
+      animation: fadeIn 0.3s ease-out forwards;
+      transform-origin: center bottom;
+    }
+    
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    
+    .message-content {
+      display: flex;
+      max-width: 85%;
+      animation: slideIn 0.3s ease-out forwards;
+    }
+    
+    .user-message .message-content {
+      margin-left: auto;
+      flex-direction: row-reverse;
+    }
+    
+    .assistant-message .message-content {
+      margin-right: auto;
+    }
+    
+    .message-text {
+      padding: 12px 16px;
+      border-radius: 18px;
+      background: white;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+      word-wrap: break-word;
+      line-height: 1.5;
+      font-size: 14px;
+      position: relative;
+      transition: all 0.2s ease;
+    }
+    
+    .user-message .message-text {
+      background: #4a6fa5;
+      color: white;
+      border-bottom-right-radius: 4px;
+    }
+    
+    .assistant-message .message-text {
+      border-bottom-left-radius: 4px;
+      background: white;
+      border: 1px solid #e0e0e0;
+    }
+    
+    /* Input Area */
+    .ai-assistant-input {
+      padding: 16px;
+      background: white;
+      border-top: 1px solid rgba(0, 0, 0, 0.05);
+      box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.02);
+    }
+    
+    .input-group {
+      display: flex;
+      align-items: center;
+      background: #f5f7fa;
+      border-radius: 24px;
+      padding: 4px 4px 4px 16px;
+    }
+    
+    .message-input {
+      flex: 1;
+      min-height: 40px;
+      max-height: 120px;
+      border: none;
+      background: transparent;
+      outline: none;
+      resize: none;
+      font-family: inherit;
+      font-size: 14px;
+      line-height: 1.5;
+      padding: 8px 0;
+      color: #333;
+    }
+    
+    .message-input:empty:before {
+      content: attr(placeholder);
+      color: #9e9e9e;
+      pointer-events: none;
+    }
+    
+    .input-group button {
+      background: none;
+      border: none;
+      color: #666;
+      font-size: 18px;
+      padding: 8px 12px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      border-radius: 50%;
+      width: 40px;
+      height: 40px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    
+    .input-group button:hover {
+      background: rgba(0, 0, 0, 0.05);
+      color: #4a6fa5;
+    }
+    
+    .send-btn {
+      background: #4a6fa5 !important;
+      color: white !important;
+      margin-left: 4px;
+    }
+    
+    .send-btn:hover {
+      background: #3a5f8f !important;
+      transform: scale(1.05);
+    }
+    
+    /* Typing Indicator */
+    .typing-indicator {
+      display: none;
+      padding: 12px 20px;
+      align-items: center;
+      justify-content: center;
+    }
+    
+    .typing-indicator span {
+      width: 8px;
+      height: 8px;
+      background-color: #9e9e9e;
+      border-radius: 50%;
+      display: inline-block;
+      margin: 0 2px;
+      animation: bounce 1.4s infinite ease-in-out both;
+    }
+    
+    .typing-indicator span:nth-child(1) {
+      animation-delay: -0.32s;
+    }
+    
+    .typing-indicator span:nth-child(2) {
+      animation-delay: -0.16s;
+    }
+    
+    @keyframes bounce {
+      0%, 80%, 100% { 
+        transform: scale(0);
+      } 
+      40% { 
+        transform: scale(1.0);
+      }
+    }
+    
+    /* Responsive Adjustments */
+    @media (max-width: 576px) {
+      .ai-assistant {
+        width: 100%;
+        height: 100%;
+        max-width: 100%;
+        max-height: 100%;
+        bottom: 0;
+        right: 0;
+        border-radius: 0;
+      }
+      
+      .ai-assistant-float {
+        bottom: 20px;
+        right: 20px;
+        width: 56px;
+        height: 56px;
+        font-size: 24px;
+      }
+    }
+    
+    /* Dark Mode Support */
+    @media (prefers-color-scheme: dark) {
+      .ai-assistant {
+        background: rgba(30, 35, 45, 0.98);
+        border-color: rgba(255, 255, 255, 0.1);
+      }
+      
+      .message-text {
+        background: #2a2f3a;
+        color: #e0e0e0;
+      }
+      
+      .assistant-message .message-text {
+        background: #2a2f3a;
+        border-color: rgba(255, 255, 255, 0.1);
+      }
+      
+      .ai-assistant-input {
+        background: #2a2f3a;
+        border-top-color: rgba(255, 255, 255, 0.05);
+      }
+      
+      .input-group {
+        background: #1e222b;
+      }
+      
+      .message-input {
+        color: #e0e0e0;
+      }
+      
+      .message-input:empty:before {
+        color: #7a7f8c;
+      }
+      
+      .input-group button {
+        color: #7a7f8c;
+      }
+      
+      .input-group button:hover {
+        background: rgba(255, 255, 255, 0.1);
+      }
+      
+      .ai-assistant-messages {
+        background: #1e222b;
+        background-image: radial-gradient(rgba(255, 255, 255, 0.05) 1px, transparent 1px);
+      }
+    }
+  </style>
+  <script>
+    // AI Trip Planner Functionality
+    document.addEventListener('DOMContentLoaded', () => {
+      // AI Trip Planner
+      const aiTripPlannerBtn = document.getElementById('aiTripPlannerBtn');
+      const aiTripPlannerPanel = document.getElementById('aiTripPlannerPanel');
+      const aiTripPlannerClose = document.getElementById('aiTripPlannerClose');
+      const aiTripPlanBtn = document.getElementById('aiTripPlanBtn');
+      const aiTripQuery = document.getElementById('aiTripQuery');
+
+      // Toggle trip planner panel
+      if (aiTripPlannerBtn && aiTripPlannerPanel) {
+        aiTripPlannerBtn.addEventListener('click', (e) => {
+          e.preventDefault();
+          e.stopPropagation();
+          const isOpening = !aiTripPlannerPanel.classList.contains('visible');
+          
+          // Close any other open panels first
+          document.querySelectorAll('.ai-trip-planner-panel.visible').forEach(panel => {
+            if (panel !== aiTripPlannerPanel) {
+              panel.classList.remove('visible');
+            }
+          });
+          
+          // Toggle current panel
+          aiTripPlannerPanel.classList.toggle('visible', isOpening);
+          
+          // Toggle pulse animation when panel is open
+          if (isOpening) {
+            aiTripPlannerBtn.classList.remove('pulse');
+            // Position the panel above the button
+            const buttonRect = aiTripPlannerBtn.getBoundingClientRect();
+            aiTripPlannerPanel.style.bottom = `${window.innerHeight - buttonRect.top + 20}px`;
+          } else if (Math.random() > 0.7) { // 30% chance to show pulse when closing
+            setTimeout(() => {
+              aiTripPlannerBtn.classList.add('pulse');
+            }, 10000); // Start pulsing after 10 seconds
+          }
+        });
+      }
+      
+      // Add initial pulse animation after page load
+      setTimeout(() => {
+        if (aiTripPlannerBtn) {
+          aiTripPlannerBtn.classList.add('pulse');
+        }
+      }, 5000);
+
+      // Close trip planner panel
+      if (aiTripPlannerClose) {
+        aiTripPlannerClose.addEventListener('click', (e) => {
+          e.preventDefault();
+          aiTripPlannerPanel.classList.remove('visible');
+        });
+      }
+
+      // Handle trip planning
+      if (aiTripPlanBtn && aiTripQuery) {
+        const handleTripPlan = () => {
+          const query = aiTripQuery.value.trim();
+          if (query) {
+            // Redirect to the trip planner page with the query
+            window.location.href = `/ai/trip-planner?q=${encodeURIComponent(query)}`;
+          } else {
+            // If no query, just go to the trip planner page
+            window.location.href = '/ai/trip-planner';
+          }
+        };
+
+        aiTripPlanBtn.addEventListener('click', handleTripPlan);
+        
+        // Also handle Enter key in the input field
+        aiTripQuery.addEventListener('keypress', (e) => {
+          if (e.key === 'Enter') {
+            handleTripPlan();
+          }
+        });
+      }
+
+      // Close panel when clicking outside
+      document.addEventListener('click', (e) => {
+        if (aiTripPlannerPanel && !aiTripPlannerPanel.contains(e.target) && 
+            aiTripPlannerBtn && !aiTripPlannerBtn.contains(e.target)) {
+          aiTripPlannerPanel.classList.remove('visible');
+        }
+      });
+
+      // Initialize the AI Assistant when the page loads
+      // Check if the AI Assistant is enabled for this page
+      const aiAssistantEnabled = !document.body.hasAttribute('data-disable-ai-assistant');
+      
+      if (aiAssistantEnabled && window.wanderAI) {
+        // Just initialize the assistant but don't auto-open it
+        console.log('AI Assistant is ready. Click the assistant button to open it.');
+      }
+    });
+  </script>
 </body>
 </html>

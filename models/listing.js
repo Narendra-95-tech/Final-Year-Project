@@ -1,6 +1,7 @@
 const mongoose = require("mongoose");
 const Schema = mongoose.Schema;
 const Review = require("./review.js");
+const Booking = require("./booking.js");
 const { ref } = require("joi");
 
 
@@ -23,6 +24,12 @@ const listingSchema = new Schema({
         ref: "Review",
        },
     ],
+    bookings: [
+       {
+        type: Schema.Types.ObjectId,
+        ref: "Booking",
+       },
+    ],
     owner : {
         type: Schema.Types.ObjectId,
         ref: "User",
@@ -31,11 +38,11 @@ const listingSchema = new Schema({
     type: {
       type: String, // Don't do `{ location: { type: String } }`
       enum: ["Point"], // 'location.type' must be 'Point'
-      required: true,
+      required: false,
     },
     coordinates: {
       type: [Number],
-      required: true,
+      required: false,
     },
   },
     
@@ -44,6 +51,7 @@ const listingSchema = new Schema({
 listingSchema.post("findOneAndDelete", async(listing) => {
     if(listing ) {
         await Review.deleteMany({_id : {$in: listing.reviews}});
+        await Booking.deleteMany({_id : {$in: listing.bookings}});
     }
 });
 

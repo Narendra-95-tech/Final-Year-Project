@@ -1,17 +1,130 @@
-const { required } = require("joi");
 const mongoose = require("mongoose");
 const Schema = mongoose.Schema;
 const passportLocalMongoose = require("passport-local-mongoose");
 
-
 const userSchema = new Schema({
     email: {
         type: String,
-        required: true
-    }
+        required: true,
+        unique: true,
+        trim: true,
+        lowercase: true
+    },
+    username: {
+        type: String,
+        unique: true,
+        trim: true,
+        sparse: true
+    },
+    firstName: String,
+    lastName: String,
+    avatar: {
+        url: String,
+        filename: String
+    },
+    bio: {
+        type: String,
+        maxlength: 500
+    },
+    location: String,
+    website: String,
+    social: {
+        facebook: String,
+        twitter: String,
+        instagram: String
+    },
+    role: {
+        type: String,
+        enum: ["user", "admin"],
+        default: "user"
+    },
+    followers: [{
+        type: Schema.Types.ObjectId,
+        ref: 'User'
+    }],
+    following: [{
+        type: Schema.Types.ObjectId,
+        ref: 'User'
+    }],
+    notifications: [{
+        type: Schema.Types.ObjectId,
+        ref: 'Notification'
+    }],
+    savedPosts: [{
+        type: Schema.Types.ObjectId,
+        ref: 'Journal'
+    }],
+    preferences: {
+        emailNotifications: {
+            type: Boolean,
+            default: true
+        },
+        privacy: {
+            profile: {
+                type: String,
+                enum: ['public', 'followers', 'private'],
+                default: 'public'
+            },
+            activity: {
+                type: String,
+                enum: ['public', 'followers', 'private'],
+                default: 'public'
+            }
+        }
+    },
+    lastActive: Date
+}, {
+    timestamps: true,
+    toJSON: { virtuals: true },
+    toObject: { virtuals: true }
 });
 
-userSchema.plugin(passportLocalMongoose);
+// Virtual for full name
+userSchema.virtual('fullName').get(function() {
+    return `${this.firstName || ''} ${this.lastName || ''}`.trim() || this.username;
+});
 
+// Virtual for user's posts
+userSchema.virtual('posts', {
+    ref: 'Journal',
+    localField: '_id',
+    foreignField: 'author'
+});
+
+// Virtual for user's reviews
+userSchema.virtual('reviews', {
+    ref: 'Review',
+    localField: '_id',
+    foreignField: 'author'
+});
+
+// Add passport-local-mongoose to handle password hashing and authentication
+userSchema.plugin(passportLocalMongoose, {
+    usernameField: 'email',
+    usernameQueryFields: ['email', 'username']
+});
+
+// Method to get public profile data
+userSchema.methods.getPublicProfile = function() {
+    const user = this.toObject();
+    delete user.hash;
+    delete user.salt;
+    delete user.email;
+    delete user.followers;
+    delete user.following;
+    delete user.notifications;
+    delete user.savedPosts;
+    delete user.preferences;
+    delete user.lastActive;
+    return user;
+};
+
+// Pre-save hook to ensure username is set
+userSchema.pre('save', function(next) {
+    if (!this.username && this.email) {
+        this.username = this.email.split('@')[0];
+    }
+    next();
+});
 
 module.exports = mongoose.model('User', userSchema);

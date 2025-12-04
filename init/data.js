@@ -10,6 +10,10 @@ const sampleListings = [
     price: 1500,
     location: "Malibu",
     country: "United States",
+    geometry: {
+      type: "Point",
+      coordinates: [-118.7789, 34.0259]
+    }
   },
   {
     title: "Modern Loft in Downtown",
@@ -22,6 +26,10 @@ const sampleListings = [
     price: 1200,
     location: "New York City",
     country: "United States",
+    geometry: {
+      type: "Point",
+      coordinates: [-74.0060, 40.7128]
+    }
   },
   {
     title: "Mountain Retreat",
@@ -34,6 +42,10 @@ const sampleListings = [
     price: 1000,
     location: "Aspen",
     country: "United States",
+    geometry: {
+      type: "Point",
+      coordinates: [-106.8175, 39.1911]
+    }
   },
   {
     title: "Historic Villa in Tuscany",
@@ -46,6 +58,10 @@ const sampleListings = [
     price: 2500,
     location: "Florence",
     country: "Italy",
+    geometry: {
+      type: "Point",
+      coordinates: [11.2558, 43.7696]
+    }
   },
   {
     title: "Secluded Treehouse Getaway",
@@ -58,6 +74,10 @@ const sampleListings = [
     price: 800,
     location: "Portland",
     country: "United States",
+    geometry: {
+      type: "Point",
+      coordinates: [-122.6765, 45.5236]
+    }
   },
   {
     title: "Beachfront Paradise",
@@ -70,6 +90,10 @@ const sampleListings = [
     price: 2000,
     location: "Cancun",
     country: "Mexico",
+    geometry: {
+      type: "Point",
+      coordinates: [-86.8515, 21.1619]
+    }
   },
   {
     title: "Rustic Cabin by the Lake",
@@ -82,6 +106,10 @@ const sampleListings = [
     price: 900,
     location: "Lake Tahoe",
     country: "United States",
+    geometry: {
+      type: "Point",
+      coordinates: [-120.1208, 39.2399]
+    }
   },
   {
     title: "Luxury Penthouse with City Views",
@@ -94,6 +122,10 @@ const sampleListings = [
     price: 3500,
     location: "Los Angeles",
     country: "United States",
+    geometry: {
+      type: "Point",
+      coordinates: [-118.2437, 34.0522]
+    }
   },
   {
     title: "Ski-In/Ski-Out Chalet",
@@ -106,6 +138,10 @@ const sampleListings = [
     price: 3000,
     location: "Verbier",
     country: "Switzerland",
+    geometry: {
+      type: "Point",
+      coordinates: [7.2333, 46.1000]
+    }
   },
   {
     title: "Safari Lodge in the Serengeti",
@@ -118,6 +154,10 @@ const sampleListings = [
     price: 4000,
     location: "Serengeti National Park",
     country: "Tanzania",
+    geometry: {
+      type: "Point",
+      coordinates: [34.5667, -2.3333]
+    }
   },
   {
     title: "Historic Canal House",
@@ -130,6 +170,10 @@ const sampleListings = [
     price: 1800,
     location: "Amsterdam",
     country: "Netherlands",
+    geometry: {
+      type: "Point",
+      coordinates: [4.9041, 52.3676]
+    }
   },
   {
     title: "Private Island Retreat",
@@ -142,6 +186,10 @@ const sampleListings = [
     price: 10000,
     location: "Fiji",
     country: "Fiji",
+    geometry: {
+      type: "Point",
+      coordinates: [178.0650, -17.7134]
+    }
   },
   {
     title: "Charming Cottage in the Cotswolds",
@@ -154,6 +202,10 @@ const sampleListings = [
     price: 1200,
     location: "Cotswolds",
     country: "United Kingdom",
+    geometry: {
+      type: "Point",
+      coordinates: [-1.7500, 51.8333]
+    }
   },
   {
     title: "Historic Brownstone in Boston",
@@ -166,6 +218,10 @@ const sampleListings = [
     price: 2200,
     location: "Boston",
     country: "United States",
+    geometry: {
+      type: "Point",
+      coordinates: [-71.0589, 42.3601]
+    }
   },
   {
     title: "Beachfront Bungalow in Bali",
@@ -178,6 +234,10 @@ const sampleListings = [
     price: 1800,
     location: "Bali",
     country: "Indonesia",
+    geometry: {
+      type: "Point",
+      coordinates: [115.1889, -8.3405]
+    }
   },
   {
     title: "Mountain View Cabin in Banff",
@@ -190,6 +250,10 @@ const sampleListings = [
     price: 1500,
     location: "Banff",
     country: "Canada",
+    geometry: {
+      type: "Point",
+      coordinates: [-115.5708, 51.4968]
+    }
   },
   {
     title: "Art Deco Apartment in Miami",
@@ -202,6 +266,10 @@ const sampleListings = [
     price: 1600,
     location: "Miami",
     country: "United States",
+    geometry: {
+      type: "Point",
+      coordinates: [-80.1918, 25.7617]
+    }
   },
   {
     title: "Tropical Villa in Phuket",
@@ -214,6 +282,10 @@ const sampleListings = [
     price: 3000,
     location: "Phuket",
     country: "Thailand",
+    geometry: {
+      type: "Point",
+      coordinates: [98.3923, 7.8804]
+    }
   },
   {
     title: "Historic Castle in Scotland",
@@ -226,6 +298,10 @@ const sampleListings = [
     price: 4000,
     location: "Scottish Highlands",
     country: "United Kingdom",
+    geometry: {
+      type: "Point",
+      coordinates: [-5.2042, 57.4778]
+    }
   },
   {
     title: "Desert Oasis in Dubai",
@@ -238,6 +314,10 @@ const sampleListings = [
     price: 5000,
     location: "Dubai",
     country: "United Arab Emirates",
+    geometry: {
+      type: "Point",
+      coordinates: [55.2708, 25.2048]
+    }
   },
   {
     title: "Rustic Log Cabin in Montana",
@@ -250,6 +330,10 @@ const sampleListings = [
     price: 1100,
     location: "Montana",
     country: "United States",
+    geometry: {
+      type: "Point",
+      coordinates: [-110.3626, 46.8797]
+    }
   },
   {
     title: "Beachfront Villa in Greece",
@@ -262,6 +346,10 @@ const sampleListings = [
     price: 2500,
     location: "Mykonos",
     country: "Greece",
+    geometry: {
+      type: "Point",
+      coordinates: [25.3289, 37.4467]
+    }
   },
   {
     title: "Eco-Friendly Treehouse Retreat",
@@ -274,6 +362,10 @@ const sampleListings = [
     price: 750,
     location: "Costa Rica",
     country: "Costa Rica",
+    geometry: {
+      type: "Point",
+      coordinates: [-85.1209, 10.2982]
+    }
   },
   {
     title: "Historic Cottage in Charleston",
@@ -286,6 +378,10 @@ const sampleListings = [
     price: 1600,
     location: "Charleston",
     country: "United States",
+    geometry: {
+      type: "Point",
+      coordinates: [-79.9311, 32.7767]
+    }
   },
   {
     title: "Modern Apartment in Tokyo",
@@ -298,6 +394,10 @@ const sampleListings = [
     price: 2000,
     location: "Tokyo",
     country: "Japan",
+    geometry: {
+      type: "Point",
+      coordinates: [139.6917, 35.6895]
+    }
   },
   {
     title: "Lakefront Cabin in New Hampshire",
@@ -310,6 +410,10 @@ const sampleListings = [
     price: 1200,
     location: "New Hampshire",
     country: "United States",
+    geometry: {
+      type: "Point",
+      coordinates: [-71.5724, 43.1939]
+    }
   },
   {
     title: "Luxury Villa in the Maldives",
@@ -322,6 +426,10 @@ const sampleListings = [
     price: 6000,
     location: "Maldives",
     country: "Maldives",
+    geometry: {
+      type: "Point",
+      coordinates: [73.2207, 3.2028]
+    }
   },
   {
     title: "Ski Chalet in Aspen",
@@ -334,6 +442,10 @@ const sampleListings = [
     price: 4000,
     location: "Aspen",
     country: "United States",
+    geometry: {
+      type: "Point",
+      coordinates: [-106.8175, 39.1911]
+    }
   },
   {
     title: "Secluded Beach House in Costa Rica",
@@ -346,7 +458,342 @@ const sampleListings = [
     price: 1800,
     location: "Costa Rica",
     country: "Costa Rica",
+    geometry: {
+      type: "Point",
+      coordinates: [-85.1209, 10.2982]
+    }
   },
 ];
 
-module.exports = { data: sampleListings };
+const sampleVehicles = [
+  {
+    title: "Royal Enfield Classic 350",
+    description: "Classic motorcycle perfect for highway cruising and city rides.",
+    image: {
+      filename: "vehicle1",
+      url: "https://images.unsplash.com/photo-1558618666-fcd25c85cd64?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=60"
+    },
+    price: 1200,
+    location: "Mumbai",
+    country: "India",
+    vehicleType: "bike",
+    brand: "Royal Enfield",
+    model: "Classic 350",
+    year: 2023,
+    fuelType: "petrol",
+    transmission: "manual",
+    seats: 2,
+    mileage: "35 kmpl",
+    features: ["Classic Design", "Comfortable Seating", "Good Mileage"],
+    availability: true,
+    geometry: {
+      type: "Point",
+      coordinates: [72.8777, 19.0760]
+    }
+  },
+  {
+    title: "Toyota Innova Crysta",
+    description: "Spacious MPV perfect for family trips and long drives.",
+    image: {
+      filename: "vehicle2",
+      url: "https://images.unsplash.com/photo-1549317661-bd32c8ce0db2?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=60"
+    },
+    price: 3000,
+    location: "Delhi",
+    country: "India",
+    vehicleType: "car",
+    brand: "Toyota",
+    model: "Innova Crysta",
+    year: 2022,
+    fuelType: "diesel",
+    transmission: "manual",
+    seats: 7,
+    mileage: "15 kmpl",
+    features: ["7 Seater", "AC", "Music System", "Spacious"],
+    availability: true,
+    geometry: {
+      type: "Point",
+      coordinates: [77.1025, 28.7041]
+    }
+  },
+  {
+    title: "Honda Activa 6G",
+    description: "Reliable scooter for daily commuting and short trips.",
+    image: {
+      filename: "vehicle3",
+      url: "https://images.unsplash.com/photo-1558618047-3c8c76ca7d13?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=60"
+    },
+    price: 500,
+    location: "Bangalore",
+    country: "India",
+    vehicleType: "scooter",
+    brand: "Honda",
+    model: "Activa 6G",
+    year: 2023,
+    fuelType: "petrol",
+    transmission: "automatic",
+    seats: 2,
+    mileage: "50 kmpl",
+    features: ["Easy Handling", "Good Mileage", "Storage Space"],
+    availability: true,
+    geometry: {
+      type: "Point",
+      coordinates: [77.5946, 12.9716]
+    }
+  },
+  {
+    title: "Mahindra Thar",
+    description: "Off-road SUV perfect for adventure trips and rough terrains.",
+    image: {
+      filename: "vehicle4",
+      url: "https://images.unsplash.com/photo-1552519507-da3b142c6e3d?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=60"
+    },
+    price: 2500,
+    location: "Pune",
+    country: "India",
+    vehicleType: "car",
+    brand: "Mahindra",
+    model: "Thar",
+    year: 2022,
+    fuelType: "diesel",
+    transmission: "manual",
+    seats: 4,
+    mileage: "12 kmpl",
+    features: ["4x4", "Off-road", "Adventure Ready", "Convertible"],
+    availability: true,
+    geometry: {
+      type: "Point",
+      coordinates: [73.8567, 18.5204]
+    }
+  },
+  {
+    title: "Bajaj Pulsar 220",
+    description: "Sporty bike for enthusiasts who love speed and performance.",
+    image: {
+      filename: "vehicle5",
+      url: "https://images.unsplash.com/photo-1558618666-fcd25c85cd64?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=60"
+    },
+    price: 900,
+    location: "Hyderabad",
+    country: "India",
+    vehicleType: "bike",
+    brand: "Bajaj",
+    model: "Pulsar 220",
+    year: 2023,
+    fuelType: "petrol",
+    transmission: "manual",
+    seats: 2,
+    mileage: "40 kmpl",
+    features: ["Sporty Design", "Good Performance", "Digital Display"],
+    availability: true,
+    geometry: {
+      type: "Point",
+      coordinates: [78.4867, 17.3850]
+    }
+  },
+  {
+    title: "Maruti Swift",
+    description: "Compact hatchback perfect for city driving and daily commute.",
+    image: {
+      filename: "vehicle6",
+      url: "https://images.unsplash.com/photo-1549317661-bd32c8ce0db2?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=60"
+    },
+    price: 1500,
+    location: "Chennai",
+    country: "India",
+    vehicleType: "car",
+    brand: "Maruti",
+    model: "Swift",
+    year: 2023,
+    fuelType: "petrol",
+    transmission: "manual",
+    seats: 5,
+    mileage: "20 kmpl",
+    features: ["Compact", "Fuel Efficient", "Easy Parking", "AC"],
+    availability: true,
+    geometry: {
+      type: "Point",
+      coordinates: [80.2707, 13.0827]
+    }
+  }
+];
+
+const sampleDhabas = [
+  {
+    title: "Baba Da Dhaba",
+    image: {
+      url: "https://images.unsplash.com/photo-1414235077428-338989a2e8c0?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=60",
+      filename: "dhaba1"
+    },
+    price: 400,
+    location: "Karol Bagh, Delhi",
+    country: "India",
+    cuisine: "North Indian",
+    category: "Casual Dining",
+    establishedYear: 1985,
+    operatingHours: {
+      opens: "08:00",
+      closes: "23:00",
+      isOpen24Hours: false
+    },
+    specialties: ["Dal Makhani", "Butter Chicken", "Tandoori Roti", "Lassi"],
+    facilities: ["AC", "Parking", "WiFi", "Card Payment", "Family Section"],
+    phone: "+91 98765 43210",
+    email: "info@babadhaba.com",
+    website: "https://babadhaba.com",
+    isVegetarian: true,
+    isVegan: false,
+    rating: 4.5,
+    geometry: {
+      type: "Point",
+      coordinates: [77.2090, 28.6517]
+    }
+  },
+  {
+    title: "Punjabi Tadka",
+    image: {
+      url: "https://images.unsplash.com/photo-1555396273-367ea4eb4db5?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=60",
+      filename: "dhaba2"
+    },
+    price: 450,
+    location: "Sector 18, Chandigarh",
+    country: "India",
+    cuisine: "Punjabi",
+    category: "Family Restaurant",
+    establishedYear: 1990,
+    operatingHours: {
+      opens: "11:00",
+      closes: "22:30",
+      isOpen24Hours: false
+    },
+    specialties: ["Chole Bhature", "Amritsari Fish", "Lassi", "Kulcha"],
+    facilities: ["AC", "Parking", "WiFi", "Card Payment", "Family Section", "Live Music"],
+    phone: "+91 98765 43211",
+    email: "contact@punjabitadka.com",
+    website: "https://punjabitadka.com",
+    isVegetarian: true,
+    isVegan: false,
+    rating: 4.3,
+    geometry: {
+      type: "Point",
+      coordinates: [76.7794, 30.7333]
+    }
+  },
+  {
+    title: "Highway Spice",
+    image: {
+      url: "https://images.unsplash.com/photo-1504674900247-0877df9cc836?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=60",
+      filename: "dhaba3"
+    },
+    price: 350,
+    location: "NH-44, Haryana",
+    country: "India",
+    cuisine: "Multi-Cuisine",
+    category: "Casual Dining",
+    establishedYear: 2005,
+    operatingHours: {
+      opens: "06:00",
+      closes: "00:00",
+      isOpen24Hours: false
+    },
+    specialties: ["Highway Special Thali", "Tea", "Snacks", "Fresh Juices"],
+    facilities: ["Parking", "WiFi", "Card Payment", "Home Delivery"],
+    phone: "+91 98765 43212",
+    isVegetarian: true,
+    isVegan: true,
+    rating: 4.2,
+    geometry: {
+      type: "Point",
+      coordinates: [77.1025, 28.7041]
+    }
+  },
+  {
+    title: "South Indian Express",
+    image: {
+      url: "https://images.unsplash.com/photo-1585937421612-70a008356fbe?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=60",
+      filename: "dhaba4"
+    },
+    price: 200,
+    location: "Rajouri Garden, Delhi",
+    country: "India",
+    cuisine: "South Indian",
+    category: "Fast Food",
+    establishedYear: 2010,
+    operatingHours: {
+      opens: "07:00",
+      closes: "22:00",
+      isOpen24Hours: false
+    },
+    specialties: ["Idli", "Dosa", "Vada", "Filter Coffee", "Uttapam"],
+    facilities: ["AC", "WiFi", "Card Payment", "Home Delivery"],
+    phone: "+91 98765 43213",
+    email: "info@southindianexpress.com",
+    isVegetarian: true,
+    isVegan: true,
+    rating: 4.1,
+    geometry: {
+      type: "Point",
+      coordinates: [77.1176, 28.6424]
+    }
+  },
+  {
+    title: "Mumbai Street Food",
+    image: {
+      url: "https://images.unsplash.com/photo-1571091718767-18b5b1457add?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=60",
+      filename: "dhaba5"
+    },
+    price: 150,
+    location: "Bandra West, Mumbai",
+    country: "India",
+    cuisine: "Street Food",
+    category: "Food Truck",
+    establishedYear: 2015,
+    operatingHours: {
+      opens: "18:00",
+      closes: "02:00",
+      isOpen24Hours: false
+    },
+    specialties: ["Vada Pav", "Pav Bhaji", "Bhel Puri", "Sev Puri", "Panipuri"],
+    facilities: ["Card Payment", "Home Delivery"],
+    phone: "+91 98765 43214",
+    isVegetarian: true,
+    isVegan: true,
+    rating: 4.4,
+    geometry: {
+      type: "Point",
+      coordinates: [72.8366, 19.0596]
+    }
+  },
+  {
+    title: "Royal Rajasthan",
+    image: {
+      url: "https://images.unsplash.com/photo-1551218808-94e220e084d2?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=60",
+      filename: "dhaba6"
+    },
+    price: 600,
+    location: "Jaipur, Rajasthan",
+    country: "India",
+    cuisine: "Rajasthani",
+    category: "Fine Dining",
+    establishedYear: 1975,
+    operatingHours: {
+      opens: "12:00",
+      closes: "23:00",
+      isOpen24Hours: false
+    },
+    specialties: ["Dal Baati Churma", "Laal Maas", "Gatte ki Sabzi", "Ker Sangri", "Rajasthani Thali"],
+    facilities: ["AC", "Parking", "WiFi", "Card Payment", "Family Section", "Live Music"],
+    phone: "+91 98765 43215",
+    email: "info@royalrajasthan.com",
+    website: "https://royalrajasthan.com",
+    isVegetarian: true,
+    isVegan: false,
+    rating: 4.6,
+    geometry: {
+      type: "Point",
+      coordinates: [75.7873, 26.9124]
+    }
+  }
+];
+
+module.exports = { sampleListings, sampleVehicles, sampleDhabas };

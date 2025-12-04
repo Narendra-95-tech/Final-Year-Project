@@ -1,140 +1,552 @@
 <style>
-  /* ===== Navbar Styling ===== */
+  /* ===== MODERN NAVBAR DESIGN ===== */
   .navbar {
-    background-color: #fff;
-    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
-    padding: 0.5rem 1rem;
+    background: var(--white) !important;
+    backdrop-filter: blur(10px);
+    box-shadow: var(--shadow-md);
+    border-bottom: 1px solid var(--gray-200);
+    padding: 1rem 0;
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 1030;
+    transition: all var(--transition-normal);
+  }
+
+  .navbar.scrolled {
+    background: rgba(255, 255, 255, 0.95) !important;
+    backdrop-filter: blur(20px);
+    box-shadow: var(--shadow-lg);
   }
 
   .navbar-brand {
     font-weight: 700;
-    font-size: 1.3rem;
-    color: #fe424d;
+    font-size: 1.5rem;
+    color: var(--primary-orange) !important;
+    text-decoration: none;
     display: flex;
     align-items: center;
+    gap: 0.5rem;
+    transition: all var(--transition-fast);
+  }
+
+  .navbar-brand:hover {
+    color: var(--primary-orange-hover) !important;
+    transform: scale(1.05);
   }
 
   .navbar-brand i {
-    margin-right: 0.5rem;
+    font-size: 1.8rem;
   }
 
-  /* Nav Links */
+  /* Navigation Links */
   .navbar-nav .nav-link {
-    color: #333;
+    color: var(--gray-700) !important;
     font-weight: 500;
-    margin-right: 0.5rem;
-    transition: color 0.3s ease;
+    font-size: 0.9rem;
+    padding: 0.5rem 1rem;
+    border-radius: var(--radius-lg);
+    margin: 0 0.25rem;
+    transition: all var(--transition-fast);
+    position: relative;
   }
 
   .navbar-nav .nav-link:hover {
-    color: #fe424d;
+    color: var(--primary-orange) !important;
+    background-color: var(--primary-orange-light);
+    transform: translateY(-2px);
   }
 
-  /* ===== Search Form ===== */
+  .navbar-nav .nav-link.active {
+    color: var(--primary-orange) !important;
+    background-color: var(--primary-orange-light);
+    font-weight: 600;
+  }
+
+  .navbar-nav .nav-link.active::after {
+    content: '';
+    position: absolute;
+    bottom: -2px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 20px;
+    height: 3px;
+    background: var(--primary-orange);
+    border-radius: var(--radius-full);
+  }
+
+  /* Search Form */
   .search-form {
     display: flex;
     gap: 0.5rem;
-    flex-grow: 1; /* lets it expand */
-    max-width: 400px; /* optional limit */
+    background: var(--gray-50);
+    border: 2px solid var(--gray-200);
+    border-radius: var(--radius-full);
+    padding: 0.25rem;
+    transition: all var(--transition-fast);
+    max-width: 400px;
+    width: 100%;
+  }
+
+  .search-form:focus-within {
+    border-color: var(--primary-orange);
+    box-shadow: 0 0 0 3px rgba(253, 126, 20, 0.1);
+    background: var(--white);
   }
 
   .search-inp {
-    border-radius: 50px;
-    padding: 0.5rem 1rem;
-    font-size: 1rem;
-    border: 1px solid #ddd;
-    box-shadow: inset 0 2px 4px rgba(0,0,0,0.05);
-    flex-grow: 1;
-    min-width: 150px;
-    transition: all 0.3s ease;
+    border: none;
+    background: transparent;
+    padding: 0.75rem 1rem;
+    font-size: 0.875rem;
+    color: var(--gray-700);
+    flex: 1;
+    outline: none;
   }
 
-  .search-inp:focus {
-    outline: none;
-    border-color: #fe424d;
-    box-shadow: 0 0 6px rgba(254, 66, 77, 0.3);
+  .search-inp::placeholder {
+    color: var(--gray-400);
   }
 
   .search-btn {
-    background-color: #fe424d;
-    color: #fff;
-    border-radius: 50px;
-    padding: 0.5rem 1.2rem;
+    background: var(--primary-orange);
+    color: var(--white);
+    border: none;
+    border-radius: var(--radius-full);
+    padding: 0.75rem 1.25rem;
     font-weight: 500;
+    font-size: 0.875rem;
+    cursor: pointer;
+    transition: all var(--transition-fast);
     display: flex;
     align-items: center;
-    transition: all 0.3s ease;
-    border: none;
-  }
-
-  .search-btn i {
-    margin-right: 0.5rem;
+    gap: 0.5rem;
   }
 
   .search-btn:hover {
-    background-color: #e63946;
-    transform: translateY(-2px);
-    box-shadow: 0 4px 8px rgba(230, 57, 70, 0.3);
+    background: var(--primary-orange-hover);
+    transform: scale(1.05);
   }
 
-  /* ===== Mobile Styling ===== */
+  /* Mobile Menu */
+  .navbar-toggler {
+    border: none;
+    background: var(--gray-100);
+    border-radius: var(--radius-lg);
+    padding: 0.5rem;
+    transition: all var(--transition-fast);
+  }
+
+  .navbar-toggler:hover {
+    background: var(--primary-orange-light);
+  }
+
+  /* Dropdown Menu */
+  .dropdown-menu {
+    border: none;
+    border-radius: var(--radius-xl);
+    box-shadow: var(--shadow-lg);
+    padding: 0.5rem 0;
+    margin-top: 0.5rem;
+  }
+
+  .dropdown-item {
+    padding: 0.75rem 1.5rem;
+    font-weight: 500;
+    transition: all var(--transition-fast);
+    color: var(--gray-700);
+  }
+
+  .dropdown-item:hover {
+    background-color: var(--primary-orange-light);
+    color: var(--primary-orange);
+  }
+
+  /* User Menu */
+  .user-menu {
+    position: relative;
+  }
+
+  .user-avatar {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, var(--primary-orange), var(--primary-orange-hover));
+    color: var(--white);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all var(--transition-fast);
+  }
+
+  .user-avatar:hover {
+    transform: scale(1.1);
+    box-shadow: var(--shadow-lg);
+  }
+
+  /* Dark Mode Toggle */
+  .theme-toggle {
+    background: var(--gray-100);
+    border: none;
+    border-radius: var(--radius-lg);
+    width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all var(--transition-fast);
+    color: var(--gray-700);
+    font-size: 1.1rem;
+  }
+
+  .theme-toggle:hover {
+    background: var(--primary-orange-light);
+    color: var(--primary-orange);
+    transform: rotate(20deg);
+  }
+
+  /* Search Suggestions */
+  .search-suggestions {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    background: var(--white);
+    border: 1px solid var(--gray-200);
+    border-top: none;
+    border-radius: 0 0 var(--radius-lg) var(--radius-lg);
+    box-shadow: var(--shadow-lg);
+    max-height: 300px;
+    overflow-y: auto;
+    z-index: 1000;
+    display: none;
+  }
+
+  .search-suggestions.active {
+    display: block;
+    animation: slideInUp 0.3s ease-out;
+  }
+
+  .suggestion-item {
+    padding: 0.75rem 1rem;
+    border-bottom: 1px solid var(--gray-100);
+    cursor: pointer;
+    transition: all var(--transition-fast);
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    color: var(--gray-700);
+  }
+
+  .suggestion-item:hover {
+    background: var(--primary-orange-light);
+    color: var(--primary-orange);
+    padding-left: 1.25rem;
+  }
+
+  .suggestion-icon {
+    font-size: 0.875rem;
+    color: var(--gray-400);
+  }
+
+  /* Responsive Design */
+  @media (max-width: 992px) {
+    .search-form {
+      max-width: none;
+      margin: 1rem 0;
+      position: relative;
+    }
+
+    .navbar-nav {
+      text-align: center;
+      margin-top: 1rem;
+    }
+
+    .navbar-nav .nav-link {
+      margin: 0.25rem 0;
+      padding: 0.75rem 1rem;
+    }
+  }
+
   @media (max-width: 768px) {
+    .navbar {
+      padding: 0.75rem 0;
+    }
+
     .search-form {
       flex-direction: column;
-      width: 100%;
       gap: 0.5rem;
-      margin-bottom: 1rem;
+      position: relative;
     }
 
     .search-inp, .search-btn {
       width: 100%;
     }
 
-    .navbar-nav {
-      text-align: center;
+    .navbar-brand {
+      font-size: 1.25rem;
     }
 
-    .navbar-nav .nav-link {
-      margin: 0.25rem 0;
+    .theme-toggle {
+      width: 36px;
+      height: 36px;
+      font-size: 1rem;
     }
   }
 </style>
 
-<nav class="navbar navbar-expand-md sticky-top">
-  <div class="container-fluid">
+<nav class="navbar navbar-expand-lg sticky-top">
+  <div class="container-fluid px-3">
     <!-- Brand -->
-    <a class="navbar-brand" href="/listings">
-      <i class="fa-regular fa-compass"></i> Explore
+    <a class="navbar-brand" href="/" data-i18n="nav.home">
+      <i class="fas fa-compass"></i>
+      <span>WanderLust</span>
     </a>
 
-    <!-- Toggler -->
-    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNavAltMarkup">
+    <!-- Mobile Toggler -->
+    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
       <span class="navbar-toggler-icon"></span>
     </button>
 
     <!-- Navbar Content -->
-    <div class="collapse navbar-collapse" id="navbarNavAltMarkup">
-      <!-- Search Form Centered -->
-      <div class="mx-auto d-flex flex-grow-1 justify-content-center">
-        <form class="search-form" role="search">
-          <input class="form-control search-inp" type="search" placeholder="Search destinations" aria-label="Search">
-          <button class="btn search-btn" type="submit">
-            <i class="fa fa-search"></i> Search
+    <div class="collapse navbar-collapse" id="navbarNav">
+      <!-- Search Form (Centered) -->
+      <div class="mx-auto d-flex flex-grow-1 justify-content-center" style="position: relative;">
+        <form class="search-form" role="search" method="GET" action="/search" id="searchForm">
+          <div class="search-container" style="position: relative; width: 100%;">
+            <input class="search-inp" type="search" name="q" id="searchInput"
+                   placeholder="Search for properties, locations..."
+                   aria-label="Search"
+                   data-i18n-aria="nav.search"
+                   value="<%= typeof query !== 'undefined' ? query : '' %>"
+                   autocomplete="off">
+            <button type="button" class="voice-search-btn" id="voiceSearchBtn" aria-label="Search by voice">
+              <i class="fas fa-microphone"></i>
+            </button>
+          </div>
+          <div class="search-suggestions" id="searchSuggestions"></div>
+          <button class="search-btn" type="submit">
+            <i class="fas fa-search"></i>
+            Search
           </button>
         </form>
       </div>
 
-      <!-- Right Links -->
-      <div class="navbar-nav ms-auto">
-        <a class="nav-link" href="/listings/new">Wanderlust your home</a>
+      <!-- Navigation Links -->
+      <div class="navbar-nav ms-auto d-flex align-items-center">
+        <a class="nav-link <%= typeof currentPage !== 'undefined' && currentPage === 'listings' ? 'active' : '' %>"
+           href="/listings">
+          <i class="fas fa-home me-1"></i>
+          Listings
+        </a>
+        <a class="nav-link <%= typeof currentPage !== 'undefined' && currentPage === 'vehicles' ? 'active' : '' %>"
+           href="/vehicles">
+          <i class="fas fa-car me-1"></i>
+          Vehicles
+        </a>
+        
+        <a class="nav-link <%= typeof currentPage !== 'undefined' && currentPage === 'dhabas' ? 'active' : '' %>"
+           href="/dhabas">
+          <i class="fas fa-utensils me-1"></i>
+          Dhabas
+        </a>
+        
+        <!-- Social Features Dropdown -->
+        <div class="nav-item dropdown">
+          <a class="nav-link dropdown-toggle" href="#" id="socialDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+            <i class="fas fa-users me-1"></i>
+            Community
+          </a>
+          <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="socialDropdown">
+            <li><a class="dropdown-item" href="/social/journal"><i class="fas fa-book me-2"></i>Travel Journal</a></li>
+            <li><a class="dropdown-item" href="/social/gallery"><i class="fas fa-images me-2"></i>Photo Gallery</a></li>
+            <li><hr class="dropdown-divider"></li>
+            <li><a class="dropdown-item" href="/#reviews"><i class="fas fa-star me-2"></i>Reviews</a></li>
+          </ul>
+        </div>
+
+        <!-- Dark Mode Toggle -->
+        <button class="theme-toggle ms-2" id="themeToggle" title="Toggle dark mode">
+          <i class="fas fa-moon"></i>
+        </button>
+        
+        <!-- Language Selector -->
+        <%- include('../partials/language-selector') %>
 
         <% if (!currUser) { %>
-          <a class="nav-link" href="/signup"><b>Sign up</b></a>
-          <a class="nav-link" href="/login"><b>Log in</b></a>
+          <div class="d-flex gap-2 ms-3">
+            <a class="btn btn-outline-primary btn-sm" href="/signup">
+              <i class="fas fa-user-plus me-1"></i>
+              Sign up
+            </a>
+            <a class="btn btn-primary btn-sm" href="/login">
+              <i class="fas fa-sign-in-alt me-1"></i>
+              Log in
+            </a>
+          </div>
         <% } else { %>
-          <a class="nav-link" href="/logout"><b>Log out</b></a>
+          <!-- User Dropdown Menu -->
+          <div class="dropdown ms-3">
+            <div class="user-avatar" data-bs-toggle="dropdown">
+              <%= currUser.username.charAt(0).toUpperCase() %>
+            </div>
+            <ul class="dropdown-menu dropdown-menu-end">
+              <li>
+                <h6 class="dropdown-header">
+                  <i class="fas fa-user me-2"></i>
+                  <%= currUser.username %>
+                </h6>
+              </li>
+              <li><hr class="dropdown-divider"></li>
+              <li><a class="dropdown-item" href="#"><i class="fas fa-cog me-2"></i>Settings</a></li>
+              <li><a class="dropdown-item" href="#"><i class="fas fa-heart me-2"></i>Favorites</a></li>
+              <li><hr class="dropdown-divider"></li>
+              <li><a class="dropdown-item" href="/logout"><i class="fas fa-sign-out-alt me-2"></i>Log out</a></li>
+            </ul>
+          </div>
         <% } %>
       </div>
     </div>
   </div>
 </nav>
+
+<!-- Spacer for fixed navbar -->
+<div style="height: 80px;"></div>
+
+<!-- Voice Search CSS -->
+<link rel="stylesheet" href="/css/voice-search.css">
+
+<script>
+  // Load Voice Search Script
+  document.addEventListener('DOMContentLoaded', function() {
+    const script = document.createElement('script');
+    script.src = '/js/voiceSearch.js';
+    script.async = true;
+    document.body.appendChild(script);
+  });
+
+  // Initialize theme from localStorage
+  function initTheme() {
+    const savedTheme = localStorage.getItem('theme') || 'light';
+    document.documentElement.setAttribute('data-theme', savedTheme);
+    updateThemeIcon(savedTheme);
+  }
+
+  // Update theme icon
+  function updateThemeIcon(theme) {
+    const themeToggle = document.getElementById('themeToggle');
+    if (themeToggle) {
+      themeToggle.innerHTML = theme === 'dark' ? '<i class="fas fa-sun"></i>' : '<i class="fas fa-moon"></i>';
+    }
+  }
+
+  // Toggle theme
+  function toggleTheme() {
+    const currentTheme = document.documentElement.getAttribute('data-theme') || 'light';
+    const newTheme = currentTheme === 'light' ? 'dark' : 'light';
+    document.documentElement.setAttribute('data-theme', newTheme);
+    localStorage.setItem('theme', newTheme);
+    updateThemeIcon(newTheme);
+  }
+
+  // Search suggestions
+  async function getSearchSuggestions(query) {
+    if (!query || query.trim().length < 2) {
+      document.getElementById('searchSuggestions').classList.remove('active');
+      return;
+    }
+
+    try {
+      const response = await fetch(`/search?q=${encodeURIComponent(query)}`);
+      const html = await response.text();
+      
+      // Parse suggestions from response (you can enhance this with API endpoint)
+      const suggestions = [
+        { type: 'listings', icon: 'fa-home', text: `Search for "${query}" in Listings` },
+        { type: 'vehicles', icon: 'fa-car', text: `Search for "${query}" in Vehicles` },
+        { type: 'dhabas', icon: 'fa-utensils', text: `Search for "${query}" in Dhabas` }
+      ];
+
+      const suggestionsDiv = document.getElementById('searchSuggestions');
+      suggestionsDiv.innerHTML = suggestions.map(s => 
+        `<div class="suggestion-item" onclick="document.getElementById('searchInput').value='${query}'; document.getElementById('searchForm').submit();">
+          <span class="suggestion-icon"><i class="fas ${s.icon}"></i></span>
+          <span>${s.text}</span>
+        </div>`
+      ).join('');
+      suggestionsDiv.classList.add('active');
+    } catch (error) {
+      console.error('Error fetching suggestions:', error);
+    }
+  }
+
+  // Debounce search input
+  let searchTimeout;
+  function debounceSearch(query) {
+    clearTimeout(searchTimeout);
+    searchTimeout = setTimeout(() => {
+      getSearchSuggestions(query);
+    }, 300);
+  }
+
+  // Navbar scroll effect
+  document.addEventListener('DOMContentLoaded', function() {
+    // Initialize theme
+    initTheme();
+
+    // Theme toggle listener
+    const themeToggle = document.getElementById('themeToggle');
+    if (themeToggle) {
+      themeToggle.addEventListener('click', toggleTheme);
+    }
+
+    // Search suggestions listener
+    const searchInput = document.getElementById('searchInput');
+    if (searchInput) {
+      searchInput.addEventListener('input', (e) => {
+        debounceSearch(e.target.value);
+      });
+
+      searchInput.addEventListener('blur', () => {
+        setTimeout(() => {
+          document.getElementById('searchSuggestions').classList.remove('active');
+        }, 200);
+      });
+
+      searchInput.addEventListener('focus', () => {
+        if (searchInput.value.trim().length >= 2) {
+          document.getElementById('searchSuggestions').classList.add('active');
+        }
+      });
+    }
+
+    // Navbar scroll effect
+    const navbar = document.querySelector('.navbar');
+    window.addEventListener('scroll', function() {
+      if (window.scrollY > 50) {
+        navbar.classList.add('scrolled');
+      } else {
+        navbar.classList.remove('scrolled');
+      }
+    });
+
+    // Set active page based on current URL
+    const currentPath = window.location.pathname;
+    const navLinks = document.querySelectorAll('.nav-link:not(.theme-toggle)');
+
+    navLinks.forEach(link => {
+      const href = link.getAttribute('href');
+      if (href !== '/' && currentPath.startsWith(href)) {
+        link.classList.add('active');
+      } else if (href === '/' && currentPath === '/') {
+        link.classList.add('active');
+      } else {
+        link.classList.remove('active');
+      }
+    });
+  });
+</script>

@@ -1,0 +1,227 @@
+const Vehicle = require("../models/vehicle");
+const Booking = require("../models/booking");
+const mbxGeocoding = require('@mapbox/mapbox-sdk/services/geocoding');
+const mapToken = process.env.MAP_TOKEN;
+const geocodingClient = mbxGeocoding({ accessToken: mapToken });
+
+
+module.exports.index = async (req, res) => {
+    const { q, minPrice, maxPrice, sort, vehicleType, brand, fuelType, transmission, seats } = req.query;
+
+    const filter = {};
+
+    if (q && q.trim().length > 0) {
+        const regex = new RegExp(q.trim(), "i");
+        filter.$or = [
+            { title: regex },
+            { location: regex },
+            { country: regex },
+            { description: regex },
+            { brand: regex },
+            { model: regex }
+        ];
+    }
+
+    if (minPrice || maxPrice) {
+        filter.price = {};
+        if (minPrice) filter.price.$gte = Number(minPrice);
+        if (maxPrice) filter.price.$lte = Number(maxPrice);
+    }
+
+    if (vehicleType && vehicleType !== 'all') {
+        filter.vehicleType = vehicleType;
+    }
+
+    if (brand && brand !== 'all') {
+        filter.brand = brand;
+    }
+
+    if (fuelType && fuelType !== 'all') {
+        filter.fuelType = fuelType;
+    }
+
+    if (transmission && transmission !== 'all') {
+        filter.transmission = transmission;
+    }
+
+    if (seats) {
+        filter.seats = Number(seats);
+    }
+
+    const sortMap = {
+        price_asc: { price: 1 },
+        price_desc: { price: -1 },
+        newest: { _id: -1 },
+        year_desc: { year: -1 },
+        year_asc: { year: 1 },
+    };
+
+    const sortOption = sortMap[sort] || {};
+
+    const allVehicles = await Vehicle.find(filter).sort(sortOption);
+
+    // Get unique values for filters
+    const brands = await Vehicle.distinct('brand');
+    const vehicleTypes = await Vehicle.distinct('vehicleType');
+    const fuelTypes = await Vehicle.distinct('fuelType');
+    const transmissions = await Vehicle.distinct('transmission');
+
+    // Compute trending vehicles: highest rated or newest
+    const trendingVehicles = await Vehicle.find({})
+        .sort({ _id: -1 })
+        .limit(6);
+
+    res.render("vehicles/index", {
+        allVehicles,
+        trendingVehicles,
+        brands,
+        vehicleTypes,
+        fuelTypes,
+        transmissions,
+        query: q || "",
+        sort: sort || "",
+        minPrice: minPrice || "",
+        maxPrice: maxPrice || "",
+        vehicleType: vehicleType || "",
+        brand: brand || "",
+        fuelType: fuelType || "",
+        transmission: transmission || "",
+        seats: seats || ""
+    });
+};
+
+
+module.exports.renderNewForm = (req, res) => {
+   res.render("vehicles/new.ejs");
+};
+
+
+module.exports.showVehicle = async (req, res) => {
+    let {id} = req.params;
+    const vehicle = await Vehicle.findById(id)
+        .populate({path: "reviews", populate:{path:"author"}})
+        .populate("owner");
+    if(!vehicle) {
+        req.flash("error","Vehicle you requested for does not exist!");
+        return res.redirect("/vehicles");
+    }
+    res.render("vehicles/show", { vehicle, mapToken: process.env.MAP_TOKEN });
+};
+
+
+module.exports.createVehicle = async (req, res, next) => {
+    let response = await geocodingClient.forwardGeocode({
+        query: req.body.vehicle.location,
+        limit: 1,
+    })
+    .send();
+
+    let url = req.file ? req.file.path : null;
+    let filename = req.file ? req.file.filename : null;
+
+    const newVehicle = new Vehicle(req.body.vehicle);
+    newVehicle.owner = req.user._id;
+    if (url && filename) {
+        newVehicle.image = {url, filename};
+    }
+
+    // Handle features array - convert to array if it's a single value or undefined
+    if (req.body.vehicle.features) {
+        if (Array.isArray(req.body.vehicle.features)) {
+            newVehicle.features = req.body.vehicle.features;
+        } else {
+            newVehicle.features = [req.body.vehicle.features];
+        }
+    } else {
+        newVehicle.features = [];
+    }
+
+    newVehicle.geometry = response.body.features[0].geometry;
+
+    let savedVehicle = await newVehicle.save();
+    console.log(savedVehicle);
+
+    req.flash("success","New Vehicle Created!");
+    res.redirect("/vehicles");
+};
+
+
+module.exports.renderEditForm = async (req, res) => {
+    let {id} = req.params;
+    const vehicle = await Vehicle.findById(id);
+     if(!vehicle) {
+        req.flash("error","Vehicle you requested for does not exist!");
+        return res.redirect("/vehicles");
+    }
+    let originalImageUrl = vehicle.image?.url;
+     if (originalImageUrl) {
+         originalImageUrl = originalImageUrl.replace("/upload", "/upload/w_250");
+     }
+    res.render("vehicles/edit.ejs", {vehicle, originalImageUrl});
+};
+
+
+module.exports.updateVehicle = async(req, res) => {
+     let {id} = req.params;
+     let vehicle = await Vehicle.findByIdAndUpdate(id,{...req.body.vehicle});
+
+     if(typeof req.file !== "undefined") {
+     let url = req.file.path;
+     let filename = req.file.filename;
+     vehicle.image = {url, filename};
+     await vehicle.save();
+     }
+
+     req.flash("success","Vehicle Updated!");
+     res.redirect(`/vehicles/${id}`);
+};
+
+
+module.exports.destroyVehicle = async (req, res) => {
+    let {id} = req.params;
+    let deletedVehicle = await Vehicle.findByIdAndDelete(id);
+    console.log(deletedVehicle);
+    req.flash("success","Vehicle Deleted!");
+    res.redirect("/vehicles");
+};
+
+module.exports.getVehicleBookings = async (req, res) => {
+    try {
+        const { id } = req.params;
+        const bookings = await Booking.find({
+            vehicle: id,
+            status: { $ne: 'Cancelled' },
+            startDate: { $exists: true },
+            endDate: { $exists: true }
+        }).select('startDate endDate status startTime endTime');
+
+        const events = bookings.map(booking => {
+            const start = new Date(booking.startDate);
+            const end = new Date(booking.endDate);
+            
+            // Set the time if provided
+            if (booking.startTime) {
+                const [hours, minutes] = booking.startTime.split(':');
+                start.setHours(parseInt(hours), parseInt(minutes));
+            }
+            if (booking.endTime) {
+                const [hours, minutes] = booking.endTime.split(':');
+                end.setHours(parseInt(hours), parseInt(minutes));
+            }
+
+            return {
+                title: 'Booked',
+                start: start.toISOString(),
+                end: end.toISOString(),
+                backgroundColor: booking.status === 'Confirmed' ? '#dc3545' : '#ffc107',
+                borderColor: booking.status === 'Confirmed' ? '#dc3545' : '#ffc107',
+                display: 'block'
+            };
+        });
+
+        res.json(events);
+    } catch (err) {
+        console.error('Error fetching bookings:', err);
+        res.status(500).json({ error: 'Failed to fetch bookings' });
+    }
+};

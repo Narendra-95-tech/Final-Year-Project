@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <%- include('../partials/head') %>
+    <title><%= title || 'WanderLust Admin' %></title>
+    <link rel="stylesheet" href="/css/admin.css">
+</head>
+<body class="admin-layout">
+    <div class="admin-container">
+        <!-- Sidebar -->
+        <nav class="admin-sidebar">
+            <div class="sidebar-header">
+                <h2>WanderLust</h2>
+                <p>Admin Panel</p>
+            </div>
+            <ul class="sidebar-nav">
+                <li class="<%= currentPath === '/admin' ? 'active' : '' %>">
+                    <a href="/admin"><i class="fas fa-tachometer-alt"></i> Dashboard</a>
+                </li>
+                <li class="<%= currentPath === '/admin/users' ? 'active' : '' %>">
+                    <a href="/admin/users"><i class="fas fa-users"></i> Users</a>
+                </li>
+                <li class="<%= currentPath === '/admin/listings' ? 'active' : '' %>">
+                    <a href="/admin/listings"><i class="fas fa-home"></i> Listings</a>
+                </li>
+                <li class="<%= currentPath === '/admin/vehicles' ? 'active' : '' %>">
+                    <a href="/admin/vehicles"><i class="fas fa-car"></i> Vehicles</a>
+                </li>
+                <li class="<%= currentPath === '/admin/dhabas' ? 'active' : '' %>">
+                    <a href="/admin/dhabas"><i class="fas fa-utensils"></i> Dhabas</a>
+                </li>
+                <li class="<%= currentPath === '/admin/bookings' ? 'active' : '' %>">
+                    <a href="/admin/bookings"><i class="fas fa-calendar-check"></i> Bookings</a>
+                </li>
+                <li class="<%= currentPath === '/admin/reviews' ? 'active' : '' %>">
+                    <a href="/admin/reviews"><i class="fas fa-star"></i> Reviews</a>
+                </li>
+                <li class="mt-auto">
+                    <a href="/"><i class="fas fa-arrow-left"></i> Back to Site</a>
+                </li>
+                <li>
+                    <a href="/logout"><i class="fas fa-sign-out-alt"></i> Logout</a>
+                </li>
+            </ul>
+        </nav>
+
+        <!-- Main Content -->
+        <main class="admin-main">
+            <header class="admin-header">
+                <div class="header-left">
+                    <button class="sidebar-toggle">
+                        <i class="fas fa-bars"></i>
+                    </button>
+                    <h1><%= title || 'Dashboard' %></h1>
+                </div>
+                <div class="header-right">
+                    <div class="admin-profile">
+                        <img src="<%= user.avatar || '/images/default-avatar.png' %>" alt="<%= user.username %>" class="avatar">
+                        <span><%= user.username %></span>
+                    </div>
+                </div>
+            </header>
+
+            <div class="admin-content">
+                <%- include('../partials/flash') %>
+                <%- body %>
+            </div>
+        </main>
+    </div>
+
+    <script src="/js/admin.js"></script>
+</body>
+</html>

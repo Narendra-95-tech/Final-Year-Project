@@ -1,0 +1,101 @@
+<% layout("/layouts/boilerplate") -%>
+
+<div class="row justify-content-center">
+  <div class="col-md-8">
+    <h3 class="mb-4">🍽️ Edit Dhaba</h3>
+    <form action="/dhabas/<%= dhaba._id %>?_method=PUT" method="POST" enctype="multipart/form-data">
+
+      <div class="card mb-4">
+        <div class="card-header bg-primary text-white">
+          <h5 class="mb-0">📋 Basic Information</h5>
+        </div>
+        <div class="card-body">
+          <div class="row g-3">
+            <div class="col-12">
+              <label class="form-label">Dhaba Name *</label>
+              <input class="form-control" type="text" name="dhaba[name]" value="<%= dhaba.name %>" required />
+            </div>
+            <div class="col-12">
+              <label class="form-label">Description</label>
+              <textarea class="form-control" name="dhaba[description]" rows="3"><%= dhaba.description || '' %></textarea>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="card mb-4">
+        <div class="card-header bg-success text-white">
+          <h5 class="mb-0">🍛 Food Details</h5>
+        </div>
+        <div class="card-body">
+          <div class="row g-3">
+            <div class="col-md-6">
+              <label class="form-label">Cuisine Type *</label>
+              <input class="form-control" type="text" name="dhaba[cuisine]" value="<%= dhaba.cuisine %>" required />
+            </div>
+            <div class="col-md-6">
+              <label class="form-label">Price Range *</label>
+              <select class="form-select" name="dhaba[priceRange]" required>
+                <option value="">Select Price Range</option>
+                <option value="₹100-300" <%= dhaba.priceRange === '₹100-300' ? 'selected' : '' %>>₹100-300 - Budget Friendly</option>
+                <option value="₹300-500" <%= dhaba.priceRange === '₹300-500' ? 'selected' : '' %>>₹300-500 - Moderate</option>
+                <option value="₹500-800" <%= dhaba.priceRange === '₹500-800' ? 'selected' : '' %>>₹500-800 - Expensive</option>
+                <option value="₹800+" <%= dhaba.priceRange === '₹800+' ? 'selected' : '' %>>₹800+ - Very Expensive</option>
+              </select>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="card mb-4">
+        <div class="card-header bg-info text-white">
+          <h5 class="mb-0">📍 Location</h5>
+        </div>
+        <div class="card-body">
+          <div class="row g-3">
+            <div class="col-12">
+              <label class="form-label">Location *</label>
+              <input class="form-control" type="text" name="dhaba[location]" value="<%= dhaba.location %>" required />
+            </div>
+            <div class="col-md-6">
+              <label class="form-label">Current Rating</label>
+              <input class="form-control" type="number" name="dhaba[rating]" min="1" max="5" step="0.1" value="<%= dhaba.rating || 4.0 %>" />
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="card mb-4">
+        <div class="card-header bg-warning text-dark">
+          <h5 class="mb-0">📷 Image</h5>
+        </div>
+        <div class="card-body">
+          <div class="row g-3">
+            <div class="col-12">
+              <% if (dhaba.image && dhaba.image.url) { %>
+                <div class="mb-3">
+                  <label class="form-label">Current Image</label>
+                  <img src="<%= dhaba.image.url %>" alt="<%= dhaba.name %>" class="img-thumbnail" style="max-width: 200px;" />
+                </div>
+              <% } %>
+              <label class="form-label">Replace Image (optional)</label>
+              <input class="form-control" type="file" name="dhaba[image]" accept="image/*" />
+              <small class="form-text text-muted">Leave empty to keep current image</small>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="card mb-4">
+        <div class="card-body text-center">
+          <button class="btn btn-primary btn-lg px-5" type="submit">
+            <i class="fa fa-save"></i> Update Dhaba
+          </button>
+          <a class="btn btn-outline-secondary btn-lg px-5 ms-2" href="/dhabas/<%= dhaba._id %>">
+            <i class="fa fa-times"></i> Cancel
+          </a>
+        </div>
+      </div>
+    </form>
+  </div>
+</div>

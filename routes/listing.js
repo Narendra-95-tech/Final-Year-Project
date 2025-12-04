@@ -26,7 +26,7 @@ router
   );
 
 // New Listing Form
-router.get("/new", isLoggedIn, listingController.renederNewForm);
+router.get("/new", isLoggedIn, listingController.renderNewForm);
 
 // ============================
 // AI: Generate Description (Owner Only)
@@ -103,5 +103,8 @@ router
 
 // Edit Form
 router.get("/:id/edit", isLoggedIn, isOwner, wrapAsync(listingController.renderEditForm));
+
+// Get Bookings for Calendar
+router.get("/:id/bookings", wrapAsync(listingController.getListingBookings));
 
 module.exports = router;

@@ -1,0 +1,1600 @@
+<% layout("/layouts/boilerplate") -%>
+
+<style>
+  /* ===== AVAILABILITY CALENDAR ===== */
+  .availability-calendar-container {
+    margin: 1.5rem 0;
+    padding: 1rem;
+    background: var(--white);
+    border-radius: var(--radius-xl);
+    box-shadow: var(--shadow-sm);
+    border: 1px solid var(--gray-200);
+  }
+  
+  .status-legend {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem;
+    justify-content: center;
+    padding: 0.5rem 0;
+    font-size: 0.8rem;
+  }
+  
+  .status-item {
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+  }
+  
+  .status-indicator {
+    display: inline-block;
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+  }
+  
+  .status-available { background-color: #10b981; }
+  .status-partial { background-color: #f59e0b; }
+  .status-booked { background-color: #ef4444; }
+  
+  /* Calendar Loading Overlay */
+  .calendar-loading {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(255, 255, 255, 0.7);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 10;
+    border-radius: var(--radius-lg);
+  }
+  
+  /* Price tooltip for special rates */
+  .day.has-special-rate {
+    position: relative;
+  }
+  
+  .day.has-special-rate::after {
+    content: '\f02b';
+    font-family: 'Font Awesome 5 Free';
+    font-weight: 900;
+    position: absolute;
+    top: 2px;
+    right: 2px;
+    font-size: 8px;
+    color: var(--primary);
+  }
+  
+  /* Time selection styles */
+  .time-selection {
+    background-color: var(--gray-50);
+    padding: 0.75rem;
+    border-radius: var(--radius-lg);
+    border: 1px solid var(--gray-200);
+  }
+  
+  .time-selection label {
+    font-size: 0.75rem;
+    margin-bottom: 0.25rem;
+    display: block;
+  }
+  
+  /* Price breakdown styles */
+  .price-breakdown {
+    font-size: 0.9rem;
+  }
+  
+  .price-breakdown .daily-prices {
+    max-height: 120px;
+    overflow-y: auto;
+    margin: 0.5rem 0;
+    padding: 0.5rem;
+    background-color: var(--gray-50);
+    border-radius: var(--radius);
+    border: 1px solid var(--gray-200);
+  }
+  
+  .price-breakdown hr {
+    margin: 0.5rem 0;
+    opacity: 0.2;
+  }
+  
+  /* Override calendar styles to match our theme */
+  .availability-calendar {
+    --primary: var(--primary-orange);
+    --secondary: var(--secondary-blue);
+    --danger: #ef4444;
+    --background: var(--white);
+    --border: var(--gray-200);
+    --hover: var(--primary-orange-light);
+    --today: var(--primary-orange);
+  }
+  
+  .availability-calendar .calendar-header {
+    background: var(--primary-orange);
+    color: white;
+    border-radius: var(--radius-lg) var(--radius-lg) 0 0;
+  }
+  
+  .availability-calendar .day.available:hover {
+    background: var(--primary-orange-light);
+    color: var(--primary-orange-dark);
+  }
+  
+  .availability-calendar .day.selected {
+    background: var(--primary-orange);
+    color: white;
+  }
+  
+  .availability-calendar .day.in-range {
+    background: rgba(16, 185, 129, 0.1);
+  }
+
+  /* ===== LISTING DETAIL PAGE ===== */
+  .listing-hero-section {
+    background: linear-gradient(135deg, var(--secondary-blue), #4c9eff);
+    color: var(--white);
+    padding: 2rem 0;
+    margin-bottom: 3rem;
+  }
+
+  .listing-hero-title {
+    font-size: 2.5rem;
+    font-weight: 700;
+    margin-bottom: 0.5rem;
+  }
+
+  .listing-hero-subtitle {
+    font-size: 1.1rem;
+    opacity: 0.9;
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    flex-wrap: wrap;
+  }
+
+  /* Image Gallery */
+  .image-gallery {
+    display: grid;
+    grid-template-columns: 2fr 1fr 1fr;
+    gap: 1rem;
+    margin-bottom: 3rem;
+    border-radius: var(--radius-xl);
+    overflow: hidden;
+    box-shadow: var(--shadow-lg);
+  }
+
+  .gallery-main {
+    grid-row: span 2;
+    background: var(--gray-200);
+    min-height: 400px;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .gallery-main img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform var(--transition-normal);
+  }
+
+  .gallery-main:hover img {
+    transform: scale(1.05);
+  }
+
+  .gallery-thumb {
+    background: var(--gray-200);
+    cursor: pointer;
+    position: relative;
+    overflow: hidden;
+    transition: all var(--transition-fast);
+  }
+
+  .gallery-thumb img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform var(--transition-normal);
+  }
+
+  .gallery-thumb:hover {
+    box-shadow: inset 0 0 0 3px var(--primary-orange);
+  }
+
+  .gallery-thumb:hover img {
+    transform: scale(1.1);
+  }
+
+  .gallery-thumb.active {
+    box-shadow: inset 0 0 0 3px var(--primary-orange);
+  }
+
+  /* Main Content Layout */
+  .listing-content {
+    display: grid;
+    grid-template-columns: 2fr 1fr;
+    gap: 2rem;
+    margin-bottom: 3rem;
+  }
+
+  .listing-details {
+    background: var(--white);
+    border-radius: var(--radius-xl);
+    padding: 2rem;
+    box-shadow: var(--shadow-md);
+    border: 1px solid var(--gray-200);
+  }
+
+  .listing-header {
+    margin-bottom: 2rem;
+    padding-bottom: 2rem;
+    border-bottom: 2px solid var(--gray-200);
+  }
+
+  .listing-title {
+    font-size: 2rem;
+    font-weight: 700;
+    color: var(--gray-900);
+    margin-bottom: 0.5rem;
+  }
+
+  .listing-meta {
+    display: flex;
+    gap: 1.5rem;
+    flex-wrap: wrap;
+    margin-bottom: 1rem;
+  }
+
+  .meta-item {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    color: var(--gray-600);
+    font-size: 0.95rem;
+  }
+
+  .meta-item i {
+    color: var(--primary-orange);
+    font-size: 1.1rem;
+  }
+
+  .rating-section {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    margin-bottom: 1rem;
+  }
+
+  .stars {
+    color: var(--secondary-yellow);
+    font-size: 1.2rem;
+  }
+
+  .rating-text {
+    color: var(--gray-600);
+    font-size: 0.9rem;
+  }
+
+  /* Owner Info */
+  .owner-card {
+    background: var(--primary-orange-light);
+    border-radius: var(--radius-lg);
+    padding: 1.5rem;
+    margin-bottom: 2rem;
+    border-left: 4px solid var(--primary-orange);
+  }
+
+  .owner-header {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    margin-bottom: 1rem;
+  }
+
+  .owner-avatar {
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, var(--primary-orange), var(--primary-orange-hover));
+    color: var(--white);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    font-size: 1.5rem;
+  }
+
+  .owner-info h6 {
+    margin: 0;
+    font-weight: 600;
+    color: var(--gray-900);
+  }
+
+  .owner-info p {
+    margin: 0;
+    font-size: 0.85rem;
+    color: var(--gray-600);
+  }
+
+  .verification-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.3rem;
+    background: var(--secondary-green);
+    color: var(--white);
+    padding: 0.3rem 0.6rem;
+    border-radius: var(--radius-full);
+    font-size: 0.75rem;
+    font-weight: 600;
+    margin-top: 0.5rem;
+  }
+
+  /* Description */
+  .description-section {
+    margin-bottom: 2rem;
+  }
+
+  .description-section h5 {
+    font-weight: 600;
+    color: var(--gray-900);
+    margin-bottom: 1rem;
+  }
+
+  .description-text {
+    color: var(--gray-700);
+    line-height: 1.8;
+    margin-bottom: 1rem;
+  }
+
+  /* Amenities */
+  .amenities-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    gap: 1rem;
+    margin-bottom: 2rem;
+  }
+
+  .amenity-item {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.75rem;
+    background: var(--gray-50);
+    border-radius: var(--radius-lg);
+    border: 1px solid var(--gray-200);
+    transition: all var(--transition-fast);
+  }
+
+  .amenity-item:hover {
+    background: var(--primary-orange-light);
+    border-color: var(--primary-orange);
+    transform: translateY(-2px);
+  }
+
+  .amenity-icon {
+    color: var(--primary-orange);
+    font-size: 1.2rem;
+    min-width: 24px;
+  }
+
+  .amenity-text {
+    font-size: 0.9rem;
+    color: var(--gray-700);
+    font-weight: 500;
+  }
+
+  /* Booking Card */
+  .booking-sidebar {
+    position: sticky;
+    top: 100px;
+  }
+
+  .booking-card {
+    background: var(--white);
+    border-radius: var(--radius-xl);
+    padding: 2rem;
+    box-shadow: var(--shadow-lg);
+    border: 1px solid var(--gray-200);
+  }
+
+  .booking-price-section {
+    margin-bottom: 1.5rem;
+    padding-bottom: 1.5rem;
+    border-bottom: 2px solid var(--gray-200);
+  }
+
+  .booking-price-label {
+    color: var(--gray-600);
+    font-size: 0.9rem;
+    margin-bottom: 0.25rem;
+  }
+
+  .booking-price {
+    font-size: 2rem;
+    font-weight: 700;
+    color: var(--primary-orange);
+  }
+
+  .booking-price-unit {
+    font-size: 0.9rem;
+    color: var(--gray-600);
+  }
+
+  /* Reviews Section */
+  .reviews-section {
+    background: var(--white);
+    border-radius: var(--radius-xl);
+    padding: 2rem;
+    box-shadow: var(--shadow-md);
+    border: 1px solid var(--gray-200);
+    margin-bottom: 3rem;
+  }
+
+  .reviews-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 2rem;
+    padding-bottom: 1rem;
+    border-bottom: 2px solid var(--gray-200);
+  }
+
+  .reviews-title {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: var(--gray-900);
+  }
+
+  .review-card {
+    padding: 1.5rem;
+    border: 1px solid var(--gray-200);
+    border-radius: var(--radius-lg);
+    margin-bottom: 1rem;
+    transition: all var(--transition-fast);
+  }
+
+  .review-card:hover {
+    box-shadow: var(--shadow-md);
+    border-color: var(--primary-orange);
+  }
+
+  .review-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: start;
+    margin-bottom: 0.75rem;
+  }
+
+  .reviewer-name {
+    font-weight: 600;
+    color: var(--gray-900);
+  }
+
+  .review-date {
+    color: var(--gray-500);
+    font-size: 0.85rem;
+  }
+
+  .review-rating {
+    color: var(--secondary-yellow);
+    margin-bottom: 0.75rem;
+  }
+
+  .review-text {
+    color: var(--gray-700);
+    line-height: 1.6;
+  }
+
+  /* Responsive */
+  @media (max-width: 1024px) {
+    .listing-content {
+      grid-template-columns: 1fr;
+    }
+
+    .booking-sidebar {
+      position: static;
+    }
+  }
+
+  @media (max-width: 768px) {
+    .image-gallery {
+      grid-template-columns: 1fr 1fr;
+    }
+
+    .gallery-main {
+      grid-row: span 1;
+      min-height: 250px;
+    }
+
+    .listing-title {
+      font-size: 1.5rem;
+    }
+
+    .listing-details {
+      padding: 1.5rem;
+    }
+
+    .amenities-grid {
+      grid-template-columns: repeat(2, 1fr);
+    }
+  }
+
+  @media (max-width: 576px) {
+    .image-gallery {
+      grid-template-columns: 1fr;
+    }
+
+    .gallery-main {
+      min-height: 200px;
+    }
+
+    .listing-meta {
+      gap: 1rem;
+    }
+
+    .amenities-grid {
+      grid-template-columns: 1fr;
+    }
+
+    .booking-card {
+      padding: 1.5rem;
+    }
+  }
+
+  /* Dark Mode */
+  [data-theme="dark"] .listing-details,
+  [data-theme="dark"] .reviews-section,
+  [data-theme="dark"] .booking-card {
+    background: var(--gray-100);
+    border-color: var(--gray-200);
+  }
+
+  [data-theme="dark"] .amenity-item {
+    background: var(--gray-200);
+    border-color: var(--gray-300);
+  }
+
+  [data-theme="dark"] .review-card {
+    background: var(--gray-100);
+    border-color: var(--gray-200);
+  }
+</style>
+
+<!-- Hero Section -->
+<section class="listing-hero-section">
+  <div class="container">
+    <h1 class="listing-hero-title"><%= listing.title %></h1>
+    <div class="listing-hero-subtitle">
+      <span><i class="fas fa-map-marker-alt"></i><%= listing.location %>, <%= listing.country %></span>
+      <% if (listing.reviews && listing.reviews.length > 0) { %>
+        <span>
+          <i class="fas fa-star" style="color: var(--secondary-yellow);"></i>
+          <%= (listing.reviews.reduce((sum, r) => sum + (r.rating || 5), 0) / listing.reviews.length).toFixed(1) %>
+          (<%= listing.reviews.length %> reviews)
+        </span>
+      <% } %>
+    </div>
+  </div>
+</section>
+
+<div class="container">
+  <!-- Image Gallery -->
+  <div class="image-gallery">
+    <div class="gallery-main">
+      <img id="mainImage" src="<%= listing.image?.url || 'https://images.unsplash.com/photo-1502672260266-1c1ef2d93688?w=800&h=600&fit=crop' %>" alt="<%= listing.title %>">
+    </div>
+    <div class="gallery-thumb active" onclick="changeMainImage(this)">
+      <img src="<%= listing.image?.url || 'https://images.unsplash.com/photo-1502672260266-1c1ef2d93688?w=200&h=200&fit=crop' %>" alt="Thumbnail">
+    </div>
+    <div class="gallery-thumb" onclick="changeMainImage(this)">
+      <img src="https://images.unsplash.com/photo-1522708323590-d24dbb6b0267?w=200&h=200&fit=crop" alt="Thumbnail">
+    </div>
+    <div class="gallery-thumb" onclick="changeMainImage(this)">
+      <img src="https://images.unsplash.com/photo-1502672260266-1c1ef2d93688?w=200&h=200&fit=crop" alt="Thumbnail">
+    </div>
+  </div>
+
+  <!-- Main Content -->
+  <div class="listing-content">
+    <!-- Left Column: Details -->
+    <div class="listing-details animate-fade-in">
+      <!-- Header -->
+      <div class="listing-header">
+        <h2 class="listing-title"><%= listing.title %></h2>
+        <div class="listing-meta">
+          <div class="meta-item">
+            <i class="fas fa-map-marker-alt"></i>
+            <span><%= listing.location %>, <%= listing.country %></span>
+          </div>
+          <div class="meta-item">
+            <i class="fas fa-home"></i>
+            <span>Entire place</span>
+          </div>
+          <div class="meta-item">
+            <i class="fas fa-users"></i>
+            <span>Up to 6 guests</span>
+          </div>
+        </div>
+
+        <!-- Rating -->
+        <% if (listing.reviews && listing.reviews.length > 0) { %>
+          <div class="rating-section">
+            <div class="stars">★★★★★</div>
+            <div>
+              <strong><%= (listing.reviews.reduce((sum, r) => sum + (r.rating || 5), 0) / listing.reviews.length).toFixed(1) %></strong>
+              <span class="rating-text">(<%= listing.reviews.length %> reviews)</span>
+            </div>
+          </div>
+        <% } %>
+      </div>
+
+      <!-- Owner Info -->
+      <div class="owner-card">
+        <div class="owner-header">
+          <div class="owner-avatar">
+            <%= listing.owner?.username?.charAt(0).toUpperCase() %>
+          </div>
+          <div class="owner-info">
+            <h6>Hosted by <%= listing.owner?.username || 'Unknown' %></h6>
+            <p>Joined 2 years ago</p>
+            <div class="verification-badge">
+              <i class="fas fa-check-circle"></i>
+              Verified Host
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Description -->
+      <div class="description-section">
+        <h5>About this place</h5>
+        <p class="description-text">
+          <%= listing.description || 'A wonderful place to stay with all modern amenities and comfortable accommodations.' %>
+        </p>
+      </div>
+
+      <!-- Amenities -->
+      <div class="description-section">
+        <h5>What this place offers</h5>
+        <div class="amenities-grid">
+          <div class="amenity-item">
+            <i class="fas fa-wifi amenity-icon"></i>
+            <span class="amenity-text">WiFi</span>
+          </div>
+          <div class="amenity-item">
+            <i class="fas fa-tv amenity-icon"></i>
+            <span class="amenity-text">TV</span>
+          </div>
+          <div class="amenity-item">
+            <i class="fas fa-utensils amenity-icon"></i>
+            <span class="amenity-text">Kitchen</span>
+          </div>
+          <div class="amenity-item">
+            <i class="fas fa-snowflake amenity-icon"></i>
+            <span class="amenity-text">AC</span>
+          </div>
+          <div class="amenity-item">
+            <i class="fas fa-swimming-pool amenity-icon"></i>
+            <span class="amenity-text">Pool</span>
+          </div>
+          <div class="amenity-item">
+            <i class="fas fa-dumbbell amenity-icon"></i>
+            <span class="amenity-text">Gym</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Right Column: Booking -->
+    <div class="booking-sidebar">
+      <div class="booking-card">
+        <div class="booking-price-section">
+          <div class="booking-price-label">Price per night</div>
+          <div class="booking-price">
+            ₹<span id="price-per-night"><%= listing.price?.toLocaleString('en-IN') || '0' %></span>
+            <span class="booking-price-unit">/ night <small class="text-muted">(varies by date)</small></span>
+          </div>
+        </div>
+        
+        <!-- Check-in/Check-out Times -->
+        <div class="time-selection mb-3">
+          <div class="row g-2">
+            <div class="col-6">
+              <label for="check-in-time" class="form-label small text-muted mb-1">Check-in time</label>
+              <select id="check-in-time" class="form-select form-select-sm">
+                <option value="12:00">12:00 PM (Noon)</option>
+                <option value="13:00">1:00 PM</option>
+                <option value="14:00" selected>2:00 PM</option>
+                <option value="15:00">3:00 PM</option>
+                <option value="16:00">4:00 PM</option>
+              </select>
+            </div>
+            <div class="col-6">
+              <label for="check-out-time" class="form-label small text-muted mb-1">Check-out time</label>
+              <select id="check-out-time" class="form-select form-select-sm">
+                <option value="09:00">9:00 AM</option>
+                <option value="10:00">10:00 AM</option>
+                <option value="11:00" selected>11:00 AM</option>
+                <option value="12:00">12:00 PM (Noon)</option>
+              </select>
+            </div>
+          </div>
+        </div>
+
+        <!-- Availability Calendar -->
+        <div class="availability-calendar-container position-relative">
+          <div id="calendar-loading" class="calendar-loading" style="display: none;">
+            <div class="spinner-border text-primary" role="status">
+              <span class="visually-hidden">Loading...</span>
+            </div>
+          </div>
+          <div id="availabilityCalendar"></div>
+          <div class="status-legend mt-3">
+            <div class="status-item"><span class="status-indicator status-available"></span> Available</div>
+            <div class="status-item"><span class="status-indicator status-partial"></span> Partially Booked</div>
+            <div class="status-item"><span class="status-indicator status-booked"></span> Booked</div>
+            <div class="status-item"><i class="fas fa-tag text-primary ms-1"></i> Special Rate</div>
+          </div>
+        </div>
+        
+        <!-- Hidden date inputs for form submission -->
+        <input type="hidden" id="booking-start-date" name="startDate">
+        <input type="hidden" id="booking-end-date" name="endDate">
+
+        <!-- Guest Counter -->
+        <div class="guest-counter mb-4">
+          <label class="form-label">Guests</label>
+          <div class="d-flex align-items-center">
+            <button type="button" class="btn btn-outline-secondary btn-sm" id="decrease-guests">-</button>
+            <input type="hidden" name="guests" id="guests" value="1">
+            <span id="guest-count" class="mx-3">1</span>
+            <button type="button" class="btn btn-outline-secondary btn-sm" id="increase-guests">+</button>
+            <span id="guest-plural" class="ms-2">guest</span>
+          </div>
+          <div class="form-text small text-muted">Max 10 guests. Additional charges may apply.</div>
+        </div>
+        
+        <!-- Coupon Code -->
+        <div class="mb-3">
+          <label for="couponCode" class="form-label small">Coupon Code (Optional)</label>
+          <div class="input-group input-group-sm">
+            <input type="text" class="form-control" id="couponCode" name="couponCode" placeholder="Enter code">
+            <button class="btn btn-outline-primary" type="button" id="apply-coupon">Apply</button>
+          </div>
+          <div id="coupon-message" class="small mt-1"></div>
+        </div>
+        
+        <!-- Special Requests -->
+        <div class="mb-3">
+          <label for="specialRequests" class="form-label small">Special Requests</label>
+          <textarea class="form-control form-control-sm" id="specialRequests" name="specialRequests" rows="2" 
+                    placeholder="Any special requirements or questions?"></textarea>
+        </div>
+        
+        <!-- Price Breakdown -->
+        <div class="price-breakdown bg-light p-3 rounded mb-3">
+          <div class="d-flex justify-content-between mb-2">
+            <span>Base Price (<span id="nights-count">0</span> nights)</span>
+            <span id="base-price-amount">₹0</span>
+          </div>
+          <div class="d-flex justify-content-between text-muted small mb-2">
+            <span>Additional guests</span>
+            <span id="extra-guest-fee">₹0</span>
+          </div>
+          <div class="d-flex justify-content-between text-muted small mb-2">
+            <span>Cleaning fee</span>
+            <span id="cleaning-fee">₹500</span>
+          </div>
+          <div class="d-flex justify-content-between text-muted small mb-2">
+            <span>Service fee</span>
+            <span id="service-fee">₹0</span>
+          </div>
+          <div class="d-flex justify-content-between text-muted small mb-2">
+            <span>GST (18%)</span>
+            <span id="gst-amount">₹0</span>
+          </div>
+          <div class="d-flex justify-content-between fw-bold mt-2 pt-2 border-top">
+            <span>Total</span>
+            <span id="total-price">₹0</span>
+          </div>
+        </div>
+        
+        <!-- Price Display -->
+        <div id="price-display" class="mb-3">
+          <p class="text-muted">Select dates to see pricing</p>
+        </div>
+
+        <!-- Book Button -->
+        <button class="booking-btn" onclick="handleBooking()">
+          <i class="fas fa-calendar-check"></i>
+          Reserve Now
+        </button>
+
+        <p class="text-muted text-center mt-3" style="font-size: 0.85rem;">
+          <i class="fas fa-shield-alt"></i>
+          Free cancellation up to 24 hours before check-in
+        </p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Reviews Section -->
+  <div class="reviews-section">
+    <div class="reviews-header">
+      <h3 class="reviews-title">Guest Reviews</h3>
+      <% if (currUser && !listing.owner._id.equals(currUser._id)) { %>
+        <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#reviewModal">
+          <i class="fas fa-star me-2"></i>Leave a Review
+        </button>
+      <% } %>
+    </div>
+
+    <% if (listing.reviews && listing.reviews.length > 0) { %>
+      <% for (let review of listing.reviews) { %>
+        <div class="review-card">
+          <div class="review-header">
+            <div>
+              <div class="reviewer-name">@<%= review.author?.username || 'Anonymous' %></div>
+              <div class="review-date"><%= new Date(review.createdAt || Date.now()).toLocaleDateString('en-IN') %></div>
+            </div>
+          </div>
+          <div class="review-rating">
+            <% for (let i = 0; i < (review.rating || 5); i++) { %>
+              <i class="fas fa-star"></i>
+            <% } %>
+          </div>
+          <p class="review-text"><%= review.comment %></p>
+        </div>
+      <% } %>
+    <% } else { %>
+      <p class="text-muted text-center py-4">
+        <i class="fas fa-comment-slash fa-2x mb-3"></i><br>
+        No reviews yet. Be the first to review!
+      </p>
+    <% } %>
+  </div>
+</div>
+
+<!-- Review Modal -->
+<div class="modal fade" id="reviewModal" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header bg-primary text-white">
+        <h5 class="modal-title">Leave a Review</h5>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body">
+        <form id="review-form" method="POST" action="/listings/<%= listing._id %>/reviews">
+          <div class="mb-3">
+            <label class="form-label">Rating</label>
+            <div class="rating-input">
+              <% for (let i = 5; i >= 1; i--) { %>
+                <input type="radio" id="star<%= i %>" name="review[rating]" value="<%= i %>" style="display: none;">
+                <label for="star<%= i %>" style="cursor: pointer; font-size: 2rem; color: #ddd; transition: color 0.2s;">
+                  <i class="fas fa-star"></i>
+                </label>
+              <% } %>
+            </div>
+          </div>
+          <div class="mb-3">
+            <label for="comment" class="form-label">Your Review</label>
+            <textarea id="comment" name="review[comment]" class="form-control" rows="4" required placeholder="Share your experience..."></textarea>
+          </div>
+          <button type="submit" class="btn btn-primary w-100">Submit Review</button>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+
+<input type="hidden" id="listing-id" value="<%= listing._id %>">
+
+<script>
+  // Gallery functionality
+  function changeMainImage(thumb) {
+    const mainImage = document.getElementById('mainImage');
+    const src = thumb.querySelector('img').src;
+    mainImage.src = src;
+
+    document.querySelectorAll('.gallery-thumb').forEach(t => t.classList.remove('active'));
+    thumb.classList.add('active');
+  }
+
+  // Handle booking form submission
+  async function handleBooking(event) {
+    event.preventDefault();
+    
+    // Basic form validation
+    const form = event.target;
+    const formData = new FormData(form);
+    const startDate = formData.get('startDate');
+    const endDate = formData.get('endDate');
+    const guestCount = formData.get('guests') || document.getElementById('guest-count').textContent;
+    const checkInTime = formData.get('checkInTime') || '14:00';
+    const checkOutTime = formData.get('checkOutTime') || '11:00';
+    const couponCode = formData.get('couponCode') || '';
+    const specialRequests = formData.get('specialRequests') || '';
+    
+    if (!startDate || !endDate) {
+      showError('Please select check-in and check-out dates');
+      return;
+    }
+    
+    // Get listing details
+    const listingId = document.getElementById('listing-id').value;
+    const basePrice = parseFloat(document.getElementById('price-per-night').textContent.replace(/[^0-9.]/g, ''));
+    
+    // Calculate booking details
+    const start = new Date(`${startDate}T${checkInTime}`);
+    const end = new Date(`${endDate}T${checkOutTime}`);
+    const nights = Math.ceil((end - start) / (1000 * 60 * 60 * 24));
+    
+    if (nights < 1) {
+      showError('Check-out date must be after check-in date');
+      return;
+    }
+    
+    // Get pricing details
+    const pricing = calculatePricing(start, end, basePrice, guestCount);
+    
+    // Apply coupon if valid
+    const coupon = await validateCoupon(couponCode);
+    if (couponCode && !coupon.valid) {
+      showError('Invalid coupon code');
+      return;
+    }
+    
+    // Apply coupon discount
+    if (coupon.valid) {
+      pricing.discount = calculateDiscount(pricing.subtotal, coupon);
+      pricing.total -= pricing.discount;
+    }
+    
+    // Prepare booking data
+    const bookingData = {
+      listingId,
+      startDate: start.toISOString(),
+      endDate: end.toISOString(),
+      guestCount: parseInt(guestCount),
+      checkInTime,
+      checkOutTime,
+      couponCode: coupon.valid ? couponCode : undefined,
+      specialRequests,
+      pricing: {
+        basePrice,
+        nights,
+        ...pricing
+      }
+    };
+    
+    // Show loading state
+    const submitBtn = form.querySelector('button[type="submit"]');
+    const originalBtnText = submitBtn.innerHTML;
+    submitBtn.disabled = true;
+    submitBtn.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Processing...';
+    
+    try {
+      // Send booking request to backend
+      const response = await fetch('/api/bookings', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.content || ''
+        },
+        body: JSON.stringify(bookingData)
+      });
+      
+      const result = await response.json();
+      
+      if (!response.ok) {
+        throw new Error(result.message || 'Failed to process booking');
+      }
+      
+      // Show success message
+      const successMessage = `
+        <div class="alert alert-success">
+          <h5>Booking Request Sent!</h5>
+          <p class="mb-1">${formatDate(new Date(bookingData.startDate))} - ${formatDate(new Date(bookingData.endDate))}</p>
+          <p class="mb-1">${guestCount} ${guestCount === 1 ? 'guest' : 'guests'}</p>
+          <p class="mb-0">Check-in: ${bookingData.checkInTime}, Check-out: ${bookingData.checkOutTime}</p>
+        </div>
+      `;
+      
+      document.getElementById('price-display').innerHTML = successMessage;
+      
+      // In a real app, you would redirect to the booking confirmation page
+      // window.location.href = `/bookings/${result.bookingId}/confirmation`;
+      
+    } catch (error) {
+      console.error('Booking failed:', error);
+      alert('Failed to process booking. Please try again.');
+    } finally {
+      // Reset button state
+      const bookBtn = document.querySelector('.booking-btn');
+      if (bookBtn) {
+        bookBtn.disabled = false;
+        bookBtn.innerHTML = originalText || 'Reserve Now';
+      }
+    }
+  }
+  
+  // Helper function to format dates
+  function formatDate(date) {
+    return date.toLocaleDateString('en-IN', { 
+      weekday: 'short', 
+      year: 'numeric', 
+      month: 'short', 
+      day: 'numeric' 
+    });
+  }
+
+  // Update guest display
+  document.addEventListener('DOMContentLoaded', function() {
+    const guestCountEl = document.getElementById('guest-count');
+    const guestPluralEl = document.getElementById('guest-plural');
+    
+    // Update plural form
+    const updatePlural = () => {
+      const count = parseInt(guestCountEl.textContent);
+      guestPluralEl.textContent = count === 1 ? '' : 's';
+    };
+
+    const observer = new MutationObserver(updatePlural);
+    observer.observe(guestCountEl, { childList: true, characterData: true, subtree: true });
+  });
+
+  // Star rating interaction
+  document.querySelectorAll('.rating-input label').forEach(label => {
+    label.addEventListener('mouseover', function() {
+      const rating = this.previousElementSibling.value;
+      document.querySelectorAll('.rating-input label').forEach((l, i) => {
+        l.style.color = (5 - i) <= rating ? '#ffc107' : '#ddd';
+      });
+    });
+  });
+
+  document.querySelector('.rating-input').addEventListener('mouseleave', function() {
+    const checked = document.querySelector('.rating-input input:checked');
+    const rating = checked ? checked.value : 0;
+    document.querySelectorAll('.rating-input label').forEach((l, i) => {
+      l.style.color = (5 - i) <= rating ? '#ffc107' : '#ddd';
+    });
+  });
+
+  // Initialize the availability calendar
+  document.addEventListener('DOMContentLoaded', function() {
+    const listingId = document.getElementById('listing-id').value;
+    const pricePerNight = parseFloat(document.getElementById('price-per-night').textContent.replace(/,/g, '')) || 0;
+    
+    // Initialize the calendar with enhanced options
+    const calendar = new AvailabilityCalendar('availabilityCalendar', {
+      minDate: new Date(),
+      maxDate: new Date(new Date().setFullYear(new Date().getFullYear() + 1)),
+      showLegend: false, // We're using our own legend
+      minStay: 2, // Minimum 2 nights stay
+      maxStay: 30, // Maximum 30 nights stay
+      checkInDays: [1, 3, 5], // Allow check-ins on Mon, Wed, Fri
+      checkOutDays: [2, 4, 6], // Allow check-outs on Tue, Thu, Sat
+      onDateSelect: handleDateSelection,
+      onMonthChange: loadAvailabilityForMonth,
+      onInvalidSelection: handleInvalidSelection,
+      customPricing: true // Enable custom pricing for different dates
+    });
+    
+    // Store pricing rules (in a real app, this would come from your API)
+    const pricingRules = {
+      weekendMarkup: 1.2, // 20% more on weekends
+      holidayMarkup: 1.3, // 30% more on holidays
+      holidays: [
+        '2025-12-25', // Christmas
+        '2026-01-01', // New Year
+        '2025-10-02'  // Gandhi Jayanti
+      ]
+    };
+    
+    // Function to calculate custom price based on date
+    function getPriceForDate(date, basePrice) {
+      const day = date.getDay(); // 0 = Sunday, 6 = Saturday
+      const dateStr = date.toISOString().split('T')[0];
+      
+      // Check for holidays first (highest priority)
+      if (pricingRules.holidays.includes(dateStr)) {
+        return basePrice * pricingRules.holidayMarkup;
+      }
+      
+      // Then check for weekends
+      if (day === 0 || day === 6) { // Saturday or Sunday
+        return basePrice * pricingRules.weekendMarkup;
+      }
+      
+      // Default price
+      return basePrice;
+    }
+    
+    // Load initial availability
+    loadAvailabilityForMonth({ year: new Date().getFullYear(), month: new Date().getMonth() + 1 });
+    
+    // Handle invalid date selections
+    function handleInvalidSelection({ type, message }) {
+      // Show a nice error message to the user
+      const priceDisplay = document.getElementById('price-display');
+      priceDisplay.innerHTML = `<div class="alert alert-warning">${message}</div>`;
+      
+      // You could also highlight the invalid selection or show a toast notification
+      console.warn('Invalid selection:', type, message);
+    }
+    
+    // Handle date selection with custom pricing
+    function handleDateSelection({ startDate, endDate }) {
+      const startDateInput = document.getElementById('booking-start-date');
+      const endDateInput = document.getElementById('booking-end-date');
+      const priceDisplay = document.getElementById('price-display');
+      
+      // Update hidden inputs with date and time
+      if (startDate) {
+        const startTime = document.getElementById('check-in-time').value || '14:00'; // Default check-in at 2 PM
+        startDate.setHours(...startTime.split(':').map(Number));
+        startDateInput.value = startDate.toISOString();
+      }
+      
+      if (endDate) {
+        const endTime = document.getElementById('check-out-time').value || '11:00'; // Default check-out at 11 AM
+        endDate.setHours(...endTime.split(':').map(Number));
+        endDateInput.value = endDate.toISOString();
+        
+        // Calculate price with custom pricing
+        const nights = Math.ceil((endDate - startDate) / (1000 * 60 * 60 * 24));
+        
+        // Calculate price for each night
+        let subtotal = 0;
+        const dailyPrices = [];
+        
+        for (let i = 0; i < nights; i++) {
+          const currentDate = new Date(startDate);
+          currentDate.setDate(startDate.getDate() + i);
+          const dailyPrice = getPriceForDate(currentDate, pricePerNight);
+          dailyPrices.push({
+            date: currentDate,
+            price: dailyPrice,
+            isWeekend: [0, 6].includes(currentDate.getDay()),
+            isHoliday: pricingRules.holidays.includes(currentDate.toISOString().split('T')[0])
+          });
+          subtotal += dailyPrice;
+        }
+        
+        const gst = subtotal * 0.18; // 18% GST
+        const platformFee = subtotal * 0.05; // 5% platform fee
+        const total = subtotal + gst + platformFee;
+        
+        // Update price display with detailed breakdown
+        const priceItems = dailyPrices.map(day => {
+          let label = day.date.toLocaleDateString('en-IN', { weekday: 'short', day: 'numeric' });
+          if (day.isHoliday) label += ' (Holiday)';
+          else if (day.isWeekend) label += ' (Weekend)';
+          
+          return `
+            <div class="d-flex justify-content-between">
+              <small>${label}</small>
+              <small>${day.price.toLocaleString('en-IN', { style: 'currency', currency: 'INR', maximumFractionDigits: 0 })}</small>
+            </div>
+          `;
+        }).join('');
+        
+        priceDisplay.innerHTML = `
+          <div class="price-breakdown">
+            <div class="mb-2">
+              <small class="text-muted">${nights} ${nights === 1 ? 'night' : 'nights'}</small>
+              <div class="daily-prices">
+                ${priceItems}
+              </div>
+            </div>
+            <div class="d-flex justify-content-between">
+              <span>Subtotal</span>
+              <span>${subtotal.toLocaleString('en-IN', { style: 'currency', currency: 'INR', maximumFractionDigits: 0 })}</span>
+            </div>
+            <div class="d-flex justify-content-between text-muted">
+              <small>+ 18% GST</small>
+              <small>${gst.toLocaleString('en-IN', { style: 'currency', currency: 'INR', maximumFractionDigits: 0 })}</small>
+            </div>
+            <div class="d-flex justify-content-between text-muted">
+              <small>+ Platform fee</small>
+              <small>${platformFee.toLocaleString('en-IN', { style: 'currency', currency: 'INR', maximumFractionDigits: 0 })}</small>
+            </div>
+            <hr class="my-2">
+            <div class="d-flex justify-content-between fw-bold">
+              <span>Total</span>
+              <span>${total.toLocaleString('en-IN', { style: 'currency', currency: 'INR', maximumFractionDigits: 0 })}</span>
+            </div>
+          </div>
+        `;
+      } else if (startDate) {
+        priceDisplay.innerHTML = '<p class="text-muted">Select checkout date to see pricing</p>';
+      } else {
+        priceDisplay.innerHTML = '<p class="text-muted">Select dates to see pricing</p>';
+      }
+    }
+    
+    // Load availability for a specific month from the backend
+    async function loadAvailabilityForMonth({ year, month }) {
+      const listingId = document.getElementById('listing-id').value;
+      const loadingIndicator = document.getElementById('calendar-loading');
+      
+      if (loadingIndicator) loadingIndicator.style.display = 'block';
+      
+      try {
+        // Fetch availability data from the backend API
+        const response = await fetch(`/api/listings/${listingId}/availability?year=${year}&month=${month}`, {
+          headers: {
+            'Accept': 'application/json',
+            'Cache-Control': 'no-cache',
+            'X-Requested-With': 'XMLHttpRequest'
+          },
+          credentials: 'same-origin'
+        });
+        
+        if (!response.ok) {
+          throw new Error(`Failed to load availability: ${response.statusText}`);
+        }
+        
+        const data = await response.json();
+        
+        // If no data is returned, use demo data as fallback
+        if (!data) {
+          console.warn('No data returned from API, using demo data');
+          data = {
+            booked: generateRandomDates(year, month, 0.1),
+            partiallyBooked: generateRandomDates(year, month, 0.15),
+            priceChanges: generatePriceChanges(year, month)
+          };
+        }
+        
+        // Update calendar with the data
+        calendar.clearAvailability();
+        
+        // Mark booked dates
+        if (data.booked && data.booked.length > 0) {
+          const bookedDates = data.booked.map(dateStr => new Date(dateStr));
+          calendar.setAvailability(bookedDates, 'booked');
+        }
+        
+        // Mark partially booked dates
+        if (data.partiallyBooked && data.partiallyBooked.length > 0) {
+          const partialDates = data.partiallyBooked.map(dateStr => new Date(dateStr));
+          calendar.setAvailability(partialDates, 'partially-booked');
+        }
+        
+        // Apply custom pricing if available
+        if (data.priceChanges && data.priceChanges.length > 0) {
+          data.priceChanges.forEach(priceChange => {
+            const date = new Date(priceChange.date);
+            calendar.setDatePrice(date, priceChange.price, priceChange.note);
+          });
+        }
+        
+        console.log(`Loaded availability for ${year}-${month}`, data);
+        
+      } catch (error) {
+        console.error('Error loading availability:', error);
+        // Show error to user
+        const calendarContainer = document.getElementById('availabilityCalendar');
+        if (calendarContainer) {
+          const errorDiv = document.createElement('div');
+          errorDiv.className = 'alert alert-warning mt-2';
+          errorDiv.textContent = 'Could not load availability. Please try again.';
+          calendarContainer.appendChild(errorDiv);
+          
+          // Remove error after 5 seconds
+          setTimeout(() => {
+            errorDiv.remove();
+          }, 5000);
+        }
+      } finally {
+        if (loadingIndicator) loadingIndicator.style.display = 'none';
+      }
+    }
+    
+    // Helper function to generate random dates for demo
+    function generateRandomDates(year, month, probability) {
+      const dates = [];
+      const daysInMonth = new Date(year, month, 0).getDate();
+      
+      for (let day = 1; day <= daysInMonth; day++) {
+        if (Math.random() < probability) {
+          // Format as YYYY-MM-DD
+          const dateStr = `${year}-${String(month).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+          dates.push(dateStr);
+        }
+      }
+      
+      return dates;
+    }
+    
+    // Helper function to generate price changes for demo
+    function generatePriceChanges(year, month) {
+      const priceChanges = [];
+      const daysInMonth = new Date(year, month, 0).getDate();
+      const basePrice = parseFloat(document.getElementById('price-per-night').textContent.replace(/,/g, '')) || 0;
+      
+      // Add weekend pricing
+      for (let day = 1; day <= daysInMonth; day++) {
+        const date = new Date(year, month - 1, day);
+        const dayOfWeek = date.getDay(); // 0 = Sunday, 6 = Saturday
+        
+        if (dayOfWeek === 0 || dayOfWeek === 6) {
+          priceChanges.push({
+            date: date.toISOString().split('T')[0],
+            price: Math.round(basePrice * 1.2), // 20% more on weekends
+            note: 'Weekend rate'
+          });
+        }
+      }
+      
+      // Add some special event pricing (example: first weekend of the month)
+      const firstSaturday = new Date(year, month - 1, 1);
+      while (firstSaturday.getDay() !== 6) {
+        firstSaturday.setDate(firstSaturday.getDate() + 1);
+      }
+      
+      const firstSunday = new Date(firstSaturday);
+      firstSunday.setDate(firstSunday.getDate() + 1);
+      
+      priceChanges.push(
+        {
+          date: firstSaturday.toISOString().split('T')[0],
+          price: Math.round(basePrice * 1.5),
+          note: 'Special event'
+        },
+        {
+          date: firstSunday.toISOString().split('T')[0],
+          price: Math.round(basePrice * 1.5),
+          note: 'Special event'
+        }
+      );
+      
+      return priceChanges;
+    }
+    
+    // Initialize booking variables
+    const guestCountEl = document.getElementById('guest-count');
+    const guestInput = document.getElementById('guests');
+    const guestPluralEl = document.getElementById('guest-plural');
+    const decreaseBtn = document.getElementById('decrease-guests');
+    const increaseBtn = document.getElementById('increase-guests');
+    const applyCouponBtn = document.getElementById('apply-coupon');
+    const couponInput = document.getElementById('couponCode');
+    const couponMessage = document.getElementById('coupon-message');
+    
+    // Pricing configuration
+    const pricingConfig = {
+      basePrice: parseFloat(document.getElementById('price-per-night').textContent.replace(/[^0-9.]/g, '')),
+      maxGuests: 10,
+      extraGuestFee: 500, // Per night
+      cleaningFee: 500, // Flat fee
+      serviceFeeRate: 0.1, // 10%
+      gstRate: 0.18, // 18%
+      minStay: 1,
+      maxStay: 30
+    };
+    
+    // Current booking state
+    let guestCount = 1;
+    let selectedStartDate = null;
+    let selectedEndDate = null;
+    let appliedCoupon = null;
+    let dailyPrices = [];
+    
+    // Initialize event listeners
+    function initBookingForm() {
+      // Guest counter
+      updateGuestCount(1);
+      
+      // Coupon code handling
+      applyCouponBtn.addEventListener('click', applyCoupon);
+      couponInput.addEventListener('keypress', (e) => {
+        if (e.key === 'Enter') {
+          e.preventDefault();
+          applyCoupon();
+        }
+      });
+      
+      // Form submission
+      const form = document.getElementById('booking-form');
+      if (form) {
+        form.addEventListener('submit', handleBooking);
+      }
+      
+      // Initialize date change handlers
+      const startDateInput = document.getElementById('booking-start-date');
+      const endDateInput = document.getElementById('booking-end-date');
+      
+      if (startDateInput && endDateInput) {
+        startDateInput.addEventListener('change', updatePricing);
+        endDateInput.addEventListener('change', updatePricing);
+      }
+    }
+    
+    // Update guest count
+    function updateGuestCount(newCount) {
+      if (newCount >= 1 && newCount <= pricingConfig.maxGuests) {
+        guestCount = newCount;
+        guestCountEl.textContent = guestCount;
+        guestInput.value = guestCount;
+        guestPluralEl.textContent = guestCount === 1 ? 'guest' : 'guests';
+        updatePricing();
+      }
+    }
+    
+    // Apply coupon code
+    async function applyCoupon() {
+      const code = couponInput.value.trim();
+      if (!code) return;
+      
+      try {
+        const response = await fetch(`/api/coupons/validate?code=${encodeURIComponent(code)}`);
+        const data = await response.json();
+        
+        if (data.valid) {
+          appliedCoupon = data;
+          couponMessage.textContent = data.message || 'Coupon applied successfully!';
+          couponMessage.className = 'small mt-1 text-success';
+          updatePricing();
+        } else {
+          appliedCoupon = null;
+          couponMessage.textContent = data.message || 'Invalid coupon code';
+          couponMessage.className = 'small mt-1 text-danger';
+        }
+      } catch (error) {
+        console.error('Error applying coupon:', error);
+        couponMessage.textContent = 'Error applying coupon. Please try again.';
+        couponMessage.className = 'small mt-1 text-danger';
+      }
+    }
+    
+    // Calculate and update pricing
+    function updatePricing() {
+      const startDate = document.getElementById('booking-start-date').value;
+      const endDate = document.getElementById('booking-end-date').value;
+      
+      if (!startDate || !endDate) {
+        return;
+      }
+      
+      const start = new Date(startDate);
+      const end = new Date(endDate);
+      const nights = Math.ceil((end - start) / (1000 * 60 * 60 * 24));
+      
+      if (nights < 1) {
+        return;
+      }
+      
+      // Calculate base price (sum of daily rates)
+      const basePrice = calculateBasePrice(start, end);
+      
+      // Calculate additional fees
+      const extraGuests = Math.max(0, guestCount - 2); // First 2 guests included
+      const extraGuestFee = extraGuests * pricingConfig.extraGuestFee * nights;
+      const cleaningFee = pricingConfig.cleaningFee;
+      const serviceFee = (basePrice + extraGuestFee) * pricingConfig.serviceFeeRate;
+      const subtotal = basePrice + extraGuestFee + cleaningFee + serviceFee;
+      const gst = subtotal * pricingConfig.gstRate;
+      let total = subtotal + gst;
+      
+      // Apply coupon discount if valid
+      let discount = 0;
+      if (appliedCoupon) {
+        if (appliedCoupon.type === 'percentage') {
+          discount = (basePrice * appliedCoupon.value) / 100;
+        } else if (appliedCoupon.type === 'fixed') {
+          discount = Math.min(appliedCoupon.value, basePrice);
+        }
+        total = Math.max(0, total - discount);
+      }
+      
+      // Update UI
+      document.getElementById('nights-count').textContent = nights;
+      document.getElementById('base-price-amount').textContent = formatPrice(basePrice);
+      document.getElementById('extra-guest-fee').textContent = formatPrice(extraGuestFee);
+      document.getElementById('cleaning-fee').textContent = formatPrice(cleaningFee);
+      document.getElementById('service-fee').textContent = formatPrice(serviceFee);
+      document.getElementById('gst-amount').textContent = formatPrice(gst);
+      document.getElementById('total-price').textContent = formatPrice(total);
+      
+      // Store pricing data in form for submission
+      const pricingData = {
+        basePrice,
+        extraGuestFee,
+        cleaningFee,
+        serviceFee,
+        gst,
+        discount,
+        total,
+        nights,
+        dailyPrices
+      };
+      
+      document.getElementById('booking-form').dataset.pricing = JSON.stringify(pricingData);
+    }
+    
+    // Calculate base price based on daily rates
+    function calculateBasePrice(start, end) {
+      let total = 0;
+      dailyPrices = [];
+      const currentDate = new Date(start);
+      
+      while (currentDate < end) {
+        const dateStr = currentDate.toISOString().split('T')[0];
+        const dayOfWeek = currentDate.getDay();
+        let price = pricingConfig.basePrice;
+        
+        // Apply weekend pricing (Friday and Saturday)
+        if (dayOfWeek === 5 || dayOfWeek === 6) {
+          price = Math.round(price * 1.2); // 20% more on weekends
+        }
+        
+        // Apply holiday pricing (example: December 25th)
+        const month = currentDate.getMonth() + 1;
+        const date = currentDate.getDate();
+        if ((month === 12 && date === 25) || (month === 1 && date === 1)) {
+          price = Math.round(price * 1.3); // 30% more on holidays
+        }
+        
+        dailyPrices.push({
+          date: dateStr,
+          price,
+          isWeekend: dayOfWeek === 0 || dayOfWeek === 6
+        });
+        
+        total += price;
+        currentDate.setDate(currentDate.getDate() + 1);
+      }
+      
+      return total;
+    }
+    
+    // Format price with currency symbol and commas
+    function formatPrice(amount) {
+      return new Intl.NumberFormat('en-IN', {
+        style: 'currency',
+        currency: 'INR',
+        maximumFractionDigits: 0
+      }).format(amount);
+    }
+    
+    // Initialize the booking form when the DOM is loaded
+    document.addEventListener('DOMContentLoaded', initBookingForm);
+    
+    // Initialize guest counter
+    const guestCountEl = document.getElementById('guest-count');
+    const guestPluralEl = document.getElementById('guest-plural');
+    const decreaseBtn = document.getElementById('decrease-guests');
+    const increaseBtn = document.getElementById('increase-guests');
+    
+    let guestCount = 1;
+    
+    function updateGuestCount() {
+      guestCountEl.textContent = guestCount;
+      guestPluralEl.textContent = guestCount === 1 ? '' : 's';
+    }
+    
+    decreaseBtn.addEventListener('click', () => {
+      if (guestCount > 1) {
+        guestCount--;
+        updateGuestCount();
+      }
+    });
+    
+    increaseBtn.addEventListener('click', () => {
+      if (guestCount < 10) { // Maximum 10 guests
+        guestCount++;
+        updateGuestCount();
+      }
+    });
+    
+    // Make calendar available globally for debugging
+    window.calendar = calendar;
+  });
+</script>

@@ -1,21 +1,179 @@
-<% if(bookings.length === 0) { %>
-  <p>No bookings yet.</p>
-<% } else { %>
-  <% bookings.forEach(booking => { %>
-    <div class="card mb-3">
-      <div class="card-body">
-        <h5><%= booking.listing.title %></h5>
-        <p>Check-in: <%= booking.startDate.toDateString() %></p>
-        <p>Check-out: <%= booking.endDate.toDateString() %></p>
-        <p>Total: ₹<%= booking.totalPrice %></p>
-        <p>Status: 
-          <% if(booking.isPaid){ %>
-            <span class="text-success">Paid</span>
-          <% } else { %>
-            <span class="text-danger">Pending Payment</span>
-          <% } %>
-        </p>
+<% layout("/layouts/boilerplate") -%>
+
+<style>
+  .bookings-hero {
+    background: linear-gradient(135deg, var(--primary-orange), var(--primary-orange-hover));
+    color: var(--white);
+    padding: 3rem 0;
+    margin-bottom: 2rem;
+  }
+
+  .bookings-title {
+    font-size: 2.5rem;
+    font-weight: 700;
+    margin-bottom: 0.5rem;
+  }
+
+  .bookings-subtitle {
+    font-size: 1.1rem;
+    opacity: 0.9;
+  }
+
+  .booking-card {
+    background: var(--white);
+    border-radius: var(--radius-xl);
+    overflow: hidden;
+    box-shadow: var(--shadow-sm);
+    transition: all var(--transition-normal);
+    border: 1px solid var(--gray-200);
+    margin-bottom: 1.5rem;
+  }
+
+  .booking-card:hover {
+    box-shadow: var(--shadow-lg);
+    transform: translateY(-2px);
+  }
+
+  .booking-type-badge {
+    position: absolute;
+    top: 10px;
+    left: 10px;
+    padding: 0.25rem 0.75rem;
+    border-radius: var(--radius-full);
+    font-size: 0.75rem;
+    font-weight: 600;
+  }
+
+  .booking-type-listing {
+    background: var(--secondary-blue);
+    color: var(--white);
+  }
+
+  .booking-type-dhaba {
+    background: var(--primary-orange);
+    color: var(--white);
+  }
+
+  .booking-status {
+    padding: 0.25rem 0.75rem;
+    border-radius: var(--radius-full);
+    font-size: 0.75rem;
+    font-weight: 600;
+  }
+
+  .booking-status-paid {
+    background: var(--secondary-green);
+    color: var(--white);
+  }
+
+  .booking-status-pending {
+    background: var(--secondary-yellow);
+    color: var(--gray-800);
+  }
+</style>
+
+<section class="bookings-hero">
+  <div class="container text-center">
+    <h1 class="bookings-title">My Bookings</h1>
+    <p class="bookings-subtitle">Manage your reservations for stays and dining experiences</p>
+  </div>
+</section>
+
+<div class="container">
+  <% if(bookings.length === 0) { %>
+    <div class="text-center py-5">
+      <i class="fas fa-calendar-times fa-4x text-muted mb-3"></i>
+      <h4 class="text-muted">No bookings yet</h4>
+      <p class="text-muted mb-4">Start exploring and make your first reservation!</p>
+      <div class="d-flex justify-content-center gap-3">
+        <a href="/listings" class="btn btn-primary">
+          <i class="fas fa-home me-2"></i>Browse Stays
+        </a>
+        <a href="/dhabas" class="btn btn-warning">
+          <i class="fas fa-utensils me-2"></i>Find Restaurants
+        </a>
       </div>
     </div>
-  <% }) %>
-<% } %>
+  <% } else { %>
+    <div class="row">
+      <% bookings.forEach(booking => { %>
+        <div class="col-12">
+          <div class="booking-card animate-fade-in">
+            <div class="position-relative">
+              <% if (booking.type === 'listing' && booking.listing) { %>
+                <span class="booking-type-badge booking-type-listing">🏠 Stay</span>
+                <img src="<%= booking.listing.image?.url || 'https://images.unsplash.com/photo-1502672260266-1c1ef2d93688?w=400&h=200&fit=crop&crop=center' %>"
+                     class="card-img-top" alt="<%= booking.listing.title %>" style="height: 200px; object-fit: cover;">
+                <div class="card-body">
+                  <h5 class="card-title"><%= booking.listing.title %></h5>
+                  <p class="card-text text-muted">
+                    <i class="fas fa-map-marker-alt me-1"></i>
+                    <%= booking.listing.location %>, <%= booking.listing.country %>
+                  </p>
+                  <div class="row">
+                    <div class="col-md-6">
+                      <p><strong>Check-in:</strong> <%= booking.startDate.toLocaleDateString() %></p>
+                      <p><strong>Guests:</strong> <%= booking.guests %></p>
+                    </div>
+                    <div class="col-md-6 text-md-end">
+                      <p><strong>Check-out:</strong> <%= booking.endDate.toLocaleDateString() %></p>
+                      <p><strong>Total:</strong> ₹<%= booking.totalPrice.toLocaleString("en-IN") %></p>
+                    </div>
+                  </div>
+                  <div class="d-flex justify-content-between align-items-center mt-3">
+                    <span class="booking-status <%= booking.isPaid ? 'booking-status-paid' : 'booking-status-pending' %>">
+                      <%= booking.isPaid ? '✓ Paid' : '⏳ Pending Payment' %>
+                    </span>
+                    <% if (!booking.isPaid) { %>
+                      <button class="btn btn-primary btn-sm" onclick="completePayment('<%= booking._id %>')">
+                        <i class="fas fa-credit-card me-1"></i>Pay Now
+                      </button>
+                    <% } %>
+                  </div>
+                </div>
+              <% } else if (booking.type === 'dhaba' && booking.dhaba) { %>
+                <span class="booking-type-badge booking-type-dhaba">🍽️ Dining</span>
+                <img src="<%= booking.dhaba.image?.url || 'https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?w=400&h=200&fit=crop&crop=center' %>"
+                     class="card-img-top" alt="<%= booking.dhaba.title %>" style="height: 200px; object-fit: cover;">
+                <div class="card-body">
+                  <h5 class="card-title"><%= booking.dhaba.title %></h5>
+                  <p class="card-text text-muted">
+                    <i class="fas fa-map-marker-alt me-1"></i>
+                    <%= booking.dhaba.location %>, <%= booking.dhaba.country %>
+                  </p>
+                  <div class="row">
+                    <div class="col-md-6">
+                      <p><strong>Reservation Date:</strong> <%= booking.startDate.toLocaleDateString() %></p>
+                      <p><strong>Guests:</strong> <%= booking.guests %></p>
+                    </div>
+                    <div class="col-md-6 text-md-end">
+                      <p><strong>Cuisine:</strong> <%= booking.dhaba.cuisine %></p>
+                      <p><strong>Total:</strong> ₹<%= booking.totalPrice.toLocaleString("en-IN") %></p>
+                    </div>
+                  </div>
+                  <div class="d-flex justify-content-between align-items-center mt-3">
+                    <span class="booking-status <%= booking.isPaid ? 'booking-status-paid' : 'booking-status-pending' %>">
+                      <%= booking.isPaid ? '✓ Paid' : '⏳ Pending Payment' %>
+                    </span>
+                    <% if (!booking.isPaid) { %>
+                      <button class="btn btn-warning btn-sm" onclick="completePayment('<%= booking._id %>')">
+                        <i class="fas fa-credit-card me-1"></i>Pay Now
+                      </button>
+                    <% } %>
+                  </div>
+                </div>
+              <% } %>
+            </div>
+          </div>
+        </div>
+      <% }); %>
+    </div>
+  <% } %>
+</div>
+
+<script>
+  function completePayment(bookingId) {
+    // Redirect to payment completion for pending bookings
+    window.location.href = `/bookings/${bookingId}/payment`;
+  }
+</script>

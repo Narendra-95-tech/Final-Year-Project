@@ -1,5 +1,5 @@
-const Listing = require("../models/listing");
-const Booking = require("../models/booking");
+const Listing = require('../models/listing');
+const Booking = require('../models/booking');
 const mbxGeocoding = require('@mapbox/mapbox-sdk/services/geocoding');
 const mapToken = process.env.MAP_TOKEN;
 const geocodingClient = mbxGeocoding({ accessToken: mapToken });
@@ -7,6 +7,7 @@ const geocodingClient = mbxGeocoding({ accessToken: mapToken });
 
 module.exports.index = async (req, res) => {
     const { q, minPrice, maxPrice, sort, category, startDate, endDate, guests } = req.query;
+    const queryParams = { ...req.query };
 
     const filter = {};
 
@@ -81,12 +82,13 @@ module.exports.index = async (req, res) => {
         category: category || "",
         startDate: startDate || "",
         endDate: endDate || "",
-        guests: guests || ""
+        guests: guests || "",
+        queryParams
     });
 };
 
 
-module.exports.renederNewForm = (req ,res) => {
+module.exports.renderNewForm = (req ,res) => {
    res.render("listings/new.ejs")
 };
 
@@ -167,4 +169,30 @@ module.exports.destroyListing = async (req, res) => {
     console.log(deletedListing);
     req.flash("success","Listing Deleted!");
     res.redirect("/listings")
+};
+
+module.exports.getListingBookings = async (req, res) => {
+    try {
+        const { id } = req.params;
+        const bookings = await Booking.find({
+            listing: id,
+            status: { $ne: 'Cancelled' },
+            startDate: { $exists: true },
+            endDate: { $exists: true }
+        }).select('startDate endDate status');
+
+        const events = bookings.map(booking => ({
+            title: 'Booked',
+            start: booking.startDate,
+            end: booking.endDate,
+            backgroundColor: booking.status === 'Confirmed' ? '#dc3545' : '#ffc107',
+            borderColor: booking.status === 'Confirmed' ? '#dc3545' : '#ffc107',
+            display: 'block'
+        }));
+
+        res.json(events);
+    } catch (err) {
+        console.error('Error fetching bookings:', err);
+        res.status(500).json({ error: 'Failed to fetch bookings' });
+    }
 };

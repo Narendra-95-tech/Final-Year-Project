@@ -1,0 +1,9 @@
+/* Social styles.css - Add your social component styles here */
+.social-container {
+    margin: 1rem 0;
+    padding: 1rem;
+    border-radius: 8px;
+    background-color: #f8f9fa;
+}
+
+/* Add more social styles as needed */

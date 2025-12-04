@@ -1,0 +1,275 @@
+<% layout("/layouts/boilerplate") -%>
+
+<div class="row justify-content-center">
+  <div class="col-md-8">
+    <h3 class="mb-4">🍽️ Edit Dhaba</h3>
+    <form action="/dhabas/<%= dhaba._id %>?_method=PUT" method="POST" enctype="multipart/form-data">
+
+      <div class="card mb-4">
+        <div class="card-header bg-primary text-white">
+          <h5 class="mb-0">📋 Basic Information</h5>
+        </div>
+        <div class="card-body">
+          <div class="row g-3">
+            <div class="col-12">
+              <label class="form-label">Dhaba Name *</label>
+              <input class="form-control" type="text" name="dhaba[title]" value="<%= dhaba.title %>" required />
+            </div>
+            <div class="col-12">
+              <label class="form-label">Description</label>
+              <textarea class="form-control" name="dhaba[description]" rows="3"><%= dhaba.description || '' %></textarea>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="card mb-4">
+        <div class="card-header bg-success text-white">
+          <h5 class="mb-0">🍛 Food Details</h5>
+        </div>
+        <div class="card-body">
+          <div class="row g-3">
+            <div class="col-md-6">
+              <label class="form-label">Cuisine Type *</label>
+              <select class="form-select" name="dhaba[cuisine]" required>
+                <option value="">Select Cuisine</option>
+                <option value="North Indian" <%= dhaba.cuisine === 'North Indian' ? 'selected' : '' %>>North Indian</option>
+                <option value="South Indian" <%= dhaba.cuisine === 'South Indian' ? 'selected' : '' %>>South Indian</option>
+                <option value="Punjabi" <%= dhaba.cuisine === 'Punjabi' ? 'selected' : '' %>>Punjabi</option>
+                <option value="Chinese" <%= dhaba.cuisine === 'Chinese' ? 'selected' : '' %>>Chinese</option>
+                <option value="Multi-Cuisine" <%= dhaba.cuisine === 'Multi-Cuisine' ? 'selected' : '' %>>Multi-Cuisine</option>
+                <option value="Street Food" <%= dhaba.cuisine === 'Street Food' ? 'selected' : '' %>>Street Food</option>
+                <option value="Rajasthani" <%= dhaba.cuisine === 'Rajasthani' ? 'selected' : '' %>>Rajasthani</option>
+                <option value="Gujarati" <%= dhaba.cuisine === 'Gujarati' ? 'selected' : '' %>>Gujarati</option>
+                <option value="Bengali" <%= dhaba.cuisine === 'Bengali' ? 'selected' : '' %>>Bengali</option>
+                <option value="Continental" <%= dhaba.cuisine === 'Continental' ? 'selected' : '' %>>Continental</option>
+              </select>
+            </div>
+            <div class="col-md-6">
+              <label class="form-label">Category *</label>
+              <select class="form-select" name="dhaba[category]" required>
+                <option value="">Select Category</option>
+                <option value="Fine Dining" <%= dhaba.category === 'Fine Dining' ? 'selected' : '' %>>Fine Dining</option>
+                <option value="Casual Dining" <%= dhaba.category === 'Casual Dining' ? 'selected' : '' %>>Casual Dining</option>
+                <option value="Fast Food" <%= dhaba.category === 'Fast Food' ? 'selected' : '' %>>Fast Food</option>
+                <option value="Cafe" <%= dhaba.category === 'Cafe' ? 'selected' : '' %>>Cafe</option>
+                <option value="Food Truck" <%= dhaba.category === 'Food Truck' ? 'selected' : '' %>>Food Truck</option>
+                <option value="Buffet" <%= dhaba.category === 'Buffet' ? 'selected' : '' %>>Buffet</option>
+                <option value="Family Restaurant" <%= dhaba.category === 'Family Restaurant' ? 'selected' : '' %>>Family Restaurant</option>
+              </select>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="card mb-4">
+        <div class="card-header bg-info text-white">
+          <h5 class="mb-0">📍 Location & Pricing</h5>
+        </div>
+        <div class="card-body">
+          <div class="row g-3">
+            <div class="col-md-6">
+              <label class="form-label">Location *</label>
+              <input class="form-control" type="text" name="dhaba[location]" value="<%= dhaba.location %>" required />
+            </div>
+            <div class="col-md-6">
+              <label class="form-label">Country *</label>
+              <input class="form-control" type="text" name="dhaba[country]" value="<%= dhaba.country %>" required />
+            </div>
+            <div class="col-md-6">
+              <label class="form-label">Average Price per Person (₹) *</label>
+              <input class="form-control" type="number" name="dhaba[price]" value="<%= dhaba.price %>" min="0" required />
+            </div>
+            <div class="col-md-6">
+              <label class="form-label">Current Rating</label>
+              <input class="form-control" type="number" name="dhaba[rating]" min="1" max="5" step="0.1" value="<%= dhaba.rating || 4.0 %>" />
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="card mb-4">
+        <div class="card-header bg-warning text-dark">
+          <h5 class="mb-0">⏰ Operating Hours</h5>
+        </div>
+        <div class="card-body">
+          <div class="row g-3">
+            <div class="col-md-6">
+              <label class="form-label">Opening Time</label>
+              <input class="form-control" type="time" name="dhaba[operatingHours][opens]" value="<%= dhaba.operatingHours ? dhaba.operatingHours.opens : '' %>" required />
+            </div>
+            <div class="col-md-6">
+              <label class="form-label">Closing Time</label>
+              <input class="form-control" type="time" name="dhaba[operatingHours][closes]" value="<%= dhaba.operatingHours ? dhaba.operatingHours.closes : '' %>" required />
+            </div>
+            <div class="col-12">
+              <div class="form-check">
+                <input class="form-check-input" type="checkbox" name="dhaba[operatingHours][isOpen24Hours]" value="true" id="editIsOpen24Hours" <%= dhaba.operatingHours && dhaba.operatingHours.isOpen24Hours ? 'checked' : '' %>>
+                <label class="form-check-label" for="editIsOpen24Hours">
+                  Open 24 Hours
+                </label>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="card mb-4">
+        <div class="card-header bg-secondary text-white">
+          <h5 class="mb-0">📞 Contact Information</h5>
+        </div>
+        <div class="card-body">
+          <div class="row g-3">
+            <div class="col-md-6">
+              <label class="form-label">Phone Number *</label>
+              <input class="form-control" type="tel" name="dhaba[phone]" value="<%= dhaba.phone %>" required />
+            </div>
+            <div class="col-md-6">
+              <label class="form-label">Email</label>
+              <input class="form-control" type="email" name="dhaba[email]" value="<%= dhaba.email || '' %>" />
+            </div>
+            <div class="col-12">
+              <label class="form-label">Website</label>
+              <input class="form-control" type="url" name="dhaba[website]" value="<%= dhaba.website || '' %>" />
+            </div>
+            <div class="col-md-6">
+              <label class="form-label">Established Year</label>
+              <input class="form-control" type="number" name="dhaba[establishedYear]" value="<%= dhaba.establishedYear || '' %>" min="1900" max="<%= new Date().getFullYear() %>" />
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="card mb-4">
+        <div class="card-header bg-success text-white">
+          <h5 class="mb-0">✨ Features & Options</h5>
+        </div>
+        <div class="card-body">
+          <div class="row g-3">
+            <div class="col-md-6">
+              <div class="form-check">
+                <input class="form-check-input" type="checkbox" name="dhaba[isVegetarian]" value="true" id="editIsVegetarian" <%= dhaba.isVegetarian ? 'checked' : '' %>>
+                <label class="form-check-label" for="editIsVegetarian">
+                  Vegetarian Options Available
+                </label>
+              </div>
+            </div>
+            <div class="col-md-6">
+              <div class="form-check">
+                <input class="form-check-input" type="checkbox" name="dhaba[isVegan]" value="true" id="editIsVegan" <%= dhaba.isVegan ? 'checked' : '' %>>
+                <label class="form-check-label" for="editIsVegan">
+                  Vegan Options Available
+                </label>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="card mb-4">
+        <div class="card-header bg-info text-white">
+          <h5 class="mb-0">🍽️ Specialties & Facilities</h5>
+        </div>
+        <div class="card-body">
+          <div class="row g-3">
+            <div class="col-12">
+              <label class="form-label">Specialties (Signature Dishes)</label>
+              <input class="form-control" type="text" name="dhaba[specialties]" value="<%= Array.isArray(dhaba.specialties) ? dhaba.specialties.join(', ') : (dhaba.specialties || '') %>" placeholder="Dal Makhani, Butter Chicken, Tandoori Roti (comma separated)" />
+              <small class="form-text text-muted">Separate multiple items with commas</small>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="card mb-4">
+        <div class="card-header bg-warning text-dark">
+          <h5 class="mb-0">🏢 Facilities</h5>
+        </div>
+        <div class="card-body">
+          <div class="row g-3">
+            <div class="col-md-3">
+              <div class="form-check">
+                <input class="form-check-input" type="checkbox" name="dhaba[facilities]" value="AC" id="editAc" <%= Array.isArray(dhaba.facilities) && dhaba.facilities.includes('AC') ? 'checked' : '' %>>
+                <label class="form-check-label" for="editAc">Air Conditioning</label>
+              </div>
+            </div>
+            <div class="col-md-3">
+              <div class="form-check">
+                <input class="form-check-input" type="checkbox" name="dhaba[facilities]" value="Parking" id="editParking" <%= Array.isArray(dhaba.facilities) && dhaba.facilities.includes('Parking') ? 'checked' : '' %>>
+                <label class="form-check-label" for="editParking">Parking</label>
+              </div>
+            </div>
+            <div class="col-md-3">
+              <div class="form-check">
+                <input class="form-check-input" type="checkbox" name="dhaba[facilities]" value="WiFi" id="editWifi" <%= Array.isArray(dhaba.facilities) && dhaba.facilities.includes('WiFi') ? 'checked' : '' %>>
+                <label class="form-check-label" for="editWifi">WiFi</label>
+              </div>
+            </div>
+            <div class="col-md-3">
+              <div class="form-check">
+                <input class="form-check-input" type="checkbox" name="dhaba[facilities]" value="Outdoor Seating" id="editOutdoor" <%= Array.isArray(dhaba.facilities) && dhaba.facilities.includes('Outdoor Seating') ? 'checked' : '' %>>
+                <label class="form-check-label" for="editOutdoor">Outdoor Seating</label>
+              </div>
+            </div>
+            <div class="col-md-3">
+              <div class="form-check">
+                <input class="form-check-input" type="checkbox" name="dhaba[facilities]" value="Card Payment" id="editCard" <%= Array.isArray(dhaba.facilities) && dhaba.facilities.includes('Card Payment') ? 'checked' : '' %>>
+                <label class="form-check-label" for="editCard">Card Payment</label>
+              </div>
+            </div>
+            <div class="col-md-3">
+              <div class="form-check">
+                <input class="form-check-input" type="checkbox" name="dhaba[facilities]" value="Home Delivery" id="editDelivery" <%= Array.isArray(dhaba.facilities) && dhaba.facilities.includes('Home Delivery') ? 'checked' : '' %>>
+                <label class="form-check-label" for="editDelivery">Home Delivery</label>
+              </div>
+            </div>
+            <div class="col-md-3">
+              <div class="form-check">
+                <input class="form-check-input" type="checkbox" name="dhaba[facilities]" value="Family Section" id="editFamily" <%= Array.isArray(dhaba.facilities) && dhaba.facilities.includes('Family Section') ? 'checked' : '' %>>
+                <label class="form-check-label" for="editFamily">Family Section</label>
+              </div>
+            </div>
+            <div class="col-md-3">
+              <div class="form-check">
+                <input class="form-check-input" type="checkbox" name="dhaba[facilities]" value="Live Music" id="editMusic" <%= Array.isArray(dhaba.facilities) && dhaba.facilities.includes('Live Music') ? 'checked' : '' %>>
+                <label class="form-check-label" for="editMusic">Live Music</label>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="card mb-4">
+        <div class="card-header bg-primary text-white">
+          <h5 class="mb-0">📷 Images</h5>
+        </div>
+        <div class="card-body">
+          <div class="row g-3">
+            <div class="col-12">
+              <% if (dhaba.image && dhaba.image.url) { %>
+                <div class="mb-3">
+                  <label class="form-label">Current Image</label>
+                  <img src="<%= dhaba.image.url %>" alt="<%= dhaba.title %>" class="img-thumbnail" style="max-width: 200px;" />
+                </div>
+              <% } %>
+              <label class="form-label">Replace Image (optional)</label>
+              <input class="form-control" type="file" name="dhaba[image]" accept="image/*" />
+              <small class="form-text text-muted">Leave empty to keep current image</small>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="card mb-4">
+        <div class="card-body text-center">
+          <button class="btn btn-primary btn-lg px-5" type="submit">
+            <i class="fa fa-save"></i> Update Dhaba
+          </button>
+          <a class="btn btn-outline-secondary btn-lg px-5 ms-2" href="/dhabas/<%= dhaba._id %>">
+            <i class="fa fa-times"></i> Cancel
+          </a>
+        </div>
+      </div>
+    </form>
+  </div>
+</div>

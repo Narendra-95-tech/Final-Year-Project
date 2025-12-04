@@ -1,0 +1,431 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Availability Calendar Demo</title>
+  <!-- Font Awesome for icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  
+  <style>
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+      margin: 0;
+      padding: 2rem;
+      background-color: #f5f5f5;
+      display: flex;
+      justify-content: center;
+      min-height: 100vh;
+    }
+    
+    .demo-container {
+      max-width: 1200px;
+      width: 100%;
+    }
+    
+    h1 {
+      text-align: center;
+      color: #1f2937;
+      margin-bottom: 2rem;
+    }
+    
+    .calendar-container {
+      background: white;
+      border-radius: 12px;
+      box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+      padding: 2rem;
+      margin-bottom: 2rem;
+    }
+    
+    .controls {
+      background: white;
+      border-radius: 12px;
+      box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+      padding: 1.5rem;
+      margin-bottom: 2rem;
+    }
+    
+    .control-group {
+      margin-bottom: 1rem;
+    }
+    
+    label {
+      display: block;
+      margin-bottom: 0.5rem;
+      font-weight: 500;
+      color: #374151;
+    }
+    
+    input[type="date"],
+    select {
+      width: 100%;
+      padding: 0.5rem;
+      border: 1px solid #d1d5db;
+      border-radius: 6px;
+      font-size: 1rem;
+    }
+    
+    .btn {
+      background: #10b981;
+      color: white;
+      border: none;
+      padding: 0.75rem 1.5rem;
+      border-radius: 6px;
+      font-weight: 600;
+      cursor: pointer;
+      font-size: 1rem;
+      transition: background-color 0.2s;
+    }
+    
+    .btn:hover {
+      background: #0d9f6e;
+    }
+    
+    .btn-secondary {
+      background: #6b7280;
+    }
+    
+    .btn-secondary:hover {
+      background: #4b5563;
+    }
+    
+    .selected-dates {
+      margin-top: 1rem;
+      padding: 1rem;
+      background: #f3f4f6;
+      border-radius: 6px;
+      font-size: 0.9rem;
+    }
+    
+    .selected-dates p {
+      margin: 0.5rem 0;
+    }
+    
+    .status-indicator {
+      display: inline-block;
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+      margin-right: 0.5rem;
+    }
+    
+    .status-available { background-color: #10b981; }
+    .status-partial { background-color: #f59e0b; }
+    .status-booked { background-color: #ef4444; }
+    
+    .status-legend {
+      display: flex;
+      gap: 1rem;
+      margin-top: 1rem;
+    }
+    
+    .status-item {
+      display: flex;
+      align-items: center;
+      font-size: 0.875rem;
+      color: #4b5563;
+    }
+  </style>
+</head>
+<body>
+  <div class="demo-container">
+    <h1>Availability Calendar</h1>
+    
+    <div class="controls">
+      <h2>Calendar Controls</h2>
+      
+      <div class="control-group">
+        <label for="theme">Theme</label>
+        <select id="theme">
+          <option value="default">Default</option>
+          <option value="dark">Dark Mode</option>
+          <option value="beach">Beach Theme</option>
+          <option value="mountain">Mountain Theme</option>
+        </select>
+      </div>
+      
+      <div class="control-group">
+        <label>Mark Dates</label>
+        <div style="display: flex; gap: 1rem; margin-bottom: 0.5rem;">
+          <button id="markAvailable" class="btn" style="background: #10b981;">Mark as Available</button>
+          <button id="markPartial" class="btn" style="background: #f59e0b;">Mark as Partially Booked</button>
+          <button id="markBooked" class="btn" style="background: #ef4444;">Mark as Booked</button>
+        </div>
+        <div style="display: flex; gap: 1rem;">
+          <button id="clearAll" class="btn btn-secondary">Clear All</button>
+          <button id="randomize" class="btn btn-secondary">Randomize Availability</button>
+        </div>
+      </div>
+      
+      <div class="selected-dates">
+        <h3>Selected Dates</h3>
+        <p>Start Date: <span id="startDate">Not selected</span></p>
+        <p>End Date: <span id="endDate">Not selected</span></p>
+        <p>Selected Range: <span id="dateRange">-</span></p>
+      </div>
+      
+      <div class="status-legend">
+        <div class="status-item"><span class="status-indicator status-available"></span> Available</div>
+        <div class="status-item"><span class="status-indicator status-partial"></span> Partially Booked</div>
+        <div class="status-item"><span class="status-indicator status-booked"></span> Booked</div>
+      </div>
+    </div>
+    
+    <div class="calendar-container">
+      <div id="availabilityCalendar"></div>
+    </div>
+  </div>
+
+  <!-- Include the calendar script -->
+  <script src="availability-calendar.js"></script>
+  
+  <script>
+    // Initialize the calendar
+    const calendar = new AvailabilityCalendar('availabilityCalendar', {
+      showLegend: true,
+      minDate: new Date(),
+      maxDate: new Date(new Date().setFullYear(new Date().getFullYear() + 1)),
+      onDateSelect: handleDateSelect,
+      onMonthChange: handleMonthChange
+    });
+    
+    // Set some sample unavailable dates
+    const today = new Date();
+    const sampleBookedDates = [
+      addDays(today, 5),
+      addDays(today, 6),
+      addDays(today, 12),
+      addDays(today, 13),
+      addDays(today, 14),
+      addDays(today, 20),
+      addDays(today, 21),
+      addDays(today, 27),
+      addDays(today, 28)
+    ];
+    
+    const samplePartialDates = [
+      addDays(today, 3),
+      addDays(today, 10),
+      addDays(today, 17),
+      addDays(today, 24),
+      addDays(today, 31)
+    ];
+    
+    // Set initial availability
+    function setInitialAvailability() {
+      calendar.clearAvailability();
+      
+      // Mark some dates as booked
+      calendar.setAvailability(sampleBookedDates, 'booked');
+      
+      // Mark some dates as partially booked
+      calendar.setAvailability(samplePartialDates, 'partially-booked');
+    }
+    
+    // Call the function to set initial availability
+    setInitialAvailability();
+    
+    // Event handlers
+    function handleDateSelect({ startDate, endDate, startDateStr, endDateStr }) {
+      document.getElementById('startDate').textContent = formatDate(startDate);
+      document.getElementById('endDate').textContent = endDate ? formatDate(endDate) : 'Not selected';
+      
+      if (endDate) {
+        const nights = Math.ceil((endDate - startDate) / (1000 * 60 * 60 * 24));
+        document.getElementById('dateRange').textContent = 
+          `${formatDate(startDate)} to ${formatDate(endDate)} (${nights} ${nights === 1 ? 'night' : 'nights'})`;
+      } else {
+        document.getElementById('dateRange').textContent = 'Select an end date';
+      }
+    }
+    
+    function handleMonthChange({ year, month }) {
+      console.log(`Month changed to ${year}-${month}`);
+      // You could load availability data for this month from your server here
+    }
+    
+    // Helper functions
+    function formatDate(date) {
+      return date.toLocaleDateString('en-US', { 
+        year: 'numeric', 
+        month: 'short', 
+        day: 'numeric' 
+      });
+    }
+    
+    function addDays(date, days) {
+      const result = new Date(date);
+      result.setDate(result.getDate() + days);
+      return result;
+    }
+    
+    // Set up button event listeners
+    document.getElementById('markAvailable').addEventListener('click', () => {
+      if (calendar.selectedStartDate) {
+        const endDate = calendar.selectedEndDate || calendar.selectedStartDate;
+        const dates = getDateRange(calendar.selectedStartDate, endDate);
+        calendar.setAvailability(dates, 'available');
+      } else {
+        alert('Please select a date range first');
+      }
+    });
+    
+    document.getElementById('markPartial').addEventListener('click', () => {
+      if (calendar.selectedStartDate) {
+        const endDate = calendar.selectedEndDate || calendar.selectedStartDate;
+        const dates = getDateRange(calendar.selectedStartDate, endDate);
+        calendar.setAvailability(dates, 'partially-booked');
+      } else {
+        alert('Please select a date range first');
+      }
+    });
+    
+    document.getElementById('markBooked').addEventListener('click', () => {
+      if (calendar.selectedStartDate) {
+        const endDate = calendar.selectedEndDate || calendar.selectedStartDate;
+        const dates = getDateRange(calendar.selectedStartDate, endDate);
+        calendar.setAvailability(dates, 'booked');
+      } else {
+        alert('Please select a date range first');
+      }
+    });
+    
+    document.getElementById('clearAll').addEventListener('click', () => {
+      calendar.clearAvailability();
+      document.getElementById('startDate').textContent = 'Not selected';
+      document.getElementById('endDate').textContent = 'Not selected';
+      document.getElementById('dateRange').textContent = '-';
+    });
+    
+    document.getElementById('randomize').addEventListener('click', () => {
+      // Clear existing availability
+      calendar.clearAvailability();
+      
+      // Generate some random availability data
+      const today = new Date();
+      const startDate = new Date(today);
+      const endDate = new Date(today);
+      endDate.setMonth(endDate.getMonth() + 6); // Next 6 months
+      
+      const dates = [];
+      const statuses = ['available', 'partially-booked', 'booked'];
+      
+      // Generate random dates with statuses
+      for (let d = new Date(startDate); d <= endDate; d.setDate(d.getDate() + 1)) {
+        // 70% chance of being available, 20% partially booked, 10% booked
+        const rand = Math.random();
+        let status;
+        
+        if (rand < 0.1) status = 'booked';
+        else if (rand < 0.3) status = 'partially-booked';
+        else status = 'available';
+        
+        dates.push({
+          date: new Date(d),
+          status: status
+        });
+      }
+      
+      // Group by status for better performance
+      const byStatus = {
+        'available': [],
+        'partially-booked': [],
+        'booked': []
+      };
+      
+      dates.forEach(item => {
+        byStatus[item.status].push(item.date);
+      });
+      
+      // Set availability in batches
+      Object.entries(byStatus).forEach(([status, dates]) => {
+        if (dates.length > 0) {
+          calendar.setAvailability(dates, status);
+        }
+      });
+      
+      alert('Random availability data generated for the next 6 months!');
+    });
+    
+    // Theme switcher
+    document.getElementById('theme').addEventListener('change', (e) => {
+      const theme = e.target.value;
+      const body = document.body;
+      
+      // Remove all theme classes first
+      body.classList.remove('dark-mode', 'beach-theme', 'mountain-theme');
+      
+      if (theme === 'dark') {
+        body.classList.add('dark-mode');
+      } else if (theme === 'beach') {
+        body.classList.add('beach-theme');
+      } else if (theme === 'mountain') {
+        body.classList.add('mountain-theme');
+      }
+    });
+    
+    // Helper function to get all dates in a range
+    function getDateRange(startDate, endDate) {
+      const dates = [];
+      const currentDate = new Date(startDate);
+      
+      while (currentDate <= endDate) {
+        dates.push(new Date(currentDate));
+        currentDate.setDate(currentDate.getDate() + 1);
+      }
+      
+      return dates;
+    }
+  </script>
+  
+  <style>
+    /* Additional theme styles */
+    body.dark-mode {
+      background-color: #1a1a1a;
+      color: #f3f4f6;
+    }
+    
+    body.dark-mode .calendar-container,
+    body.dark-mode .controls {
+      background-color: #2d3748;
+      color: #f3f4f6;
+    }
+    
+    body.dark-mode h1,
+    body.dark-mode h2,
+    body.dark-mode h3,
+    body.dark-mode label {
+      color: #f3f4f6;
+    }
+    
+    body.dark-mode input,
+    body.dark-mode select {
+      background-color: #4a5568;
+      border-color: #4a5568;
+      color: #f3f4f6;
+    }
+    
+    /* Beach theme */
+    body.beach-theme .availability-calendar {
+      --primary: #3b82f6;  /* Ocean blue */
+      --secondary: #f59e0b;  /* Sun yellow */
+      --danger: #ef4444;    /* Coral red */
+      --background: rgba(255, 255, 255, 0.9);
+      --border: #bfdbfe;    /* Light blue border */
+      --hover: #dbeafe;     /* Very light blue */
+      --today: #10b981;     /* Teal for today */
+    }
+    
+    /* Mountain theme */
+    body.mountain-theme .availability-calendar {
+      --primary: #10b981;   /* Green */
+      --secondary: #6b7280; /* Gray */
+      --danger: #ef4444;    /* Red */
+      --background: rgba(255, 255, 255, 0.9);
+      --border: #d1fae5;    /* Light green border */
+      --hover: #ecfdf5;     /* Very light green */
+      --today: #3b82f6;     /* Blue for today */
+    }
+  </style>
+</body>
+</html>

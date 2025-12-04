@@ -1,0 +1,701 @@
+<% layout("/layouts/boilerplate") -%>
+
+<style>
+  /* ===== MODERN VEHICLES PAGE ===== */
+  .vehicles-hero {
+    background: linear-gradient(135deg, var(--secondary-green), #28a745);
+    color: var(--white);
+    padding: 3rem 0;
+    margin-bottom: 2rem;
+  }
+
+  .vehicles-title {
+    font-size: 2.5rem;
+    font-weight: 700;
+    margin-bottom: 0.5rem;
+  }
+
+  .vehicles-subtitle {
+    font-size: 1.1rem;
+    opacity: 0.9;
+  }
+
+  /* Filter Section */
+  .filters-section {
+    background: var(--white);
+    border-radius: var(--radius-2xl);
+    box-shadow: var(--shadow-lg);
+    padding: 2rem;
+    margin-bottom: 2rem;
+    border: 1px solid var(--gray-200);
+  }
+
+  .filter-item {
+    text-align: center;
+    padding: 1rem;
+    border-radius: var(--radius-xl);
+    transition: all var(--transition-fast);
+    cursor: pointer;
+    border: 2px solid transparent;
+  }
+
+  .filter-item:hover {
+    border-color: var(--primary-orange);
+    background-color: var(--primary-orange-light);
+    transform: translateY(-2px);
+  }
+
+  .filter-item.active {
+    border-color: var(--primary-orange);
+    background-color: var(--primary-orange-light);
+    color: var(--primary-orange);
+  }
+
+  .filter-icon {
+    font-size: 2rem;
+    margin-bottom: 0.5rem;
+  }
+
+  .filter-label {
+    font-size: 0.875rem;
+    font-weight: 500;
+  }
+
+  /* Search Controls */
+  .search-controls {
+    background: var(--gray-50);
+    border-radius: var(--radius-xl);
+    padding: 1.5rem;
+    margin-bottom: 2rem;
+  }
+
+  /* Vehicles Grid */
+  .vehicles-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 1.5rem;
+    margin-bottom: 3rem;
+  }
+
+  .vehicle-card {
+    background: var(--white);
+    border-radius: var(--radius-xl);
+    overflow: hidden;
+    box-shadow: var(--shadow-sm);
+    transition: all var(--transition-normal);
+    border: 1px solid var(--gray-200);
+    height: 100%;
+  }
+
+  .vehicle-card:hover {
+    box-shadow: var(--shadow-xl);
+    transform: translateY(-6px);
+  }
+
+  .vehicle-image-container {
+    width: 100%;
+    height: 250px;
+    overflow: hidden;
+    position: relative;
+    background-color: #f5f5f5;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .vehicle-image {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.3s ease;
+    position: absolute;
+    top: 0;
+    left: 0;
+  }
+
+  .vehicle-card:hover .vehicle-image {
+    transform: scale(1.05);
+  }
+
+  .vehicle-card:hover .vehicle-image {
+    transform: scale(1.05);
+  }
+
+  .price-overlay {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    background: rgba(40, 167, 69, 0.9);
+    color: var(--white);
+    padding: 0.5rem 1rem;
+    border-radius: var(--radius-full);
+    font-weight: 600;
+    font-size: 0.875rem;
+    backdrop-filter: blur(10px);
+    box-shadow: var(--shadow-md);
+  }
+
+  .vehicle-info {
+    padding: 1.5rem;
+  }
+
+  .vehicle-title {
+    font-size: 1.25rem;
+    font-weight: 600;
+    color: var(--gray-900);
+    margin-bottom: 0.5rem;
+  }
+
+  .vehicle-location {
+    color: var(--gray-600);
+    font-size: 0.875rem;
+    margin-bottom: 0.25rem;
+  }
+
+  .vehicle-owner {
+    color: var(--gray-500);
+    font-size: 0.8rem;
+  }
+
+  .vehicle-actions {
+    display: flex;
+    gap: 0.5rem;
+    margin-top: 1rem;
+  }
+
+  /* Responsive Design */
+  @media (max-width: 768px) {
+    .vehicles-title {
+      font-size: 2rem;
+    }
+
+    .vehicles-subtitle {
+      font-size: 1rem;
+    }
+
+    .filters-section {
+      padding: 1.5rem;
+    }
+
+    .filter-item {
+      padding: 0.75rem;
+    }
+
+    .filter-icon {
+      font-size: 1.5rem;
+    }
+
+    .vehicles-grid {
+      grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+      gap: 1rem;
+    }
+
+    .vehicle-info {
+      padding: 1rem;
+    }
+
+    .vehicle-title {
+      font-size: 1.1rem;
+    }
+  }
+
+  @media (max-width: 576px) {
+    .vehicles-grid {
+      grid-template-columns: 1fr;
+    }
+
+    .filter-item {
+      margin-bottom: 1rem;
+    }
+
+    .search-controls {
+      padding: 1rem;
+    }
+  .chip {
+    display: inline-flex;
+    align-items: center;
+    gap: .35rem;
+    border: 1px solid var(--gray-200);
+    border-radius: var(--radius-full);
+    padding: .25rem .6rem;
+    font-size: .85rem;
+    background: var(--white);
+    color: var(--gray-700);
+    box-shadow: var(--shadow-sm);
+    transition: all var(--transition-fast);
+  }
+  .chip a {
+    text-decoration: none;
+    color: var(--gray-500);
+    transition: color var(--transition-fast);
+  }
+  .chip a:hover {
+    color: var(--primary-orange);
+  }
+  .chip i {
+    color: var(--gray-400);
+    cursor: pointer;
+    transition: color var(--transition-fast);
+  }
+  .chip i:hover {
+    color: var(--primary-orange);
+  }
+</style>
+
+<!-- Hero Section -->
+<section class="vehicles-hero">
+  <div class="container text-center">
+    <h1 class="vehicles-title">Vehicle Rentals</h1>
+    <p class="vehicles-subtitle">Rent cars, bikes, and vans for your journey with flexible options</p>
+  </div>
+</section>
+
+<div class="container">
+    <div class="filters-section animate-fade-in">
+      <div class="row text-center mb-4">
+        <div class="col-12">
+          <h4 class="mb-4">Filter by Type</h4>
+          <div class="row g-3 justify-content-center">
+            <div class="col-auto">
+              <div class="filter-item <%= !vehicleType || vehicleType === 'all' ? 'active' : '' %>" onclick="setFilter('vehicleType', 'all')">
+                <i class="fas fa-car filter-icon text-success"></i>
+                <div class="filter-label">All Vehicles</div>
+              </div>
+            </div>
+            <div class="col-auto">
+              <div class="filter-item <%= vehicleType === 'Car' ? 'active' : '' %>" onclick="setFilter('vehicleType', 'Car')">
+                <i class="fas fa-car filter-icon text-primary"></i>
+                <div class="filter-label">Cars</div>
+              </div>
+            </div>
+            <div class="col-auto">
+              <div class="filter-item <%= vehicleType === 'SUV' ? 'active' : '' %>" onclick="setFilter('vehicleType', 'SUV')">
+                <i class="fas fa-truck filter-icon text-success"></i>
+                <div class="filter-label">SUVs</div>
+              </div>
+            </div>
+            <div class="col-auto">
+              <div class="filter-item <%= vehicleType === 'Bike' ? 'active' : '' %>" onclick="setFilter('vehicleType', 'Bike')">
+                <i class="fas fa-motorcycle filter-icon text-warning"></i>
+                <div class="filter-label">Bikes</div>
+              </div>
+            </div>
+            <div class="col-auto">
+              <div class="filter-item <%= vehicleType === 'Van' ? 'active' : '' %>" onclick="setFilter('vehicleType', 'Van')">
+                <i class="fas fa-van-shuttle filter-icon text-info"></i>
+                <div class="filter-label">Vans</div>
+              </div>
+            </div>
+            <div class="col-auto">
+              <div class="filter-item <%= vehicleType === 'Luxury' ? 'active' : '' %>" onclick="setFilter('vehicleType', 'Luxury')">
+                <i class="fas fa-crown filter-icon text-warning"></i>
+                <div class="filter-label">Luxury</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Search Controls -->
+      <div class="search-controls">
+        <form method="GET" action="/vehicles" class="row g-3">
+          <div class="col-md-3">
+            <label for="minPrice" class="form-label">Min Price (₹)</label>
+            <input type="number" class="form-control" id="minPrice" name="minPrice" value="<%= minPrice || '' %>" placeholder="0" min="0">
+          </div>
+          <div class="col-md-3">
+            <label for="maxPrice" class="form-label">Max Price (₹)</label>
+            <input type="number" class="form-control" id="maxPrice" name="maxPrice" value="<%= maxPrice || '' %>" placeholder="10000" min="0">
+          </div>
+          <div class="col-md-2">
+            <label for="seats" class="form-label">Seats</label>
+            <input type="number" class="form-control" id="seats" name="seats" value="<%= seats || '' %>" placeholder="1" min="1" max="20">
+          </div>
+          <div class="col-md-2">
+            <label for="sort" class="form-label">Sort By</label>
+            <select class="form-select" id="sort" name="sort">
+              <option value="" <%= !sort ? 'selected' : '' %>>Default</option>
+              <option value="price_asc" <%= sort === 'price_asc' ? 'selected' : '' %>>Price: Low to High</option>
+              <option value="price_desc" <%= sort === 'price_desc' ? 'selected' : '' %>>Price: High to Low</option>
+              <option value="newest" <%= sort === 'newest' ? 'selected' : '' %>>Newest First</option>
+              <option value="year_desc" <%= sort === 'year_desc' ? 'selected' : '' %>>Year: New to Old</option>
+            </select>
+          </div>
+          <div class="col-md-2 d-flex align-items-end">
+            <button type="submit" class="btn btn-success w-100">
+              <i class="fas fa-search me-2"></i>Apply
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <!-- Results Header -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+      <h3 class="mb-0">
+        <i class="fas fa-car me-2 text-success"></i>
+        <%= allVehicles.length %> Vehicles Found
+        <% if (query) { %>
+          <small class="text-muted">for "<%= query %>"</small>
+        <% } %>
+      </h3>
+      <% if (currUser) { %>
+        <a href="/vehicles/new" class="btn btn-success">
+          <i class="fas fa-plus me-2"></i>Add New Vehicle
+        </a>
+      <% } %>
+    </div>
+
+    <!-- Active Filters -->
+    <div class="mb-4">
+      <% if (query || vehicleType || brand || fuelType || transmission || seats || minPrice || maxPrice) { %>
+        <div class="d-flex flex-wrap gap-2 align-items-center mb-3">
+          <span class="fw-semibold">Active filters:</span>
+          <% if (query) { %>
+            <span class="chip">
+              Search: <b><%= query %></b>
+              <a href="/vehicles?<%= new URLSearchParams({...Object.fromEntries(new URLSearchParams(window.location.search)), q: ''}).toString() %>">
+                <i class="fas fa-times"></i>
+              </a>
+            </span>
+          <% } %>
+          <% if (vehicleType && vehicleType !== 'all') { %>
+            <span class="chip">
+              Type: <b><%= vehicleType %></b>
+              <a href="/vehicles?<%= new URLSearchParams({...Object.fromEntries(new URLSearchParams(window.location.search)), vehicleType: ''}).toString() %>">
+                <i class="fas fa-times"></i>
+              </a>
+            </span>
+          <% } %>
+          <% if (brand && brand !== 'all') { %>
+            <span class="chip">
+              Brand: <b><%= brand %></b>
+              <a href="/vehicles?<%= new URLSearchParams({...Object.fromEntries(new URLSearchParams(window.location.search)), brand: ''}).toString() %>">
+                <i class="fas fa-times"></i>
+              </a>
+            </span>
+          <% } %>
+          <% if (fuelType && fuelType !== 'all') { %>
+            <span class="chip">
+              Fuel: <b><%= fuelType %></b>
+              <a href="/vehicles?<%= new URLSearchParams({...Object.fromEntries(new URLSearchParams(window.location.search)), fuelType: ''}).toString() %>">
+                <i class="fas fa-times"></i>
+              </a>
+            </span>
+          <% } %>
+          <% if (transmission && transmission !== 'all') { %>
+            <span class="chip">
+              Transmission: <b><%= transmission %></b>
+              <a href="/vehicles?<%= new URLSearchParams({...Object.fromEntries(new URLSearchParams(window.location.search)), transmission: ''}).toString() %>">
+                <i class="fas fa-times"></i>
+              </a>
+            </span>
+          <% } %>
+          <% if (seats) { %>
+            <span class="chip">
+              Seats: <b><%= seats %></b>
+              <a href="/vehicles?<%= new URLSearchParams({...Object.fromEntries(new URLSearchParams(window.location.search)), seats: ''}).toString() %>">
+                <i class="fas fa-times"></i>
+              </a>
+            </span>
+          <% } %>
+          <% if (minPrice) { %>
+            <span class="chip">
+              Min: ₹<b><%= Number(minPrice).toLocaleString('en-IN') %></b>
+              <a href="/vehicles?<%= new URLSearchParams({...Object.fromEntries(new URLSearchParams(window.location.search)), minPrice: ''}).toString() %>">
+                <i class="fas fa-times"></i>
+              </a>
+            </span>
+          <% } %>
+          <% if (maxPrice) { %>
+            <span class="chip">
+              Max: ₹<b><%= Number(maxPrice).toLocaleString('en-IN') %></b>
+              <a href="/vehicles?<%= new URLSearchParams({...Object.fromEntries(new URLSearchParams(window.location.search)), maxPrice: ''}).toString() %>">
+                <i class="fas fa-times"></i>
+              </a>
+            </span>
+          <% } %>
+          <a href="/vehicles" class="btn btn-sm btn-outline-secondary ms-2">
+            <i class="fas fa-times me-1"></i>Clear All
+          </a>
+        </div>
+      <% } %>
+    </div>
+
+    <!-- Vehicles Grid -->
+    <% if (allVehicles.length > 0) { %>
+      <!-- Featured Section -->
+      <% if (typeof trendingVehicles !== 'undefined' && trendingVehicles.length > 0) { %>
+        <div class="mb-5">
+          <h4 class="mb-4 d-flex align-items-center">
+            <i class="fas fa-star text-warning me-2"></i>
+            Featured Vehicles
+          </h4>
+          <div class="vehicles-grid">
+            <% for (let t of trendingVehicles) { %>
+              <div class="vehicle-card animate-fade-in">
+                <div class="position-relative">
+                  <div class="vehicle-image-container">
+                    <% 
+                    let vehicleImgUrl = 'https://source.unsplash.com/featured/600x400/?' + 
+                        encodeURIComponent((t.vehicleType || 'car') + ' ' + (t.brand || '') + ' ' + (t.model || ''));
+                    if (t.image && t.image.url) {
+                        vehicleImgUrl = t.image.url;
+                    }
+                    %>
+                    <img src="<%= vehicleImgUrl %>"
+                         class="vehicle-image" 
+                         alt="<%= t.title %>"
+                         loading="lazy"
+                         onerror="this.onerror=null; this.src='https://source.unsplash.com/featured/600x400/?<%= encodeURIComponent(t.vehicleType || 'car') %>';">
+                  </div>
+                  <div class="price-overlay">
+                    ₹<%= t.price ? Number(t.price).toLocaleString("en-IN") : "N/A" %> / day
+                    <small class="badge bg-warning d-block mt-1">Featured</small>
+                  </div>
+                </div>
+                <div class="vehicle-info">
+                  <h5 class="vehicle-title"><%= t.title %></h5>
+                  <div class="mb-2">
+                    <span class="badge bg-success me-1"><%= t.vehicleType %></span>
+                    <% if (t.brand) { %>
+                      <span class="badge bg-primary"><%= t.brand %> <%= t.model %></span>
+                    <% } %>
+                  </div>
+                  <p class="vehicle-location">
+                    <i class="fas fa-map-marker-alt me-1"></i>
+                    <%= t.location %>, <%= t.country %>
+                  </p>
+                  <p class="vehicle-owner">
+                    <i class="fas fa-user me-1"></i>
+                    Listed by <%= t.owner?.username || 'Unknown' %>
+                  </p>
+                  <div class="vehicle-actions">
+                    <a href="/vehicles/<%= t._id %>" class="btn btn-outline-success flex-fill">
+                      <i class="fas fa-eye me-1"></i>View Details
+                    </a>
+                    <% if (currUser && t.owner._id.equals(currUser._id)) { %>
+                      <a href="/vehicles/<%= t._id %>/edit" class="btn btn-outline-secondary flex-fill ms-2">
+                        <i class="fas fa-edit me-1"></i>Edit
+                      </a>
+                    <% } %>
+                  </div>
+                </div>
+              </div>
+            <% } %>
+          </div>
+        </div>
+      <% } %>
+
+      <!-- All Vehicles -->
+      <div class="vehicles-grid">
+        <% for (let vehicle of allVehicles) { %>
+          <div class="vehicle-card animate-fade-in">
+            <div class="position-relative">
+              <div class="vehicle-image-container">
+                <% 
+                // Function to get the best available image URL
+                const getVehicleImage = (vehicle) => {
+                    // 1. First try the vehicle's own image if available
+                    if (vehicle.image && vehicle.image.url) {
+                        return vehicle.image.url;
+                    }
+                    
+                    // 2. Try to get a specific image based on make and model
+                    const makeModel = `${vehicle.brand || ''} ${vehicle.model || ''}`.trim();
+                    if (makeModel) {
+                        // Specific mappings for common vehicles
+                        const modelImages = {
+                            // Cars
+                            'Hyundai Creta': 'https://images.unsplash.com/photo-1621996341495-45d5aad09e9b?ixlib=rb-4.0.3',
+                            'Maruti Suzuki Swift': 'https://images.unsplash.com/photo-1603584173870-7f23fdae1b7a?ixlib=rb-4.0.3',
+                            'Toyota Fortuner': 'https://images.unsplash.com/photo-1605894331529-33f6c0d3e5a9?ixlib=rb-4.0.3',
+                            'Honda City': 'https://images.unsplash.com/photo-1580273916551-e264ee695e81?ixlib=rb-4.0.3',
+                            'Kia Seltos': 'https://images.unsplash.com/photo-1605559424843-9e4c228bf1c2?ixlib=rb-4.0.3',
+                            'Tata Nexon EV': 'https://images.unsplash.com/photo-1621784563330-5ad3b74de1c3?ixlib=rb-4.0.3',
+                            'Volkswagen Polo GT': 'https://images.unsplash.com/photo-1542362567-b07e54358753?ixlib=rb-4.0.3',
+                            'Range Rover Velar': 'https://images.unsplash.com/photo-1624702045520-39a04d0f0a49?ixlib=rb-4.0.3',
+                            'Mercedes-Benz E-Class': 'https://images.unsplash.com/photo-1555215695-3004980ad54e?ixlib=rb-4.0.3',
+                            'Toyota Innova Crysta': 'https://images.unsplash.com/photo-1605894331529-33f6c0d3e5a9?ixlib=rb-4.0.3',
+                            
+                            // Bikes
+                            'Royal Enfield Classic 350': 'https://images.unsplash.com/photo-1580637250481-b78db3e6f84f?ixlib=rb-4.0.3',
+                            'KTM 390 Adventure': 'https://images.unsplash.com/photo-1558981806-ec527fa84c39?ixlib=rb-4.0.3',
+                            'Bajaj Pulsar': 'https://images.unsplash.com/photo-1568772585407-9361f9bf3a87?ixlib=rb-4.0.3',
+                            
+                            // Scooters
+                            'Honda Activa': 'https://images.unsplash.com/photo-1568772585407-9361f9bf3a87?ixlib=rb-4.0.3',
+                            'Yamaha NMAX 125': 'https://images.unsplash.com/photo-1621996341495-45d5aad09e9b?ixlib=rb-4.0.3'
+                        };
+                        
+                        // Try exact match first
+                        if (modelImages[makeModel]) {
+                            return modelImages[makeModel];
+                        }
+                        
+                        // Try partial match
+                        for (const [key, value] of Object.entries(modelImages)) {
+                            if (makeModel.includes(key) || key.includes(makeModel)) {
+                                return value;
+                            }
+                        }
+                    }
+                    
+                    // 3. Fallback to category-based images
+                    const categoryImages = {
+                        // Cars
+                        'suv': 'https://images.unsplash.com/photo-1503376785-2acd3d0a0821?ixlib=rb-4.0.3&w=800&h=600&fit=crop',
+                        'hatchback': 'https://images.unsplash.com/photo-1542362567-b07e54358753?ixlib=rb-4.0.3&w=800&h=600&fit=crop',
+                        'sedan': 'https://images.unsplash.com/photo-1580273916551-e264ee695e81?ixlib=rb-4.0.3&w=800&h=600&fit=crop',
+                        'luxury': 'https://images.unsplash.com/photo-1555215695-3004980ad54e?ixlib=rb-4.0.3&w=800&h=600&fit=crop',
+                        'electric': 'https://images.unsplash.com/photo-1621784563330-5ad3b74de1c3?ixlib=rb-4.0.3&w=800&h=600&fit=crop',
+                        
+                        // Bikes
+                        'bike': 'https://images.unsplash.com/photo-1558981806-ec527fa84c39?ixlib=rb-4.0.3&w=800&h=600&fit=crop',
+                        'sportsbike': 'https://images.unsplash.com/photo-1568772585407-9361f9bf3a87?ixlib=rb-4.0.3&w=800&h=600&fit=crop',
+                        'adventure': 'https://images.unsplash.com/photo-1558981806-ec527fa84c39?ixlib=rb-4.0.3&w=800&h=600&fit=crop',
+                        
+                        // Scooters
+                        'scooter': 'https://images.unsplash.com/photo-1568772585407-9361f9bf3a87?ixlib=rb-4.0.3&w=800&h=600&fit=crop',
+                        
+                        // Default
+                        'default': 'https://images.unsplash.com/photo-1503376785-2acd3d0a0821?ixlib=rb-4.0.3&w=800&h=600&fit=crop&auto=format'
+                    };
+                    
+                    // Get category image based on vehicle type or model
+                    const category = vehicle.vehicleType?.toLowerCase() || 
+                                  (vehicle.model?.toLowerCase().includes('activa') ? 'scooter' : 
+                                   vehicle.model?.toLowerCase().includes('pulsar') ? 'bike' : 
+                                   'default');
+                    
+                    return categoryImages[category] || categoryImages['default'];
+                };
+                
+                const vehicleImgUrl = getVehicleImage(vehicle);
+                %>
+                <img src="<%= vehicleImgUrl %>"
+                     class="vehicle-image img-fluid" 
+                     alt="<%= vehicle.brand || '' %> <%= vehicle.model || vehicle.title || 'Vehicle' %>"
+                     title="<%= vehicle.brand || '' %> <%= vehicle.model || '' %>"
+                     loading="lazy"
+                     onerror="this.onerror=null; 
+                              this.src='https://images.unsplash.com/photo-1503376785-2acd3d0a0821?ixlib=rb-4.0.3&w=800&h=600&fit=crop&auto=format';
+                              this.alt='<%= vehicle.brand || '' %> <%= vehicle.model || vehicle.title || 'Vehicle' %>';
+                              this.title='<%= vehicle.brand || '' %> <%= vehicle.model || vehicle.title || 'Vehicle' %>';">
+              </div>
+              <div class="price-overlay">
+                ₹<%= vehicle.price ? Number(vehicle.price).toLocaleString("en-IN") : "N/A" %> / day
+              </div>
+            </div>
+            <div class="vehicle-info">
+              <h5 class="vehicle-title"><%= vehicle.title %></h5>
+              <div class="mb-2">
+                <span class="badge bg-success me-1"><%= vehicle.vehicleType %></span>
+                <% if (vehicle.brand) { %>
+                  <span class="badge bg-primary"><%= vehicle.brand %> <%= vehicle.model %></span>
+                <% } %>
+              </div>
+              <p class="vehicle-location">
+                <i class="fas fa-map-marker-alt me-1"></i>
+                <%= vehicle.location %>, <%= vehicle.country %>
+              </p>
+              <p class="vehicle-owner">
+                <i class="fas fa-user me-1"></i>
+                Listed by <%= vehicle.owner?.username || 'Unknown' %>
+              </p>
+              <div class="vehicle-actions">
+                <a href="/vehicles/<%= vehicle._id %>" class="btn btn-outline-success flex-fill">
+                  <i class="fas fa-eye me-1"></i>View Details
+                </a>
+                <% if (currUser && vehicle.owner._id.equals(currUser._id)) { %>
+                  <a href="/vehicles/<%= vehicle._id %>/edit" class="btn btn-outline-secondary flex-fill ms-2">
+                    <i class="fas fa-edit me-1"></i>Edit
+                  </a>
+                <% } %>
+              </div>
+            </div>
+          </div>
+        <% } %>
+      </div>
+    <% } else { %>
+      <!-- No Results -->
+      <div class="text-center py-5">
+        <i class="fas fa-car fa-4x text-muted mb-3"></i>
+        <h4 class="text-muted">No vehicles found</h4>
+        <p class="text-muted mb-4">
+          <% if (query) { %>
+            No results for "<%= query %>". Try adjusting your search criteria.
+          <% } else { %>
+            No vehicles are available at the moment.
+          <% } %>
+        </p>
+        <a href="/vehicles" class="btn btn-success">
+          <i class="fas fa-refresh me-2"></i>Clear Filters
+        </a>
+      </div>
+    <% } %>
+  </div>
+
+<script>
+  // Image error handler with fallback
+  function handleImageError(img, vehicleType, brand, model) {
+    // First try with a more specific search
+    const searchTerm1 = [vehicleType, brand, model].filter(Boolean).join(',');
+    img.src = `https://source.unsplash.com/featured/600x400/?${searchTerm1 || 'car'}`;
+    
+    // If that fails, try with just the vehicle type
+    img.onerror = function() {
+      this.onerror = null;
+      this.src = `https://source.unsplash.com/featured/600x400/?${vehicleType || 'car'}`;
+      
+      // If that also fails, use a generic vehicle image
+      this.onerror = function() {
+        this.onerror = null;
+        this.src = 'https://images.unsplash.com/photo-1503376780353-7e6692767b70?ixlib=rb-1.2.1&auto=format&fit=crop&w=600&h=400&q=80';
+      };
+    };
+  }
+
+  // Filter functionality
+  function setFilter(type, value) {
+    const url = new URL(window.location);
+    if (value === 'all' || !value) {
+      url.searchParams.delete(type);
+    } else {
+      url.searchParams.set(type, value);
+    }
+    // Preserve other filters
+    ['q', 'sort', 'brand', 'fuelType', 'transmission', 'seats', 'minPrice', 'maxPrice'].forEach(param => {
+      const paramValue = url.searchParams.get(param);
+      if (paramValue) {
+        url.searchParams.set(param, paramValue);
+      }
+    });
+    window.location.href = url.toString();
+  }
+
+  // Enhanced interactions
+  document.addEventListener('DOMContentLoaded', function() {
+    // Set active filters based on URL
+    const urlParams = new URLSearchParams(window.location.search);
+    const vehicleType = urlParams.get('vehicleType');
+
+    // Update filter UI
+    if (vehicleType) {
+      document.querySelectorAll('.filter-item').forEach(item => {
+        item.classList.remove('active');
+      });
+      const activeFilter = document.querySelector(`[onclick*="${vehicleType}"]`);
+      if (activeFilter) activeFilter.classList.add('active');
+    }
+
+    // Add staggered animations
+    const cards = document.querySelectorAll('.vehicle-card');
+    cards.forEach((card, index) => {
+      card.style.animationDelay = `${index * 0.1}s`;
+    });
+  });
+</script>
+
+</body>
+</html>

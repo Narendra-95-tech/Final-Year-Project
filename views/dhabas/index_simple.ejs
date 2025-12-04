@@ -1,0 +1,126 @@
+<% layout("/layouts/boilerplate") -%>
+
+<div class="row mt-3">
+  <div class="col-md-12">
+    <h2 class="mb-4">🍽️ All Dhabas</h2>
+  </div>
+</div>
+
+<!-- Filters and Search -->
+<div class="row mb-4">
+  <div class="col-md-12">
+    <div class="card">
+      <div class="card-body">
+        <div class="row g-3">
+          <div class="col-md-4">
+            <form method="GET" action="/dhabas" class="d-flex">
+              <input class="form-control me-2" type="search" name="q" placeholder="Search dhabas..." value="<%= query %>">
+              <button class="btn btn-outline-success" type="submit">Search</button>
+            </form>
+          </div>
+          <div class="col-md-3">
+            <select name="cuisine" class="form-select" onchange="this.form.submit()">
+              <option value="">All Cuisines</option>
+              <option value="north indian" <%= cuisine === 'north indian' ? 'selected' : '' %>>North Indian</option>
+              <option value="south indian" <%= cuisine === 'south indian' ? 'selected' : '' %>>South Indian</option>
+              <option value="punjabi" <%= cuisine === 'punjabi' ? 'selected' : '' %>>Punjabi</option>
+              <option value="chinese" <%= cuisine === 'chinese' ? 'selected' : '' %>>Chinese</option>
+            </select>
+          </div>
+          <div class="col-md-3">
+            <select name="sort" class="form-select" onchange="this.form.submit()">
+              <option value="">Sort By</option>
+              <option value="rating" <%= sort === 'rating' ? 'selected' : '' %>>Highest Rated</option>
+              <option value="newest" <%= sort === 'newest' ? 'selected' : '' %>>Newest First</option>
+              <option value="name" <%= sort === 'name' ? 'selected' : '' %>>Name (A-Z)</option>
+            </select>
+          </div>
+          <div class="col-md-2">
+            <a href="/dhabas/new" class="btn btn-success w-100">+ Add Dhaba</a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Trending Dhabas -->
+<% if (trendingDhabas && trendingDhabas.length > 0) { %>
+<div class="row mb-4">
+  <div class="col-md-12">
+    <h4 class="mb-3">🔥 Trending Dhabas</h4>
+    <div class="row g-3">
+      <% trendingDhabas.forEach(dhaba => { %>
+        <div class="col-md-4">
+          <div class="card h-100">
+            <% if (dhaba.image && dhaba.image.url) { %>
+              <img src="<%= dhaba.image.url %>" class="card-img-top" alt="<%= dhaba.name %>" style="height: 200px; object-fit: cover;">
+            <% } else { %>
+              <img src="https://via.placeholder.com/300x200?text=No+Image" class="card-img-top" alt="<%= dhaba.name %>" style="height: 200px; object-fit: cover;">
+            <% } %>
+            <div class="card-body">
+              <h5 class="card-title"><%= dhaba.name %></h5>
+              <div class="mb-2">
+                <% for (let i = 1; i <= 5; i++) { %>
+                  <i class="fa fa-star <%= i <= dhaba.rating ? 'text-warning' : 'text-muted' %>"></i>
+                <% } %>
+                <span class="ms-2 text-muted">(<%= dhaba.rating %>)</span>
+              </div>
+              <p class="card-text text-muted small"><%= dhaba.cuisine %> • <%= dhaba.priceRange %></p>
+              <p class="card-text text-muted small"><i class="fa fa-map-marker-alt"></i> <%= dhaba.location %></p>
+              <a href="/dhabas/<%= dhaba._id %>" class="btn btn-primary btn-sm">View Details</a>
+            </div>
+          </div>
+        </div>
+      <% }); %>
+    </div>
+  </div>
+</div>
+<% } %>
+
+<!-- All Dhabas -->
+<div class="row mb-4">
+  <div class="col-md-12">
+    <h4 class="mb-3">All Dhabas (<%= allDhabas.length %>)</h4>
+    <% if (allDhabas.length > 0) { %>
+      <div class="row g-3">
+        <% allDhabas.forEach(dhaba => { %>
+          <div class="col-md-4">
+            <div class="card h-100">
+              <% if (dhaba.image && dhaba.image.url) { %>
+                <img src="<%= dhaba.image.url %>" class="card-img-top" alt="<%= dhaba.name %>" style="height: 200px; object-fit: cover;">
+              <% } else { %>
+                <img src="https://via.placeholder.com/300x200?text=No+Image" class="card-img-top" alt="<%= dhaba.name %>" style="height: 200px; object-fit: cover;">
+              <% } %>
+              <div class="card-body">
+                <h5 class="card-title"><%= dhaba.name %></h5>
+                <div class="mb-2">
+                  <% for (let i = 1; i <= 5; i++) { %>
+                    <i class="fa fa-star <%= i <= dhaba.rating ? 'text-warning' : 'text-muted' %>"></i>
+                  <% } %>
+                  <span class="ms-2 text-muted">(<%= dhaba.rating %>)</span>
+                </div>
+                <p class="card-text text-muted small"><%= dhaba.cuisine %> • <%= dhaba.priceRange %></p>
+                <p class="card-text text-muted small"><i class="fa fa-map-marker-alt"></i> <%= dhaba.location %></p>
+                <div class="d-flex gap-2">
+                  <a href="/dhabas/<%= dhaba._id %>" class="btn btn-primary btn-sm">View Details</a>
+                  <% if (currUser && dhaba.owner && dhaba.owner.equals(currUser._id)) { %>
+                    <a href="/dhabas/<%= dhaba._id %>/edit" class="btn btn-outline-secondary btn-sm">Edit</a>
+                  <% } %>
+                </div>
+              </div>
+            </div>
+          </div>
+        <% }); %>
+      </div>
+    <% } else { %>
+      <div class="text-center py-5">
+        <h5 class="text-muted">No dhabas found</h5>
+        <p class="text-muted">Be the first to add a dhaba!</p>
+        <a href="/dhabas/new" class="btn btn-success">Add First Dhaba</a>
+      </div>
+    <% } %>
+  </div>
+</div>
+
+</body>

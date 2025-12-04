@@ -1,0 +1,20 @@
+<% layout("/layouts/boilerplate") -%>
+
+<div class="container mt-5">
+  <div class="row justify-content-center">
+    <div class="col-md-6">
+      <div class="card text-center">
+        <div class="card-body">
+          <i class="fas fa-times-circle text-warning fa-4x mb-3"></i>
+          <h3 class="card-title">Payment Cancelled</h3>
+          <p class="card-text">Your payment was cancelled. No charges were made.</p>
+          <% if (booking) { %>
+            <p class="card-text">Booking for <%= booking.type === 'listing' ? booking.listing.title : booking.type === 'dhaba' ? booking.dhaba.title : booking.vehicle.title %> was not completed.</p>
+          <% } %>
+          <a href="/listings" class="btn btn-primary me-2">Browse Listings</a>
+          <a href="/bookings/user" class="btn btn-secondary">My Bookings</a>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

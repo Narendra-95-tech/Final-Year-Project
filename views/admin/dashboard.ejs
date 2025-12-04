@@ -1,0 +1,177 @@
+<%- include('layout', { title: 'Dashboard' }) %>
+
+<div class="dashboard-container">
+    <!-- Stats Cards -->
+    <div class="stats-grid">
+        <div class="stat-card bg-primary">
+            <div class="stat-icon">
+                <i class="fas fa-users"></i>
+            </div>
+            <div class="stat-info">
+                <h3>Total Users</h3>
+                <p class="stat-number"><%= stats.totalUsers %></p>
+                <p class="stat-change positive">+12% from last month</p>
+            </div>
+        </div>
+
+        <div class="stat-card bg-success">
+            <div class="stat-icon">
+                <i class="fas fa-home"></i>
+            </div>
+            <div class="stat-info">
+                <h3>Total Listings</h3>
+                <p class="stat-number"><%= stats.totalListings %></p>
+                <p class="stat-change positive">+8% from last month</p>
+            </div>
+        </div>
+
+        <div class="stat-card bg-warning">
+            <div class="stat-icon">
+                <i class="fas fa-calendar-check"></i>
+            </div>
+            <div class="stat-info">
+                <h3>Total Bookings</h3>
+                <p class="stat-number"><%= stats.totalBookings %></p>
+                <p class="stat-change positive">+15% from last month</p>
+            </div>
+        </div>
+
+        <div class="stat-card bg-info">
+            <div class="stat-icon">
+                <i class="fas fa-dollar-sign"></i>
+            </div>
+            <div class="stat-info">
+                <h3>Total Revenue</h3>
+                <p class="stat-number">$<%= stats.revenue %></p>
+                <p class="stat-change positive">+20% from last month</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Recent Activity Row -->
+    <div class="recent-activity">
+        <!-- Recent Bookings -->
+        <div class="recent-card">
+            <div class="card-header">
+                <h3>Recent Bookings</h3>
+                <a href="/admin/bookings" class="view-all">View All</a>
+            </div>
+            <div class="table-responsive">
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>User</th>
+                            <th>Listing</th>
+                            <th>Dates</th>
+                            <th>Amount</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <% if (recentBookings && recentBookings.length > 0) { %>
+                            <% recentBookings.forEach(booking => { %>
+                                <tr>
+                                    <td>
+                                        <div class="user-info">
+                                            <img src="<%= booking.user.avatar || '/images/default-avatar.png' %>" alt="<%= booking.user.username %>">
+                                            <span><%= booking.user.username %></span>
+                                        </div>
+                                    </td>
+                                    <td><%= booking.listing ? booking.listing.title : 'N/A' %></td>
+                                    <td><%= new Date(booking.startDate).toLocaleDateString() %> - <%= new Date(booking.endDate).toLocaleDateString() %></td>
+                                    <td>$<%= booking.totalAmount %></td>
+                                    <td><span class="badge badge-<%= booking.status === 'confirmed' ? 'success' : 'warning' %>"><%= booking.status %></span></td>
+                                </tr>
+                            <% }); %>
+                        <% } else { %>
+                            <tr>
+                                <td colspan="5" class="text-center">No recent bookings</td>
+                            </tr>
+                        <% } %>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Recent Users -->
+        <div class="recent-card">
+            <div class="card-header">
+                <h3>Recent Users</h3>
+                <a href="/admin/users" class="view-all">View All</a>
+            </div>
+            <div class="table-responsive">
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>User</th>
+                            <th>Email</th>
+                            <th>Joined</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <% if (recentUsers && recentUsers.length > 0) { %>
+                            <% recentUsers.forEach(user => { %>
+                                <tr>
+                                    <td>
+                                        <div class="user-info">
+                                            <img src="<%= user.avatar || '/images/default-avatar.png' %>" alt="<%= user.username %>">
+                                            <span><%= user.username %></span>
+                                        </div>
+                                    </td>
+                                    <td><%= user.email %></td>
+                                    <td><%= new Date(user.createdAt).toLocaleDateString() %></td>
+                                    <td>
+                                        <span class="badge badge-<%= user.isActive ? 'success' : 'danger' %>">
+                                            <%= user.isActive ? 'Active' : 'Inactive' %>
+                                        </span>
+                                    </td>
+                                </tr>
+                            <% }); %>
+                        <% } else { %>
+                            <tr>
+                                <td colspan="4" class="text-center">No users found</td>
+                            </tr>
+                        <% } %>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- Recent Reviews -->
+    <div class="recent-card">
+        <div class="card-header">
+            <h3>Recent Reviews</h3>
+            <a href="/admin/reviews" class="view-all">View All</a>
+        </div>
+        <div class="reviews-list">
+            <% if (recentReviews && recentReviews.length > 0) { %>
+                <% recentReviews.forEach(review => { %>
+                    <div class="review-item">
+                        <div class="review-header">
+                            <div class="user-info">
+                                <img src="<%= review.author.avatar || '/images/default-avatar.png' %>" alt="<%= review.author.username %>">
+                                <div>
+                                    <h4><%= review.author.username %></h4>
+                                    <div class="rating">
+                                        <% for(let i = 1; i <= 5; i++) { %>
+                                            <i class="fas fa-star<%= i <= review.rating ? ' text-warning' : '-o' %>"></i>
+                                        <% } %>
+                                    </div>
+                                </div>
+                            </div>
+                            <span class="text-muted"><%= new Date(review.createdAt).toLocaleDateString() %></span>
+                        </div>
+                        <div class="review-content">
+                            <h5>"<%= review.comment.substring(0, 50) %><%= review.comment.length > 50 ? '...' : '' %>"</h5>
+                            <p>on <a href="/listings/<%= review.listing ? review.listing._id : '#' %>"><%= review.listing ? review.listing.title : 'Listing' %></a></p>
+                        </div>
+                    </div>
+                <% }); %>
+            <% } else { %>
+                <p class="text-center py-4">No recent reviews</p>
+            <% } %>
+        </div>
+    </div>
+</div>
