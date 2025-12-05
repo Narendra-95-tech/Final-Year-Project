@@ -38,14 +38,52 @@ const tripPlannerRoutes = require("./routes/tripPlanner");
 // --------------------
 // Database Connection
 // --------------------
+// Construct the MongoDB connection string
 const dbUrl = process.env.ATLASDB_URL || "mongodb://127.0.0.1:27017/wanderlust";
 
-mongoose.connect(dbUrl);
+// Simple connection with minimal options
+async function connectDB() {
+  try {
+    await mongoose.connect(dbUrl, {
+      // Basic connection options
+      serverSelectionTimeoutMS: 5000,
+      socketTimeoutMS: 45000,
+      family: 4, // Use IPv4, skip IPv6
+      // SSL handling
+      tls: true,
+      tlsAllowInvalidCertificates: true, // Only for development
+      // Connection settings
+      retryWrites: true,
+      w: 'majority',
+      // Replica set
+      replicaSet: 'atlas-ojai8s-shard-0',
+      // Authentication
+      authSource: 'admin',
+      authMechanism: 'DEFAULT'
+    });
+    console.log('Successfully connected to MongoDB');
+  } catch (err) {
+    console.error('MongoDB connection error:', err.message);
+    console.log('Please check your MongoDB Atlas connection string in .env file');
+    console.log('Make sure your IP is whitelisted in MongoDB Atlas Network Access');
+    process.exit(1);
+  }
+}
 
-const db = mongoose.connection;
-db.on("error", console.error.bind(console, "connection error:"));
-db.once("open", () => {
-  console.log("Database connected");
+// Initialize database connection
+connectDB();
+
+// Connection event handlers
+mongoose.connection.on('error', err => {
+  console.error('MongoDB connection error:', err);
+});
+
+mongoose.connection.on('disconnected', () => {
+  console.log('MongoDB disconnected');
+});
+
+mongoose.connection.once('open', () => {
+  console.log('MongoDB connected successfully');
 });
 
 // --------------------
