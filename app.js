@@ -34,6 +34,7 @@ const socialRoutes = require("./routes/social");
 const socialInteractions = require("./routes/socialInteractions");
 const adminRoutes = require("./routes/admin");
 const tripPlannerRoutes = require("./routes/tripPlanner");
+const authRoutes = require("./routes/auth");
 
 // --------------------  
 // Database Connection
@@ -277,6 +278,7 @@ app.use(flash());
 app.use(passport.initialize());
 app.use(passport.session());
 passport.use(new LocalStrategy(User.authenticate()));
+require("./config/passport");
 
 passport.serializeUser((user, done) => {
   done(null, user.id);
@@ -320,6 +322,7 @@ app.use("/ai", aiRoutes);
 app.use("/social", socialRoutes);
 app.use("/api/social", socialInteractions);
 app.use("/api/trip", tripPlannerRoutes);
+app.use("/auth", authRoutes);
 
 
 
