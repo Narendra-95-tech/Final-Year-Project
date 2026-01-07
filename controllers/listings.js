@@ -95,6 +95,13 @@ module.exports.renderNewForm = (req ,res) => {
 
 module.exports.showListing = async (req,res) => {
     let {id} = req.params;
+    
+    // Validate ObjectId
+    if (!id.match(/^[0-9a-fA-F]{24}$/)) {
+        req.flash("error","Invalid listing ID!");
+        return res.redirect("/listings");
+    }
+    
     const listing = await Listing.findById(id).populate({path: "reviews", populate:{path:"author",},}).populate("owner");
     if(!listing) {
         req.flash("error","Listing you requested for does not exist!");
@@ -102,7 +109,6 @@ module.exports.showListing = async (req,res) => {
     }
     console.log(listing);
     res.render("listings/show", { listing, mapToken: process.env.MAP_TOKEN  });
-
 };
 
 

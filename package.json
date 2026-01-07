@@ -4,8 +4,9 @@
   "description": "College Project - Wanderlust Travel Platform",
   "main": "app.js",
   "scripts": {
-    "start": "node --no-deprecation app.js",
-    "dev": "nodemon --no-deprecation app.js",
+    "start": "node app.js",
+    "dev": "nodemon app.js",
+    "clean": "node app.js",
     "test": "echo \"Error: no test specified\" && exit 1",
     "seed": "node init/index.js",
     "seed:listings": "node init/listings.js",
@@ -16,7 +17,13 @@
     "node": "18.x",
     "npm": "9.x"
   },
-  "keywords": ["travel", "booking", "nodejs", "express", "mongodb"],
+  "keywords": [
+    "travel",
+    "booking",
+    "nodejs",
+    "express",
+    "mongodb"
+  ],
   "author": "",
   "license": "ISC",
   "dependencies": {
@@ -32,6 +39,7 @@
     "bcryptjs": "^3.0.2",
     "cloudinary": "^1.41.3",
     "connect-ensure-login": "^0.1.1",
+    "connect-flash": "^0.1.1",
     "connect-mongo": "^5.1.0",
     "cookie-parser": "^1.4.7",
     "crypto": "^1.0.1",
@@ -42,7 +50,7 @@
     "ejs": "^3.1.10",
     "ejs-mate": "^4.0.0",
     "express": "^4.18.2",
-    "connect-flash": "^0.1.1",
+    "express-ejs-layouts": "^2.5.1",
     "express-mongo-sanitize": "^2.2.0",
     "express-rate-limit": "^8.2.1",
     "express-session": "^1.18.2",
@@ -52,6 +60,7 @@
     "hpp": "^0.2.3",
     "i18n": "^0.15.3",
     "joi": "^18.0.1",
+    "memorystore": "^1.6.7",
     "method-override": "^3.0.0",
     "mongoose": "^8.19.2",
     "mongoose-findorcreate": "^4.0.0",
@@ -76,6 +85,7 @@
     "xss-clean": "^0.1.4"
   },
   "devDependencies": {
+    "@types/node": "^25.0.3",
     "nodemon": "^3.0.1"
   }
 }

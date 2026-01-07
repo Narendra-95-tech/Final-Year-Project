@@ -71,6 +71,9 @@ module.exports.index = async (req, res) => {
         .sort({ _id: -1 })
         .limit(6);
 
+    const queryParams = { ...req.query };
+    const queryString = new URLSearchParams(queryParams).toString();
+
     res.render("vehicles/index", {
         allVehicles,
         trendingVehicles,
@@ -86,7 +89,8 @@ module.exports.index = async (req, res) => {
         brand: brand || "",
         fuelType: fuelType || "",
         transmission: transmission || "",
-        seats: seats || ""
+        seats: seats || "",
+        queryString
     });
 };
 
@@ -96,16 +100,31 @@ module.exports.renderNewForm = (req, res) => {
 };
 
 
-module.exports.showVehicle = async (req, res) => {
-    let {id} = req.params;
-    const vehicle = await Vehicle.findById(id)
-        .populate({path: "reviews", populate:{path:"author"}})
-        .populate("owner");
-    if(!vehicle) {
-        req.flash("error","Vehicle you requested for does not exist!");
-        return res.redirect("/vehicles");
+const { Types } = require('mongoose');
+
+module.exports.showVehicle = async (req, res, next) => {
+    try {
+        const { id } = req.params;
+        
+        // Check if the ID is a valid MongoDB ObjectId
+        if (!Types.ObjectId.isValid(id)) {
+            req.flash("error", "Invalid vehicle ID");
+            return res.redirect("/vehicles");
+        }
+
+        const vehicle = await Vehicle.findById(id)
+            .populate({ path: "reviews", populate: { path: "author" } })
+            .populate("owner");
+
+        if (!vehicle) {
+            req.flash("error", "Vehicle you requested for does not exist!");
+            return res.redirect("/vehicles");
+        }
+
+        res.render("vehicles/show", { vehicle, mapToken: process.env.MAP_TOKEN });
+    } catch (err) {
+        next(err);
     }
-    res.render("vehicles/show", { vehicle, mapToken: process.env.MAP_TOKEN });
 };
 
 

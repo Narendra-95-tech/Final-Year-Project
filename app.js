@@ -35,55 +35,108 @@ const socialInteractions = require("./routes/socialInteractions");
 const adminRoutes = require("./routes/admin");
 const tripPlannerRoutes = require("./routes/tripPlanner");
 
-// --------------------
+// --------------------  
 // Database Connection
 // --------------------
-// Construct the MongoDB connection string
-const dbUrl = process.env.ATLASDB_URL || "mongodb://127.0.0.1:27017/wanderlust";
+const isAtlas = process.env.USE_ATLAS === "true";
 
-// Simple connection with minimal options
-async function connectDB() {
-  try {
-    await mongoose.connect(dbUrl, {
-      // Basic connection options
-      serverSelectionTimeoutMS: 5000,
+const dbUrl = isAtlas
+  ? process.env.ATLASDB_URL
+  : "mongodb://127.0.0.1:27017/wanderlust";
+
+mongoose.connect(dbUrl)
+  .then(() => {
+    console.log("✅ MongoDB connected");
+  })
+  .catch((err) => {
+    console.error("❌ MongoDB connection error:", err);
+  });
+
+
+// Check if we want to use Atlas (only in production or if explicitly set)
+const useAtlas = process.env.USE_ATLAS === 'true'; // Allow Atlas connection when requested
+
+if (useAtlas && dbUrl.includes('mongodb+srv')) {
+  // Production: Try Atlas with multiple SSL approaches
+  console.log('Attempting to connect to MongoDB Atlas...');
+  
+  // Try different connection options
+  const connectionOptions = [
+    // Option 1: Basic SSL
+    {
+      serverSelectionTimeoutMS: 10000,
       socketTimeoutMS: 45000,
-      family: 4, // Use IPv4, skip IPv6
-      // SSL handling
-      tls: true,
-      tlsAllowInvalidCertificates: true, // Only for development
-      // Connection settings
+      maxPoolSize: 10,
       retryWrites: true,
-      w: 'majority',
-      // Replica set
-      replicaSet: 'atlas-ojai8s-shard-0',
-      // Authentication
-      authSource: 'admin',
-      authMechanism: 'DEFAULT'
-    });
-    console.log('Successfully connected to MongoDB');
-  } catch (err) {
-    console.error('MongoDB connection error:', err.message);
-    console.log('Please check your MongoDB Atlas connection string in .env file');
-    console.log('Make sure your IP is whitelisted in MongoDB Atlas Network Access');
-    process.exit(1);
+      retryReads: true,
+    },
+    // Option 2: With SSL options
+    {
+      serverSelectionTimeoutMS: 10000,
+      socketTimeoutMS: 45000,
+      maxPoolSize: 10,
+      retryWrites: true,
+      retryReads: true,
+      ssl: true,
+      tls: true,
+      tlsAllowInvalidCertificates: true,
+      tlsAllowInvalidHostnames: true,
+    },
+    // Option 3: Minimal SSL
+    {
+      serverSelectionTimeoutMS: 10000,
+      socketTimeoutMS: 45000,
+      maxPoolSize: 10,
+      retryWrites: true,
+      retryReads: true,
+      sslValidate: false,
+    }
+  ];
+
+  // Try each connection option
+  async function tryAtlasConnection() {
+    for (let i = 0; i < connectionOptions.length; i++) {
+      try {
+        console.log(`Trying Atlas connection option ${i + 1}...`);
+        await mongoose.connect(dbUrl, connectionOptions[i]);
+        console.log('✅ Connected to MongoDB Atlas');
+        return;
+      } catch (err) {
+        console.error(`Option ${i + 1} failed:`, err.message);
+        if (i === connectionOptions.length - 1) {
+          // Last option failed, fall back to local
+          console.log('All Atlas options failed. Falling back to local MongoDB...');
+          connectToLocal();
+        }
+      }
+    }
   }
+  
+  tryAtlasConnection();
+} else {
+  // Development: Use local MongoDB directly
+  console.log('Using local MongoDB...');
+  connectToLocal();
 }
 
-// Initialize database connection
-connectDB();
+function connectToLocal() {
+  mongoose.connect('mongodb://127.0.0.1:27017/wanderlust', {
+    serverSelectionTimeoutMS: 5000,
+    socketTimeoutMS: 45000,
+  }).then(() => {
+    console.log('Connected to local MongoDB');
+  }).catch(err => {
+    console.error('Local MongoDB connection failed:', err);
+    console.log('\nPlease ensure MongoDB is installed and running locally');
+    console.log('Download MongoDB Community Server: https://www.mongodb.com/try/download/community');
+    process.exit(1);
+  });
+}
 
-// Connection event handlers
-mongoose.connection.on('error', err => {
-  console.error('MongoDB connection error:', err);
-});
-
-mongoose.connection.on('disconnected', () => {
-  console.log('MongoDB disconnected');
-});
-
-mongoose.connection.once('open', () => {
-  console.log('MongoDB connected successfully');
+const db = mongoose.connection;
+db.on("error", console.error.bind(console, "connection error:"));
+db.once("open", () => {
+  console.log("Database connected");
 });
 
 // --------------------
@@ -181,11 +234,24 @@ app.use('/uploads', express.static('uploads'));
 const secret = process.env.SECRET || "thisshouldbeabettersecret";
 
 const store = MongoStore.create({
-  mongoUrl: dbUrl,
+  mongoUrl: useAtlas ? dbUrl : 'mongodb://127.0.0.1:27017/wanderlust', // Use local in development
   touchAfter: 24 * 60 * 60,
-  crypto: {
-    secret: process.env.SECRET || 'thisshouldbeabettersecret!'
-  }
+  collectionName: 'sessions',
+  autoRemove: 'interval',
+  autoRemoveInterval: 10 // In minutes
+});
+
+store.on('error', function(error) {
+  console.error('Session store error:', error);
+  // Fallback to memory store if MongoDB session store fails
+  console.log('Falling back to memory store for sessions');
+  const MemoryStore = require('memorystore')(session);
+  const memoryStore = new MemoryStore({
+    checkPeriod: 86400000 // 24 hours
+  });
+  
+  // Update session config to use memory store
+  sessionConfig.store = memoryStore;
 });
 
 const sessionConfig = {
@@ -229,20 +295,11 @@ passport.deserializeUser(async (id, done) => {
 // Middleware
 // Make user and flash messages available in all templates
 app.use((req, res, next) => {
-  res.locals.currUser = req.user;  // For EJS templates using currUser
-  res.locals.currentUser = req.user; // For any components using currentUser
+  res.locals.currUser = req.user || null;  // For EJS templates using currUser
+  res.locals.currentUser = req.user || null; // For any components using currentUser
   res.locals.success = req.flash('success');
   res.locals.error = req.flash('error');
   res.locals.currentPath = req.path;
-  next();
-});
-
-app.use(flash());
-
-app.use((req, res, next) => {
-  res.locals.currentUser = req.user;
-  res.locals.success = req.flash("success");
-  res.locals.error = req.flash("error");
   res.locals.isAdmin = req.user && req.user.role === 'admin';
   next();
 });
@@ -264,19 +321,7 @@ app.use("/social", socialRoutes);
 app.use("/api/social", socialInteractions);
 app.use("/api/trip", tripPlannerRoutes);
 
-// Error handling middleware
-app.use((err, req, res, next) => {
-    console.error('Error stack:', err.stack);
-    console.error('Error details:', err);
-    
-    const statusCode = err.statusCode || 500;
-    const message = err.message || 'Internal Server Error';
-    
-    res.status(statusCode).json({
-        success: false,
-        error: process.env.NODE_ENV === 'development' ? err.stack : message
-    });
-});
+
 
 // Trip planner page route
 app.get("/trip-planner", (req, res) => {
@@ -284,6 +329,28 @@ app.get("/trip-planner", (req, res) => {
         title: "AI Trip Planner | WanderLust",
         description: "Plan your perfect trip with our AI-powered trip planner. Get personalized travel itineraries, budget estimates, and local recommendations."
     });
+});
+
+// Debug route to check database
+app.get('/debug/database', async (req, res) => {
+  try {
+    const User = require("./models/user");
+    const users = await User.find({});
+    res.json({
+      message: "Database connection successful",
+      userCount: users.length,
+      users: users.map(u => ({
+        email: u.email,
+        username: u.username,
+        createdAt: u.createdAt
+      }))
+    });
+  } catch (error) {
+    res.status(500).json({
+      message: "Database error",
+      error: error.message
+    });
+  }
 });
 
 // Debug route to test if server is responding
@@ -371,14 +438,22 @@ app.get("/home", async (req, res) => {
   }
 });
 
-// 404 Handler
-app.use((req, res, next) => {
+// 404 Handler - Must be after all other routes
+app.all('*', (req, res, next) => {
   next(new ExpressError(404, "Page Not Found"));
 });
 
 // Error Handler
 app.use((err, req, res, next) => {
   console.error('Error:', err);
+  
+  // Handle ExpressError specifically
+  if (err instanceof ExpressError) {
+    return res.status(err.statusCode).render('error', { 
+      title: 'Error',
+      message: err.message 
+    });
+  }
   
   // Handle file upload errors
   if (err instanceof multer.MulterError) {
@@ -420,28 +495,18 @@ app.use((err, req, res, next) => {
 // Start Server
 const PORT = process.env.PORT || 8080;
 
-function startServer(port) {
-  try {
-    server.on('error', (error) => {
-      if (error.code === 'EADDRINUSE') {
-        console.log(`Port ${port} is in use, trying port ${port + 1}...`);
-        server.close();
-        startServer(port + 1);
-      } else {
-        console.error('Server error:', error);
-        process.exit(1);
-      }
-    });
-
-    server.listen(port, () => {
-      console.log(`Server is running on port ${port}`);
-      console.log(`WebSocket server is running on port ${port}`);
-    });
-  } catch (error) {
-    console.error('Failed to start server:', error);
-    process.exit(1);
-  }
+// Only start server if this file is run directly
+if (require.main === module) {
+  server.listen(PORT, '0.0.0.0', () => {
+    console.log(`Server is running on port ${PORT}`);
+    console.log(`WebSocket server is running on port ${PORT}`);
+  }).on('error', (error) => {
+    if (error.code === 'EADDRINUSE') {
+      console.error(`Port ${PORT} is already in use. Please stop the other process or use a different port.`);
+      process.exit(1);
+    } else {
+      console.error('Server error:', error);
+      process.exit(1);
+    }
+  });
 }
-
-// Start the server
-startServer(PORT);

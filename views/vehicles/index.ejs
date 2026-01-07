@@ -117,10 +117,6 @@
     transform: scale(1.05);
   }
 
-  .vehicle-card:hover .vehicle-image {
-    transform: scale(1.05);
-  }
-
   .price-overlay {
     position: absolute;
     top: 10px;
@@ -354,7 +350,7 @@
           <% if (query) { %>
             <span class="chip">
               Search: <b><%= query %></b>
-              <a href="/vehicles?<%= new URLSearchParams({...Object.fromEntries(new URLSearchParams(window.location.search)), q: ''}).toString() %>">
+              <a href="/vehicles?<%= queryString %>">
                 <i class="fas fa-times"></i>
               </a>
             </span>
@@ -362,7 +358,7 @@
           <% if (vehicleType && vehicleType !== 'all') { %>
             <span class="chip">
               Type: <b><%= vehicleType %></b>
-              <a href="/vehicles?<%= new URLSearchParams({...Object.fromEntries(new URLSearchParams(window.location.search)), vehicleType: ''}).toString() %>">
+              <a href="/vehicles?<%= queryString %>">
                 <i class="fas fa-times"></i>
               </a>
             </span>
@@ -370,7 +366,7 @@
           <% if (brand && brand !== 'all') { %>
             <span class="chip">
               Brand: <b><%= brand %></b>
-              <a href="/vehicles?<%= new URLSearchParams({...Object.fromEntries(new URLSearchParams(window.location.search)), brand: ''}).toString() %>">
+              <a href="/vehicles?<%= queryString %>">
                 <i class="fas fa-times"></i>
               </a>
             </span>
@@ -378,7 +374,7 @@
           <% if (fuelType && fuelType !== 'all') { %>
             <span class="chip">
               Fuel: <b><%= fuelType %></b>
-              <a href="/vehicles?<%= new URLSearchParams({...Object.fromEntries(new URLSearchParams(window.location.search)), fuelType: ''}).toString() %>">
+              <a href="/vehicles?<%= queryString %>">
                 <i class="fas fa-times"></i>
               </a>
             </span>
@@ -386,7 +382,7 @@
           <% if (transmission && transmission !== 'all') { %>
             <span class="chip">
               Transmission: <b><%= transmission %></b>
-              <a href="/vehicles?<%= new URLSearchParams({...Object.fromEntries(new URLSearchParams(window.location.search)), transmission: ''}).toString() %>">
+              <a href="/vehicles?<%= queryString %>">
                 <i class="fas fa-times"></i>
               </a>
             </span>
@@ -394,7 +390,7 @@
           <% if (seats) { %>
             <span class="chip">
               Seats: <b><%= seats %></b>
-              <a href="/vehicles?<%= new URLSearchParams({...Object.fromEntries(new URLSearchParams(window.location.search)), seats: ''}).toString() %>">
+              <a href="/vehicles?<%= queryString %>">
                 <i class="fas fa-times"></i>
               </a>
             </span>
@@ -402,7 +398,7 @@
           <% if (minPrice) { %>
             <span class="chip">
               Min: ₹<b><%= Number(minPrice).toLocaleString('en-IN') %></b>
-              <a href="/vehicles?<%= new URLSearchParams({...Object.fromEntries(new URLSearchParams(window.location.search)), minPrice: ''}).toString() %>">
+              <a href="/vehicles?<%= queryString %>">
                 <i class="fas fa-times"></i>
               </a>
             </span>
@@ -410,7 +406,7 @@
           <% if (maxPrice) { %>
             <span class="chip">
               Max: ₹<b><%= Number(maxPrice).toLocaleString('en-IN') %></b>
-              <a href="/vehicles?<%= new URLSearchParams({...Object.fromEntries(new URLSearchParams(window.location.search)), maxPrice: ''}).toString() %>">
+              <a href="/vehicles?<%= queryString %>">
                 <i class="fas fa-times"></i>
               </a>
             </span>

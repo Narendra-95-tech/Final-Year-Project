@@ -105,8 +105,17 @@ module.exports.createDhaba = async (req, res) => {
   }
 };
 
+const { Types } = require('mongoose');
+
 module.exports.showDhaba = async (req, res) => {
   const { id } = req.params;
+  
+  // Check if the ID is a valid MongoDB ObjectId
+  if (!Types.ObjectId.isValid(id)) {
+    req.flash("error", "Invalid dhaba ID");
+    return res.redirect("/dhabas");
+  }
+
   try {
     const dhaba = await Dhaba.findById(id).populate({
       path: "reviews",

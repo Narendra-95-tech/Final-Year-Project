@@ -23,7 +23,15 @@ router.get("/logout", userController.logout);
 
 // Wishlist (Favorites)
 router.post("/favorites/:listingId", isLoggedIn, wrapAsync(async (req, res) => {
-  const listing = await Listing.findById(req.params.listingId);
+  const { listingId } = req.params;
+  
+  // Validate ObjectId
+  if (!listingId.match(/^[0-9a-fA-F]{24}$/)) {
+    req.flash("error", "Invalid listing ID");
+    return res.redirect("/listings");
+  }
+  
+  const listing = await Listing.findById(listingId);
   if (!listing) {
     req.flash("error", "Listing not found");
     return res.redirect("/listings");

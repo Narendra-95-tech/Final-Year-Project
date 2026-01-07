@@ -377,7 +377,7 @@
         <!-- Language Selector -->
         <%- include('../partials/language-selector') %>
 
-        <% if (!currUser) { %>
+        <% if (typeof currUser !== 'undefined' && !currUser) { %>
           <div class="d-flex gap-2 ms-3">
             <a class="btn btn-outline-primary btn-sm" href="/signup">
               <i class="fas fa-user-plus me-1"></i>
@@ -392,13 +392,13 @@
           <!-- User Dropdown Menu -->
           <div class="dropdown ms-3">
             <div class="user-avatar" data-bs-toggle="dropdown">
-              <%= currUser.username.charAt(0).toUpperCase() %>
+              <%= typeof currUser !== 'undefined' && currUser ? currUser.username.charAt(0).toUpperCase() : 'U' %>
             </div>
             <ul class="dropdown-menu dropdown-menu-end">
               <li>
                 <h6 class="dropdown-header">
                   <i class="fas fa-user me-2"></i>
-                  <%= currUser.username %>
+                  <%= typeof currUser !== 'undefined' && currUser ? currUser.username : 'User' %>
                 </h6>
               </li>
               <li><hr class="dropdown-divider"></li>
