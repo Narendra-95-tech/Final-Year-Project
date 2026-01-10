@@ -35,6 +35,7 @@ const socialInteractions = require("./routes/socialInteractions");
 const adminRoutes = require("./routes/admin");
 const tripPlannerRoutes = require("./routes/tripPlanner");
 const authRoutes = require("./routes/auth");
+const wishlistRoutes = require("./routes/wishlist");
 
 // --------------------  
 // Database Connection
@@ -60,7 +61,7 @@ const useAtlas = process.env.USE_ATLAS === 'true'; // Allow Atlas connection whe
 if (useAtlas && dbUrl.includes('mongodb+srv')) {
   // Production: Try Atlas with multiple SSL approaches
   console.log('Attempting to connect to MongoDB Atlas...');
-  
+
   // Try different connection options
   const connectionOptions = [
     // Option 1: Basic SSL
@@ -112,7 +113,7 @@ if (useAtlas && dbUrl.includes('mongodb+srv')) {
       }
     }
   }
-  
+
   tryAtlasConnection();
 } else {
   // Development: Use local MongoDB directly
@@ -158,7 +159,7 @@ const connectedUsers = new Map();
 
 io.on('connection', (socket) => {
   console.log('New client connected');
-  
+
   // Handle user authentication and store socket with user ID
   socket.on('authenticate', (userId) => {
     if (userId) {
@@ -176,6 +177,23 @@ io.on('connection', (socket) => {
         console.log(`User ${userId} disconnected`);
         break;
       }
+    }
+  });
+
+  // Handle real-time AI Assistant chat
+  socket.on('ai_message', async ({ message, userId, context }) => {
+    try {
+      const smartChatbot = require("./utils/smartChatbot");
+      const response = await smartChatbot.handleMessage(message, userId, context);
+
+      // Emit back to the user
+      socket.emit('ai_response', response);
+    } catch (error) {
+      console.error('Socket AI Error:', error);
+      socket.emit('ai_response', {
+        reply: "I'm having a small glitch in my systems. Can we try that again?",
+        suggestions: [{ text: "Retry", action: "retry" }]
+      });
     }
   });
 
@@ -202,25 +220,25 @@ app.set("views", path.join(__dirname, "views"));
 
 // Serve static files from public directory
 app.use(express.static(path.join(__dirname, 'public'), {
-    setHeaders: (res, path) => {
-        // Set proper MIME types for specific file types if needed
-        if (path.endsWith('.css')) {
-            res.setHeader('Content-Type', 'text/css');
-        } else if (path.endsWith('.js')) {
-            res.setHeader('Content-Type', 'application/javascript');
-        } else if (path.endsWith('.ico')) {
-            res.setHeader('Content-Type', 'image/x-icon');
-        }
+  setHeaders: (res, path) => {
+    // Set proper MIME types for specific file types if needed
+    if (path.endsWith('.css')) {
+      res.setHeader('Content-Type', 'text/css');
+    } else if (path.endsWith('.js')) {
+      res.setHeader('Content-Type', 'application/javascript');
+    } else if (path.endsWith('.ico')) {
+      res.setHeader('Content-Type', 'image/x-icon');
     }
+  }
 }));
 
 // Configure CORS
 app.use(cors({
-    origin: process.env.CLIENT_URL || 'http://localhost:3000',
-    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-    allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With', 'X-CSRF-Token'],
-    credentials: true,
-    optionsSuccessStatus: 200 // Some legacy browsers choke on 204
+  origin: process.env.CLIENT_URL || 'http://localhost:3000',
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With', 'X-CSRF-Token'],
+  credentials: true,
+  optionsSuccessStatus: 200 // Some legacy browsers choke on 204
 }));
 
 // Parse JSON and urlencoded request bodies
@@ -242,7 +260,7 @@ const store = MongoStore.create({
   autoRemoveInterval: 10 // In minutes
 });
 
-store.on('error', function(error) {
+store.on('error', function (error) {
   console.error('Session store error:', error);
   // Fallback to memory store if MongoDB session store fails
   console.log('Falling back to memory store for sessions');
@@ -250,7 +268,7 @@ store.on('error', function(error) {
   const memoryStore = new MemoryStore({
     checkPeriod: 86400000 // 24 hours
   });
-  
+
   // Update session config to use memory store
   sessionConfig.store = memoryStore;
 });
@@ -323,15 +341,24 @@ app.use("/social", socialRoutes);
 app.use("/api/social", socialInteractions);
 app.use("/api/trip", tripPlannerRoutes);
 app.use("/auth", authRoutes);
+app.use("/api/wishlist", wishlistRoutes);
 
 
 
 // Trip planner page route
 app.get("/trip-planner", (req, res) => {
-    res.render("trip-planner", { 
-        title: "AI Trip Planner | WanderLust",
-        description: "Plan your perfect trip with our AI-powered trip planner. Get personalized travel itineraries, budget estimates, and local recommendations."
-    });
+  res.render("trip-planner", {
+    title: "AI Trip Planner | WanderLust",
+    description: "Plan your perfect trip with our AI-powered trip planner. Get personalized travel itineraries, budget estimates, and local recommendations."
+  });
+});
+
+// Map search demo page route
+app.get("/map-search-demo", (req, res) => {
+  res.render("map-search-demo", {
+    title: "Map Search Location | WanderLust",
+    description: "Search for locations and explore places with our interactive map search feature."
+  });
 });
 
 // Debug route to check database
@@ -373,10 +400,43 @@ app.get("/", async (req, res) => {
     const featuredVehicles = await Vehicle.find({}).sort({ _id: -1 }).limit(3);
     const featuredDhabas = await Dhaba.find({}).sort({ _id: -1 }).limit(3);
 
+    // Get "Local Legends" (Simulated for Demo)
+    const User = require("./models/user");
+    let localLegends = await User.find({}).limit(4);
+
+    // Augment with legend metadata
+    const legendTitles = ["Superhost Elite", "Safe Traveler", "Flavor Master", "Road King"];
+    localLegends = localLegends.map((user, i) => {
+      const u = user.toObject();
+
+      // Fixed Personas for "Local Legends" Hall of Fame
+      const personas = [
+        { name: "Narendra", title: "Superhost Elite", color: "2D6A4F" }, // N
+        { name: "Rohan", title: "Safe Traveler", color: "1D3557" },    // R
+        { name: "Rutik", title: "Flavor Master", color: "E63946" },    // R
+        { name: "Aditya", title: "Road King", color: "F1A00A" }        // A
+      ];
+
+      if (i < personas.length) {
+        const p = personas[i];
+        u.firstName = p.name;
+        u.legendTitle = p.title;
+        // Force initials avatar for consistency in the "Hall of Fame"
+        u.avatar = { url: `https://ui-avatars.com/api/?name=${p.name}&background=${p.color}&color=fff&size=128&bold=true&length=1` };
+      } else {
+        u.legendTitle = legendTitles[i % legendTitles.length];
+      }
+
+      u.legendRating = (4.8 + (Math.random() * 0.2)).toFixed(1);
+      u.hostedCount = Math.floor(Math.random() * 50) + 10;
+      return u;
+    });
+
     res.render("home", {
       featuredListings,
       featuredVehicles,
       featuredDhabas,
+      localLegends,
       mapToken: process.env.MAP_TOKEN,
     });
   } catch (err) {
@@ -391,7 +451,7 @@ app.get("/search", async (req, res) => {
   if (!q) {
     return res.redirect("/home");
   }
-  
+
   try {
     const Listing = require("./models/listing");
     const Vehicle = require("./models/vehicle");
@@ -429,10 +489,43 @@ app.get("/home", async (req, res) => {
     const featuredVehicles = await Vehicle.find({}).sort({ _id: -1 }).limit(3);
     const featuredDhabas = await Dhaba.find({}).sort({ _id: -1 }).limit(3);
 
+    // Get "Local Legends" (Simulated for Demo)
+    const User = require("./models/user");
+    let localLegends = await User.find({}).limit(4);
+
+    // Augment with legend metadata
+    const legendTitles = ["Superhost Elite", "Safe Traveler", "Flavor Master", "Road King"];
+    localLegends = localLegends.map((user, i) => {
+      const u = user.toObject();
+
+      // Fixed Personas for "Local Legends" Hall of Fame
+      const personas = [
+        { name: "Narendra", title: "Superhost Elite", color: "2D6A4F" }, // N
+        { name: "Rohan", title: "Safe Traveler", color: "1D3557" },    // R
+        { name: "Rutik", title: "Flavor Master", color: "E63946" },    // R
+        { name: "Aditya", title: "Road King", color: "F1A00A" }        // A
+      ];
+
+      if (i < personas.length) {
+        const p = personas[i];
+        u.firstName = p.name;
+        u.legendTitle = p.title;
+        // Force initials avatar for consistency in the "Hall of Fame"
+        u.avatar = { url: `https://ui-avatars.com/api/?name=${p.name}&background=${p.color}&color=fff&size=128&bold=true&length=1` };
+      } else {
+        u.legendTitle = legendTitles[i % legendTitles.length];
+      }
+
+      u.legendRating = (4.8 + (Math.random() * 0.2)).toFixed(1);
+      u.hostedCount = Math.floor(Math.random() * 50) + 10;
+      return u;
+    });
+
     res.render("home", {
       featuredListings,
       featuredVehicles,
       featuredDhabas,
+      localLegends,
       mapToken: process.env.MAP_TOKEN,
     });
   } catch (err) {
@@ -448,16 +541,16 @@ app.all('*', (req, res, next) => {
 
 // Error Handler
 app.use((err, req, res, next) => {
-  console.error('Error:', err);
-  
+  console.error(`Error [${req.method} ${req.originalUrl}]:`, err.message);
+
   // Handle ExpressError specifically
   if (err instanceof ExpressError) {
-    return res.status(err.statusCode).render('error', { 
+    return res.status(err.statusCode).render('error', {
       title: 'Error',
-      message: err.message 
+      message: err.message
     });
   }
-  
+
   // Handle file upload errors
   if (err instanceof multer.MulterError) {
     if (err.code === 'LIMIT_FILE_SIZE') {
@@ -469,7 +562,7 @@ app.use((err, req, res, next) => {
       return res.redirect('back');
     }
   }
-  
+
   // Handle validation errors
   if (err.name === 'ValidationError') {
     const messages = Object.values(err.errors).map(val => val.message);
@@ -479,7 +572,7 @@ app.use((err, req, res, next) => {
 
   // Handle other errors
   const { statusCode = 500, message = 'Something went wrong!' } = err;
-  
+
   // If the request is an API request, return JSON
   if (req.originalUrl.startsWith('/api')) {
     return res.status(statusCode).json({
@@ -487,11 +580,11 @@ app.use((err, req, res, next) => {
       error: message
     });
   }
-  
+
   // Otherwise, render an error page
-  res.status(statusCode).render('error', { 
+  res.status(statusCode).render('error', {
     title: 'Error',
-    message: statusCode === 404 ? 'Page Not Found' : message 
+    message: statusCode === 404 ? 'Page Not Found' : message
   });
 });
 

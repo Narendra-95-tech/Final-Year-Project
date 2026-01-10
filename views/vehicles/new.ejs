@@ -1,148 +1,164 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>WanderLust - Add Vehicle</title>
 </head>
+
 <body>
     <% layout("layouts/boilerplate") %>
-    <div class="row mt-3">
-     <div class="col-8 offset-2">
+        <link rel="stylesheet" href="/css/vehicle-image-upload.css">
+        <script src="/js/vehicle-image-upload.js" defer></script>
+        <div class="row mt-3">
+            <div class="col-8 offset-2">
 
-    <h3>Add New Vehicle</h3>
-    <form method="POST" action="/vehicles" novalidate class="needs-validation" enctype="multipart/form-data">
-        <div class="mb-3">
-        <label for="title" class="form-label">Title</label>
-        <input name="vehicle[title]" placeholder="2023 Honda City" type="text" class="form-control" required/>
-        <div class="valid-feedback">Title looks good!</div>
+                <h3>Add New Vehicle</h3>
+                <form method="POST" action="/vehicles" novalidate class="needs-validation"
+                    enctype="multipart/form-data">
+                    <div class="mb-3">
+                        <label for="title" class="form-label">Title</label>
+                        <input name="vehicle[title]" placeholder="2023 Honda City" type="text" class="form-control"
+                            required />
+                        <div class="valid-feedback">Title looks good!</div>
 
-        </div>
+                    </div>
 
-        <div class="mb-3">
-            <label for="description" class="form-label">Description</label>
-            <textarea
-             name="vehicle[description]"
-             class="form-control" required></textarea>
-            <div class="invalid-feedback">Please enter a short description</div>
-        </div>
+                    <div class="mb-3">
+                        <label for="description" class="form-label">Description</label>
+                        <textarea name="vehicle[description]" class="form-control" required></textarea>
+                        <div class="invalid-feedback">Please enter a short description</div>
+                    </div>
 
-          <div class="mb-3">
-            <label for="image" class="form-label">Upload Vehicle Image </label>
-            <input name="vehicle[image]" type="file" class="form-control"/>
-        </div>
+                    <div class="mb-3">
+                        <label for="image" class="form-label">Upload Vehicle Images (Max 5)</label>
+                        <div class="image-upload-container">
+                            <input name="vehicle[images]" type="file" class="form-control" id="imageInput" multiple
+                                accept="image/*" max="5">
+                            <div class="upload-preview" id="uploadPreview"></div>
+                        </div>
+                        <div class="form-text">You can upload up to 5 images. First image will be the cover.</div>
+                    </div>
 
-        <div class="row">
-            <div class="mb-3 col-md-6">
-            <label for="price" class="form-label">Price per day (₹)</label>
-            <input name="vehicle[price]" placeholder="1500" class="form-control" required/>
-            <div class="invalid-feedback">Price should be valid</div>
+                    <div class="row">
+                        <div class="mb-3 col-md-6">
+                            <label for="price" class="form-label">Price per day (₹)</label>
+                            <input name="vehicle[price]" placeholder="1500" class="form-control" required />
+                            <div class="invalid-feedback">Price should be valid</div>
+                        </div>
+
+                        <div class="mb-3 col-md-6">
+                            <label for="vehicleType" class="form-label">Vehicle Type</label>
+                            <select name="vehicle[vehicleType]" class="form-control" required>
+                                <option value="">Select Type</option>
+                                <option value="car">Car</option>
+                                <option value="bike">Bike</option>
+                                <option value="van">Van</option>
+                                <option value="truck">Truck</option>
+                                <option value="scooter">Scooter</option>
+                            </select>
+                            <div class="invalid-feedback">Please select vehicle type</div>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="mb-3 col-md-6">
+                            <label for="brand" class="form-label">Brand</label>
+                            <input name="vehicle[brand]" placeholder="Honda" type="text" class="form-control"
+                                required />
+                            <div class="invalid-feedback">Brand should be valid</div>
+                        </div>
+
+                        <div class="mb-3 col-md-6">
+                            <label for="model" class="form-label">Model</label>
+                            <input name="vehicle[model]" placeholder="City" type="text" class="form-control" required />
+                            <div class="invalid-feedback">Model should be valid</div>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="mb-3 col-md-4">
+                            <label for="year" class="form-label">Year</label>
+                            <input name="vehicle[year]" placeholder="2023" type="number" class="form-control" min="1900"
+                                max="<%= new Date().getFullYear() + 1 %>" required />
+                            <div class="invalid-feedback">Year should be valid</div>
+                        </div>
+
+                        <div class="mb-3 col-md-4">
+                            <label for="seats" class="form-label">Seats</label>
+                            <input name="vehicle[seats]" placeholder="5" type="number" class="form-control" min="1"
+                                max="20" required />
+                            <div class="invalid-feedback">Seats should be valid</div>
+                        </div>
+
+                        <div class="mb-3 col-md-4">
+                            <label for="mileage" class="form-label">Mileage (km/l)</label>
+                            <input name="vehicle[mileage]" placeholder="15.5" type="number" step="0.1"
+                                class="form-control" min="0" />
+                            <div class="invalid-feedback">Mileage should be valid</div>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="mb-3 col-md-4">
+                            <label for="fuelType" class="form-label">Fuel Type</label>
+                            <select name="vehicle[fuelType]" class="form-control" required>
+                                <option value="">Select Fuel</option>
+                                <option value="petrol">Petrol</option>
+                                <option value="diesel">Diesel</option>
+                                <option value="electric">Electric</option>
+                                <option value="hybrid">Hybrid</option>
+                            </select>
+                            <div class="invalid-feedback">Please select fuel type</div>
+                        </div>
+
+                        <div class="mb-3 col-md-4">
+                            <label for="transmission" class="form-label">Transmission</label>
+                            <select name="vehicle[transmission]" class="form-control" required>
+                                <option value="">Select Transmission</option>
+                                <option value="manual">Manual</option>
+                                <option value="automatic">Automatic</option>
+                            </select>
+                            <div class="invalid-feedback">Please select transmission</div>
+                        </div>
+
+                        <div class="mb-3 col-md-4">
+                            <label for="availability" class="form-label">Availability</label>
+                            <select name="vehicle[availability]" class="form-control">
+                                <option value="true">Available</option>
+                                <option value="false">Not Available</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="features" class="form-label">Features (comma separated)</label>
+                        <textarea name="vehicle[features]" placeholder="AC, GPS, Music System, Airbags"
+                            class="form-control"></textarea>
+                        <div class="form-text">Enter features separated by commas</div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="country" class="form-label">Country</label>
+                        <input name="vehicle[country]" placeholder="India" type="text" class="form-control" required />
+                        <div class="invalid-feedback">Country name should be valid</div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="location" class="form-label">Location</label>
+                        <input name="vehicle[location]" placeholder="Mumbai, Maharashtra" type="text"
+                            class="form-control" required />
+                        <div class="invalid-feedback">Location should be valid</div>
+                    </div>
+
+                    <br><br>
+                    <button class="btn btn-success add-bt mt-3">Add Vehicle</button>
+                    <br><br>
+                </form>
             </div>
-
-            <div class="mb-3 col-md-6">
-            <label for="vehicleType" class="form-label">Vehicle Type</label>
-            <select name="vehicle[vehicleType]" class="form-control" required>
-                <option value="">Select Type</option>
-                <option value="car">Car</option>
-                <option value="bike">Bike</option>
-                <option value="van">Van</option>
-                <option value="truck">Truck</option>
-                <option value="scooter">Scooter</option>
-            </select>
-            <div class="invalid-feedback">Please select vehicle type</div>
-            </div>
         </div>
-
-        <div class="row">
-            <div class="mb-3 col-md-6">
-            <label for="brand" class="form-label">Brand</label>
-            <input name="vehicle[brand]" placeholder="Honda" type="text" class="form-control" required/>
-            <div class="invalid-feedback">Brand should be valid</div>
-            </div>
-
-            <div class="mb-3 col-md-6">
-            <label for="model" class="form-label">Model</label>
-            <input name="vehicle[model]" placeholder="City" type="text" class="form-control" required/>
-            <div class="invalid-feedback">Model should be valid</div>
-            </div>
-        </div>
-
-        <div class="row">
-            <div class="mb-3 col-md-4">
-            <label for="year" class="form-label">Year</label>
-            <input name="vehicle[year]" placeholder="2023" type="number" class="form-control" min="1900" max="<%= new Date().getFullYear() + 1 %>" required/>
-            <div class="invalid-feedback">Year should be valid</div>
-            </div>
-
-            <div class="mb-3 col-md-4">
-            <label for="seats" class="form-label">Seats</label>
-            <input name="vehicle[seats]" placeholder="5" type="number" class="form-control" min="1" max="20" required/>
-            <div class="invalid-feedback">Seats should be valid</div>
-            </div>
-
-            <div class="mb-3 col-md-4">
-            <label for="mileage" class="form-label">Mileage (km/l)</label>
-            <input name="vehicle[mileage]" placeholder="15.5" type="number" step="0.1" class="form-control" min="0"/>
-            <div class="invalid-feedback">Mileage should be valid</div>
-            </div>
-        </div>
-
-        <div class="row">
-            <div class="mb-3 col-md-4">
-            <label for="fuelType" class="form-label">Fuel Type</label>
-            <select name="vehicle[fuelType]" class="form-control" required>
-                <option value="">Select Fuel</option>
-                <option value="petrol">Petrol</option>
-                <option value="diesel">Diesel</option>
-                <option value="electric">Electric</option>
-                <option value="hybrid">Hybrid</option>
-            </select>
-            <div class="invalid-feedback">Please select fuel type</div>
-            </div>
-
-            <div class="mb-3 col-md-4">
-            <label for="transmission" class="form-label">Transmission</label>
-            <select name="vehicle[transmission]" class="form-control" required>
-                <option value="">Select Transmission</option>
-                <option value="manual">Manual</option>
-                <option value="automatic">Automatic</option>
-            </select>
-            <div class="invalid-feedback">Please select transmission</div>
-            </div>
-
-            <div class="mb-3 col-md-4">
-            <label for="availability" class="form-label">Availability</label>
-            <select name="vehicle[availability]" class="form-control">
-                <option value="true">Available</option>
-                <option value="false">Not Available</option>
-            </select>
-            </div>
-        </div>
-
-        <div class="mb-3">
-            <label for="features" class="form-label">Features (comma separated)</label>
-            <textarea name="vehicle[features]" placeholder="AC, GPS, Music System, Airbags" class="form-control"></textarea>
-            <div class="form-text">Enter features separated by commas</div>
-        </div>
-
-        <div class="mb-3">
-            <label for="country" class="form-label">Country</label>
-            <input name="vehicle[country]" placeholder="India" type="text" class="form-control" required/>
-            <div class="invalid-feedback">Country name should be valid</div>
-        </div>
-
-        <div class="mb-3">
-            <label for="location" class="form-label">Location</label>
-            <input name="vehicle[location]" placeholder="Mumbai, Maharashtra" type="text" class="form-control" required/>
-            <div class="invalid-feedback">Location should be valid</div>
-        </div>
-
-        <br><br>
-        <button class="btn btn-success add-bt mt-3">Add Vehicle</button>
-        <br><br>
-    </form>
-    </div>
-    </div>
 
 </body>
+
 </html>

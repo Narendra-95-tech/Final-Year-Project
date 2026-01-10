@@ -1,79 +1,179 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>WanderLust</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Edit Listing - WanderLust</title>
+  <link rel="stylesheet" href="/css/create-listing.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
+
 <body>
-        <% layout("layouts/boilerplate") %>
-      <div class="row mt-3">
-      <div class="col-8  offset-2">
-        <br>
+  <% layout("layouts/boilerplate") %>
 
-       
-      <h3>Edit your Listing </h3>
-      <form method="POST" action="/listings/<%=listing._id%>?_method=PUT" novalidate class="needs-validation" enctype="multipart/form-data">
-        <div class="mb-3">
-          <label for="title" class="form-label">Title</label>
-          <input name="listing[title]" value="<%=listing.title %>" type="text" class="form-control" required/>
-          <div class="valid-feedback">Title looks good!</div>
-        </div>
+    <div class="create-listing-container">
 
-        <div class="mb-3">
-           <label for="description" class="form-label">Description</label>
-           <textarea name="listing[description]" class="form-control" required><%= listing.description %></textarea>
-           <div class="invalid-feedback">Please enter a short description</div>
-        </div>
-
-
-       <div class="mb-3">
-        Original Listing Image <br>
-          <img src="<%= originalImageUrl %>">
-        </div>
-
-
-
-        <div class="mb-3">
-           <label for="image" class="form-label">Upload New Image</label>
-           <input name="listing[image]"  type="file" class="form-control" />
-           
-        </div>
-
-
-        <div class="row">
-        <div class="mb-3 col-md-4">
-          <label for="price" class="form-label">Price</label>
-          <input name="listing[price]" value="<%=listing.price %>"type="number" class="form-control" required/>
-          <div class="invalid-feedback">Price should be valid</div>
-
-        </div>
-
-        <div class="mb-3 col-md-8">
-          <label for="country" class="form-label">Country</label>
-          <input name="listing[country]" value="<%=listing.country %>" type="text" class="form-control" required/>
-          <div class="invalid-feedback">Country name should be valid</div>
-
-        </div>
-        </div>
-
-        <div class="mb-3">
-          <label for="location" class="form-label">Location</label>
-          <input name="listing[location]" value="<%=listing.location %>" type="text" class="form-control" required/>
-          <div class="invalid-feedback">Location should be valid</div>
-        </div>
-        
-        
-        
-        
-        <br><br>
-         
-        <button class="btn btn-dark edit-btn mt-3">Edit</button>
-      </form>
-       </div>
+      <div class="form-header">
+        <h1>Edit your Listing</h1>
+        <p>Update details and add more photos to your space.</p>
       </div>
-      
-      
-    
+
+      <form method="POST" action="/listings/<%=listing._id%>?_method=PUT" novalidate class="needs-validation"
+        enctype="multipart/form-data">
+
+        <!-- SECTION 1: BASIC INFO -->
+        <div class="form-section">
+          <h2 class="section-title">The Basics</h2>
+
+          <div class="mb-3">
+            <label for="title" class="form-label">Title</label>
+            <input name="listing[title]" value="<%=listing.title %>" type="text" class="form-control" required />
+            <div class="valid-feedback">Title looks good!</div>
+          </div>
+
+          <div class="mb-3">
+            <label for="description" class="form-label">Description</label>
+            <textarea name="listing[description]" rows="4" class="form-control"
+              required><%= listing.description %></textarea>
+            <div class="invalid-feedback">Please enter a description</div>
+          </div>
+
+          <div class="mb-3">
+            <label for="price" class="form-label">Price per night (₹)</label>
+            <input name="listing[price]" value="<%=listing.price %>" type="number" class="form-control" required />
+            <div class="invalid-feedback">Price should be valid</div>
+          </div>
+        </div>
+
+        <!-- SECTION 2: PHOTOS -->
+        <div class="form-section">
+          <h2 class="section-title">Property Photos</h2>
+
+          <div class="mb-3">
+            <p class="mb-2 form-label">Current Main Image</p>
+            <img src="<%= originalImageUrl %>" style="max-width: 200px; border-radius: 8px;">
+          </div>
+
+          <h3 class="form-label mt-4">Add More Photos</h3>
+          <p class="mb-3 text-secondary" style="font-size: 14px;">Select multiple photos to add to your gallery.</p>
+
+          <div class="upload-zone" id="upload-zone">
+            <i class="fas fa-cloud-upload-alt upload-icon"></i>
+            <div class="upload-text">Drag new photos here</div>
+            <div class="upload-subtext">or click to browse</div>
+            <input name="listing[image]" id="image-input" type="file" multiple accept="image/*" />
+          </div>
+
+          <div class="image-preview-grid" id="preview-grid">
+            <!-- Previews will appear here -->
+          </div>
+        </div>
+
+        <!-- SECTION 3: LOCATION -->
+        <div class="form-section">
+          <h2 class="section-title">Location</h2>
+
+          <div class="mb-3">
+            <label for="location" class="form-label">Location / City</label>
+            <input name="listing[location]" value="<%=listing.location %>" type="text" class="form-control" required />
+            <div class="invalid-feedback">Location is required</div>
+          </div>
+
+          <div class="mb-3">
+            <label for="country" class="form-label">Country</label>
+            <input name="listing[country]" value="<%=listing.country %>" type="text" class="form-control" required />
+            <div class="invalid-feedback">Country is required</div>
+          </div>
+        </div>
+
+        <!-- SECTION 4: PROPERTY DETAILS -->
+        <div class="form-section">
+          <h2 class="section-title">Property Details</h2>
+          <div class="row">
+            <div class="col-md-6 mb-3">
+              <label class="form-label">Property Type</label>
+              <select name="listing[propertyType]" class="form-control form-select">
+                <% const types=['Apartment', 'House' , 'Villa' , 'Hotel' , 'Resort' , 'Cottage' , 'Cabin' , 'Bungalow'
+                  , 'Guesthouse' , 'Other' ]; %>
+                  <% types.forEach(function(type) { %>
+                    <option value="<%= type %>" <%=listing.propertyType===type ? 'selected' : '' %>><%= type %>
+                    </option>
+                    <% }); %>
+              </select>
+            </div>
+            <div class="col-md-6 mb-3">
+              <label class="form-label">Guest Capacity</label>
+              <input name="listing[guests]" type="number" value="<%= listing.guests || 2 %>" min="1"
+                class="form-control" />
+            </div>
+          </div>
+          <div class="row">
+            <div class="col-md-4 mb-3">
+              <label class="form-label">Bedrooms</label>
+              <input name="listing[bedrooms]" type="number" value="<%= listing.bedrooms || 1 %>" min="0"
+                class="form-control" />
+            </div>
+            <div class="col-md-4 mb-3">
+              <label class="form-label">Beds</label>
+              <input name="listing[beds]" type="number" value="<%= listing.beds || 1 %>" min="1" class="form-control" />
+            </div>
+            <div class="col-md-4 mb-3">
+              <label class="form-label">Bathrooms</label>
+              <input name="listing[bathrooms]" type="number" value="<%= listing.bathrooms || 1 %>" min="0.5" step="0.5"
+                class="form-control" />
+            </div>
+          </div>
+        </div>
+
+        <button class="create-btn mt-2">Update Listing</button>
+        <br><br>
+
+      </form>
+    </div>
+
+    <!-- Client-side Preview Script (Same as New Listing) -->
+    <script>
+      document.addEventListener('DOMContentLoaded', function () {
+        const input = document.getElementById('image-input');
+        const previewGrid = document.getElementById('preview-grid');
+        const uploadZone = document.getElementById('upload-zone');
+
+        input.addEventListener('change', function (e) {
+          const files = Array.from(e.target.files);
+          previewGrid.innerHTML = '';
+
+          files.forEach((file) => {
+            if (!file.type.startsWith('image/')) return;
+            const reader = new FileReader();
+            reader.onload = function (e) {
+              const div = document.createElement('div');
+              div.className = 'preview-item';
+              div.innerHTML = `<img src="${e.target.result}" class="preview-img">`;
+              previewGrid.appendChild(div);
+            }
+            reader.readAsDataURL(file);
+          });
+
+          if (files.length > 0) {
+            uploadZone.style.borderColor = '#222';
+            uploadZone.querySelector('.upload-text').textContent = `${files.length} new photos selected`;
+          }
+        });
+
+        uploadZone.addEventListener('dragover', (e) => {
+          e.preventDefault();
+          uploadZone.style.backgroundColor = '#f0f0f0';
+          uploadZone.style.borderColor = '#222';
+        });
+
+        uploadZone.addEventListener('dragleave', (e) => {
+          e.preventDefault();
+          uploadZone.style.backgroundColor = '#fafafa';
+          uploadZone.style.borderColor = '#b0b0b0';
+        });
+      });
+    </script>
 </body>
+
 </html>

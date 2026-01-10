@@ -1,6 +1,7 @@
 const Dhaba = require("../models/dhaba");
 const Review = require("../models/review");
 const crypto = require("crypto");
+const { cloudinary } = require("../cloudConfig");
 
 module.exports.index = async (req, res) => {
   const { q, cuisine, category, sort, minRating, facilities } = req.query;
@@ -72,8 +73,8 @@ module.exports.createDhaba = async (req, res) => {
     const newDhaba = new Dhaba(req.body.dhaba);
     newDhaba.owner = req.user._id;
 
-    if (req.file) {
-      newDhaba.image = { url: req.file.path, filename: req.file.filename };
+    if (req.files) {
+      newDhaba.image = req.files.map(f => ({ url: f.path, filename: f.filename }));
     }
 
     // Geocode location if Mapbox token is available
@@ -109,7 +110,7 @@ const { Types } = require('mongoose');
 
 module.exports.showDhaba = async (req, res) => {
   const { id } = req.params;
-  
+
   // Check if the ID is a valid MongoDB ObjectId
   if (!Types.ObjectId.isValid(id)) {
     req.flash("error", "Invalid dhaba ID");
@@ -177,8 +178,32 @@ module.exports.updateDhaba = async (req, res) => {
     // Update dhaba with new data
     Object.assign(dhaba, req.body.dhaba);
 
-    if (req.file) {
-      dhaba.image = { url: req.file.path, filename: req.file.filename };
+    // Handle image deletion
+    if (req.body.deleteImages) {
+      const deleteImages = Array.isArray(req.body.deleteImages)
+        ? req.body.deleteImages
+        : [req.body.deleteImages];
+
+      for (let filename of deleteImages) {
+        await cloudinary.uploader.destroy(filename);
+      }
+
+      if (dhaba.image && Array.isArray(dhaba.image)) {
+        dhaba.image = dhaba.image.filter(img => !deleteImages.includes(img.filename));
+      }
+    }
+
+    // Handle image upload (push new images to existing array)
+    if (req.files && req.files.length > 0) {
+      const newImages = req.files.map(f => ({ url: f.path, filename: f.filename }));
+
+      // Ensure existing image field is an array
+      if (!dhaba.image || !Array.isArray(dhaba.image)) {
+        // If it was a single object (legacy), convert or reset
+        dhaba.image = dhaba.image ? [dhaba.image] : [];
+      }
+
+      dhaba.image.push(...newImages);
     }
 
     // Update location if changed

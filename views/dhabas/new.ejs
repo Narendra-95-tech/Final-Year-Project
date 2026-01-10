@@ -1,226 +1,253 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>WanderLust - Add Dhaba</title>
 </head>
+
 <body>
     <% layout("layouts/boilerplate") %>
-    <div class="row mt-3">
-     <div class="col-8 offset-2">
+        <div class="row mt-3">
+            <div class="col-8 offset-2">
 
-    <h3>Add New Dhaba</h3>
-    <form method="POST" action="/dhabas" novalidate class="needs-validation" enctype="multipart/form-data">
-        <div class="mb-3">
-        <label for="title" class="form-label">Dhaba Name</label>
-        <input name="dhaba[title]" placeholder="Baba Da Dhaba" type="text" class="form-control" required/>
-        <div class="valid-feedback">Title looks good!</div>
-        </div>
-
-        <div class="mb-3">
-            <label for="description" class="form-label">Description</label>
-            <textarea name="dhaba[description]" class="form-control"></textarea>
-        </div>
-
-        <div class="mb-3">
-            <label for="image" class="form-label">Upload Dhaba Image</label>
-            <input name="dhaba[image]" type="file" class="form-control" accept="image/*"/>
-        </div>
-
-        <div class="row">
-            <div class="mb-3 col-md-6">
-            <label for="cuisine" class="form-label">Cuisine Type</label>
-            <select name="dhaba[cuisine]" class="form-select" required>
-                <option value="">Select Cuisine</option>
-                <option value="North Indian">North Indian</option>
-                <option value="South Indian">South Indian</option>
-                <option value="Punjabi">Punjabi</option>
-                <option value="Chinese">Chinese</option>
-                <option value="Multi-Cuisine">Multi-Cuisine</option>
-                <option value="Street Food">Street Food</option>
-                <option value="Rajasthani">Rajasthani</option>
-                <option value="Gujarati">Gujarati</option>
-                <option value="Bengali">Bengali</option>
-                <option value="Continental">Continental</option>
-            </select>
-            <div class="invalid-feedback">Cuisine type is required</div>
-            </div>
-
-            <div class="mb-3 col-md-6">
-            <label for="category" class="form-label">Category</label>
-            <select name="dhaba[category]" class="form-select" required>
-                <option value="">Select Category</option>
-                <option value="Fine Dining">Fine Dining</option>
-                <option value="Casual Dining">Casual Dining</option>
-                <option value="Fast Food">Fast Food</option>
-                <option value="Cafe">Cafe</option>
-                <option value="Food Truck">Food Truck</option>
-                <option value="Buffet">Buffet</option>
-                <option value="Family Restaurant">Family Restaurant</option>
-            </select>
-            <div class="invalid-feedback">Category is required</div>
-            </div>
-        </div>
-
-        <div class="row">
-            <div class="mb-3 col-md-6">
-            <label for="price" class="form-label">Average Price per Person (₹)</label>
-            <input name="dhaba[price]" placeholder="500" type="number" class="form-control" min="0" required/>
-            <div class="invalid-feedback">Price is required</div>
-            </div>
-
-            <div class="mb-3 col-md-6">
-            <label for="rating" class="form-label">Rating (1-5)</label>
-            <input name="dhaba[rating]" placeholder="4.2" type="number" class="form-control" min="1" max="5" step="0.1"/>
-            </div>
-        </div>
-
-        <div class="row">
-            <div class="mb-3 col-md-6">
-            <label for="location" class="form-label">Location</label>
-            <input name="dhaba[location]" placeholder="Mumbai, Maharashtra" type="text" class="form-control" required/>
-            <div class="invalid-feedback">Location is required</div>
-            </div>
-
-            <div class="mb-3 col-md-6">
-            <label for="country" class="form-label">Country</label>
-            <input name="dhaba[country]" placeholder="India" type="text" class="form-control" required/>
-            <div class="invalid-feedback">Country is required</div>
-            </div>
-        </div>
-
-        <div class="row">
-            <div class="mb-3 col-md-6">
-            <label for="phone" class="form-label">Phone Number</label>
-            <input name="dhaba[phone]" placeholder="+91 9876543210" type="tel" class="form-control" required/>
-            <div class="invalid-feedback">Phone number is required</div>
-            </div>
-
-            <div class="mb-3 col-md-6">
-            <label for="email" class="form-label">Email (optional)</label>
-            <input name="dhaba[email]" placeholder="info@dhabaname.com" type="email" class="form-control"/>
-            </div>
-        </div>
-
-        <div class="mb-3">
-            <label for="website" class="form-label">Website (optional)</label>
-            <input name="dhaba[website]" placeholder="https://dhabaname.com" type="url" class="form-control"/>
-        </div>
-
-        <div class="row">
-            <div class="mb-3 col-md-6">
-            <label for="establishedYear" class="form-label">Established Year (optional)</label>
-            <input name="dhaba[establishedYear]" placeholder="1985" type="number" class="form-control" min="1900" max="<%= new Date().getFullYear() %>"/>
-            </div>
-
-            <div class="mb-3 col-md-6">
-            <label for="operatingHours.opens" class="form-label">Opening Time</label>
-            <input name="dhaba[operatingHours][opens]" placeholder="09:00" type="time" class="form-control" required/>
-            </div>
-        </div>
-
-        <div class="row">
-            <div class="mb-3 col-md-6">
-            <label for="operatingHours.closes" class="form-label">Closing Time</label>
-            <input name="dhaba[operatingHours][closes]" placeholder="23:00" type="time" class="form-control" required/>
-            </div>
-
-            <div class="mb-3 col-md-6">
-            <div class="form-check">
-                <input class="form-check-input" type="checkbox" name="dhaba[operatingHours][isOpen24Hours]" value="true" id="isOpen24Hours">
-                <label class="form-check-label" for="isOpen24Hours">
-                    Open 24 Hours
-                </label>
-            </div>
-            </div>
-        </div>
-
-        <div class="row">
-            <div class="mb-3 col-md-6">
-            <div class="form-check">
-                <input class="form-check-input" type="checkbox" name="dhaba[isVegetarian]" value="true" id="isVegetarian">
-                <label class="form-check-label" for="isVegetarian">
-                    Vegetarian Options Available
-                </label>
-            </div>
-            </div>
-
-            <div class="mb-3 col-md-6">
-            <div class="form-check">
-                <input class="form-check-input" type="checkbox" name="dhaba[isVegan]" value="true" id="isVegan">
-                <label class="form-check-label" for="isVegan">
-                    Vegan Options Available
-                </label>
-            </div>
-            </div>
-        </div>
-
-        <div class="mb-3">
-            <label class="form-label">Specialties (Signature Dishes)</label>
-            <input name="dhaba[specialties]" placeholder="Dal Makhani, Butter Chicken, Tandoori Roti (comma separated)" type="text" class="form-control"/>
-        </div>
-
-        <div class="mb-3">
-            <label class="form-label">Facilities (check all that apply)</label>
-            <div class="row">
-                <div class="col-md-3">
-                    <div class="form-check">
-                        <input class="form-check-input" type="checkbox" name="dhaba[facilities]" value="AC" id="ac">
-                        <label class="form-check-label" for="ac">Air Conditioning</label>
+                <h3>Add New Dhaba</h3>
+                <form method="POST" action="/dhabas" novalidate class="needs-validation" enctype="multipart/form-data">
+                    <div class="mb-3">
+                        <label for="title" class="form-label">Dhaba Name</label>
+                        <input name="dhaba[title]" placeholder="Baba Da Dhaba" type="text" class="form-control"
+                            required />
+                        <div class="valid-feedback">Title looks good!</div>
                     </div>
-                </div>
-                <div class="col-md-3">
-                    <div class="form-check">
-                        <input class="form-check-input" type="checkbox" name="dhaba[facilities]" value="Parking" id="parking">
-                        <label class="form-check-label" for="parking">Parking</label>
+
+                    <div class="mb-3">
+                        <label for="description" class="form-label">Description</label>
+                        <textarea name="dhaba[description]" class="form-control"></textarea>
                     </div>
-                </div>
-                <div class="col-md-3">
-                    <div class="form-check">
-                        <input class="form-check-input" type="checkbox" name="dhaba[facilities]" value="WiFi" id="wifi">
-                        <label class="form-check-label" for="wifi">WiFi</label>
+
+                    <div class="mb-3">
+                        <label for="image" class="form-label">Upload Dhaba Image</label>
+                        <input name="dhaba[image]" type="file" class="form-control" accept="image/*" multiple />
                     </div>
-                </div>
-                <div class="col-md-3">
-                    <div class="form-check">
-                        <input class="form-check-input" type="checkbox" name="dhaba[facilities]" value="Outdoor Seating" id="outdoor">
-                        <label class="form-check-label" for="outdoor">Outdoor Seating</label>
+
+                    <div class="row">
+                        <div class="mb-3 col-md-6">
+                            <label for="cuisine" class="form-label">Cuisine Type</label>
+                            <select name="dhaba[cuisine]" class="form-select" required>
+                                <option value="">Select Cuisine</option>
+                                <option value="North Indian">North Indian</option>
+                                <option value="South Indian">South Indian</option>
+                                <option value="Punjabi">Punjabi</option>
+                                <option value="Chinese">Chinese</option>
+                                <option value="Multi-Cuisine">Multi-Cuisine</option>
+                                <option value="Street Food">Street Food</option>
+                                <option value="Rajasthani">Rajasthani</option>
+                                <option value="Gujarati">Gujarati</option>
+                                <option value="Bengali">Bengali</option>
+                                <option value="Continental">Continental</option>
+                            </select>
+                            <div class="invalid-feedback">Cuisine type is required</div>
+                        </div>
+
+                        <div class="mb-3 col-md-6">
+                            <label for="category" class="form-label">Category</label>
+                            <select name="dhaba[category]" class="form-select" required>
+                                <option value="">Select Category</option>
+                                <option value="Fine Dining">Fine Dining</option>
+                                <option value="Casual Dining">Casual Dining</option>
+                                <option value="Fast Food">Fast Food</option>
+                                <option value="Cafe">Cafe</option>
+                                <option value="Food Truck">Food Truck</option>
+                                <option value="Buffet">Buffet</option>
+                                <option value="Family Restaurant">Family Restaurant</option>
+                            </select>
+                            <div class="invalid-feedback">Category is required</div>
+                        </div>
                     </div>
-                </div>
-                <div class="col-md-3">
-                    <div class="form-check">
-                        <input class="form-check-input" type="checkbox" name="dhaba[facilities]" value="Card Payment" id="card">
-                        <label class="form-check-label" for="card">Card Payment</label>
+
+                    <div class="row">
+                        <div class="mb-3 col-md-6">
+                            <label for="price" class="form-label">Average Price per Person (₹)</label>
+                            <input name="dhaba[price]" placeholder="500" type="number" class="form-control" min="0"
+                                required />
+                            <div class="invalid-feedback">Price is required</div>
+                        </div>
+
+                        <div class="mb-3 col-md-6">
+                            <label for="rating" class="form-label">Rating (1-5)</label>
+                            <input name="dhaba[rating]" placeholder="4.2" type="number" class="form-control" min="1"
+                                max="5" step="0.1" />
+                        </div>
                     </div>
-                </div>
-                <div class="col-md-3">
-                    <div class="form-check">
-                        <input class="form-check-input" type="checkbox" name="dhaba[facilities]" value="Home Delivery" id="delivery">
-                        <label class="form-check-label" for="delivery">Home Delivery</label>
+
+                    <div class="row">
+                        <div class="mb-3 col-md-6">
+                            <label for="location" class="form-label">Location</label>
+                            <input name="dhaba[location]" placeholder="Mumbai, Maharashtra" type="text"
+                                class="form-control" required />
+                            <div class="invalid-feedback">Location is required</div>
+                        </div>
+
+                        <div class="mb-3 col-md-6">
+                            <label for="country" class="form-label">Country</label>
+                            <input name="dhaba[country]" placeholder="India" type="text" class="form-control"
+                                required />
+                            <div class="invalid-feedback">Country is required</div>
+                        </div>
                     </div>
-                </div>
-                <div class="col-md-3">
-                    <div class="form-check">
-                        <input class="form-check-input" type="checkbox" name="dhaba[facilities]" value="Family Section" id="family">
-                        <label class="form-check-label" for="family">Family Section</label>
+
+                    <div class="row">
+                        <div class="mb-3 col-md-6">
+                            <label for="phone" class="form-label">Phone Number</label>
+                            <input name="dhaba[phone]" placeholder="+91 9876543210" type="tel" class="form-control"
+                                required />
+                            <div class="invalid-feedback">Phone number is required</div>
+                        </div>
+
+                        <div class="mb-3 col-md-6">
+                            <label for="email" class="form-label">Email (optional)</label>
+                            <input name="dhaba[email]" placeholder="info@dhabaname.com" type="email"
+                                class="form-control" />
+                        </div>
                     </div>
-                </div>
-                <div class="col-md-3">
-                    <div class="form-check">
-                        <input class="form-check-input" type="checkbox" name="dhaba[facilities]" value="Live Music" id="music">
-                        <label class="form-check-label" for="music">Live Music</label>
+
+                    <div class="mb-3">
+                        <label for="website" class="form-label">Website (optional)</label>
+                        <input name="dhaba[website]" placeholder="https://dhabaname.com" type="url"
+                            class="form-control" />
                     </div>
-                </div>
+
+                    <div class="row">
+                        <div class="mb-3 col-md-6">
+                            <label for="establishedYear" class="form-label">Established Year (optional)</label>
+                            <input name="dhaba[establishedYear]" placeholder="1985" type="number" class="form-control"
+                                min="1900" max="<%= new Date().getFullYear() %>" />
+                        </div>
+
+                        <div class="mb-3 col-md-6">
+                            <label for="operatingHours.opens" class="form-label">Opening Time</label>
+                            <input name="dhaba[operatingHours][opens]" placeholder="09:00" type="time"
+                                class="form-control" required />
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="mb-3 col-md-6">
+                            <label for="operatingHours.closes" class="form-label">Closing Time</label>
+                            <input name="dhaba[operatingHours][closes]" placeholder="23:00" type="time"
+                                class="form-control" required />
+                        </div>
+
+                        <div class="mb-3 col-md-6">
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox"
+                                    name="dhaba[operatingHours][isOpen24Hours]" value="true" id="isOpen24Hours">
+                                <label class="form-check-label" for="isOpen24Hours">
+                                    Open 24 Hours
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="mb-3 col-md-6">
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" name="dhaba[isVegetarian]" value="true"
+                                    id="isVegetarian">
+                                <label class="form-check-label" for="isVegetarian">
+                                    Vegetarian Options Available
+                                </label>
+                            </div>
+                        </div>
+
+                        <div class="mb-3 col-md-6">
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" name="dhaba[isVegan]" value="true"
+                                    id="isVegan">
+                                <label class="form-check-label" for="isVegan">
+                                    Vegan Options Available
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">Specialties (Signature Dishes)</label>
+                        <input name="dhaba[specialties]"
+                            placeholder="Dal Makhani, Butter Chicken, Tandoori Roti (comma separated)" type="text"
+                            class="form-control" />
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">Facilities (check all that apply)</label>
+                        <div class="row">
+                            <div class="col-md-3">
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" name="dhaba[facilities]" value="AC"
+                                        id="ac">
+                                    <label class="form-check-label" for="ac">Air Conditioning</label>
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" name="dhaba[facilities]"
+                                        value="Parking" id="parking">
+                                    <label class="form-check-label" for="parking">Parking</label>
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" name="dhaba[facilities]"
+                                        value="WiFi" id="wifi">
+                                    <label class="form-check-label" for="wifi">WiFi</label>
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" name="dhaba[facilities]"
+                                        value="Outdoor Seating" id="outdoor">
+                                    <label class="form-check-label" for="outdoor">Outdoor Seating</label>
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" name="dhaba[facilities]"
+                                        value="Card Payment" id="card">
+                                    <label class="form-check-label" for="card">Card Payment</label>
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" name="dhaba[facilities]"
+                                        value="Home Delivery" id="delivery">
+                                    <label class="form-check-label" for="delivery">Home Delivery</label>
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" name="dhaba[facilities]"
+                                        value="Family Section" id="family">
+                                    <label class="form-check-label" for="family">Family Section</label>
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" name="dhaba[facilities]"
+                                        value="Live Music" id="music">
+                                    <label class="form-check-label" for="music">Live Music</label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <button class="btn btn-success">Add Dhaba</button>
+                        <a class="btn btn-outline-secondary" href="/dhabas">Cancel</a>
+                    </div>
+                </form>
             </div>
         </div>
-
-        <div class="mb-3">
-            <button class="btn btn-success">Add Dhaba</button>
-            <a class="btn btn-outline-secondary" href="/dhabas">Cancel</a>
-        </div>
-    </form>
-     </div>
-    </div>
 </body>
+
 </html>

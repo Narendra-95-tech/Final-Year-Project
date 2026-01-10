@@ -5,12 +5,12 @@ const Review = require("./models/review");
 const ExpressError = require("./utils/ExpressError.js");
 const { listingSchema, vehicleSchema, dhabaSchema, reviewSchema } = require("./schema.js");
 
-module.exports.isLoggedIn = (req,res,next) => {
+module.exports.isLoggedIn = (req, res, next) => {
 
-       if(!req.isAuthenticated()) {
-       req.session.redirectUrl = req.originalUrl;
-       req.flash("error", "You must be logged in to create listing!");
-       return res.redirect("/login");
+    if (!req.isAuthenticated()) {
+        req.session.redirectUrl = req.originalUrl;
+        req.flash("error", "You must be logged in to create listing!");
+        return res.redirect("/login");
     }
     next();
 };
@@ -23,8 +23,8 @@ module.exports.isAdmin = (req, res, next) => {
     next();
 };
 
-module.exports.saveRedirectUrl=(req, res, next) => {
-    if(req.session.redirectUrl) {
+module.exports.saveRedirectUrl = (req, res, next) => {
+    if (req.session.redirectUrl) {
         res.locals.redirectUrl = req.session.redirectUrl;
     }
     next();
@@ -33,8 +33,8 @@ module.exports.saveRedirectUrl=(req, res, next) => {
 
 module.exports.validateListing = (req, res, next) => {
 
-    let {error} = listingSchema.validate(req.body);
-    if(error) {
+    let { error } = listingSchema.validate(req.body);
+    if (error) {
         let errMsg = error.details.map((el) => el.message).join(",");
         throw new ExpressError(400, errMsg);
     } else {
@@ -46,8 +46,8 @@ module.exports.validateListing = (req, res, next) => {
 
 module.exports.validateVehicle = (req, res, next) => {
 
-    let {error} = vehicleSchema.validate(req.body);
-    if(error) {
+    let { error } = vehicleSchema.validate(req.body);
+    if (error) {
         let errMsg = error.details.map((el) => el.message).join(",");
         throw new ExpressError(400, errMsg);
     } else {
@@ -59,8 +59,8 @@ module.exports.validateVehicle = (req, res, next) => {
 
 module.exports.validateDhaba = (req, res, next) => {
 
-    let {error} = dhabaSchema.validate(req.body);
-    if(error) {
+    let { error } = dhabaSchema.validate(req.body);
+    if (error) {
         let errMsg = error.details.map((el) => el.message).join(",");
         throw new ExpressError(400, errMsg);
     } else {
@@ -72,8 +72,8 @@ module.exports.validateDhaba = (req, res, next) => {
 
 module.exports.validateReview = (req, res, next) => {
 
-    let {error} = reviewSchema.validate(req.body);
-    if(error) {
+    let { error } = reviewSchema.validate(req.body);
+    if (error) {
         let errMsg = error.details.map((el) => el.message).join(",");
         throw new ExpressError(400, errMsg);
     } else {
@@ -112,6 +112,44 @@ module.exports.normalizeVehicleForm = (req, res, next) => {
     ["price", "pricePerHour", "securityDeposit", "year", "seats", "mileage"].forEach((key) => {
         if (vehicle[key] === "" || vehicle[key] === null) {
             delete vehicle[key];
+        }
+    });
+
+    next();
+};
+
+
+module.exports.normalizeListingForm = (req, res, next) => {
+    if (!req.body || !req.body.listing) {
+        return next();
+    }
+
+    const listing = req.body.listing;
+
+    const arrayify = (value) => {
+        if (Array.isArray(value)) {
+            return value
+                .map((item) => (typeof item === "string" ? item.trim() : item))
+                .filter(Boolean);
+        }
+        if (typeof value === "string") {
+            return value
+                .split(",")
+                .map((item) => item.trim())
+                .filter(Boolean);
+        }
+        return [];
+    };
+
+    listing.amenities = arrayify(listing.amenities);
+    listing.houseRules = arrayify(listing.houseRules);
+    listing.safetyGuidelines = arrayify(listing.safetyGuidelines);
+
+    ["price", "guests", "bedrooms", "beds", "bathrooms"].forEach((key) => {
+        if (listing[key] === "" || listing[key] === null) {
+            delete listing[key];
+        } else if (typeof listing[key] === "string") {
+            listing[key] = Number(listing[key]);
         }
     });
 
@@ -177,26 +215,26 @@ module.exports.normalizeDhabaForm = (req, res, next) => {
 
 
 module.exports.isReviewAuthor = async (req, res, next) => {
-     let { id, reviewId} = req.params;
-     let review = await Review.findById(reviewId);
-     if(!review.author.equals(res.locals.currUser._id)) {
-       req.flash("error", "You are not the author of this review");
-       // Redirect to the appropriate path based on route
-       if (req.originalUrl.includes('/listings/')) {
-           return res.redirect(`/listings/${id}`);
-       } else if (req.originalUrl.includes('/vehicles/')) {
-           return res.redirect(`/vehicles/${id}`);
-       } else if (req.originalUrl.includes('/dhabas/')) {
-           return res.redirect(`/dhabas/${id}`);
-       }
-       return res.redirect('/');
-     }
-     next();
+    let { id, reviewId } = req.params;
+    let review = await Review.findById(reviewId);
+    if (!review.author.equals(res.locals.currUser._id)) {
+        req.flash("error", "You are not the author of this review");
+        // Redirect to the appropriate path based on route
+        if (req.originalUrl.includes('/listings/')) {
+            return res.redirect(`/listings/${id}`);
+        } else if (req.originalUrl.includes('/vehicles/')) {
+            return res.redirect(`/vehicles/${id}`);
+        } else if (req.originalUrl.includes('/dhabas/')) {
+            return res.redirect(`/dhabas/${id}`);
+        }
+        return res.redirect('/');
+    }
+    next();
 };
 
 // Generic isOwner middleware that works with any model
 module.exports.isOwner = async (req, res, next) => {
-    let {id} = req.params;
+    let { id } = req.params;
     let model;
 
     // Determine which model to use based on the route
@@ -211,7 +249,7 @@ module.exports.isOwner = async (req, res, next) => {
     }
 
     let item = await model.findById(id);
-    if(!item.owner.equals(res.locals.currUser._id)) {
+    if (!item.owner.equals(res.locals.currUser._id)) {
         req.flash("error", "You are not the owner of this item");
         return res.redirect(req.originalUrl);
     }

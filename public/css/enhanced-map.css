@@ -20,10 +20,10 @@
   left: 0;
   right: 0;
   bottom: 0;
-  background: linear-gradient(135deg, 
-    rgba(255, 107, 107, 0.05) 0%, 
-    rgba(255, 142, 83, 0.03) 50%, 
-    rgba(0, 123, 255, 0.02) 100%);
+  background: linear-gradient(135deg,
+      rgba(255, 107, 107, 0.05) 0%,
+      rgba(255, 142, 83, 0.03) 50%,
+      rgba(0, 123, 255, 0.02) 100%);
   pointer-events: none;
   z-index: 1;
   border-radius: 14px;
@@ -173,6 +173,7 @@
   border: 1px solid rgba(255, 107, 107, 0.1);
   backdrop-filter: blur(10px);
   transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  overflow: visible !important;
 }
 
 .geocoder-container:hover {
@@ -342,10 +343,13 @@
 }
 
 @keyframes markerPulse {
-  0%, 100% {
+
+  0%,
+  100% {
     transform: scale(1);
     filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.15));
   }
+
   50% {
     transform: scale(1.1);
     filter: drop-shadow(0 8px 20px rgba(255, 107, 107, 0.4));
@@ -755,9 +759,12 @@
 
 /* Pulse animation for active button */
 @keyframes glow {
-  0%, 100% {
+
+  0%,
+  100% {
     box-shadow: 0 8px 30px rgba(255, 107, 107, 0.4);
   }
+
   50% {
     box-shadow: 0 8px 40px rgba(255, 107, 107, 0.6);
   }
@@ -996,6 +1003,7 @@
     opacity: 0;
     transform: translateY(10px);
   }
+
   to {
     opacity: 1;
     transform: translateY(0);

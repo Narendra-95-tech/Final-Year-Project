@@ -1,150 +1,185 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>WanderLust - Edit Vehicle</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>WanderLust - Edit Vehicle</title>
 </head>
+
 <body>
-        <% layout("layouts/boilerplate") %>
-      <div class="row mt-3">
+  <% layout("layouts/boilerplate") %>
+    <link rel="stylesheet" href="/css/vehicle-image-upload.css">
+    <script src="/js/vehicle-image-upload.js" defer></script>
+    <div class="row mt-3">
       <div class="col-8  offset-2">
         <br>
 
-      <h3>Edit Vehicle </h3>
-      <form method="POST" action="/vehicles/<%=vehicle._id%>?_method=PUT" novalidate class="needs-validation" enctype="multipart/form-data">
-        <div class="mb-3">
-          <label for="title" class="form-label">Title</label>
-          <input name="vehicle[title]" value="<%=vehicle.title %>" type="text" class="form-control" required/>
-          <div class="valid-feedback">Title looks good!</div>
-        </div>
+        <h3>Edit Vehicle </h3>
+        <form method="POST" action="/vehicles/<%=vehicle._id%>?_method=PUT" novalidate class="needs-validation"
+          enctype="multipart/form-data">
+          <div class="mb-3">
+            <label for="title" class="form-label">Title</label>
+            <input name="vehicle[title]" value="<%=vehicle.title %>" type="text" class="form-control" required />
+            <div class="valid-feedback">Title looks good!</div>
+          </div>
 
-        <div class="mb-3">
-           <label for="description" class="form-label">Description</label>
-           <textarea name="vehicle[description]" class="form-control" required><%= vehicle.description %></textarea>
-           <div class="invalid-feedback">Please enter a short description</div>
-        </div>
+          <div class="mb-3">
+            <label for="description" class="form-label">Description</label>
+            <textarea name="vehicle[description]" class="form-control" required><%= vehicle.description %></textarea>
+            <div class="invalid-feedback">Please enter a short description</div>
+          </div>
 
-       <div class="mb-3">
-        Original Vehicle Image <br>
-          <img src="<%= originalImageUrl %>">
-        </div>
+          <div class="mb-3">
+            <label class="form-label">Current Images (Select to Delete)</label>
+            <div class="existing-images-grid">
+              <% if(vehicle.images && vehicle.images.length> 0) { %>
+                <% vehicle.images.forEach((img, i)=> { %>
+                  <div class="existing-image-item">
+                    <img src="<%= img.url.replace('/upload', '/upload/w_200') %>" alt="Vehicle Image">
+                    <div class="form-check">
+                      <input class="delete-checkbox" type="checkbox" name="deleteImages[]" value="<%= img.filename %>"
+                        id="img-<%= i %>">
+                      <label class="delete-label" for="img-<%= i %>">DELETE</label>
+                    </div>
+                  </div>
+                  <% }) %>
+                    <% } else if(vehicle.image && vehicle.image.url) { %>
+                      <div class="existing-image-item">
+                        <img src="<%= vehicle.image.url.replace('/upload', '/upload/w_200') %>" alt="Vehicle Image">
+                        <div class="form-check">
+                          <input class="delete-checkbox" type="checkbox" name="deleteImages[]"
+                            value="<%= vehicle.image.filename %>" id="img-0">
+                          <label class="delete-label" for="img-0">DELETE</label>
+                        </div>
+                      </div>
+                      <% } %>
+            </div>
+          </div>
 
-        <div class="mb-3">
-           <label for="image" class="form-label">Upload New Image</label>
-           <input name="vehicle[image]"  type="file" class="form-control" />
-        </div>
+          <div class="mb-3">
+            <label for="image" class="form-label">Upload New Images (Add to existing)</label>
+            <div class="image-upload-container">
+              <input name="vehicle[images]" type="file" class="form-control" id="imageInput" multiple accept="image/*">
+              <div class="upload-preview" id="uploadPreview"></div>
+            </div>
+          </div>
 
-        <div class="row">
-        <div class="mb-3 col-md-4">
-          <label for="price" class="form-label">Price per day (₹)</label>
-          <input name="vehicle[price]" value="<%=vehicle.price %>" type="number" class="form-control" required/>
-          <div class="invalid-feedback">Price should be valid</div>
-        </div>
+          <div class="row">
+            <div class="mb-3 col-md-4">
+              <label for="price" class="form-label">Price per day (₹)</label>
+              <input name="vehicle[price]" value="<%=vehicle.price %>" type="number" class="form-control" required />
+              <div class="invalid-feedback">Price should be valid</div>
+            </div>
 
-        <div class="mb-3 col-md-8">
-        <label for="vehicleType" class="form-label">Vehicle Type</label>
-        <select name="vehicle[vehicleType]" class="form-control" required>
-            <option value="">Select Type</option>
-            <option value="car" <%= vehicle.vehicleType === 'car' ? 'selected' : '' %>>Car</option>
-            <option value="bike" <%= vehicle.vehicleType === 'bike' ? 'selected' : '' %>>Bike</option>
-            <option value="van" <%= vehicle.vehicleType === 'van' ? 'selected' : '' %>>Van</option>
-            <option value="truck" <%= vehicle.vehicleType === 'truck' ? 'selected' : '' %>>Truck</option>
-            <option value="scooter" <%= vehicle.vehicleType === 'scooter' ? 'selected' : '' %>>Scooter</option>
-        </select>
-        <div class="invalid-feedback">Please select vehicle type</div>
-        </div>
-        </div>
+            <div class="mb-3 col-md-8">
+              <label for="vehicleType" class="form-label">Vehicle Type</label>
+              <select name="vehicle[vehicleType]" class="form-control" required>
+                <option value="">Select Type</option>
+                <option value="car" <%=vehicle.vehicleType==='car' ? 'selected' : '' %>>Car</option>
+                <option value="bike" <%=vehicle.vehicleType==='bike' ? 'selected' : '' %>>Bike</option>
+                <option value="van" <%=vehicle.vehicleType==='van' ? 'selected' : '' %>>Van</option>
+                <option value="truck" <%=vehicle.vehicleType==='truck' ? 'selected' : '' %>>Truck</option>
+                <option value="scooter" <%=vehicle.vehicleType==='scooter' ? 'selected' : '' %>>Scooter</option>
+              </select>
+              <div class="invalid-feedback">Please select vehicle type</div>
+            </div>
+          </div>
 
-        <div class="row">
-        <div class="mb-3 col-md-6">
-          <label for="brand" class="form-label">Brand</label>
-          <input name="vehicle[brand]" value="<%=vehicle.brand %>" type="text" class="form-control" required/>
-          <div class="invalid-feedback">Brand should be valid</div>
-        </div>
+          <div class="row">
+            <div class="mb-3 col-md-6">
+              <label for="brand" class="form-label">Brand</label>
+              <input name="vehicle[brand]" value="<%=vehicle.brand %>" type="text" class="form-control" required />
+              <div class="invalid-feedback">Brand should be valid</div>
+            </div>
 
-        <div class="mb-3 col-md-6">
-          <label for="model" class="form-label">Model</label>
-          <input name="vehicle[model]" value="<%=vehicle.model %>" type="text" class="form-control" required/>
-          <div class="invalid-feedback">Model should be valid</div>
-        </div>
-        </div>
+            <div class="mb-3 col-md-6">
+              <label for="model" class="form-label">Model</label>
+              <input name="vehicle[model]" value="<%=vehicle.model %>" type="text" class="form-control" required />
+              <div class="invalid-feedback">Model should be valid</div>
+            </div>
+          </div>
 
-        <div class="row">
-        <div class="mb-3 col-md-4">
-          <label for="year" class="form-label">Year</label>
-          <input name="vehicle[year]" value="<%=vehicle.year %>" type="number" class="form-control" min="1900" max="<%= new Date().getFullYear() + 1 %>" required/>
-          <div class="invalid-feedback">Year should be valid</div>
-        </div>
+          <div class="row">
+            <div class="mb-3 col-md-4">
+              <label for="year" class="form-label">Year</label>
+              <input name="vehicle[year]" value="<%=vehicle.year %>" type="number" class="form-control" min="1900"
+                max="<%= new Date().getFullYear() + 1 %>" required />
+              <div class="invalid-feedback">Year should be valid</div>
+            </div>
 
-        <div class="mb-3 col-md-4">
-          <label for="seats" class="form-label">Seats</label>
-          <input name="vehicle[seats]" value="<%=vehicle.seats %>" type="number" class="form-control" min="1" max="20" required/>
-          <div class="invalid-feedback">Seats should be valid</div>
-        </div>
+            <div class="mb-3 col-md-4">
+              <label for="seats" class="form-label">Seats</label>
+              <input name="vehicle[seats]" value="<%=vehicle.seats %>" type="number" class="form-control" min="1"
+                max="20" required />
+              <div class="invalid-feedback">Seats should be valid</div>
+            </div>
 
-        <div class="mb-3 col-md-4">
-          <label for="mileage" class="form-label">Mileage (km/l)</label>
-          <input name="vehicle[mileage]" value="<%=vehicle.mileage || '' %>" type="number" step="0.1" class="form-control" min="0"/>
-          <div class="invalid-feedback">Mileage should be valid</div>
-        </div>
-        </div>
+            <div class="mb-3 col-md-4">
+              <label for="mileage" class="form-label">Mileage (km/l)</label>
+              <input name="vehicle[mileage]" value="<%=vehicle.mileage || '' %>" type="number" step="0.1"
+                class="form-control" min="0" />
+              <div class="invalid-feedback">Mileage should be valid</div>
+            </div>
+          </div>
 
-        <div class="row">
-        <div class="mb-3 col-md-4">
-        <label for="fuelType" class="form-label">Fuel Type</label>
-        <select name="vehicle[fuelType]" class="form-control" required>
-            <option value="">Select Fuel</option>
-            <option value="petrol" <%= vehicle.fuelType === 'petrol' ? 'selected' : '' %>>Petrol</option>
-            <option value="diesel" <%= vehicle.fuelType === 'diesel' ? 'selected' : '' %>>Diesel</option>
-            <option value="electric" <%= vehicle.fuelType === 'electric' ? 'selected' : '' %>>Electric</option>
-            <option value="hybrid" <%= vehicle.fuelType === 'hybrid' ? 'selected' : '' %>>Hybrid</option>
-        </select>
-        <div class="invalid-feedback">Please select fuel type</div>
-        </div>
+          <div class="row">
+            <div class="mb-3 col-md-4">
+              <label for="fuelType" class="form-label">Fuel Type</label>
+              <select name="vehicle[fuelType]" class="form-control" required>
+                <option value="">Select Fuel</option>
+                <option value="petrol" <%=vehicle.fuelType==='petrol' ? 'selected' : '' %>>Petrol</option>
+                <option value="diesel" <%=vehicle.fuelType==='diesel' ? 'selected' : '' %>>Diesel</option>
+                <option value="electric" <%=vehicle.fuelType==='electric' ? 'selected' : '' %>>Electric</option>
+                <option value="hybrid" <%=vehicle.fuelType==='hybrid' ? 'selected' : '' %>>Hybrid</option>
+              </select>
+              <div class="invalid-feedback">Please select fuel type</div>
+            </div>
 
-        <div class="mb-3 col-md-4">
-        <label for="transmission" class="form-label">Transmission</label>
-        <select name="vehicle[transmission]" class="form-control" required>
-            <option value="">Select Transmission</option>
-            <option value="manual" <%= vehicle.transmission === 'manual' ? 'selected' : '' %>>Manual</option>
-            <option value="automatic" <%= vehicle.transmission === 'automatic' ? 'selected' : '' %>>Automatic</option>
-        </select>
-        <div class="invalid-feedback">Please select transmission</div>
-        </div>
+            <div class="mb-3 col-md-4">
+              <label for="transmission" class="form-label">Transmission</label>
+              <select name="vehicle[transmission]" class="form-control" required>
+                <option value="">Select Transmission</option>
+                <option value="manual" <%=vehicle.transmission==='manual' ? 'selected' : '' %>>Manual</option>
+                <option value="automatic" <%=vehicle.transmission==='automatic' ? 'selected' : '' %>>Automatic</option>
+              </select>
+              <div class="invalid-feedback">Please select transmission</div>
+            </div>
 
-        <div class="mb-3 col-md-4">
-        <label for="availability" class="form-label">Availability</label>
-        <select name="vehicle[availability]" class="form-control">
-            <option value="true" <%= vehicle.availability ? 'selected' : '' %>>Available</option>
-            <option value="false" <%= !vehicle.availability ? 'selected' : '' %>>Not Available</option>
-        </select>
-        </div>
-        </div>
+            <div class="mb-3 col-md-4">
+              <label for="availability" class="form-label">Availability</label>
+              <select name="vehicle[availability]" class="form-control">
+                <option value="true" <%=vehicle.availability ? 'selected' : '' %>>Available</option>
+                <option value="false" <%=!vehicle.availability ? 'selected' : '' %>>Not Available</option>
+              </select>
+            </div>
+          </div>
 
-        <div class="mb-3">
+          <div class="mb-3">
             <label for="features" class="form-label">Features (comma separated)</label>
-            <textarea name="vehicle[features]" class="form-control"><%= vehicle.features ? vehicle.features.join(', ') : '' %></textarea>
+            <textarea name="vehicle[features]"
+              class="form-control"><%= vehicle.features ? vehicle.features.join(', ') : '' %></textarea>
             <div class="form-text">Enter features separated by commas</div>
-        </div>
+          </div>
 
-        <div class="mb-3">
-          <label for="country" class="form-label">Country</label>
-          <input name="vehicle[country]" value="<%=vehicle.country %>" type="text" class="form-control" required/>
-          <div class="invalid-feedback">Country name should be valid</div>
-        </div>
+          <div class="mb-3">
+            <label for="country" class="form-label">Country</label>
+            <input name="vehicle[country]" value="<%=vehicle.country %>" type="text" class="form-control" required />
+            <div class="invalid-feedback">Country name should be valid</div>
+          </div>
 
-        <div class="mb-3">
-          <label for="location" class="form-label">Location</label>
-          <input name="vehicle[location]" value="<%=vehicle.location %>" type="text" class="form-control" required/>
-          <div class="invalid-feedback">Location should be valid</div>
-        </div>
+          <div class="mb-3">
+            <label for="location" class="form-label">Location</label>
+            <input name="vehicle[location]" value="<%=vehicle.location %>" type="text" class="form-control" required />
+            <div class="invalid-feedback">Location should be valid</div>
+          </div>
 
-        <br><br>
-        <button class="btn btn-success edit-btn mt-3">Update Vehicle</button>
-      </form>
-       </div>
+          <br><br>
+          <button class="btn btn-success edit-btn mt-3">Update Vehicle</button>
+        </form>
       </div>
+    </div>
 
 </body>
+
 </html>

@@ -18,7 +18,7 @@ router
   .get(wrapAsync(dhabaController.index))
   .post(
     isLoggedIn,
-    upload.single("dhaba[image]"),
+    upload.array("dhaba[image]", 5),
     normalizeDhabaForm,
     validateDhaba,
     wrapAsync(dhabaController.createDhaba)
@@ -36,7 +36,8 @@ router
   .put(
     isLoggedIn,
     isOwner,
-    upload.single("dhaba[image]"),
+    upload.array("dhaba[image]", 5),
+    normalizeDhabaForm,
     validateDhaba,
     wrapAsync(dhabaController.updateDhaba)
   )

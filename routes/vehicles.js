@@ -19,7 +19,7 @@ router
   .get(wrapAsync(vehicleController.index))
   .post(
     isLoggedIn,
-    upload.single("vehicle[image]"),
+    upload.array("vehicle[images]", 5),
     normalizeVehicleForm,
     validateVehicle,
     wrapAsync(vehicleController.createVehicle)
@@ -37,7 +37,8 @@ router
   .put(
     isLoggedIn,
     isOwner,
-    upload.single("vehicle[image]"),
+    upload.array("vehicle[images]", 5),
+    normalizeVehicleForm,
     validateVehicle,
     wrapAsync(vehicleController.updateVehicle)
   )

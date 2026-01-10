@@ -16,13 +16,17 @@ class EnhancedMap {
     this.heatmapData = [];
     this.clusterEnabled = options.clusterEnabled !== false;
     this.searchEnabled = options.searchEnabled !== false;
-    
+
+    // Search features
+    this.autocompleteCache = new Map();
+    this.searchHistory = [];
+
     // Real-time location tracking
     this.userLocationMarker = null;
     this.locationWatchId = null;
     this.isTrackingLocation = false;
     this.locationAccuracy = null;
-    
+
     // Interactive map layers
     this.activeLayers = new Set();
     this.layerSources = new Map();
@@ -41,7 +45,7 @@ class EnhancedMap {
     this.railwaysLayerId = null;
     this.aerialLayerId = null;
     this.currentStyle = 'streets';
-    
+
     this.init();
   }
 
@@ -83,7 +87,7 @@ class EnhancedMap {
       this.addGeocoder();
     }
 
-    
+
     // Scale control
     this.map.addControl(new mapboxgl.ScaleControl(), 'bottom-left');
 
@@ -113,7 +117,7 @@ class EnhancedMap {
     }
 
     const locationBtn = document.getElementById('location-btn');
-    
+
     locationBtn.addEventListener('click', () => {
       if (this.isTrackingLocation) {
         this.stopLocationTracking();
@@ -124,7 +128,7 @@ class EnhancedMap {
         if (success) {
           locationBtn.style.color = '#3b82f6';
           locationBtn.title = 'Stop tracking';
-          
+
           // Center map on user location
           this.getCurrentLocation().then(location => {
             this.flyTo(location.coords, 16);
@@ -183,7 +187,7 @@ class EnhancedMap {
       z-index: 1000;
       display: none;
     `;
-    
+
     panel.innerHTML = `
       <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
         <h4 style="margin: 0; font-size: 16px; font-weight: 600;">Map Layers</h4>
@@ -383,9 +387,9 @@ class EnhancedMap {
   toggleLayersPanel() {
     const panel = document.getElementById('layers-panel');
     const isVisible = panel.style.display === 'block';
-    
+
     panel.style.display = isVisible ? 'none' : 'block';
-    
+
     // Update button color
     const btn = document.getElementById('layers-btn');
     btn.style.color = isVisible ? '' : '#007bff';
@@ -406,7 +410,7 @@ class EnhancedMap {
     if (styleMap[style]) {
       this.currentStyle = style;
       this.map.setStyle(styleMap[style]);
-      
+
       // Re-add layers after style change
       this.map.on('style.load', () => {
         this.restoreActiveLayers();
@@ -433,7 +437,7 @@ class EnhancedMap {
 
     // Add traffic layers
     this.trafficLayerId = ['traffic-line', 'traffic-bg'];
-    
+
     this.map.addLayer({
       id: 'traffic-bg',
       type: 'line',
@@ -493,7 +497,7 @@ class EnhancedMap {
 
     // Add transit layers
     this.transitLayerId = ['transit-line', 'transit-station'];
-    
+
     this.map.addLayer({
       id: 'transit-line',
       type: 'line',
@@ -1086,9 +1090,9 @@ class EnhancedMap {
   restoreActiveLayers() {
     // Restore all active layers after style change
     const activeLayersCopy = new Set(this.activeLayers);
-    
+
     this.activeLayers.clear();
-    
+
     activeLayersCopy.forEach(layer => {
       switch (layer) {
         case 'traffic':
@@ -1154,6 +1158,10 @@ class EnhancedMap {
           style="width: 200px; padding: 8px 12px; border: 1px solid #ddd; border-radius: 4px; font-size: 14px;"
         />
         <div id="geocoder-results" style="position: absolute; top: 45px; width: 200px; background: white; border: 1px solid #ddd; border-radius: 4px; max-height: 200px; overflow-y: auto; display: none; z-index: 1000;"></div>
+        <div id="search-suggestions" style="position: absolute; top: 45px; left: 0; width: 250px; background: white; border: 1px solid #ddd; border-radius: 4px; padding: 10px; display: none; z-index: 999; box-shadow: 0 2px 4px rgba(0,0,0,0.1); margin-top: 5px;">
+          <div style="font-size: 13px; color: #666; margin-bottom: 8px; font-weight: 600;">💡 Popular Searches:</div>
+          <div id="suggestion-tags" style="display: flex; flex-wrap: wrap; gap: 5px;"></div>
+        </div>
       </div>
     `;
 
@@ -1164,8 +1172,100 @@ class EnhancedMap {
 
     const input = document.getElementById('geocoder-input');
     const resultsDiv = document.getElementById('geocoder-results');
+    const suggestionsDiv = document.getElementById('search-suggestions');
 
-    input.addEventListener('input', (e) => this.handleGeocoderSearch(e.target.value, resultsDiv));
+    // Show suggestions when input is focused
+    input.addEventListener('focus', () => {
+      this.showPopularSuggestions();
+    });
+
+    input.addEventListener('input', (e) => {
+      this.handleGeocoderSearch(e.target.value, resultsDiv);
+      // Hide popular suggestions when user starts typing results
+      if (suggestionsDiv) {
+        if (e.target.value.length > 0) {
+          suggestionsDiv.style.display = 'none';
+        } else {
+          suggestionsDiv.style.display = 'block';
+        }
+      }
+    });
+
+    // Initialize suggestions when map loads
+    setTimeout(() => {
+      this.showPopularSuggestions();
+    }, 500);
+
+    // Hide suggestions when clicking outside
+    document.addEventListener('click', (e) => {
+      if (!geocoderContainer.contains(e.target)) {
+        const suggestionsDiv = document.getElementById('search-suggestions');
+        const resultsDiv = document.getElementById('geocoder-results');
+        if (suggestionsDiv) suggestionsDiv.style.display = 'none';
+        if (resultsDiv) resultsDiv.style.display = 'none';
+      }
+    });
+  }
+
+  showPopularSuggestions() {
+    const suggestionsDiv = document.getElementById('search-suggestions');
+    const tagsDiv = document.getElementById('suggestion-tags');
+
+    if (!suggestionsDiv || !tagsDiv) return;
+
+    // Always show suggestions
+    suggestionsDiv.style.display = 'block';
+    tagsDiv.innerHTML = '';
+
+    const popularSearches = [
+      { text: 'Mumbai Airport', icon: '✈️' },
+      { text: 'Pune Railway Station', icon: '🚂' },
+      { text: 'Lonavala', icon: '🏔️' },
+      { text: 'Mahabaleshwar', icon: '🕉️' },
+      { text: 'Shirdi', icon: '🛕' },
+      { text: 'Goa Beach', icon: '🏖️' },
+      { text: 'Mumbai Hotels', icon: '🏨' },
+      { text: 'Pune Restaurants', icon: '🍽️' }
+    ];
+
+    popularSearches.forEach(search => {
+      const tag = document.createElement('span');
+      tag.style.cssText = `
+        background: #f0f0f0;
+        border: 1px solid #ddd;
+        border-radius: 15px;
+        padding: 5px 10px;
+        font-size: 12px;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        display: inline-flex;
+        align-items: center;
+        gap: 4px;
+        color: #666;
+        margin: 2px;
+      `;
+
+      tag.innerHTML = `<span style="font-size: 14px;">${search.icon}</span> ${search.text}`;
+
+      tag.addEventListener('click', () => {
+        document.getElementById('geocoder-input').value = search.text;
+        this.handleGeocoderSearch(search.text, document.getElementById('geocoder-results'));
+      });
+
+      tag.addEventListener('mouseenter', () => {
+        tag.style.background = '#e0e0e0';
+        tag.style.borderColor = '#999';
+        tag.style.color = '#333';
+      });
+
+      tag.addEventListener('mouseleave', () => {
+        tag.style.background = '#f0f0f0';
+        tag.style.borderColor = '#ddd';
+        tag.style.color = '#666';
+      });
+
+      tagsDiv.appendChild(tag);
+    });
   }
 
   async handleGeocoderSearch(query, resultsDiv) {
@@ -1198,12 +1298,22 @@ class EnhancedMap {
       });
 
       resultsDiv.style.display = data.features.length > 0 ? 'block' : 'none';
+
+      // Hide popular suggestions when search results are showing
+      const suggestionsDiv = document.getElementById('search-suggestions');
+      if (suggestionsDiv) {
+        if (data.features.length > 0) {
+          suggestionsDiv.style.display = 'none';
+        } else if (query.length === 0) {
+          suggestionsDiv.style.display = 'block';
+        }
+      }
     } catch (error) {
       console.error('Geocoding error:', error);
     }
   }
 
-  
+
   addControlTooltips() {
     // Wait for map to load and controls to be added
     setTimeout(() => {
@@ -1212,7 +1322,7 @@ class EnhancedMap {
       this.addTooltipsToNavigationControls();
       this.addTooltipsToFullscreenControl();
       this.addTooltipsToGeocoder();
-            this.addTooltipsToScaleControl();
+      this.addTooltipsToScaleControl();
     }, 100);
   }
 
@@ -1223,13 +1333,13 @@ class EnhancedMap {
       '<svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" style="display: block;"><path d="M19 13H5v-2h14v2z"/></svg>', // Minus for Zoom Out
       '<svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" style="display: block;"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.42 0-8-3.58-8-8s3.58-8 8-8 8 3.58 8 8-3.58 8-8 8zm0-14c-3.31 0-6 2.69-6 6s2.69 6 6 6 6-2.69 6-6-2.69-6-6-6zm0 10c-2.21 0-4-1.79-4-4s1.79-4 4-4 4 1.79 4 4-1.79 4-4 4z"/></svg>' // Compass for Reset Bearing
     ];
-    
+
     navControls.forEach((button, index) => {
       if (icons[index]) {
         // Clear existing content completely
         button.innerHTML = '';
         button.textContent = '';
-        
+
         // Create SVG element
         const svgContainer = document.createElement('div');
         svgContainer.innerHTML = icons[index];
@@ -1238,10 +1348,10 @@ class EnhancedMap {
         svgContainer.style.justifyContent = 'center';
         svgContainer.style.width = '100%';
         svgContainer.style.height = '100%';
-        
+
         // Add to button
         button.appendChild(svgContainer);
-        
+
         // Force button styles
         button.style.display = 'flex';
         button.style.alignItems = 'center';
@@ -1257,11 +1367,11 @@ class EnhancedMap {
     const fullscreenBtn = document.querySelector('.mapboxgl-ctrl-fullscreen button');
     if (fullscreenBtn) {
       const fullscreenIcon = '<svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" style="display: block;"><path d="M7 14H5v5h5v-2H7v-3zm-2-4h2V7h3V5H5v5zm12 7h-3v2h5v-5h-2v3zM14 5v2h3v3h2V5h-5z"/></svg>';
-      
+
       // Clear existing content completely
       fullscreenBtn.innerHTML = '';
       fullscreenBtn.textContent = '';
-      
+
       // Create SVG element
       const svgContainer = document.createElement('div');
       svgContainer.innerHTML = fullscreenIcon;
@@ -1270,10 +1380,10 @@ class EnhancedMap {
       svgContainer.style.justifyContent = 'center';
       svgContainer.style.width = '100%';
       svgContainer.style.height = '100%';
-      
+
       // Add to button
       fullscreenBtn.appendChild(svgContainer);
-      
+
       // Force button styles
       fullscreenBtn.style.display = 'flex';
       fullscreenBtn.style.alignItems = 'center';
@@ -1287,7 +1397,7 @@ class EnhancedMap {
   addTooltipsToNavigationControls() {
     const navControls = document.querySelectorAll('.mapboxgl-ctrl-nav button');
     const tooltips = ['Zoom In', 'Zoom Out', 'Reset Bearing to North'];
-    
+
     navControls.forEach((button, index) => {
       if (tooltips[index]) {
         this.addTooltipToButton(button, tooltips[index]);
@@ -1309,7 +1419,7 @@ class EnhancedMap {
     }
   }
 
-  
+
   addTooltipsToScaleControl() {
     const scaleControl = document.querySelector('.mapboxgl-ctrl-scale');
     if (scaleControl) {
@@ -1320,7 +1430,7 @@ class EnhancedMap {
   addTooltipToButton(button, tooltipText) {
     // Remove existing title attribute to avoid default tooltip
     button.removeAttribute('title');
-    
+
     // Create custom tooltip
     const tooltip = document.createElement('div');
     tooltip.className = 'map-control-tooltip';
@@ -1364,7 +1474,7 @@ class EnhancedMap {
 
     // Position button relatively
     button.style.position = 'relative';
-    
+
     // Add tooltip and arrow to button
     button.appendChild(tooltip);
     button.appendChild(arrow);
@@ -1381,14 +1491,14 @@ class EnhancedMap {
     });
   }
 
-  
+
   calculateDistance(lat1, lon1, lat2, lon2) {
     const R = 6371; // Earth's radius in km
     const dLat = (lat2 - lat1) * Math.PI / 180;
     const dLon = (lon2 - lon1) * Math.PI / 180;
     const a = Math.sin(dLat / 2) * Math.sin(dLat / 2) +
-              Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) *
-              Math.sin(dLon / 2) * Math.sin(dLon / 2);
+      Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) *
+      Math.sin(dLon / 2) * Math.sin(dLon / 2);
     const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
     return R * c;
   }
@@ -1412,12 +1522,18 @@ class EnhancedMap {
       title = '',
       description = '',
       icon = null,
+      customElement = null, // New option for fully custom DOM elements
       popup = true,
-      draggable = false
+      draggable = false,
+      offset = null // [x, y] offset from center
     } = options;
 
     let markerEl = null;
-    if (icon) {
+
+    if (customElement) {
+      markerEl = customElement;
+    } else if (icon && icon !== 'home' && icon !== 'user') {
+      // Keep support for URL icons if they aren't our special keywords
       markerEl = document.createElement('div');
       markerEl.style.backgroundImage = `url('${icon}')`;
       markerEl.style.width = '32px';
@@ -1426,7 +1542,15 @@ class EnhancedMap {
       markerEl.style.backgroundRepeat = 'no-repeat';
     }
 
-    const marker = new mapboxgl.Marker(markerEl ? markerEl : { color }, { draggable })
+    // Construct Mapbox Marker options properly
+    const markerOptions = { draggable };
+    if (markerEl) {
+      markerOptions.element = markerEl;
+    } else {
+      markerOptions.color = color;
+    }
+
+    const marker = new mapboxgl.Marker(markerOptions)
       .setLngLat(coords);
 
     if (popup && (title || description)) {
@@ -1470,31 +1594,55 @@ class EnhancedMap {
         return;
       }
 
-      // Get route from Mapbox Directions API
+      // Validate each coordinate pair
+      for (let i = 0; i < coords.length; i++) {
+        const [lng, lat] = coords[i];
+        if (typeof lng !== 'number' || typeof lat !== 'number' ||
+          lng < -180 || lng > 180 || lat < -90 || lat > 90) {
+          console.error(`Invalid coordinate at index ${i}:`, coords[i]);
+          return;
+        }
+      }
+
+      // Ensure transport mode is valid
+      const validTransportModes = ['driving', 'walking', 'cycling'];
+      const mode = validTransportModes.includes(transportMode) ? transportMode : 'driving';
+
+      // Format coordinates correctly (longitude,latitude)
       const coordsStr = coords.map(c => `${c[0]},${c[1]}`).join(';');
-      const apiUrl = `https://api.mapbox.com/directions/v5/mapbox/${transportMode}/${coordsStr}?geometries=geojson&access_token=${this.mapToken}`;
-      
+      const apiUrl = `https://api.mapbox.com/directions/v5/mapbox/${mode}/${coordsStr}?geometries=geojson&access_token=${this.mapToken}`;
+
       console.log('Requesting route:', apiUrl);
-      
+      console.log('Coordinates:', coords);
+
       const response = await fetch(apiUrl);
-      
+
       if (!response.ok) {
         console.error('API request failed:', response.status, response.statusText);
+        console.error('Request URL:', apiUrl);
+
+        // Try to get more error details
+        const errorText = await response.text();
+        console.error('Error response:', errorText);
+
+        // Create fallback straight-line route
+        console.log('Creating fallback straight-line route');
+        this.createFallbackRoute(id, coords, color, width, animate);
         return;
       }
-      
+
       const data = await response.json();
 
       if (!data.routes || data.routes.length === 0) {
         console.error('No route found - API response:', data);
         console.log('Creating fallback straight-line route');
-        
+
         // Create fallback straight-line route
         const routeGeometry = {
           type: 'LineString',
           coordinates: coords
         };
-        
+
         this.addRouteGeometry(id, routeGeometry, { color, width, animate });
         return;
       }
@@ -1789,8 +1937,8 @@ class EnhancedMap {
             color: '#3b82f6',
             scale: 1.2
           })
-          .setLngLat(coords)
-          .addTo(this.map);
+            .setLngLat(coords)
+            .addTo(this.map);
 
           // Add accuracy circle
           this.addAccuracyCircle(coords, accuracy);
@@ -1901,9 +2049,64 @@ class EnhancedMap {
       this.map.remove();
     }
   }
+
+  // Create fallback straight-line route when API fails
+  createFallbackRoute(id, coords, color, width, animate) {
+    try {
+      const routeGeometry = {
+        type: 'LineString',
+        coordinates: coords
+      };
+
+      const routeData = {
+        type: 'Feature',
+        properties: {
+          color: color,
+          width: width
+        },
+        geometry: routeGeometry
+      };
+
+      // Remove existing route if it exists
+      if (this.map.getLayer(id)) {
+        this.map.removeLayer(id);
+      }
+      if (this.map.getSource(id)) {
+        this.map.removeSource(id);
+      }
+
+      // Add the route source and layer
+      this.map.addSource(id, {
+        type: 'geojson',
+        data: routeData
+      });
+
+      this.map.addLayer({
+        id: id,
+        type: 'line',
+        source: id,
+        layout: {
+          'line-join': 'round',
+          'line-cap': 'round'
+        },
+        paint: {
+          'line-color': color,
+          'line-width': width,
+          'line-opacity': 0.8
+        }
+      });
+
+      console.log('Fallback route created successfully');
+    } catch (error) {
+      console.error('Error creating fallback route:', error);
+    }
+  }
 }
 
 // Export for use in other scripts
 if (typeof module !== 'undefined' && module.exports) {
   module.exports = EnhancedMap;
 }
+
+// Make available globally for browser
+window.EnhancedMap = EnhancedMap;

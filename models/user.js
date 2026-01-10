@@ -81,7 +81,31 @@ const userSchema = new Schema({
             }
         }
     },
-    lastActive: Date
+    lastActive: Date,
+
+    // Host profile fields
+    hostingSince: {
+        type: Date,
+        default: Date.now
+    },
+    responseRate: {
+        type: Number,
+        min: 0,
+        max: 100,
+        default: 100
+    },
+    responseTime: {
+        type: String,
+        default: 'within a few hours'
+    },
+    verifiedHost: {
+        type: Boolean,
+        default: false
+    },
+    wishlist: [{
+        type: Schema.Types.ObjectId,
+        ref: 'Listing'
+    }]
 }, {
     timestamps: true,
     toJSON: { virtuals: true },
@@ -89,7 +113,7 @@ const userSchema = new Schema({
 });
 
 // Virtual for full name
-userSchema.virtual('fullName').get(function() {
+userSchema.virtual('fullName').get(function () {
     return `${this.firstName || ''} ${this.lastName || ''}`.trim() || this.username;
 });
 
@@ -107,6 +131,21 @@ userSchema.virtual('reviews', {
     foreignField: 'author'
 });
 
+// Virtual for user's listings (as host)
+userSchema.virtual('listings', {
+    ref: 'Listing',
+    localField: '_id',
+    foreignField: 'owner'
+});
+
+// Virtual for properties count
+userSchema.virtual('propertiesCount', {
+    ref: 'Listing',
+    localField: '_id',
+    foreignField: 'owner',
+    count: true
+});
+
 // Add passport-local-mongoose to handle password hashing and authentication
 userSchema.plugin(passportLocalMongoose, {
     usernameField: 'email',
@@ -114,7 +153,7 @@ userSchema.plugin(passportLocalMongoose, {
 });
 
 // Method to get public profile data
-userSchema.methods.getPublicProfile = function() {
+userSchema.methods.getPublicProfile = function () {
     const user = this.toObject();
     delete user.hash;
     delete user.salt;
@@ -129,7 +168,7 @@ userSchema.methods.getPublicProfile = function() {
 };
 
 // Pre-save hook to ensure username is set
-userSchema.pre('save', function(next) {
+userSchema.pre('save', function (next) {
     if (!this.username && this.email) {
         this.username = this.email.split('@')[0];
     }

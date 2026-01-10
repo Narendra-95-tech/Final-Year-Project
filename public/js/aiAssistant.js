@@ -7,8 +7,8 @@ class AIAssistant {
         this.messageInput = null;
         this.sendButton = null;
         this.messages = [];
-        this.mapboxAccessToken = 'YOUR_MAPBOX_ACCESS_TOKEN'; // Replace with your actual Mapbox token
-        
+        this.mapToken = document.querySelector('meta[name="map-token"]')?.content || '';
+
         this.initializeUI();
         this.setupEventListeners();
     }
@@ -17,59 +17,86 @@ class AIAssistant {
         // Create the main container
         this.container = document.createElement('div');
         this.container.id = 'ai-assistant';
-        this.container.className = 'ai-assistant';
+        this.container.className = 'ai-assistant glass-effect';
         this.container.style.display = 'none';
-        
+
         // Create the header
         const header = document.createElement('div');
         header.className = 'ai-assistant-header';
         header.innerHTML = `
-            <h3>Travel Assistant</h3>
-            <button class="ai-assistant-close" aria-label="Close">
-                <i class="fas fa-times"></i>
-            </button>
+            <div class="ai-avatar">
+                <i class="fas fa-robot"></i>
+            </div>
+            <div class="header-content">
+                <h3>WanderAssistant</h3>
+                <div class="ai-status">
+                    <span class="status-dot"></span> Online
+                </div>
+            </div>
+            <div class="header-actions">
+                <button class="ai-header-btn" title="Clear Chat" id="ai-clear-chat">
+                    <i class="fas fa-trash-alt"></i>
+                </button>
+                <button class="ai-assistant-close" aria-label="Close">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
         `;
-        
+
         // Create the chat container
         this.chatContainer = document.createElement('div');
-        this.chatContainer.className = 'ai-assistant-chat';
-        
+        this.chatContainer.className = 'ai-assistant-messages';
+
         // Create the input area
-        const inputContainer = document.createElement('div');
-        inputContainer.className = 'ai-assistant-input-container';
-        
+        const inputArea = document.createElement('div');
+        inputArea.className = 'ai-assistant-input';
+
+        const inputGroup = document.createElement('div');
+        inputGroup.className = 'input-group';
+
         this.messageInput = document.createElement('input');
         this.messageInput.type = 'text';
-        this.messageInput.placeholder = 'Ask me anything about your trip...';
-        this.messageInput.className = 'ai-assistant-input';
-        
+        this.messageInput.placeholder = 'Ask anything...';
+        this.messageInput.className = 'ai-input-field';
+
         this.sendButton = document.createElement('button');
-        this.sendButton.className = 'ai-assistant-send';
+        this.sendButton.className = 'ai-send-btn';
         this.sendButton.innerHTML = '<i class="fas fa-paper-plane"></i>';
-        
-        inputContainer.appendChild(this.messageInput);
-        inputContainer.appendChild(this.sendButton);
-        
+
+        inputGroup.appendChild(this.messageInput);
+        inputGroup.appendChild(this.sendButton);
+        inputArea.appendChild(inputGroup);
+
         // Assemble the assistant
         this.container.appendChild(header);
         this.container.appendChild(this.chatContainer);
-        this.container.appendChild(inputContainer);
-        
+        this.container.appendChild(inputArea);
+
         // Add to the page
         document.body.appendChild(this.container);
-        
-        // Add welcome message
-        this.addMessage('assistant', 'Hello! I\'m your AI travel assistant. How can I help you plan your trip today?');
+
+        // Add welcome message if empty
+        if (this.messages.length === 0) {
+            this.addMessage('assistant', 'Namaste! I am WanderAssistant. 🌍\n\nI can help you find cozy stays, rugged wheels, or the best Dhabas for your journey. What\'s on your mind?');
+        }
     }
-    
+
     setupEventListeners() {
         // Close button
         const closeButton = this.container.querySelector('.ai-assistant-close');
         closeButton.addEventListener('click', () => this.toggle(false));
-        
+
+        // Clear chat
+        const clearBtn = this.container.querySelector('#ai-clear-chat');
+        clearBtn.addEventListener('click', () => {
+            this.chatContainer.innerHTML = '';
+            this.messages = [];
+            this.addMessage('assistant', 'Chat cleared! How else can I help?');
+        });
+
         // Send message on button click
         this.sendButton.addEventListener('click', () => this.handleSendMessage());
-        
+
         // Send message on Enter key
         this.messageInput.addEventListener('keypress', (e) => {
             if (e.key === 'Enter') {
@@ -77,157 +104,185 @@ class AIAssistant {
             }
         });
     }
-    
+
     toggle(show = !this.isOpen) {
         this.isOpen = show;
-        
+
         if (this.isOpen) {
             this.container.style.display = 'flex';
-            setTimeout(() => {
-                this.container.style.opacity = '1';
-                this.container.style.visibility = 'visible';
-                this.container.style.transform = 'translateY(0) scale(1)';
-            }, 10);
+            // Force reflow
+            this.container.offsetHeight;
+            this.container.classList.add('visible');
             this.messageInput.focus();
         } else {
-            this.container.style.opacity = '0';
-            this.container.style.transform = 'translateY(20px) scale(0.95)';
+            this.container.classList.remove('visible');
             setTimeout(() => {
-                this.container.style.display = 'none';
+                if (!this.isOpen) this.container.style.display = 'none';
             }, 300);
         }
-        
+
         // Toggle the active class on the floating button
         const floatButton = document.getElementById('ai-assistant-float');
         if (floatButton) {
             floatButton.classList.toggle('active', this.isOpen);
         }
     }
-    
-    addMessage(sender, text) {
-        const message = document.createElement('div');
-        message.className = `ai-message ${sender}-message`;
-        message.innerHTML = `
-            <div class="ai-message-content">
-                <div class="ai-message-text">${text}</div>
-            </div>
-        `;
-        
-        this.chatContainer.appendChild(message);
-        this.chatContainer.scrollTop = this.chatContainer.scrollHeight;
-        
-        // Add to messages array
-        this.messages.push({ sender, text });
-    }
-    
+
     async handleSendMessage() {
-        const message = this.messageInput.value.trim();
-        if (!message) return;
-        
-        // Add user message to chat
-        this.addMessage('user', message);
+        const messageText = this.messageInput.value.trim();
+        if (!messageText) return;
+
+        const userId = document.querySelector('meta[name="user-id"]')?.content || 'anonymous';
+
+        this.addMessage('user', messageText);
         this.messageInput.value = '';
-        
-        // Show typing indicator
-        const typingIndicator = document.createElement('div');
-        typingIndicator.className = 'ai-message assistant-message ai-typing';
-        typingIndicator.innerHTML = `
-            <div class="ai-message-content">
-                <div class="ai-message-text">Typing...</div>
-            </div>
-        `;
-        this.chatContainer.appendChild(typingIndicator);
-        this.chatContainer.scrollTop = this.chatContainer.scrollHeight;
-        
+
+        this.showTypingIndicator();
+
         try {
-            // Simulate API call (replace with actual API call)
-            const response = await this.getAIResponse(message);
-            
-            // Remove typing indicator
-            this.chatContainer.removeChild(typingIndicator);
-            
-            // Add assistant's response
-            this.addMessage('assistant', response);
-            
-        } catch (error) {
-            console.error('Error getting AI response:', error);
-            this.chatContainer.removeChild(typingIndicator);
-            this.addMessage('assistant', 'Sorry, I encountered an error. Please try again later.');
-        }
-    }
-    
-    async getAIResponse(message) {
-        // This is a placeholder - replace with actual API call to your backend
-        // which should then call the AI service (like OpenAI, etc.)
-        
-        // Simulate API delay
-        await new Promise(resolve => setTimeout(resolve, 1000));
-        
-        // Simple response logic - replace with actual AI integration
-        const lowerMessage = message.toLowerCase();
-        
-        if (lowerMessage.includes('hello') || lowerMessage.includes('hi') || lowerMessage.includes('hey')) {
-            return "Hello! How can I assist you with your travel plans today?";
-        } else if (lowerMessage.includes('help')) {
-            return "I can help you find places to visit, book vehicles, suggest restaurants, and plan your itinerary. What would you like to know?";
-        } else if (lowerMessage.includes('thank')) {
-            return "You're welcome! Is there anything else I can help you with?";
-        } else {
-            return "I'm your travel assistant. I can help you find places to visit, book vehicles, and plan your itinerary. What would you like to know?";
-        }
-    }
-}
-
-// Initialize the AI Assistant when the DOM is fully loaded
-document.addEventListener('DOMContentLoaded', () => {
-    // Check if the AI Assistant is enabled for this page
-    const aiAssistantEnabled = !document.body.hasAttribute('data-disable-ai-assistant');
-    
-    if (aiAssistantEnabled) {
-        // Add the AI Assistant styles
-        const styleLink = document.createElement('link');
-        styleLink.rel = 'stylesheet';
-        styleLink.href = '/css/ai-assistant.css';
-
-        // Create the floating assistant button
-        const floatingButton = document.createElement('div');
-        floatingButton.id = 'ai-assistant-float';
-        floatingButton.innerHTML = '<i class="fas fa-comment-dots"></i>';
-        floatingButton.onclick = () => window.toggleAIAssistant();
-
-        // Add the floating button to the page
-        document.body.appendChild(floatingButton);
-
-        styleLink.onload = () => {
-            // Initialize the AI Assistant after styles are loaded
-            window.wanderAI = new AIAssistant();
-
-            // Expose a global function to toggle the assistant
-            window.toggleAIAssistant = (show = !(window.wanderAI && window.wanderAI.isOpen)) => {
-                if (window.wanderAI) {
-                    window.wanderAI.toggle(show);
-                    // Toggle the active class on the floating button
-                    document.getElementById('ai-assistant-float').classList.toggle('active', show);
-                }
+            const context = {
+                currentPath: window.location.pathname,
+                platform: 'WanderLust',
+                timestamp: new Date().toISOString()
             };
 
-            console.log('WanderAI Assistant initialized');
-            // Removed the auto-open line that was here
-        };
+            if (window.socket && window.socket.connected) {
+                window.socket.emit('ai_message', {
+                    message: messageText,
+                    userId: userId,
+                    context: context
+                });
 
-        document.head.appendChild(styleLink);
+                window.socket.once('ai_response', (data) => {
+                    this.hideTypingIndicator();
+                    if (data.reply) {
+                        this.addMessage('assistant', data.reply, data.suggestions);
+                    }
+                });
+            } else {
+                // Fallback to REST
+                const response = await axios.post('/ai/assistant/message', {
+                    message: messageText,
+                    userId: userId,
+                    context: context
+                });
 
-        // Add Font Awesome if not already loaded
-        if (!document.querySelector('link[href*="font-awesome"]') && !document.querySelector('link[href*="fontawesome"]')) {
-            const fontAwesome = document.createElement('link');
-            fontAwesome.rel = 'stylesheet';
-            fontAwesome.href = 'https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css';
-            document.head.appendChild(fontAwesome);
+                this.hideTypingIndicator();
+                if (response.data.reply) {
+                    this.addMessage('assistant', response.data.reply, response.data.suggestions);
+                }
+            }
+        } catch (error) {
+            console.error('AI Error:', error);
+            this.hideTypingIndicator();
+            this.addMessage('assistant', 'I encountered a small hiccup. Could you try asking that again?');
         }
     }
-});
 
-// Export the AIAssistant class for module usage
-if (typeof module !== 'undefined' && module.exports) {
-    module.exports = AIAssistant;
+    addMessage(sender, text, suggestions = []) {
+        const messageDiv = document.createElement('div');
+        messageDiv.className = `message ${sender}-message fade-in`;
+
+        const textDiv = document.createElement('div');
+        textDiv.className = 'message-text';
+
+        messageDiv.appendChild(textDiv);
+        this.chatContainer.appendChild(messageDiv);
+
+        if (sender === 'assistant') {
+            this.typeMessage(textDiv, text, () => {
+                if (suggestions && suggestions.length > 0) {
+                    this.showSuggestions(suggestions);
+                }
+                this.scrollToBottom();
+            });
+        } else {
+            textDiv.textContent = text;
+            this.scrollToBottom();
+        }
+
+        this.messages.push({ sender, text });
+    }
+
+    typeMessage(element, text, callback) {
+        let i = 0;
+        const speed = 15;
+
+        const typing = () => {
+            if (i < text.length) {
+                element.textContent += text.charAt(i);
+                i++;
+                this.scrollToBottom();
+                setTimeout(typing, speed);
+            } else if (callback) {
+                callback();
+            }
+        };
+
+        typing();
+    }
+
+    showSuggestions(suggestions) {
+        const optionsDiv = document.createElement('div');
+        optionsDiv.className = 'ai-assistant-options fade-in';
+
+        suggestions.forEach(suggestion => {
+            const btn = document.createElement('button');
+            btn.className = 'ai-option-btn';
+            btn.innerHTML = suggestion.text;
+            btn.onclick = () => {
+                // Remove emoji/prefix for the actual query if needed, 
+                // but usually the AI handles the full text fine.
+                this.messageInput.value = suggestion.text;
+                this.handleSendMessage();
+            };
+            optionsDiv.appendChild(btn);
+        });
+
+        this.chatContainer.appendChild(optionsDiv);
+        this.scrollToBottom();
+    }
+
+    showTypingIndicator() {
+        this.hideTypingIndicator();
+        const typingIndicator = document.createElement('div');
+        typingIndicator.id = 'ai-typing-indicator';
+        typingIndicator.className = 'typing-indicator fade-in';
+        typingIndicator.innerHTML = `
+            <span class="typing-dot"></span>
+            <span class="typing-dot"></span>
+            <span class="typing-dot"></span>
+        `;
+        this.chatContainer.appendChild(typingIndicator);
+        this.scrollToBottom();
+    }
+
+    hideTypingIndicator() {
+        const indicator = document.getElementById('ai-typing-indicator');
+        if (indicator) indicator.remove();
+    }
+
+    scrollToBottom() {
+        this.chatContainer.scrollTop = this.chatContainer.scrollHeight;
+    }
 }
+
+// Initialization
+document.addEventListener('DOMContentLoaded', () => {
+    const aiDisabled = document.body.hasAttribute('data-disable-ai');
+    if (aiDisabled) return;
+
+    // Floating Button
+    const floatBtn = document.createElement('button');
+    floatBtn.id = 'ai-assistant-float';
+    floatBtn.className = 'ai-assistant-toggle';
+    floatBtn.innerHTML = '<i class="fas fa-comment-dots"></i>';
+    floatBtn.title = 'Chat with WanderAssistant';
+    floatBtn.onclick = () => window.toggleAIAssistant();
+    document.body.appendChild(floatBtn);
+
+    window.wanderAI = new AIAssistant();
+    window.toggleAIAssistant = (show) => window.wanderAI.toggle(show);
+
+    console.log('✅ WanderAssistant initialized');
+});

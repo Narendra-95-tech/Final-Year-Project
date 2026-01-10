@@ -170,7 +170,7 @@ module.exports.createDhaba = async (req, res) => {
 
 module.exports.showDhaba = async (req, res) => {
   const dhaba = await Dhaba.findById(req.params.id)
-    .populate({path: "reviews", populate:{path:"author"}})
+    .populate({ path: "reviews", populate: { path: "author" } })
     .populate("owner");
   if (!dhaba) {
     req.flash("error", "Dhaba not found");

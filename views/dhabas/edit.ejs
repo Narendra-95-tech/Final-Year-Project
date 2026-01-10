@@ -1,101 +1,234 @@
 <% layout("/layouts/boilerplate") -%>
 
-<div class="row justify-content-center">
-  <div class="col-md-8">
-    <h3 class="mb-4">🍽️ Edit Dhaba</h3>
-    <form action="/dhabas/<%= dhaba._id %>?_method=PUT" method="POST" enctype="multipart/form-data">
+  <div class="row justify-content-center">
+    <div class="col-md-9">
+      <h3 class="mb-4">🍽️ Edit Dhaba: <%= dhaba.title %>
+      </h3>
+      <form action="/dhabas/<%= dhaba._id %>?_method=PUT" method="POST" enctype="multipart/form-data" novalidate
+        class="needs-validation">
 
-      <div class="card mb-4">
-        <div class="card-header bg-primary text-white">
-          <h5 class="mb-0">📋 Basic Information</h5>
-        </div>
-        <div class="card-body">
-          <div class="row g-3">
-            <div class="col-12">
-              <label class="form-label">Dhaba Name *</label>
-              <input class="form-control" type="text" name="dhaba[name]" value="<%= dhaba.name %>" required />
-            </div>
-            <div class="col-12">
-              <label class="form-label">Description</label>
-              <textarea class="form-control" name="dhaba[description]" rows="3"><%= dhaba.description || '' %></textarea>
+        <!-- Basic Information -->
+        <div class="card mb-4 shadow-sm">
+          <div class="card-header bg-primary text-white">
+            <h5 class="mb-0">📋 Basic Information</h5>
+          </div>
+          <div class="card-body">
+            <div class="row g-3">
+              <div class="col-12">
+                <label class="form-label">Dhaba Name *</label>
+                <input class="form-control" type="text" name="dhaba[title]" value="<%= dhaba.title %>" required />
+                <div class="invalid-feedback">Please enter a dhaba name.</div>
+              </div>
+              <div class="col-12">
+                <label class="form-label">Description</label>
+                <textarea class="form-control" name="dhaba[description]"
+                  rows="3"><%= dhaba.description || '' %></textarea>
+              </div>
             </div>
           </div>
         </div>
-      </div>
 
-      <div class="card mb-4">
-        <div class="card-header bg-success text-white">
-          <h5 class="mb-0">🍛 Food Details</h5>
-        </div>
-        <div class="card-body">
-          <div class="row g-3">
-            <div class="col-md-6">
-              <label class="form-label">Cuisine Type *</label>
-              <input class="form-control" type="text" name="dhaba[cuisine]" value="<%= dhaba.cuisine %>" required />
-            </div>
-            <div class="col-md-6">
-              <label class="form-label">Price Range *</label>
-              <select class="form-select" name="dhaba[priceRange]" required>
-                <option value="">Select Price Range</option>
-                <option value="₹100-300" <%= dhaba.priceRange === '₹100-300' ? 'selected' : '' %>>₹100-300 - Budget Friendly</option>
-                <option value="₹300-500" <%= dhaba.priceRange === '₹300-500' ? 'selected' : '' %>>₹300-500 - Moderate</option>
-                <option value="₹500-800" <%= dhaba.priceRange === '₹500-800' ? 'selected' : '' %>>₹500-800 - Expensive</option>
-                <option value="₹800+" <%= dhaba.priceRange === '₹800+' ? 'selected' : '' %>>₹800+ - Very Expensive</option>
-              </select>
+        <!-- Food & Pricing Details -->
+        <div class="card mb-4 shadow-sm">
+          <div class="card-header bg-success text-white">
+            <h5 class="mb-0">🍛 Food & Pricing</h5>
+          </div>
+          <div class="card-body">
+            <div class="row g-3">
+              <div class="col-md-6">
+                <label class="form-label">Cuisine Type *</label>
+                <select name="dhaba[cuisine]" class="form-select" required>
+                  <option value="">Select Cuisine</option>
+                  <% ['North Indian', 'South Indian' , 'Punjabi' , 'Chinese' , 'Multi-Cuisine' , 'Street Food'
+                    , 'Rajasthani' , 'Gujarati' , 'Bengali' , 'Continental' ].forEach(cuisine=> { %>
+                    <option value="<%= cuisine %>" <%=dhaba.cuisine===cuisine ? 'selected' : '' %>><%= cuisine %>
+                    </option>
+                    <% }) %>
+                </select>
+                <div class="invalid-feedback">Please select a cuisine type.</div>
+              </div>
+              <div class="col-md-6">
+                <label class="form-label">Category *</label>
+                <select name="dhaba[category]" class="form-select" required>
+                  <option value="">Select Category</option>
+                  <% ['Fine Dining', 'Casual Dining' , 'Fast Food' , 'Cafe' , 'Food Truck' , 'Buffet'
+                    , 'Family Restaurant' ].forEach(cat=> { %>
+                    <option value="<%= cat %>" <%=dhaba.category===cat ? 'selected' : '' %>><%= cat %>
+                    </option>
+                    <% }) %>
+                </select>
+                <div class="invalid-feedback">Please select a category.</div>
+              </div>
+              <div class="col-md-6">
+                <label class="form-label">Average Price per Person (₹) *</label>
+                <input name="dhaba[price]" type="number" class="form-control" min="0" value="<%= dhaba.price %>"
+                  required />
+                <div class="invalid-feedback">Please enter a valid price.</div>
+              </div>
+              <div class="col-md-6">
+                <label class="form-label">Rating (1-5)</label>
+                <input name="dhaba[rating]" type="number" class="form-control" min="1" max="5" step="0.1"
+                  value="<%= dhaba.rating %>" />
+              </div>
             </div>
           </div>
         </div>
-      </div>
 
-      <div class="card mb-4">
-        <div class="card-header bg-info text-white">
-          <h5 class="mb-0">📍 Location</h5>
-        </div>
-        <div class="card-body">
-          <div class="row g-3">
-            <div class="col-12">
-              <label class="form-label">Location *</label>
-              <input class="form-control" type="text" name="dhaba[location]" value="<%= dhaba.location %>" required />
-            </div>
-            <div class="col-md-6">
-              <label class="form-label">Current Rating</label>
-              <input class="form-control" type="number" name="dhaba[rating]" min="1" max="5" step="0.1" value="<%= dhaba.rating || 4.0 %>" />
+        <!-- Location Details -->
+        <div class="card mb-4 shadow-sm">
+          <div class="card-header bg-info text-white">
+            <h5 class="mb-0">📍 Location</h5>
+          </div>
+          <div class="card-body">
+            <div class="row g-3">
+              <div class="col-md-6">
+                <label class="form-label">Location *</label>
+                <input class="form-control" type="text" name="dhaba[location]" value="<%= dhaba.location %>" required />
+                <div class="invalid-feedback">Please enter a location.</div>
+              </div>
+              <div class="col-md-6">
+                <label class="form-label">Country *</label>
+                <input class="form-control" type="text" name="dhaba[country]" value="<%= dhaba.country || 'India' %>"
+                  required />
+                <div class="invalid-feedback">Please enter a country.</div>
+              </div>
             </div>
           </div>
         </div>
-      </div>
 
-      <div class="card mb-4">
-        <div class="card-header bg-warning text-dark">
-          <h5 class="mb-0">📷 Image</h5>
-        </div>
-        <div class="card-body">
-          <div class="row g-3">
-            <div class="col-12">
-              <% if (dhaba.image && dhaba.image.url) { %>
-                <div class="mb-3">
-                  <label class="form-label">Current Image</label>
-                  <img src="<%= dhaba.image.url %>" alt="<%= dhaba.name %>" class="img-thumbnail" style="max-width: 200px;" />
+        <!-- Contact & Hours -->
+        <div class="card mb-4 shadow-sm">
+          <div class="card-header bg-dark text-white">
+            <h5 class="mb-0">📞 Contact & Operating Hours</h5>
+          </div>
+          <div class="card-body">
+            <div class="row g-3">
+              <div class="col-md-6">
+                <label class="form-label">Phone Number *</label>
+                <input name="dhaba[phone]" type="tel" class="form-control" value="<%= dhaba.phone %>" required />
+                <div class="invalid-feedback">Please enter a phone number.</div>
+              </div>
+              <div class="col-md-6">
+                <label class="form-label">Email (optional)</label>
+                <input name="dhaba[email]" type="email" class="form-control" value="<%= dhaba.email %>" />
+              </div>
+              <div class="col-md-6">
+                <label class="form-label">Opening Time *</label>
+                <input name="dhaba[operatingHours][opens]" type="time" class="form-control"
+                  value="<%= dhaba.operatingHours?.opens %>" required />
+              </div>
+              <div class="col-md-6">
+                <label class="form-label">Closing Time *</label>
+                <input name="dhaba[operatingHours][closes]" type="time" class="form-control"
+                  value="<%= dhaba.operatingHours?.closes %>" required />
+              </div>
+              <div class="col-12">
+                <div class="form-check">
+                  <input class="form-check-input" type="checkbox" name="dhaba[operatingHours][isOpen24Hours]"
+                    value="true" id="isOpen24Hours" <%=dhaba.operatingHours?.isOpen24Hours ? 'checked' : '' %>>
+                  <label class="form-check-label" for="isOpen24Hours">Open 24 Hours</label>
                 </div>
-              <% } %>
-              <label class="form-label">Replace Image (optional)</label>
-              <input class="form-control" type="file" name="dhaba[image]" accept="image/*" />
-              <small class="form-text text-muted">Leave empty to keep current image</small>
+              </div>
             </div>
           </div>
         </div>
-      </div>
 
-      <div class="card mb-4">
-        <div class="card-body text-center">
-          <button class="btn btn-primary btn-lg px-5" type="submit">
-            <i class="fa fa-save"></i> Update Dhaba
-          </button>
-          <a class="btn btn-outline-secondary btn-lg px-5 ms-2" href="/dhabas/<%= dhaba._id %>">
-            <i class="fa fa-times"></i> Cancel
-          </a>
+        <!-- Images Section -->
+        <div class="card mb-4 shadow-sm border-warning">
+          <div class="card-header bg-warning text-dark">
+            <h5 class="mb-0">📷 Media Gallery</h5>
+          </div>
+          <div class="card-body">
+            <div class="row g-3">
+              <div class="col-12">
+                <% if (dhaba.image && dhaba.image.length> 0) { %>
+                  <div class="mb-3">
+                    <label class="form-label fw-bold">Current Photos</label>
+                    <div class="d-flex gap-3 flex-wrap p-2 bg-light rounded border">
+                      <% dhaba.image.forEach((img, i)=> { %>
+                        <div class="position-relative text-center">
+                          <img src="<%= img.url %>" alt="Image <%= i+1 %>" class="img-thumbnail"
+                            style="width: 120px; height: 120px; object-fit: cover;" />
+                          <div class="form-check mt-2">
+                            <input class="form-check-input" type="checkbox" name="deleteImages[]"
+                              value="<%= img.filename %>" id="image-<%= i %>">
+                            <label class="form-check-label text-danger small fw-bold"
+                              for="image-<%= i %>">DELETE</label>
+                          </div>
+                        </div>
+                        <% }) %>
+                    </div>
+                  </div>
+                  <% } %>
+                    <div class="mt-3">
+                      <label class="form-label fw-bold">Add New Images</label>
+                      <input class="form-control" type="file" name="dhaba[image]" accept="image/*" multiple />
+                      <small class="form-text text-muted">Upload more photos to enhance your dhaba's profile.</small>
+                    </div>
+              </div>
+            </div>
+          </div>
         </div>
-      </div>
-    </form>
+
+        <!-- Facilities & Specialties -->
+        <div class="card mb-4 shadow-sm">
+          <div class="card-header bg-secondary text-white">
+            <h5 class="mb-0">🥗 Options & Facilities</h5>
+          </div>
+          <div class="card-body">
+            <div class="row g-3">
+              <div class="col-md-6">
+                <div class="form-check">
+                  <input class="form-check-input" type="checkbox" name="dhaba[isVegetarian]" value="true"
+                    id="isVegetarian" <%=dhaba.isVegetarian ? 'checked' : '' %>>
+                  <label class="form-check-label" for="isVegetarian">Vegetarian Options</label>
+                </div>
+              </div>
+              <div class="col-md-6">
+                <div class="form-check">
+                  <input class="form-check-input" type="checkbox" name="dhaba[isVegan]" value="true" id="isVegan"
+                    <%=dhaba.isVegan ? 'checked' : '' %>>
+                  <label class="form-check-label" for="isVegan">Vegan Options</label>
+                </div>
+              </div>
+              <div class="col-12">
+                <label class="form-label">Specialties (comma separated)</label>
+                <input name="dhaba[specialties]" type="text" class="form-control"
+                  value="<%= dhaba.specialties?.join(', ') %>" placeholder="Dal Makhani, Butter Chicken, etc." />
+              </div>
+              <div class="col-12">
+                <label class="form-label">Facilities</label>
+                <div class="row g-2">
+                  <% ['AC', 'Parking' , 'WiFi' , 'Outdoor Seating' , 'Card Payment' , 'Home Delivery' , 'Family Section'
+                    , 'Live Music' ].forEach(facility=> { %>
+                    <div class="col-sm-4 col-md-3">
+                      <div class="form-check">
+                        <input class="form-check-input" type="checkbox" name="dhaba[facilities]" value="<%= facility %>"
+                          id="<%= facility.replace(/\s+/g, '') %>" <%=dhaba.facilities?.includes(facility) ? 'checked'
+                          : '' %>>
+                        <label class="form-check-label small" for="<%= facility.replace(/\s+/g, '') %>">
+                          <%= facility %>
+                        </label>
+                      </div>
+                    </div>
+                    <% }) %>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Form Actions -->
+        <div class="card mb-5 shadow-sm">
+          <div class="card-body d-flex justify-content-center gap-3">
+            <button class="btn btn-primary btn-lg px-5 shadow-sm" type="submit">
+              <i class="fas fa-save me-2"></i>Save Changes
+            </button>
+            <a class="btn btn-outline-secondary btn-lg px-5" href="/dhabas/<%= dhaba._id %>">
+              <i class="fas fa-times me-2"></i>Cancel
+            </a>
+          </div>
+        </div>
+      </form>
+    </div>
   </div>
-</div>

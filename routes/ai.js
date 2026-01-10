@@ -22,20 +22,22 @@ router.post("/assistant/message", isLoggedIn, async (req, res) => {
     try {
         const { message, location, context = [] } = req.body;
         const userId = req.user._id;
-        
-        // Process the message with context
-        const response = await processAssistantMessage(message, userId, location, context);
-        
+
+        // Use the smartChatbot utility with user context
+        const response = await smartChatbot.handleMessage(message, userId, {
+            firstName: req.user.firstName,
+            location: location
+        });
+
         res.json({
             reply: response.reply,
             suggestions: response.suggestions,
-            data: response.data,
             type: response.type || 'text'
         });
     } catch (error) {
         console.error('AI Assistant error:', error);
-        res.status(500).json({ 
-            error: "Sorry, I encountered an error processing your request." 
+        res.status(500).json({
+            error: "Sorry, I encountered an error processing your request."
         });
     }
 });
@@ -44,15 +46,15 @@ router.post("/assistant/message", isLoggedIn, async (req, res) => {
 router.get("/assistant/nearby", isLoggedIn, async (req, res) => {
     try {
         const { latitude, longitude, type, radius = 10 } = req.query;
-        
+
         if (!latitude || !longitude || !type) {
             return res.status(400).json({ error: "Missing required parameters" });
         }
-        
+
         let results = [];
         const location = { type: 'Point', coordinates: [parseFloat(longitude), parseFloat(latitude)] };
         const maxDistance = parseFloat(radius) * 1000; // Convert km to meters
-        
+
         switch (type) {
             case 'hotels':
                 results = await Listing.find({
@@ -65,7 +67,7 @@ router.get("/assistant/nearby", isLoggedIn, async (req, res) => {
                     available: true
                 }).limit(10);
                 break;
-                
+
             case 'dhabas':
                 results = await Dhaba.find({
                     location: {
@@ -76,7 +78,7 @@ router.get("/assistant/nearby", isLoggedIn, async (req, res) => {
                     }
                 }).limit(10);
                 break;
-                
+
             case 'vehicles':
                 results = await Vehicle.find({
                     available: true,
@@ -88,11 +90,11 @@ router.get("/assistant/nearby", isLoggedIn, async (req, res) => {
                     }
                 }).limit(10);
                 break;
-                
+
             default:
                 return res.status(400).json({ error: "Invalid place type" });
         }
-        
+
         res.json({ results });
     } catch (error) {
         console.error('Error fetching nearby places:', error);
@@ -105,7 +107,7 @@ router.get("/assistant/weather", isLoggedIn, async (req, res) => {
     try {
         const { latitude, longitude, city } = req.query;
         let weatherData;
-        
+
         if (city) {
             // Get weather by city name
             const response = await axios.get(
@@ -121,7 +123,7 @@ router.get("/assistant/weather", isLoggedIn, async (req, res) => {
         } else {
             return res.status(400).json({ error: "Location data required" });
         }
-        
+
         // Format the weather data
         const weatherInfo = {
             location: weatherData.name,
@@ -134,7 +136,7 @@ router.get("/assistant/weather", isLoggedIn, async (req, res) => {
             sunrise: new Date(weatherData.sys.sunrise * 1000).toLocaleTimeString(),
             sunset: new Date(weatherData.sys.sunset * 1000).toLocaleTimeString()
         };
-        
+
         res.json(weatherInfo);
     } catch (error) {
         console.error('Error fetching weather data:', error);
@@ -172,7 +174,7 @@ router.post("/assistant/process-image", isLoggedIn, async (req, res) => {
 async function processAssistantMessage(message, userId, location = null, context = []) {
     // Convert message to lowercase for easier matching
     const lowerMessage = message.toLowerCase();
-    
+
     // Check for specific intents
     if (lowerMessage.includes('trip') || lowerMessage.includes('vacation') || lowerMessage.includes('holiday')) {
         // Handle trip planning
@@ -187,15 +189,15 @@ async function processAssistantMessage(message, userId, location = null, context
                 { text: 'Create itinerary', action: 'create_itinerary' }
             ]
         };
-    } 
-    
+    }
+
     // Handle dhaba/restaurant queries
     else if (lowerMessage.includes('dhaba') || lowerMessage.includes('restaurant') || lowerMessage.includes('food')) {
         let locationText = '';
         if (location) {
             locationText = ` near ${location.name || 'your location'}`;
         }
-        
+
         return {
             reply: `I can help you find great dhabas${locationText}. Here are some top-rated options:`,
             type: 'dhaba_list',
@@ -208,7 +210,7 @@ async function processAssistantMessage(message, userId, location = null, context
             ]
         };
     }
-    
+
     // Handle vehicle rental queries
     else if (lowerMessage.includes('car') || lowerMessage.includes('vehicle') || lowerMessage.includes('rent')) {
         return {
@@ -221,7 +223,7 @@ async function processAssistantMessage(message, userId, location = null, context
             ]
         };
     }
-    
+
     // Handle weather queries
     else if (lowerMessage.includes('weather')) {
         return {
@@ -231,12 +233,12 @@ async function processAssistantMessage(message, userId, location = null, context
             requiresLocation: true
         };
     }
-    
+
     // Default response for general queries
     return {
         reply: `I'm here to help with your travel plans! You asked: "${message}". ` +
-               `I can help you plan trips, find dhabas, rent vehicles, and more. ` +
-               `What would you like to do?`,
+            `I can help you plan trips, find dhabas, rent vehicles, and more. ` +
+            `What would you like to do?`,
         type: 'text',
         suggestions: [
             { text: 'Plan a trip', action: 'plan_trip' },
@@ -321,7 +323,7 @@ router.post('/trip/plan', isLoggedIn, async (req, res) => {
         if (!query) {
             return res.status(400).json({ error: 'Query is required' });
         }
-        
+
         const tripPlan = await generateTripPlan(query, req.user);
         res.json(tripPlan);
     } catch (error) {
@@ -337,7 +339,7 @@ router.post('/voice/search', isLoggedIn, async (req, res) => {
         // In a real implementation, you would process the audio data here
         // and convert it to text using a speech-to-text service
         // For now, we'll just echo back the request
-        res.json({ 
+        res.json({
             query: 'Find dhabas near Pune under ₹500', // This would be the transcribed text
             results: [] // This would be the search results
         });

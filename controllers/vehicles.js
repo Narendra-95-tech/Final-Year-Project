@@ -96,7 +96,7 @@ module.exports.index = async (req, res) => {
 
 
 module.exports.renderNewForm = (req, res) => {
-   res.render("vehicles/new.ejs");
+    res.render("vehicles/new.ejs");
 };
 
 
@@ -105,7 +105,7 @@ const { Types } = require('mongoose');
 module.exports.showVehicle = async (req, res, next) => {
     try {
         const { id } = req.params;
-        
+
         // Check if the ID is a valid MongoDB ObjectId
         if (!Types.ObjectId.isValid(id)) {
             req.flash("error", "Invalid vehicle ID");
@@ -133,15 +133,19 @@ module.exports.createVehicle = async (req, res, next) => {
         query: req.body.vehicle.location,
         limit: 1,
     })
-    .send();
+        .send();
 
     let url = req.file ? req.file.path : null;
     let filename = req.file ? req.file.filename : null;
 
     const newVehicle = new Vehicle(req.body.vehicle);
     newVehicle.owner = req.user._id;
-    if (url && filename) {
-        newVehicle.image = {url, filename};
+
+    // Handle multiple images
+    if (req.files && req.files.length > 0) {
+        newVehicle.images = req.files.map(f => ({ url: f.path, filename: f.filename }));
+        // Backward compatibility
+        newVehicle.image = newVehicle.images[0];
     }
 
     // Handle features array - convert to array if it's a single value or undefined
@@ -160,47 +164,70 @@ module.exports.createVehicle = async (req, res, next) => {
     let savedVehicle = await newVehicle.save();
     console.log(savedVehicle);
 
-    req.flash("success","New Vehicle Created!");
+    req.flash("success", "New Vehicle Created!");
     res.redirect("/vehicles");
 };
 
 
 module.exports.renderEditForm = async (req, res) => {
-    let {id} = req.params;
+    let { id } = req.params;
     const vehicle = await Vehicle.findById(id);
-     if(!vehicle) {
-        req.flash("error","Vehicle you requested for does not exist!");
+    if (!vehicle) {
+        req.flash("error", "Vehicle you requested for does not exist!");
         return res.redirect("/vehicles");
     }
     let originalImageUrl = vehicle.image?.url;
-     if (originalImageUrl) {
-         originalImageUrl = originalImageUrl.replace("/upload", "/upload/w_250");
-     }
-    res.render("vehicles/edit.ejs", {vehicle, originalImageUrl});
+    if (originalImageUrl) {
+        originalImageUrl = originalImageUrl.replace("/upload", "/upload/w_250");
+    }
+    res.render("vehicles/edit.ejs", { vehicle, originalImageUrl });
 };
 
 
-module.exports.updateVehicle = async(req, res) => {
-     let {id} = req.params;
-     let vehicle = await Vehicle.findByIdAndUpdate(id,{...req.body.vehicle});
+module.exports.updateVehicle = async (req, res) => {
+    let { id } = req.params;
+    let vehicle = await Vehicle.findById(id);
 
-     if(typeof req.file !== "undefined") {
-     let url = req.file.path;
-     let filename = req.file.filename;
-     vehicle.image = {url, filename};
-     await vehicle.save();
-     }
+    if (!vehicle) {
+        req.flash("error", "Vehicle requesting for does not exist!");
+        return res.redirect("/vehicles");
+    }
 
-     req.flash("success","Vehicle Updated!");
-     res.redirect(`/vehicles/${id}`);
+    // Update basic fields
+    Object.assign(vehicle, req.body.vehicle);
+
+    // Handle new image uploads
+    if (req.files && req.files.length > 0) {
+        const newImages = req.files.map(f => ({ url: f.path, filename: f.filename }));
+        vehicle.images.push(...newImages);
+    }
+
+    // Handle image deletion
+    if (req.body.deleteImages) {
+        let deleteList = Array.isArray(req.body.deleteImages) ? req.body.deleteImages : [req.body.deleteImages];
+        vehicle.images = vehicle.images.filter(img => !deleteList.includes(img.filename));
+    }
+
+    // Update main image fallback (for backward compatibility and card view)
+    if (vehicle.images.length > 0) {
+        vehicle.image = vehicle.images[0];
+    } else {
+        // If all images removed, clear the main image
+        vehicle.image = { url: '', filename: '' };
+    }
+
+    await vehicle.save();
+
+    req.flash("success", "Vehicle Updated!");
+    res.redirect(`/vehicles/${id}`);
 };
 
 
 module.exports.destroyVehicle = async (req, res) => {
-    let {id} = req.params;
+    let { id } = req.params;
     let deletedVehicle = await Vehicle.findByIdAndDelete(id);
     console.log(deletedVehicle);
-    req.flash("success","Vehicle Deleted!");
+    req.flash("success", "Vehicle Deleted!");
     res.redirect("/vehicles");
 };
 
@@ -217,7 +244,7 @@ module.exports.getVehicleBookings = async (req, res) => {
         const events = bookings.map(booking => {
             const start = new Date(booking.startDate);
             const end = new Date(booking.endDate);
-            
+
             // Set the time if provided
             if (booking.startTime) {
                 const [hours, minutes] = booking.startTime.split(':');

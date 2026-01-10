@@ -10,9 +10,15 @@ const vehicleSchema = new Schema({
     },
     description: String,
     image: {
-       url: String,
-       filename: String,
+        url: String,
+        filename: String,
     },
+    images: [
+        {
+            url: String,
+            filename: String,
+        }
+    ],
     price: {
         type: Number,
         required: true,
@@ -103,39 +109,39 @@ const vehicleSchema = new Schema({
         max: 5
     },
     reviews: [
-       {
-        type: Schema.Types.ObjectId,
-        ref: "Review",
-       },
+        {
+            type: Schema.Types.ObjectId,
+            ref: "Review",
+        },
     ],
     bookings: [
-       {
-        type: Schema.Types.ObjectId,
-        ref: "Booking",
-       },
+        {
+            type: Schema.Types.ObjectId,
+            ref: "Booking",
+        },
     ],
-    owner : {
+    owner: {
         type: Schema.Types.ObjectId,
         ref: "User",
     },
     geometry: {
-    type: {
-      type: String,
-      enum: ["Point"],
-      required: false,
+        type: {
+            type: String,
+            enum: ["Point"],
+            required: false,
+        },
+        coordinates: {
+            type: [Number],
+            required: false,
+        },
     },
-    coordinates: {
-      type: [Number],
-      required: false,
-    },
-  },
 
 });
 
-vehicleSchema.post("findOneAndDelete", async(vehicle) => {
-    if(vehicle ) {
-        await Review.deleteMany({_id : {$in: vehicle.reviews}});
-        await Booking.deleteMany({_id : {$in: vehicle.bookings}});
+vehicleSchema.post("findOneAndDelete", async (vehicle) => {
+    if (vehicle) {
+        await Review.deleteMany({ _id: { $in: vehicle.reviews } });
+        await Booking.deleteMany({ _id: { $in: vehicle.bookings } });
     }
 });
 

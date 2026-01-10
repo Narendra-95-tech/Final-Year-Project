@@ -1,0 +1,775 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Map Search Location - Standalone Demo</title>
+    
+    <!-- Mapbox CSS -->
+    <link href="https://api.mapbox.com/mapbox-gl-js/v2.15.0/mapbox-gl.css" rel="stylesheet">
+    
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+    
+    <style>
+        /* Map Search Location Component */
+        body {
+            margin: 0;
+            padding: 20px;
+            font-family: 'Poppins', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+        }
+        
+        .demo-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.15);
+            overflow: hidden;
+        }
+        
+        .demo-header {
+            background: linear-gradient(135deg, #ff6b6b, #ff8e53);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+        
+        .demo-header h1 {
+            margin: 0 0 10px 0;
+            font-size: 28px;
+            font-weight: 700;
+        }
+        
+        .demo-header p {
+            margin: 0;
+            opacity: 0.9;
+            font-size: 16px;
+        }
+        
+        .demo-content {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 0;
+            min-height: 600px;
+        }
+        
+        .search-panel {
+            padding: 40px;
+            background: #f8f9fa;
+            border-right: 1px solid #e1e5e9;
+        }
+        
+        .map-panel {
+            position: relative;
+            background: #ffffff;
+        }
+        
+        #map {
+            width: 100%;
+            height: 600px;
+        }
+        
+        .selected-location {
+            margin-top: 30px;
+            padding: 20px;
+            background: white;
+            border-radius: 12px;
+            border: 2px solid #e1e5e9;
+            display: none;
+        }
+        
+        .selected-location.show {
+            display: block;
+            animation: slideIn 0.3s ease-out;
+        }
+        
+        .selected-location h4 {
+            margin: 0 0 10px 0;
+            color: #2d3436;
+            font-size: 16px;
+            font-weight: 600;
+        }
+        
+        .selected-location p {
+            margin: 0;
+            color: #868e96;
+            font-size: 14px;
+        }
+        
+        .selected-location .coords {
+            margin-top: 8px;
+            font-family: 'Courier New', monospace;
+            font-size: 12px;
+            color: #ff6b6b;
+        }
+
+        /* Map Search Component Styles */
+        .map-search-container {
+          position: relative;
+          max-width: 500px;
+          margin: 0 auto;
+          padding: 20px;
+          font-family: 'Poppins', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+          min-height: 600px;
+        }
+
+        .search-wrapper {
+          position: relative;
+          margin-bottom: 24px;
+        }
+
+        .search-input {
+          width: 100%;
+          padding: 16px 20px 16px 52px;
+          border: 2px solid #e1e5e9;
+          border-radius: 12px;
+          font-size: 16px;
+          font-weight: 500;
+          background: #ffffff;
+          transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+          box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+          color: #2d3436;
+        }
+
+        .search-input:focus {
+          outline: none;
+          border-color: #ff6b6b;
+          box-shadow: 0 0 0 4px rgba(255, 107, 107, 0.1), 0 4px 16px rgba(0, 0, 0, 0.1);
+          transform: translateY(-1px);
+        }
+
+        .search-input::placeholder {
+          color: #868e96;
+          font-weight: 500;
+        }
+
+        .search-icon {
+          position: absolute;
+          left: 18px;
+          top: 50%;
+          transform: translateY(-50%);
+          width: 20px;
+          height: 20px;
+          color: #868e96;
+          pointer-events: none;
+          transition: color 0.3s ease;
+        }
+
+        .search-input:focus + .search-icon {
+          color: #ff6b6b;
+        }
+
+        .search-tooltip {
+          position: absolute;
+          top: -40px;
+          left: 50%;
+          transform: translateX(-50%);
+          background: #2d3436;
+          color: white;
+          padding: 8px 16px;
+          border-radius: 8px;
+          font-size: 14px;
+          font-weight: 500;
+          white-space: nowrap;
+          opacity: 0;
+          pointer-events: none;
+          transition: all 0.3s ease;
+          z-index: 1000;
+        }
+
+        .search-tooltip::after {
+          content: '';
+          position: absolute;
+          top: 100%;
+          left: 50%;
+          transform: translateX(-50%);
+          border: 6px solid transparent;
+          border-top-color: #2d3436;
+        }
+
+        .search-wrapper:hover .search-tooltip {
+          opacity: 1;
+          top: -44px;
+        }
+
+        .popular-searches {
+          margin-top: 40px;
+          opacity: 1;
+          visibility: visible;
+          display: block !important;
+          background: linear-gradient(135deg, #ffffff, #f8f9fa);
+          padding: 24px;
+          border-radius: 16px;
+          border: 2px solid #e1e5e9;
+          box-shadow: 0 4px 16px rgba(0, 0, 0, 0.06);
+          min-height: 300px;
+        }
+
+        .popular-searches h3 {
+          font-size: 18px;
+          font-weight: 600;
+          color: #2d3436;
+          margin-bottom: 20px;
+          display: flex;
+          align-items: center;
+          gap: 8px;
+        }
+
+        .popular-searches h3::before {
+          content: '🔥';
+          font-size: 20px;
+        }
+
+        .location-grid {
+          display: grid;
+          grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+          gap: 12px;
+        }
+
+        .location-btn {
+          display: flex;
+          align-items: center;
+          gap: 12px;
+          padding: 16px 20px;
+          border: 2px solid #e1e5e9;
+          border-radius: 12px;
+          background: #ffffff;
+          cursor: pointer;
+          transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+          box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+          text-decoration: none;
+          color: #2d3436;
+          font-weight: 500;
+          font-size: 14px;
+        }
+
+        .location-btn:hover {
+          border-color: #ff6b6b;
+          background: linear-gradient(135deg, #fff5f5, #ffffff);
+          transform: translateY(-2px);
+          box-shadow: 0 8px 24px rgba(255, 107, 107, 0.15);
+          color: #ff6b6b;
+        }
+
+        .location-btn:active {
+          transform: translateY(0);
+          box-shadow: 0 2px 8px rgba(255, 107, 107, 0.1);
+        }
+
+        .location-icon {
+          width: 24px;
+          height: 24px;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          background: linear-gradient(135deg, #ff6b6b, #ff8e53);
+          border-radius: 50%;
+          color: white;
+          font-size: 12px;
+          flex-shrink: 0;
+          transition: all 0.3s ease;
+        }
+
+        .location-btn:hover .location-icon {
+          transform: scale(1.1) rotate(5deg);
+          box-shadow: 0 4px 12px rgba(255, 107, 107, 0.3);
+        }
+
+        .search-results {
+          position: absolute;
+          top: 100%;
+          left: 0;
+          right: 0;
+          background: white;
+          border: 2px solid #e1e5e9;
+          border-top: none;
+          border-radius: 0 0 12px 12px;
+          max-height: 300px;
+          overflow-y: auto;
+          z-index: 1000;
+          box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
+          display: none;
+        }
+
+        .search-results.active {
+          display: block;
+        }
+
+        .search-result-item {
+          padding: 16px 20px;
+          cursor: pointer;
+          transition: all 0.2s ease;
+          border-bottom: 1px solid #f1f3f5;
+          display: flex;
+          align-items: center;
+          gap: 12px;
+        }
+
+        .search-result-item:hover {
+          background: #f8f9fa;
+          padding-left: 24px;
+        }
+
+        .search-result-item:last-child {
+          border-bottom: none;
+        }
+
+        .search-result-icon {
+          width: 20px;
+          height: 20px;
+          color: #868e96;
+          flex-shrink: 0;
+        }
+
+        .search-result-text {
+          flex: 1;
+          font-weight: 500;
+          color: #2d3436;
+        }
+
+        .search-result-subtitle {
+          font-size: 12px;
+          color: #868e96;
+          margin-top: 2px;
+        }
+
+        .search-loading {
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          padding: 20px;
+          color: #868e96;
+        }
+
+        .search-loading::after {
+          content: '';
+          width: 16px;
+          height: 16px;
+          border: 2px solid #e1e5e9;
+          border-top-color: #ff6b6b;
+          border-radius: 50%;
+          animation: spin 1s linear infinite;
+          margin-left: 8px;
+        }
+        
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes spin {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+        
+        @media (max-width: 768px) {
+            .demo-content {
+                grid-template-columns: 1fr;
+            }
+            
+            .search-panel {
+                border-right: none;
+                border-bottom: 1px solid #e1e5e9;
+                padding: 30px 20px;
+            }
+            
+            .map-panel {
+                min-height: 400px;
+            }
+            
+            #map {
+                height: 400px;
+            }
+            
+            .demo-header {
+                padding: 20px;
+            }
+            
+            .demo-header h1 {
+                font-size: 24px;
+            }
+
+            .location-grid {
+                grid-template-columns: 1fr;
+                gap: 10px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="demo-container">
+        <div class="demo-header">
+            <h1>🗺️ Map Search Location</h1>
+            <p>Search for locations or select from popular destinations</p>
+        </div>
+        
+        <div class="demo-content">
+            <div class="search-panel">
+                <div id="map-search"></div>
+                
+                <div id="selected-location" class="selected-location">
+                    <h4>📍 Selected Location</h4>
+                    <p id="location-name"></p>
+                    <div class="coords" id="location-coords"></div>
+                </div>
+            </div>
+            
+            <div class="map-panel">
+                <div id="map"></div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Scripts -->
+    <script src="https://api.mapbox.com/mapbox-gl-js/v2.15.0/mapbox-gl.js"></script>
+    
+    <script>
+        // Map Search Location Class
+        class MapSearchLocation {
+          constructor(containerId, options = {}) {
+            this.container = document.getElementById(containerId);
+            if (!this.container) {
+              throw new Error(`Container with id '${containerId}' not found`);
+            }
+
+            this.options = {
+              placeholder: 'Search location...',
+              popularLocations: [
+                { name: 'Mumbai Airport', icon: '✈️', coords: [72.8679, 19.0896] },
+                { name: 'Pune Railway Station', icon: '🚂', coords: [73.8567, 18.5294] },
+                { name: 'Lonavala', icon: '🏔️', coords: [73.4084, 18.7546] },
+                { name: 'Mahabaleshwar', icon: '🌲', coords: [73.6588, 17.9249] },
+                { name: 'Shirdi', icon: '🙏', coords: [74.4797, 19.7680] },
+                { name: 'Gateway of India', icon: '🏛️', coords: [72.8347, 18.9220] },
+                { name: 'Marine Drive', icon: '🌊', coords: [72.8209, 18.9440] },
+                { name: 'Khandala', icon: '⛰️', coords: [73.3270, 18.7516] }
+              ],
+              onLocationSelect: (location) => {
+                console.log('Location selected:', location);
+              },
+              onSearch: (query) => {
+                console.log('Searching for:', query);
+              },
+              ...options
+            };
+
+            this.searchResults = [];
+            this.isLoading = false;
+            this.debounceTimer = null;
+
+            this.init();
+          }
+
+          init() {
+            this.render();
+            this.attachEventListeners();
+          }
+
+          render() {
+            this.container.innerHTML = `
+              <div class="map-search-container">
+                <div class="search-wrapper">
+                  <div class="search-tooltip">Search for a location</div>
+                  <input 
+                    type="text" 
+                    class="search-input" 
+                    placeholder="${this.options.placeholder}"
+                    autocomplete="off"
+                  >
+                  <svg class="search-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+                  </svg>
+                  <div class="search-results"></div>
+                </div>
+
+                <div class="popular-searches">
+                  <h3>Popular searches</h3>
+                  <div class="location-grid">
+                    ${this.options.popularLocations.map(location => `
+                      <button class="location-btn" data-location='${JSON.stringify(location)}'>
+                        <div class="location-icon">${location.icon}</div>
+                        <span>${location.name}</span>
+                      </button>
+                    `).join('')}
+                  </div>
+                </div>
+              </div>
+            `;
+
+            this.searchInput = this.container.querySelector('.search-input');
+            this.searchResultsContainer = this.container.querySelector('.search-results');
+            this.locationButtons = this.container.querySelectorAll('.location-btn');
+          }
+
+          attachEventListeners() {
+            this.searchInput.addEventListener('input', (e) => {
+              this.handleSearch(e.target.value);
+            });
+
+            this.searchInput.addEventListener('focus', () => {
+              if (this.searchInput.value.trim()) {
+                this.showSearchResults();
+              }
+            });
+
+            document.addEventListener('click', (e) => {
+              if (!this.container.contains(e.target)) {
+                this.hideSearchResults();
+              }
+            });
+
+            this.locationButtons.forEach(button => {
+              button.addEventListener('click', () => {
+                const location = JSON.parse(button.dataset.location);
+                this.selectLocation(location);
+              });
+            });
+          }
+
+          handleSearch(query) {
+            clearTimeout(this.debounceTimer);
+            
+            if (!query.trim()) {
+              this.hideSearchResults();
+              return;
+            }
+
+            this.debounceTimer = setTimeout(() => {
+              this.performSearch(query);
+            }, 300);
+          }
+
+          async performSearch(query) {
+            this.setLoading(true);
+            
+            try {
+              await this.options.onSearch(query);
+              const mockResults = this.getMockSearchResults(query);
+              this.displaySearchResults(mockResults);
+              
+            } catch (error) {
+              console.error('Search error:', error);
+              this.displayError('Search failed. Please try again.');
+            } finally {
+              this.setLoading(false);
+            }
+          }
+
+          getMockSearchResults(query) {
+            const allLocations = [
+              { name: 'Mumbai Airport', subtitle: 'Chhatrapati Shivaji Maharaj International Airport', coords: [72.8679, 19.0896] },
+              { name: 'Pune Railway Station', subtitle: 'Pune Junction Railway Station', coords: [73.8567, 18.5294] },
+              { name: 'Lonavala Hill Station', subtitle: 'Popular hill station near Mumbai-Pune', coords: [73.4084, 18.7546] },
+              { name: 'Mahabaleshwar', subtitle: 'Hill station in Western Ghats', coords: [73.6588, 17.9249] },
+              { name: 'Shirdi Temple', subtitle: 'Sai Baba Temple', coords: [74.4797, 19.7680] },
+              { name: 'Gateway of India', subtitle: 'Historic monument in Mumbai', coords: [72.8347, 18.9220] },
+              { name: 'Marine Drive', subtitle: 'Queen\'s Necklace, Mumbai', coords: [72.8209, 18.9440] },
+              { name: 'Khandala', subtitle: 'Hill station near Lonavala', coords: [73.3270, 18.7516] }
+            ];
+
+            return allLocations.filter(location => 
+              location.name.toLowerCase().includes(query.toLowerCase()) ||
+              location.subtitle.toLowerCase().includes(query.toLowerCase())
+            );
+          }
+
+          displaySearchResults(results) {
+            this.searchResults = results;
+            
+            if (results.length === 0) {
+              this.searchResultsContainer.innerHTML = `
+                <div class="search-result-item">
+                  <span class="search-result-text">No locations found</span>
+                </div>
+              `;
+            } else {
+              this.searchResultsContainer.innerHTML = results.map((result, index) => `
+                <div class="search-result-item" data-index="${index}">
+                  <svg class="search-result-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path>
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                  </svg>
+                  <div class="search-result-text">
+                    <div>${result.name}</div>
+                    <div class="search-result-subtitle">${result.subtitle}</div>
+                  </div>
+                </div>
+              `).join('');
+
+              this.searchResultsContainer.querySelectorAll('.search-result-item').forEach(item => {
+                item.addEventListener('click', () => {
+                  const index = parseInt(item.dataset.index);
+                  this.selectLocation(this.searchResults[index]);
+                });
+              });
+            }
+
+            this.showSearchResults();
+          }
+
+          displayError(message) {
+            this.searchResultsContainer.innerHTML = `
+              <div class="search-result-item">
+                <span class="search-result-text" style="color: #ff6b6b;">${message}</span>
+              </div>
+            `;
+            this.showSearchResults();
+          }
+
+          setLoading(loading) {
+            this.isLoading = loading;
+            
+            if (loading) {
+              this.searchResultsContainer.innerHTML = `
+                <div class="search-loading">Searching</div>
+              `;
+              this.showSearchResults();
+            }
+          }
+
+          showSearchResults() {
+            this.searchResultsContainer.classList.add('active');
+          }
+
+          hideSearchResults() {
+            this.searchResultsContainer.classList.remove('active');
+          }
+
+          selectLocation(location) {
+            this.searchInput.value = location.name;
+            this.hideSearchResults();
+            this.options.onLocationSelect(location);
+            this.animateSelection();
+          }
+
+          animateSelection() {
+            this.searchInput.style.borderColor = '#28a745';
+            this.searchInput.style.boxShadow = '0 0 0 4px rgba(40, 167, 69, 0.1)';
+            
+            setTimeout(() => {
+              this.searchInput.style.borderColor = '';
+              this.searchInput.style.boxShadow = '';
+            }, 1500);
+          }
+        }
+
+        // Initialize Mapbox
+        mapboxgl.accessToken = 'pk.eyJ1IjoibmFyZW5kcmEtYmh1dGUiLCJhIjoiY21rNW92NW9pMG5yNDNkcXNjcW5wcm1qNSJ9.SqaVT3eDGXJKZAiiUMF2Xw';
+        
+        let map;
+        let currentMarker;
+        
+        function initializeMap() {
+            map = new mapboxgl.Map({
+                container: 'map',
+                style: 'mapbox://styles/mapbox/streets-v11',
+                center: [72.8777, 19.0760], // Mumbai
+                zoom: 10
+            });
+            
+            map.addControl(new mapboxgl.NavigationControl());
+            map.addControl(new mapboxgl.GeolocateControl({
+                positionOptions: { enableHighAccuracy: true },
+                trackUserLocation: true
+            }));
+        }
+        
+        function initializeSearch() {
+            const mapSearch = new MapSearchLocation('map-search', {
+                placeholder: 'Search location...',
+                popularLocations: [
+                    { name: 'Mumbai Airport', icon: '✈️', coords: [72.8679, 19.0896] },
+                    { name: 'Pune Railway Station', icon: '🚂', coords: [73.8567, 18.5294] },
+                    { name: 'Lonavala', icon: '🏔️', coords: [73.4084, 18.7546] },
+                    { name: 'Mahabaleshwar', icon: '🌲', coords: [73.6588, 17.9249] },
+                    { name: 'Shirdi', icon: '🙏', coords: [74.4797, 19.7680] },
+                    { name: 'Gateway of India', icon: '🏛️', coords: [72.8347, 18.9220] },
+                    { name: 'Marine Drive', icon: '🌊', coords: [72.8209, 18.9440] },
+                    { name: 'Khandala', icon: '⛰️', coords: [73.3270, 18.7516] }
+                ],
+                onLocationSelect: (location) => {
+                    handleLocationSelect(location);
+                },
+                onSearch: async (query) => {
+                    await new Promise(resolve => setTimeout(resolve, 500));
+                }
+            });
+            
+            return mapSearch;
+        }
+        
+        function handleLocationSelect(location) {
+            const selectedLocationDiv = document.getElementById('selected-location');
+            const locationName = document.getElementById('location-name');
+            const locationCoords = document.getElementById('location-coords');
+            
+            locationName.textContent = location.name;
+            locationCoords.textContent = `Coordinates: [${location.coords[0]}, ${location.coords[1]}]`;
+            selectedLocationDiv.classList.add('show');
+            
+            if (map) {
+                if (currentMarker) {
+                    currentMarker.remove();
+                }
+                
+                currentMarker = new mapboxgl.Marker({
+                    color: '#ff6b6b'
+                })
+                .setLngLat(location.coords)
+                .addTo(map);
+                
+                map.flyTo({
+                    center: location.coords,
+                    zoom: 12,
+                    speed: 2,
+                    curve: 1.42,
+                    easing: (t) => t < 0.5 ? 2 * t * t : -1 + (4 - 2 * t) * t
+                });
+                
+                const popup = new mapboxgl.Popup({
+                    offset: 25,
+                    closeButton: false,
+                    className: 'location-popup'
+                })
+                .setHTML(`
+                    <div style="padding: 10px; text-align: center;">
+                        <strong style="color: #2d3436; font-size: 14px;">${location.name}</strong>
+                        <div style="margin-top: 4px; color: #868e96; font-size: 12px;">
+                            📍 ${location.coords[1].toFixed(4)}, ${location.coords[0].toFixed(4)}
+                        </div>
+                    </div>
+                `);
+                
+                currentMarker.setPopup(popup);
+                popup.addTo(map);
+                
+                setTimeout(() => {
+                    popup.remove();
+                }, 3000);
+            }
+            
+            console.log('Location selected:', location);
+        }
+        
+        document.addEventListener('DOMContentLoaded', () => {
+            try {
+                initializeMap();
+                initializeSearch();
+                console.log('✅ Map Search Demo initialized successfully!');
+            } catch (error) {
+                console.error('❌ Error initializing demo:', error);
+            }
+        });
+    </script>
+</body>
+</html>

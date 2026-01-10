@@ -1,501 +1,266 @@
 <% layout("/layouts/boilerplate") -%>
 
-<style>
-  /* ===== MODERN DHABAS PAGE ===== */
-  .dhabas-hero {
-    background: linear-gradient(135deg, var(--primary-orange), var(--primary-orange-hover));
-    color: var(--white);
-    padding: 3rem 0;
-    margin-bottom: 2rem;
-  }
+  <link rel="stylesheet" href="/css/dhabas.css">
 
-  .dhabas-title {
-    font-size: 2.5rem;
-    font-weight: 700;
-    margin-bottom: 0.5rem;
-  }
+  <!-- Premium Hero Section with Embedded Search -->
+  <section class="dhabas-hero">
+    <div class="dhabas-hero-content animate-fade-in">
+      <h1 class="dhabas-title">Taste the Tradition</h1>
+      <p class="dhabas-subtitle mb-4">Discover authentic local flavors, hidden gems, and the best dhabas near you.</p>
 
-  .dhabas-subtitle {
-    font-size: 1.1rem;
-    opacity: 0.9;
-  }
+      <!-- Hero Search Bar -->
+      <form action="/dhabas" method="GET" class="hero-search-form">
+        <i class="fas fa-search text-muted ms-3"></i>
+        <input type="text" name="q" class="hero-search-input"
+          placeholder="Search for 'Butter Chicken' or 'Highway Dhaba'..." value="<%= query %>">
+        <button type="submit" class="hero-search-btn">Find Food</button>
+      </form>
+    </div>
+  </section>
 
-  /* Filter Section */
-  .filters-section {
-    background: var(--white);
-    border-radius: var(--radius-2xl);
-    box-shadow: var(--shadow-lg);
-    padding: 2rem;
-    margin-bottom: 2rem;
-    border: 1px solid var(--gray-200);
-  }
+  <div class="container py-5">
 
-  .filter-item {
-    text-align: center;
-    padding: 1rem;
-    border-radius: var(--radius-xl);
-    transition: all var(--transition-fast);
-    cursor: pointer;
-    border: 2px solid transparent;
-  }
-
-  .filter-item:hover {
-    border-color: var(--primary-orange);
-    background-color: var(--primary-orange-light);
-    transform: translateY(-2px);
-  }
-
-  .filter-item.active {
-    border-color: var(--primary-orange);
-    background-color: var(--primary-orange-light);
-    color: var(--primary-orange);
-  }
-
-  .filter-icon {
-    font-size: 2rem;
-    margin-bottom: 0.5rem;
-  }
-
-  .filter-label {
-    font-size: 0.875rem;
-    font-weight: 500;
-  }
-
-  /* Search Controls */
-  .search-controls {
-    background: var(--gray-50);
-    border-radius: var(--radius-xl);
-    padding: 1.5rem;
-    margin-bottom: 2rem;
-  }
-
-  /* Dhabas Grid */
-  .dhabas-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-    gap: 1.5rem;
-    margin-bottom: 3rem;
-  }
-
-  .dhaba-card {
-    background: var(--white);
-    border-radius: var(--radius-xl);
-    overflow: hidden;
-    box-shadow: var(--shadow-sm);
-    transition: all var(--transition-normal);
-    border: 1px solid var(--gray-200);
-    height: 100%;
-  }
-
-  .dhaba-card:hover {
-    box-shadow: var(--shadow-xl);
-    transform: translateY(-6px);
-  }
-
-  .dhaba-image {
-    width: 100%;
-    height: 200px;
-    object-fit: cover;
-    transition: transform var(--transition-normal);
-  }
-
-  .dhaba-card:hover .dhaba-image {
-    transform: scale(1.05);
-  }
-
-  .dhaba-overlay {
-    position: absolute;
-    top: 10px;
-    right: 10px;
-    background: rgba(253, 126, 20, 0.9);
-    color: var(--white);
-    padding: 0.5rem 1rem;
-    border-radius: var(--radius-full);
-    font-weight: 600;
-    font-size: 0.75rem;
-    backdrop-filter: blur(10px);
-    box-shadow: var(--shadow-md);
-  }
-
-  .dhaba-info {
-    padding: 1.5rem;
-  }
-
-  .dhaba-title {
-    font-size: 1.25rem;
-    font-weight: 600;
-    color: var(--gray-900);
-    margin-bottom: 0.5rem;
-  }
-
-  .dhaba-location {
-    color: var(--gray-600);
-    font-size: 0.875rem;
-    margin-bottom: 0.25rem;
-  }
-
-  .dhaba-owner {
-    color: var(--gray-500);
-    font-size: 0.8rem;
-  }
-
-  .dhaba-actions {
-    display: flex;
-    gap: 0.5rem;
-    margin-top: 1rem;
-  }
-
-  /* Rating Stars */
-  .rating-stars {
-    color: var(--secondary-yellow);
-    font-size: 0.9rem;
-  }
-
-  /* Responsive Design */
-  @media (max-width: 768px) {
-    .dhabas-title {
-      font-size: 2rem;
-    }
-
-    .dhabas-subtitle {
-      font-size: 1rem;
-    }
-
-    .filters-section {
-      padding: 1.5rem;
-    }
-
-    .filter-item {
-      padding: 0.75rem;
-    }
-
-    .filter-icon {
-      font-size: 1.5rem;
-    }
-
-    .dhabas-grid {
-      grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
-      gap: 1rem;
-    }
-
-    .dhaba-info {
-      padding: 1rem;
-    }
-
-    .dhaba-title {
-      font-size: 1.1rem;
-    }
-  }
-
-  @media (max-width: 576px) {
-    .dhabas-grid {
-      grid-template-columns: 1fr;
-    }
-
-    .filter-item {
-      margin-bottom: 1rem;
-    }
-
-    .search-controls {
-      padding: 1rem;
-    }
-  }
-</style>
-
-<!-- Hero Section -->
-<section class="dhabas-hero">
-  <div class="container text-center">
-    <h1 class="dhabas-title">Local Dhabas</h1>
-    <p class="dhabas-subtitle">Discover authentic local restaurants and eateries for amazing food experiences</p>
-  </div>
-</section>
-
-<div class="container">
-    <!-- Filters Section -->
-    <div class="filters-section animate-fade-in">
-      <div class="row text-center mb-4">
-        <div class="col-12">
-          <h4 class="mb-4">Filter by Cuisine</h4>
-          <div class="row g-3 justify-content-center">
-            <div class="col-auto">
-              <div class="filter-item <%= !cuisine || cuisine === 'all' ? 'active' : '' %>" onclick="setFilter('cuisine', 'all')">
-                <i class="fas fa-utensils filter-icon text-warning"></i>
-                <div class="filter-label">All Cuisines</div>
-              </div>
-            </div>
-            <div class="col-auto">
-              <div class="filter-item <%= cuisine === 'North Indian' ? 'active' : '' %>" onclick="setFilter('cuisine', 'North Indian')">
-                <i class="fas fa-pepper-hot filter-icon text-danger"></i>
-                <div class="filter-label">North Indian</div>
-              </div>
-            </div>
-            <div class="col-auto">
-              <div class="filter-item <%= cuisine === 'South Indian' ? 'active' : '' %>" onclick="setFilter('cuisine', 'South Indian')">
-                <i class="fas fa-leaf filter-icon text-success"></i>
-                <div class="filter-label">South Indian</div>
-              </div>
-            </div>
-            <div class="col-auto">
-              <div class="filter-item <%= cuisine === 'Punjabi' ? 'active' : '' %>" onclick="setFilter('cuisine', 'Punjabi')">
-                <i class="fas fa-drumstick-bite filter-icon text-warning"></i>
-                <div class="filter-label">Punjabi</div>
-              </div>
-            </div>
-            <div class="col-auto">
-              <div class="filter-item <%= cuisine === 'Chinese' ? 'active' : '' %>" onclick="setFilter('cuisine', 'Chinese')">
-                <i class="fas fa-bowl-rice filter-icon text-info"></i>
-                <div class="filter-label">Chinese</div>
-              </div>
-            </div>
-            <div class="col-auto">
-              <div class="filter-item <%= cuisine === 'Street Food' ? 'active' : '' %>" onclick="setFilter('cuisine', 'Street Food')">
-                <i class="fas fa-street-view filter-icon text-secondary"></i>
-                <div class="filter-label">Street Food</div>
-              </div>
-            </div>
+    <!-- Collections / Mind For? Section -->
+    <div class="collections-section animate-fade-in-up">
+      <h3 class="collections-title">What's on your mind?</h3>
+      <div class="collections-grid">
+        <div class="collection-item" onclick="setFilter('category', 'Fine Dining')">
+          <div class="collection-circle">
+            <img src="https://images.unsplash.com/photo-1514362545857-3bc16c4c7d1b?q=80&w=870&auto=format&fit=crop"
+              alt="Premium">
           </div>
+          <span class="collection-label">Premium</span>
         </div>
-      </div>
-
-      <!-- Search Controls -->
-      <div class="search-controls">
-        <form method="GET" action="/dhabas" class="row g-3">
-          <div class="col-md-4">
-            <label for="cuisine" class="form-label">Cuisine Type</label>
-            <select class="form-select" id="cuisine" name="cuisine" onchange="this.form.submit()">
-              <option value="" <%= !cuisine ? 'selected' : '' %>>All Cuisines</option>
-              <option value="North Indian" <%= cuisine === 'North Indian' ? 'selected' : '' %>>North Indian</option>
-              <option value="South Indian" <%= cuisine === 'South Indian' ? 'selected' : '' %>>South Indian</option>
-              <option value="Punjabi" <%= cuisine === 'Punjabi' ? 'selected' : '' %>>Punjabi</option>
-              <option value="Chinese" <%= cuisine === 'Chinese' ? 'selected' : '' %>>Chinese</option>
-              <option value="Multi-Cuisine" <%= cuisine === 'Multi-Cuisine' ? 'selected' : '' %>>Multi-Cuisine</option>
-              <option value="Street Food" <%= cuisine === 'Street Food' ? 'selected' : '' %>>Street Food</option>
-              <option value="Rajasthani" <%= cuisine === 'Rajasthani' ? 'selected' : '' %>>Rajasthani</option>
-              <option value="Gujarati" <%= cuisine === 'Gujarati' ? 'selected' : '' %>>Gujarati</option>
-              <option value="Bengali" <%= cuisine === 'Bengali' ? 'selected' : '' %>>Bengali</option>
-              <option value="Continental" <%= cuisine === 'Continental' ? 'selected' : '' %>>Continental</option>
-            </select>
+        <div class="collection-item" onclick="setFilter('cuisine', 'North Indian')">
+          <div class="collection-circle">
+            <img src="https://images.unsplash.com/photo-1626132647523-66f5bf380027?q=80&w=870&auto=format&fit=crop"
+              alt="North Indian">
           </div>
-          <div class="col-md-3">
-            <label for="category" class="form-label">Category</label>
-            <select class="form-select" id="category" name="category" onchange="this.form.submit()">
-              <option value="" <%= !category ? 'selected' : '' %>>All Types</option>
-              <option value="Fine Dining" <%= category === 'Fine Dining' ? 'selected' : '' %>>Fine Dining</option>
-              <option value="Casual Dining" <%= category === 'Casual Dining' ? 'selected' : '' %>>Casual Dining</option>
-              <option value="Fast Food" <%= category === 'Fast Food' ? 'selected' : '' %>>Fast Food</option>
-              <option value="Cafe" <%= category === 'Cafe' ? 'selected' : '' %>>Cafe</option>
-              <option value="Food Truck" <%= category === 'Food Truck' ? 'selected' : '' %>>Food Truck</option>
-              <option value="Buffet" <%= category === 'Buffet' ? 'selected' : '' %>>Buffet</option>
-              <option value="Family Restaurant" <%= category === 'Family Restaurant' ? 'selected' : '' %>>Family Restaurant</option>
-            </select>
+          <span class="collection-label">North Indian</span>
+        </div>
+        <div class="collection-item" onclick="setFilter('category', 'Fast Food')">
+          <div class="collection-circle">
+            <img src="https://images.unsplash.com/photo-1561758033-d89a9ad46330?q=80&w=870&auto=format&fit=crop"
+              alt="Street Food">
           </div>
-          <div class="col-md-2">
-            <label for="minRating" class="form-label">Min Rating</label>
-            <select class="form-select" id="minRating" name="minRating" onchange="this.form.submit()">
-              <option value="" <%= !minRating ? 'selected' : '' %>>All Ratings</option>
-              <option value="4.5" <%= minRating === '4.5' ? 'selected' : '' %>>4.5+ Stars</option>
-              <option value="4.0" <%= minRating === '4.0' ? 'selected' : '' %>>4.0+ Stars</option>
-              <option value="3.5" <%= minRating === '3.5' ? 'selected' : '' %>>3.5+ Stars</option>
-              <option value="3.0" <%= minRating === '3.0' ? 'selected' : '' %>>3.0+ Stars</option>
-            </select>
+          <span class="collection-label">Street Food</span>
+        </div>
+        <div class="collection-item" onclick="setFilter('cuisine', 'South Indian')">
+          <div class="collection-circle">
+            <img src="https://images.unsplash.com/photo-1589301760014-d929f3979dbc?q=80&w=870&auto=format&fit=crop"
+              alt="South Indian">
           </div>
-          <div class="col-md-2">
-            <label for="sort" class="form-label">Sort By</label>
-            <select class="form-select" id="sort" name="sort" onchange="this.form.submit()">
-              <option value="" <%= !sort ? 'selected' : '' %>>Default</option>
-              <option value="rating" <%= sort === 'rating' ? 'selected' : '' %>>Highest Rated</option>
-              <option value="newest" <%= sort === 'newest' ? 'selected' : '' %>>Newest First</option>
-              <option value="title" <%= sort === 'title' ? 'selected' : '' %>>Name (A-Z)</option>
-              <option value="price_asc" <%= sort === 'price_asc' ? 'selected' : '' %>>Price: Low to High</option>
-              <option value="price_desc" <%= sort === 'price_desc' ? 'selected' : '' %>>Price: High to Low</option>
-            </select>
+          <span class="collection-label">South Indian</span>
+        </div>
+        <div class="collection-item" onclick="setFilter('category', 'Cafe')">
+          <div class="collection-circle">
+            <img src="https://images.unsplash.com/photo-1554118811-1e0d58224f24?q=80&w=870&auto=format&fit=crop"
+              alt="Coffee">
           </div>
-          <div class="col-md-1 d-flex align-items-end">
-            <button type="submit" class="btn btn-warning w-100">
-              <i class="fas fa-search me-2"></i>Apply
-            </button>
-          </div>
-        </form>
+          <span class="collection-label">Coffee</span>
+        </div>
       </div>
     </div>
 
-    <!-- Results Header -->
-    <div class="d-flex justify-content-between align-items-center mb-4">
-      <h3 class="mb-0">
-        <i class="fas fa-utensils me-2 text-warning"></i>
-        <%= allDhabas.length %> Dhabas Found
-        <% if (query) { %>
-          <small class="text-muted">for "<%= query %>"</small>
-        <% } %>
-      </h3>
-      <% if (currUser) { %>
-        <a href="/dhabas/new" class="btn btn-warning">
-          <i class="fas fa-plus me-2"></i>Add New Dhaba
-        </a>
-      <% } %>
-    </div>
+    <!-- Filters Container -->
+    <div class="filters-container animate-fade-in-up">
 
-    <!-- Dhabas Grid -->
-    <% if (allDhabas.length > 0) { %>
-      <!-- Trending Section -->
-      <% if (trendingDhabas && trendingDhabas.length > 0) { %>
-        <div class="mb-5">
-          <h4 class="mb-4 d-flex align-items-center">
-            <i class="fas fa-fire text-danger me-2"></i>
-            Trending Dhabas
-          </h4>
-          <div class="dhabas-grid">
-            <% trendingDhabas.forEach(dhaba => { %>
-              <div class="dhaba-card animate-fade-in">
-                <div class="position-relative">
-                  <img src="<%= dhaba.image?.url || 'https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?w=400&h=250&fit=crop&crop=center' %>"
-                       class="dhaba-image" alt="<%= dhaba.title %>">
-                  <div class="dhaba-overlay">
-                    <span class="badge bg-danger d-block">Trending</span>
-                  </div>
-                </div>
-                <div class="dhaba-info">
-                  <h5 class="dhaba-title"><%= dhaba.title %></h5>
-                  <div class="mb-2 rating-stars">
-                    <% for (let i = 1; i <= 5; i++) { %>
-                      <i class="fas fa-star <%= i <= (dhaba.rating || 0) ? 'text-warning' : 'text-muted' %>"></i>
-                    <% } %>
-                    <span class="ms-2 text-muted small">(<%= dhaba.rating || 0 %>)</span>
-                  </div>
-                  <div class="mb-2">
-                    <span class="badge bg-primary me-1"><%= dhaba.category %></span>
-                    <span class="badge bg-success"><%= dhaba.cuisine %></span>
-                  </div>
-                  <p class="dhaba-location">
-                    <i class="fas fa-map-marker-alt me-1"></i>
-                    <%= dhaba.location %>, <%= dhaba.country %>
-                  </p>
-                  <p class="dhaba-owner">
-                    <i class="fas fa-user me-1"></i>
-                    Listed by <%= dhaba.owner?.username || 'Unknown' %>
-                  </p>
-                  <div class="dhaba-actions">
-                    <a href="/dhabas/<%= dhaba._id %>" class="btn btn-outline-warning flex-fill">
-                      <i class="fas fa-eye me-1"></i>View Details
-                    </a>
-                    <% if (currUser && dhaba.owner && dhaba.owner._id.equals(currUser._id)) { %>
-                      <a href="/dhabas/<%= dhaba._id %>/edit" class="btn btn-outline-secondary flex-fill ms-2">
-                        <i class="fas fa-edit me-1"></i>Edit
-                      </a>
-                    <% } %>
-                  </div>
-                </div>
-              </div>
-            <% }); %>
-          </div>
-        </div>
-      <% } %>
-
-      <!-- All Dhabas -->
-      <div class="dhabas-grid">
-        <% allDhabas.forEach(dhaba => { %>
-          <div class="dhaba-card animate-fade-in">
-            <div class="position-relative">
-              <img src="<%= dhaba.image?.url || 'https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?w=400&h=250&fit=crop&crop=center' %>"
-                   class="dhaba-image" alt="<%= dhaba.title %>">
-              <div class="dhaba-overlay">
-                ₹<%= dhaba.price ? Number(dhaba.price).toLocaleString("en-IN") : "N/A" %>
-              </div>
-            </div>
-            <div class="dhaba-info">
-              <h5 class="dhaba-title"><%= dhaba.title %></h5>
-              <div class="mb-2 rating-stars">
-                <% for (let i = 1; i <= 5; i++) { %>
-                  <i class="fas fa-star <%= i <= (dhaba.rating || 0) ? 'text-warning' : 'text-muted' %>"></i>
-                <% } %>
-                <span class="ms-2 text-muted small">(<%= dhaba.rating || 0 %>)</span>
-              </div>
-              <div class="mb-2">
-                <span class="badge bg-primary me-1"><%= dhaba.category %></span>
-                <span class="badge bg-success"><%= dhaba.cuisine %></span>
-              </div>
-              <p class="dhaba-location">
-                <i class="fas fa-map-marker-alt me-1"></i>
-                <%= dhaba.location %>, <%= dhaba.country %>
-              </p>
-              <p class="dhaba-owner">
-                <i class="fas fa-user me-1"></i>
-                Listed by <%= dhaba.owner?.username || 'Unknown' %>
-              </p>
-              <div class="dhaba-actions">
-                <a href="/dhabas/<%= dhaba._id %>" class="btn btn-outline-warning flex-fill">
-                  <i class="fas fa-eye me-1"></i>View Details
-                </a>
-                <% if (currUser && dhaba.owner && dhaba.owner._id.equals(currUser._id)) { %>
-                  <a href="/dhabas/<%= dhaba._id %>/edit" class="btn btn-outline-secondary flex-fill ms-2">
-                    <i class="fas fa-edit me-1"></i>Edit
-                  </a>
-                <% } %>
-              </div>
-            </div>
-          </div>
-        <% }); %>
-      </div>
-    <% } else { %>
-      <!-- No Results -->
-      <div class="text-center py-5">
-        <i class="fas fa-utensils fa-4x text-muted mb-3"></i>
-        <h4 class="text-muted">No dhabas found</h4>
-        <p class="text-muted mb-4">
-          <% if (query) { %>
-            No results for "<%= query %>". Try adjusting your search criteria.
-          <% } else { %>
-            No dhabas are available at the moment.
+      <!-- Results Header -->
+      <div class="d-flex justify-content-between align-items-center mb-4">
+        <h3 class="mb-0">
+          <i class="fas fa-utensils me-2 text-warning"></i>
+          <%= allDhabas.length %> Dhabas Found
+            <% if (query) { %>
+              <small class="text-muted">for "<%= query %>"</small>
+              <% } %>
+        </h3>
+        <% if (currUser) { %>
+          <a href="/dhabas/new" class="btn btn-warning">
+            <i class="fas fa-plus me-2"></i>Add New Dhaba
+          </a>
           <% } %>
-        </p>
-        <a href="/dhabas" class="btn btn-warning">
-          <i class="fas fa-refresh me-2"></i>Clear Filters
-        </a>
       </div>
-    <% } %>
-  </div>
 
-<script>
-  // Filter functionality
-  function setFilter(type, value) {
-    const url = new URL(window.location);
-    if (value === 'all' || !value) {
-      url.searchParams.delete(type);
-    } else {
-      url.searchParams.set(type, value);
-    }
-    // Preserve other filters
-    ['q', 'category', 'minRating', 'sort'].forEach(param => {
-      const paramValue = url.searchParams.get(param);
-      if (paramValue) {
-        url.searchParams.set(param, paramValue);
+      <!-- Dhabas Grid -->
+      <% if (allDhabas.length> 0) { %>
+        <!-- Trending Section -->
+        <% if (trendingDhabas && trendingDhabas.length> 0) { %>
+          <div class="mb-5">
+            <h4 class="mb-4 d-flex align-items-center">
+              <i class="fas fa-fire text-danger me-2"></i>
+              Trending Dhabas
+            </h4>
+            <div class="dhabas-grid">
+              <% trendingDhabas.forEach(dhaba=> {
+                let ratingClass = 'green';
+                if(dhaba.rating < 4) ratingClass='yellow' ; if(dhaba.rating < 3) ratingClass='red' ; %>
+                  <div class="dhaba-card animate-fade-in">
+                    <div class="dhaba-image-container">
+                      <img
+                        src="<%= dhaba.image && dhaba.image.length > 0 ? dhaba.image[0].url : 'https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?w=400&h=250&fit=crop&crop=center' %>"
+                        class="dhaba-image" alt="<%= dhaba.title %>">
+                      <div class="status-badge popular">
+                        <i class="fas fa-fire me-1"></i> Trending
+                      </div>
+                    </div>
+
+                    <div class="dhaba-info">
+                      <div class="dhaba-header">
+                        <h5 class="dhaba-title">
+                          <%= dhaba.title %>
+                        </h5>
+                        <div class="rating-badge <%= ratingClass %>">
+                          <%= dhaba.rating || 0 %> <i class="fas fa-star"></i>
+                        </div>
+                      </div>
+
+                      <div class="dhaba-location-row">
+                        <span>
+                          <%= dhaba.cuisine %> • <%= dhaba.location %>
+                        </span>
+                      </div>
+
+                      <p class="text-muted small mb-2"
+                        style="display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; height: 3em;">
+                        Authentic <%= dhaba.category %> experience with traditional flavors.
+                      </p>
+
+                      <div class="dhaba-divider"></div>
+
+                      <div class="dhaba-footer">
+                        <a href="/dhabas/<%= dhaba._id %>" class="view-btn-text">
+                          View Details <i class="fas fa-chevron-right ms-1 small"></i>
+                        </a>
+
+                        <% if (currUser && dhaba.owner && dhaba.owner._id.equals(currUser._id)) { %>
+                          <a href="/dhabas/<%= dhaba._id %>/edit" class="text-muted small text-decoration-none">
+                            <i class="fas fa-edit"></i> Edit
+                          </a>
+                          <% } %>
+                      </div>
+                    </div>
+                  </div>
+                  <% }); %>
+            </div>
+          </div>
+          <% } %>
+
+            <!-- All Dhabas -->
+            <div class="dhabas-grid">
+              <% allDhabas.forEach(dhaba=> {
+                let ratingClass = 'green';
+                if(dhaba.rating < 4) ratingClass='yellow' ; if(dhaba.rating < 3) ratingClass='red' ; %>
+                  <div class="dhaba-card animate-fade-in">
+                    <div class="dhaba-image-container">
+                      <img
+                        src="<%= dhaba.image && dhaba.image.length > 0 ? dhaba.image[0].url : 'https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?w=400&h=250&fit=crop&crop=center' %>"
+                        class="dhaba-image" alt="<%= dhaba.title %>">
+                      <% if(dhaba.price) { %>
+                        <div class="status-badge promoted">
+                          ₹<%= Number(dhaba.price).toLocaleString("en-IN") %> for two
+                        </div>
+                        <% } %>
+                    </div>
+
+                    <div class="dhaba-info">
+                      <div class="dhaba-header">
+                        <h5 class="dhaba-title">
+                          <%= dhaba.title %>
+                        </h5>
+                        <div class="rating-badge <%= ratingClass %>">
+                          <%= dhaba.rating || 0 %> <i class="fas fa-star"></i>
+                        </div>
+                      </div>
+
+                      <div class="dhaba-location-row">
+                        <span>
+                          <%= dhaba.cuisine %> • <%= dhaba.location %>
+                        </span>
+                      </div>
+
+                      <p class="text-muted small mb-2"
+                        style="display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; height: 3em;">
+                        Authentic <%= dhaba.category %> experience with traditional flavors.
+                      </p>
+
+                      <div class="dhaba-divider"></div>
+
+                      <div class="dhaba-footer">
+                        <a href="/dhabas/<%= dhaba._id %>" class="view-btn-text">
+                          View Details <i class="fas fa-chevron-right ms-1 small"></i>
+                        </a>
+
+                        <% if (currUser && dhaba.owner && dhaba.owner._id.equals(currUser._id)) { %>
+                          <a href="/dhabas/<%= dhaba._id %>/edit" class="text-muted small text-decoration-none">
+                            <i class="fas fa-edit"></i> Edit
+                          </a>
+                          <% } %>
+                      </div>
+                    </div>
+                  </div>
+                  <% }); %>
+            </div>
+            <% } else { %>
+              <!-- No Results -->
+              <div class="text-center py-5">
+                <i class="fas fa-utensils fa-4x text-muted mb-3"></i>
+                <h4 class="text-muted">No dhabas found</h4>
+                <p class="text-muted mb-4">
+                  <% if (query) { %>
+                    No results for "<%= query %>". Try adjusting your search criteria.
+                      <% } else { %>
+                        No dhabas are available at the moment.
+                        <% } %>
+                </p>
+                <a href="/dhabas" class="btn btn-warning">
+                  <i class="fas fa-refresh me-2"></i>Clear Filters
+                </a>
+              </div>
+              <% } %>
+    </div>
+
+    <script>
+      // Filter functionality
+      function setFilter(type, value) {
+        const url = new URL(window.location);
+        if (value === 'all' || !value) {
+          url.searchParams.delete(type);
+        } else {
+          url.searchParams.set(type, value);
+        }
+        // Preserve other filters
+        ['q', 'category', 'minRating', 'sort'].forEach(param => {
+          const paramValue = url.searchParams.get(param);
+          if (paramValue) {
+            url.searchParams.set(param, paramValue);
+          }
+        });
+        window.location.href = url.toString();
       }
-    });
-    window.location.href = url.toString();
-  }
 
-  // Enhanced interactions
-  document.addEventListener('DOMContentLoaded', function() {
-    // Set active filters based on URL
-    const urlParams = new URLSearchParams(window.location.search);
-    const cuisine = urlParams.get('cuisine');
+      // Enhanced interactions
+      document.addEventListener('DOMContentLoaded', function () {
+        // Set active filters based on URL
+        const urlParams = new URLSearchParams(window.location.search);
+        const cuisine = urlParams.get('cuisine');
 
-    // Update filter UI
-    if (cuisine) {
-      document.querySelectorAll('.filter-item').forEach(item => {
-        item.classList.remove('active');
+        // Update filter UI
+        if (cuisine) {
+          document.querySelectorAll('.filter-item').forEach(item => {
+            item.classList.remove('active');
+          });
+          const activeFilter = document.querySelector(`[onclick*="${cuisine}"]`);
+          if (activeFilter) activeFilter.classList.add('active');
+        }
+
+        // Add staggered animations
+        const cards = document.querySelectorAll('.dhaba-card');
+        cards.forEach((card, index) => {
+          card.style.animationDelay = `${index * 0.1}s`;
+        });
       });
-      const activeFilter = document.querySelector(`[onclick*="${cuisine}"]`);
-      if (activeFilter) activeFilter.classList.add('active');
-    }
+    </script>
 
-    // Add staggered animations
-    const cards = document.querySelectorAll('.dhaba-card');
-    cards.forEach((card, index) => {
-      card.style.animationDelay = `${index * 0.1}s`;
-    });
-  });
-</script>
+    </body>
 
-</body>
-</html>
+    </html>

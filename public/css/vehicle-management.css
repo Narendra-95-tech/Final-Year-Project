@@ -1,0 +1,108 @@
+/* Owner Management Section */
+.owner-management-section {
+    background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+    border-radius: 16px;
+    padding: 25px;
+    margin-top: 20px;
+}
+
+.management-header {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 20px;
+    padding-bottom: 15px;
+    border-bottom: 2px solid rgba(0, 0, 0, 0.1);
+}
+
+.management-header i {
+    font-size: 1.25rem;
+    color: #ff7675;
+}
+
+.management-stats {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 15px;
+    margin-bottom: 20px;
+}
+
+.stat-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 15px;
+    background: white;
+    border-radius: 12px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+}
+
+.stat-item i {
+    font-size: 1.5rem;
+}
+
+.stat-item div {
+    display: flex;
+    flex-direction: column;
+}
+
+.stat-value {
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: #2d3436;
+}
+
+.stat-label {
+    font-size: 0.75rem;
+    color: #636e72;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.management-actions {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.management-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    padding: 12px 20px;
+    border-radius: 10px;
+    font-weight: 600;
+    font-size: 0.9rem;
+    text-decoration: none;
+    transition: all 0.3s ease;
+    border: none;
+    cursor: pointer;
+}
+
+.management-btn i {
+    font-size: 1rem;
+}
+
+.edit-btn {
+    background: linear-gradient(135deg, #0984e3, #74b9ff);
+    color: white;
+}
+
+.edit-btn:hover {
+    background: linear-gradient(135deg, #0770c9, #5fa3e8);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(9, 132, 227, 0.3);
+    color: white;
+}
+
+.delete-btn {
+    background: linear-gradient(135deg, #d63031, #ff7675);
+    color: white;
+}
+
+.delete-btn:hover {
+    background: linear-gradient(135deg, #c0281f, #e85d5d);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(214, 48, 49, 0.3);
+}

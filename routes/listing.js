@@ -7,7 +7,7 @@ const upload = multer({ storage });
 const wrapAsync = require("../utils/wrapAsync");
 const listingController = require("../controllers/listings");
 const Listing = require("../models/listing");
-const { isLoggedIn, isOwner, validateListing } = require("../middleware");
+const { isLoggedIn, isOwner, validateListing, normalizeListingForm } = require("../middleware");
 const openai = require("../openai").default;
 
 // ============================
@@ -20,7 +20,8 @@ router
   .get(wrapAsync(listingController.index))
   .post(
     isLoggedIn,
-    upload.single("listing[image]"),
+    upload.array("listing[image]"),
+    normalizeListingForm,
     validateListing,
     wrapAsync(listingController.createListing)
   );
@@ -95,7 +96,8 @@ router
   .put(
     isLoggedIn,
     isOwner,
-    upload.single("listing[image]"),
+    upload.array("listing[image]"),
+    normalizeListingForm,
     validateListing,
     wrapAsync(listingController.updateListing)
   )

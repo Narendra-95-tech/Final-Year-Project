@@ -1,0 +1,684 @@
+/* 
+  Vehicle Premium Styling 
+  Inspired by Turo & High-end Rental Platforms
+*/
+
+:root {
+    --vp-charcoal: #2d3436;
+    --vp-black: #222222;
+    --vp-orange: #ff385c;
+    --vp-orange-dark: #d50027;
+    --vp-teal: #008a7c;
+    --vp-gray-light: #dddddd;
+    --vp-gray-bg: #f7f7f7;
+    --vp-gray-dark: #717171;
+    --vp-white: #ffffff;
+    --vp-glass: rgba(255, 255, 255, 0.85);
+
+    /* Enhanced Shadows */
+    --vp-shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.08), 0 4px 12px rgba(0, 0, 0, 0.05);
+    --vp-shadow-md: 0 6px 16px rgba(0, 0, 0, 0.12);
+    --vp-shadow-lg: 0 12px 24px rgba(0, 0, 0, 0.12);
+    --vp-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+    --vp-shadow-hover: 0 20px 40px rgba(0, 0, 0, 0.15);
+
+    --vp-radius: 12px;
+    --vp-font: 'Circular', -apple-system, BlinkMacSystemFont, Roboto, Helvetica Neue, sans-serif;
+}
+
+body {
+    background-color: var(--vp-white);
+    color: var(--vp-black);
+    font-family: var(--vp-font);
+}
+
+/* Premium Header Styles */
+.vehicle-title {
+    font-size: 26px;
+    font-weight: 600;
+    color: var(--vp-black);
+    letter-spacing: -0.02em;
+    line-height: 1.125rem;
+    margin-bottom: 8px;
+}
+
+.vehicle-subtitle {
+    font-size: 14px;
+    color: var(--vp-black);
+    font-weight: 500;
+}
+
+.separator {
+    margin: 0 4px;
+    color: var(--vp-black);
+}
+
+.underline {
+    text-decoration: underline;
+    font-weight: 600;
+}
+
+/* Action Buttons (Share/Save) */
+.action-btn {
+    background: transparent;
+    border: none;
+    padding: 8px 12px;
+    border-radius: 8px;
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--vp-black);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    cursor: pointer;
+    transition: background 0.2s ease;
+    text-decoration: underline;
+}
+
+.action-btn:hover {
+    background: #f1f1f1;
+}
+
+.action-btn i {
+    font-size: 16px;
+}
+
+/* Hero Section Upgrade */
+.vehicle-premium-hero {
+    position: relative;
+    height: 450px;
+    background: linear-gradient(rgba(0, 0, 0, 0.4), rgba(0, 0, 0, 0.4)), url('https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?ixlib=rb-4.0.3&auto=format&fit=crop&w=1920&q=80');
+    background-size: cover;
+    background-position: center;
+    background-attachment: fixed;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--vp-white);
+    text-align: center;
+    margin-bottom: -60px;
+    /* Overlap effect for search */
+    border-radius: 0 0 40px 40px;
+}
+
+.hero-content {
+    max-width: 800px;
+    padding: 0 20px;
+    z-index: 2;
+}
+
+.hero-content h1 {
+    font-size: 3.5rem;
+    font-weight: 800;
+    text-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+    margin-bottom: 20px;
+    letter-spacing: -1px;
+}
+
+/* Premium Search Bar */
+.vehicle-fast-search {
+    background: var(--vp-white);
+    padding: 12px;
+    border-radius: 100px;
+    box-shadow: 0 15px 45px rgba(0, 0, 0, 0.2);
+    display: flex;
+    align-items: center;
+    margin: 0 auto;
+    width: fit-content;
+    max-width: 90%;
+    transform: translateY(-50PX);
+    /* Post-hero overlap */
+    border: 1px solid rgba(0, 0, 0, 0.05);
+}
+
+.search-field {
+    padding: 10px 25px;
+    border-right: 1px solid var(--vp-gray-light);
+}
+
+.search-field:last-of-type {
+    border-right: none;
+}
+
+.search-label {
+    display: block;
+    font-size: 0.75rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    color: var(--vp-gray-dark);
+    margin-bottom: 4px;
+}
+
+.search-input {
+    border: none;
+    font-weight: 600;
+    color: var(--vp-charcoal);
+    width: 100%;
+    outline: none;
+}
+
+.search-btn {
+    background: var(--vp-orange);
+    color: white;
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: none;
+    transition: all 0.3s ease;
+    cursor: pointer;
+    margin-left: 10px;
+}
+
+.search-btn:hover {
+    background: var(--vp-orange-dark);
+    transform: scale(1.1);
+}
+
+/* Category Hub Icons */
+.vehicle-category-hub {
+    display: flex;
+    justify-content: center;
+    gap: 30px;
+    margin: 40px 0;
+    overflow-x: auto;
+    padding: 10px 0;
+    scrollbar-width: none;
+}
+
+.category-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    min-width: 80px;
+    opacity: 0.7;
+}
+
+.category-item:hover,
+.category-item.active {
+    opacity: 1;
+    transform: translateY(-4px);
+}
+
+.category-icon {
+    font-size: 1.5rem;
+    color: var(--vp-charcoal);
+}
+
+.category-label {
+    font-size: 0.85rem;
+    font-weight: 600;
+}
+
+/* Premium Vehicle Cards */
+.premium-vehicle-card {
+    background: var(--vp-white);
+    border-radius: var(--vp-radius);
+    overflow: hidden;
+    box-shadow: var(--vp-shadow-md);
+    transition: all 0.4s cubic-bezier(0.165, 0.84, 0.44, 1);
+    border: 1px solid rgba(0, 0, 0, 0.03);
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+}
+
+.premium-vehicle-card:hover {
+    transform: translateY(-4px);
+    box-shadow: var(--vp-shadow-hover);
+}
+
+.card-img-wrapper {
+    position: relative;
+    height: 220px;
+    overflow: hidden;
+}
+
+.card-img-wrapper img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.6s ease;
+}
+
+.premium-vehicle-card:hover .card-img-wrapper img {
+    transform: scale(1.05);
+    /* Softer scale */
+}
+
+.card-badge {
+    position: absolute;
+    top: 15px;
+    left: 15px;
+    background: kwargs(0, 0, 0, 0.6);
+    backdrop-filter: blur(5px);
+    color: white;
+    padding: 6px 12px;
+    border-radius: 8px;
+    font-size: 0.75rem;
+    font-weight: 700;
+}
+
+.card-wishlist {
+    position: absolute;
+    top: 15px;
+    right: 15px;
+    background: var(--vp-white);
+    width: 35px;
+    height: 35px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+    border: none;
+    color: var(--vp-gray-dark);
+}
+
+.card-content {
+    padding: 20px;
+    flex-grow: 1;
+}
+
+.card-price-tag {
+    font-size: 1.4rem;
+    font-weight: 800;
+    color: var(--vp-charcoal);
+}
+
+.card-price-unit {
+    font-size: 0.9rem;
+    color: var(--vp-gray-dark);
+}
+
+.card-title {
+    font-size: 1.1rem;
+    font-weight: 700;
+    margin: 10px 0;
+    color: var(--vp-charcoal);
+}
+
+/* Horizontal Spec Bar */
+.card-spec-bar {
+    display: flex;
+    gap: 15px;
+    margin: 15px 0;
+    padding: 10px 0;
+    border-top: 1px solid var(--vp-gray-light);
+}
+
+.spec-pill {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 0.8rem;
+    color: var(--vp-gray-dark);
+    font-weight: 600;
+}
+
+.spec-pill i {
+    color: var(--vp-orange);
+}
+
+/* Show Page Detailed Styles */
+.detail-gallery {
+    display: grid;
+    grid-template-columns: 2fr 1fr;
+    grid-template-rows: repeat(2, 200px);
+    gap: 12px;
+    margin-bottom: 30px;
+    border-radius: 20px;
+    overflow: hidden;
+}
+
+.gallery-main {
+    grid-row: span 2;
+}
+
+.gallery-item img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: filter 0.3s ease;
+}
+
+.gallery-item:hover img {
+    filter: brightness(0.85);
+}
+
+/* Two-Column Layout */
+.detail-grid {
+    display: grid;
+    grid-template-columns: 1.8fr 1.2fr;
+    gap: 40px;
+}
+
+.sticky-booking-sidebar {
+    position: sticky;
+    top: 100px;
+}
+
+.booking-card {
+    background: white;
+    border: 1px solid var(--vp-gray-light);
+    border-radius: 24px;
+    padding: 30px;
+    box-shadow: var(--vp-shadow-lg);
+}
+
+.booking-price-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    margin-bottom: 25px;
+}
+
+.premium-btn-book {
+    background: var(--vp-orange);
+    color: white;
+    width: 100%;
+    padding: 16px;
+    border-radius: 12px;
+    font-size: 1.1rem;
+    font-weight: 700;
+    border: none;
+    margin-top: 20px;
+    transition: all 0.3s ease;
+}
+
+.premium-btn-book:hover {
+    background: var(--vp-orange-dark);
+    transform: scale(1.02);
+}
+
+/* Specs Grid */
+.specs-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 20px;
+    margin: 30px 0;
+}
+
+.spec-card {
+    background: #f8f9fa;
+    padding: 15px;
+    border-radius: 12px;
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+}
+
+.spec-card i {
+    font-size: 1.25rem;
+    color: var(--vp-orange);
+    margin-bottom: 5px;
+}
+
+.spec-card-label {
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    font-weight: 700;
+    color: var(--vp-gray-dark);
+}
+
+.spec-card-value {
+    font-size: 1rem;
+    font-weight: 600;
+    color: var(--vp-charcoal);
+}
+
+/* Features & Amenities Grid */
+.features-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+    gap: 15px;
+    margin: 30px 0;
+}
+
+.feature-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px 16px;
+    background: #f8f9fa;
+    border-radius: 12px;
+    transition: all 0.3s ease;
+}
+
+.feature-item:hover {
+    background: #e9ecef;
+    transform: translateY(-2px);
+}
+
+.feature-icon {
+    font-size: 1.25rem;
+    color: var(--vp-orange);
+    min-width: 24px;
+}
+
+.feature-label {
+    font-size: 0.9rem;
+    font-weight: 500;
+    color: var(--vp-charcoal);
+}
+
+/* Host Profile Module */
+.host-profile-card {
+    background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+    border-radius: 20px;
+    padding: 25px;
+    margin-bottom: 30px;
+}
+
+.host-avatar-wrapper {
+    position: relative;
+    display: inline-block;
+}
+
+.host-verified-badge {
+    position: absolute;
+    bottom: -5px;
+    right: -5px;
+    background: var(--vp-teal);
+    color: white;
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 3px solid white;
+    font-size: 0.75rem;
+}
+
+.host-stats {
+    display: flex;
+    gap: 20px;
+    margin-top: 15px;
+    padding-top: 15px;
+    border-top: 1px solid rgba(0, 0, 0, 0.1);
+}
+
+.host-stat-item {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.host-stat-value {
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: var(--vp-charcoal);
+}
+
+.host-stat-label {
+    font-size: 0.75rem;
+    color: var(--vp-gray-dark);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+/* Enhanced Booking Card */
+.booking-card {
+    box-shadow: var(--vp-shadow-lg) !important;
+    border: 1px solid rgba(0, 0, 0, 0.08) !important;
+}
+
+.booking-highlight {
+    background: linear-gradient(135deg, #fff3cd 0%, #ffeaa7 100%);
+    padding: 12px;
+    border-radius: 10px;
+    margin-bottom: 20px;
+    text-align: center;
+}
+
+.booking-highlight-text {
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: #856404;
+    margin: 0;
+}
+
+.price-breakdown {
+    background: #f8f9fa;
+    padding: 20px;
+    border-radius: 12px;
+    margin-top: 20px;
+}
+
+/* Review Summary Bars */
+.review-summary {
+    background: #f8f9fa;
+    padding: 25px;
+    border-radius: 16px;
+    margin-bottom: 30px;
+}
+
+.rating-bar-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 10px;
+}
+
+.rating-bar-label {
+    min-width: 60px;
+    font-size: 0.85rem;
+    color: var(--vp-gray-dark);
+}
+
+.rating-bar-container {
+    flex: 1;
+    height: 8px;
+    background: #e9ecef;
+    border-radius: 10px;
+    overflow: hidden;
+}
+
+.rating-bar-fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--vp-orange), var(--vp-orange-dark));
+    transition: width 0.6s ease;
+}
+
+.rating-bar-count {
+    min-width: 40px;
+    text-align: right;
+    font-size: 0.85rem;
+    color: var(--vp-gray-dark);
+}
+
+/* Bento Grid Gallery */
+.bento-gallery {
+    display: grid;
+    grid-template-columns: 2fr 1fr;
+    grid-template-rows: repeat(2, 250px);
+    gap: 12px;
+    margin-bottom: 30px;
+    border-radius: 20px;
+    overflow: hidden;
+}
+
+.bento-main {
+    grid-row: span 2;
+}
+
+.bento-item {
+    position: relative;
+    overflow: hidden;
+    cursor: pointer;
+}
+
+.bento-item img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.4s ease;
+}
+
+.bento-item:hover img {
+    transform: scale(1.05);
+}
+
+.view-all-photos {
+    position: absolute;
+    bottom: 20px;
+    right: 20px;
+    background: white;
+    padding: 10px 20px;
+    border-radius: 8px;
+    font-weight: 600;
+    border: 1px solid rgba(0, 0, 0, 0.1);
+    transition: all 0.3s ease;
+}
+
+.view-all-photos:hover {
+    background: var(--vp-charcoal);
+    color: white;
+}
+
+/* Mobile Adjustments */
+@media (max-width: 992px) {
+    .detail-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .detail-gallery {
+        grid-template-columns: 1fr;
+        grid-template-rows: auto;
+    }
+
+    .gallery-side {
+        display: none;
+    }
+
+    .vehicle-premium-hero h1 {
+        font-size: 2.5rem;
+    }
+
+    .vehicle-fast-search {
+        flex-direction: column;
+        border-radius: 20px;
+        padding: 20px;
+        transform: translateY(-40px);
+    }
+
+    .search-field {
+        border-right: none;
+        border-bottom: 1px solid var(--vp-gray-light);
+        width: 100%;
+        padding: 10px 0;
+    }
+
+    .search-btn {
+        width: 100%;
+        border-radius: 10px;
+        margin-top: 15px;
+        margin-left: 0;
+    }
+}

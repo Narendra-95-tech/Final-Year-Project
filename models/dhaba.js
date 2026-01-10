@@ -9,10 +9,12 @@ const dhabaSchema = new Schema({
         required: true,
     },
     description: String,
-    image: {
-       url: String,
-       filename: String,
-    },
+    image: [
+        {
+            url: String,
+            filename: String,
+        }
+    ],
     price: {
         type: Number,
         required: true,
@@ -213,10 +215,10 @@ const dhabaSchema = new Schema({
     },
 });
 
-dhabaSchema.post("findOneAndDelete", async(dhaba) => {
-    if(dhaba) {
-        await Review.deleteMany({_id: {$in: dhaba.reviews}});
-        await Booking.deleteMany({_id: {$in: dhaba.bookings}});
+dhabaSchema.post("findOneAndDelete", async (dhaba) => {
+    if (dhaba) {
+        await Review.deleteMany({ _id: { $in: dhaba.reviews } });
+        await Booking.deleteMany({ _id: { $in: dhaba.bookings } });
     }
 });
 
