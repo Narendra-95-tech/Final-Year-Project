@@ -8,14 +8,27 @@ const router = express.Router();
 const { isLoggedIn } = require('../middleware');
 const User = require('../models/user');
 
+// Helper to get target field
+const getTargetField = (type) => {
+    switch (type) {
+        case 'vehicle': return 'wishlistVehicles';
+        case 'dhaba': return 'wishlistDhabas';
+        default: return 'wishlist'; // default to listing
+    }
+};
+
 // Add to wishlist
-router.post('/:listingId', isLoggedIn, async (req, res) => {
+router.post('/:type/:id', isLoggedIn, async (req, res) => {
     try {
-        const { listingId } = req.params;
+        const { type, id } = req.params;
         const userId = req.user._id;
+        const targetField = getTargetField(type);
+
+        const update = {};
+        update[targetField] = id;
 
         await User.findByIdAndUpdate(userId, {
-            $addToSet: { wishlist: listingId }
+            $addToSet: update
         });
 
         res.json({ success: true, message: 'Added to wishlist' });
@@ -26,13 +39,17 @@ router.post('/:listingId', isLoggedIn, async (req, res) => {
 });
 
 // Remove from wishlist
-router.delete('/:listingId', isLoggedIn, async (req, res) => {
+router.delete('/:type/:id', isLoggedIn, async (req, res) => {
     try {
-        const { listingId } = req.params;
+        const { type, id } = req.params;
         const userId = req.user._id;
+        const targetField = getTargetField(type);
+
+        const update = {};
+        update[targetField] = id;
 
         await User.findByIdAndUpdate(userId, {
-            $pull: { wishlist: listingId }
+            $pull: update
         });
 
         res.json({ success: true, message: 'Removed from wishlist' });

@@ -32,452 +32,500 @@
     %>
 
     <!-- Hero Section -->
-    <section class="listings-hero">
-      <div class="listings-hero-content">
-        <h1 class="listings-title">Find the Perfect Home</h1>
-        <p class="listings-subtitle">Rent from local hosts and discover unique stays for your dream vacation.</p>
-      </div>
-    </section>
+    <% if (!query) { %>
+      <section class="listings-hero animate-fade-in">
+        <div class="listings-hero-content">
+          <h1 class="listings-title">Find the Perfect Home</h1>
+          <p class="listings-subtitle">Rent from local hosts and discover unique stays for your dream vacation.</p>
+        </div>
+      </section>
+      <% } %>
 
-    <div class="container">
-      <!-- Filters Section (Sticky Category Bar) -->
-      <div class="filters-section animate-fade-in">
-        <div class="category-scroll-container">
-          <div class="filter-item <%= !category || category === 'all' ? 'active' : '' %>"
-            onclick="setFilter('category', 'all')">
-            <i class="fas fa-th-large filter-icon"></i>
-            <div class="filter-label">All</div>
-          </div>
+        <div class="container">
+          <!-- Top Filter Bar (Sticky) -->
+          <div class="filters-section animate-fade-in">
+            <div class="category-scroll-container">
+              <!-- All -->
+              <div class="filter-item <%= !category || category === 'all' ? 'active' : '' %>"
+                onclick="setCategory('all')">
+                <div class="filter-icon-circle">
+                  <i class="fas fa-th-large"></i>
+                </div>
+                <span class="filter-label">All</span>
+              </div>
 
-          <div class="filter-item <%= category === 'trending' ? 'active' : '' %>"
-            onclick="setFilter('category', 'trending')">
-            <i class="fas fa-fire filter-icon"></i>
-            <div class="filter-label">Trending</div>
-          </div>
+              <!-- Categories -->
+              <div class="filter-item <%= category === 'trending' ? 'active' : '' %>" onclick="setCategory('trending')">
+                <div class="filter-icon-circle"><i class="fas fa-fire"></i></div>
+                <span class="filter-label">Trending</span>
+              </div>
+              <div class="filter-item <%= category === 'rooms' ? 'active' : '' %>" onclick="setCategory('rooms')">
+                <div class="filter-icon-circle"><i class="fas fa-bed"></i></div>
+                <span class="filter-label">Rooms</span>
+              </div>
+              <div class="filter-item <%= category === 'iconic cities' ? 'active' : '' %>"
+                onclick="setCategory('iconic cities')">
+                <div class="filter-icon-circle"><i class="fas fa-city"></i></div>
+                <span class="filter-label">Iconic Cities</span>
+              </div>
+              <div class="filter-item <%= category === 'mountains' ? 'active' : '' %>"
+                onclick="setCategory('mountains')">
+                <div class="filter-icon-circle"><i class="fas fa-mountain"></i></div>
+                <span class="filter-label">Mountains</span>
+              </div>
+              <div class="filter-item <%= category === 'castles' ? 'active' : '' %>" onclick="setCategory('castles')">
+                <div class="filter-icon-circle"><i class="fab fa-fort-awesome"></i></div>
+                <span class="filter-label">Castles</span>
+              </div>
+              <div class="filter-item <%= category === 'pools' ? 'active' : '' %>" onclick="setCategory('pools')">
+                <div class="filter-icon-circle"><i class="fas fa-swimmer"></i></div>
+                <span class="filter-label">Amazing Pools</span>
+              </div>
+              <div class="filter-item <%= category === 'camping' ? 'active' : '' %>" onclick="setCategory('camping')">
+                <div class="filter-icon-circle"><i class="fas fa-campground"></i></div>
+                <span class="filter-label">Camping</span>
+              </div>
+              <div class="filter-item <%= category === 'farms' ? 'active' : '' %>" onclick="setCategory('farms')">
+                <div class="filter-icon-circle"><i class="fas fa-tractor"></i></div>
+                <span class="filter-label">Farms</span>
+              </div>
+              <div class="filter-item <%= category === 'arctic' ? 'active' : '' %>" onclick="setCategory('arctic')">
+                <div class="filter-icon-circle"><i class="fas fa-snowflake"></i></div>
+                <span class="filter-label">Arctic</span>
+              </div>
+              <div class="filter-item <%= category === 'domes' ? 'active' : '' %>" onclick="setCategory('domes')">
+                <div class="filter-icon-circle"><i class="fas fa-igloo"></i></div>
+                <span class="filter-label">Domes</span>
+              </div>
+              <div class="filter-item <%= category === 'boats' ? 'active' : '' %>" onclick="setCategory('boats')">
+                <div class="filter-icon-circle"><i class="fas fa-ship"></i></div>
+                <span class="filter-label">Boats</span>
+              </div>
+            </div>
 
-          <div class="filter-item <%= category === 'rooms' ? 'active' : '' %>" onclick="setFilter('category', 'rooms')">
-            <i class="fas fa-bed filter-icon"></i>
-            <div class="filter-label">Rooms</div>
-          </div>
+            <!-- Detailed Filter Row -->
+            <div class="detailed-filters-row">
+              <form id="filterForm" class="filter-form">
+                <!-- Hidden Category Input -->
+                <input type="hidden" name="category" id="categoryInput" value="<%= category || 'all' %>">
 
-          <div class="filter-item <%= category === 'iconic cities' ? 'active' : '' %>"
-            onclick="setFilter('category', 'iconic cities')">
-            <i class="fas fa-city filter-icon"></i>
-            <div class="filter-label">Iconic Cities</div>
-          </div>
+                <div class="filter-group">
+                  <label>Min Price (₹)</label>
+                  <input type="number" name="minPrice" value="<%= minPrice || '' %>" placeholder="0" min="0">
+                </div>
 
-          <div class="filter-item <%= category === 'mountains' ? 'active' : '' %>"
-            onclick="setFilter('category', 'mountains')">
-            <i class="fas fa-mountain filter-icon"></i>
-            <div class="filter-label">Mountains</div>
-          </div>
+                <div class="filter-group">
+                  <label>Max Price (₹)</label>
+                  <input type="number" name="maxPrice" value="<%= maxPrice || '' %>" placeholder="10000" min="0">
+                </div>
 
-          <div class="filter-item <%= category === 'castles' ? 'active' : '' %>"
-            onclick="setFilter('category', 'castles')">
-            <i class="fas fa-fort-awesome filter-icon"></i>
-            <div class="filter-label">Castles</div>
-          </div>
+                <div class="filter-group">
+                  <label>Guests</label>
+                  <input type="number" name="guests" value="<%= guests || '' %>" placeholder="1" min="1">
+                </div>
 
-          <div class="filter-item <%= category === 'pools' ? 'active' : '' %>" onclick="setFilter('category', 'pools')">
-            <i class="fas fa-swimming-pool filter-icon"></i>
-            <div class="filter-label">Amazing Pools</div>
-          </div>
+                <div class="filter-group sort-group">
+                  <label>Sort By</label>
+                  <select name="sort" class="form-select">
+                    <option value="" <%=!sort ? 'selected' : '' %>>Default</option>
+                    <option value="price_asc" <%=sort==='price_asc' ? 'selected' : '' %>>Price: Low to High</option>
+                    <option value="price_desc" <%=sort==='price_desc' ? 'selected' : '' %>>Price: High to Low</option>
+                    <option value="newest" <%=sort==='newest' ? 'selected' : '' %>>Newest First</option>
+                  </select>
+                </div>
 
-          <div class="filter-item <%= category === 'camping' ? 'active' : '' %>"
-            onclick="setFilter('category', 'camping')">
-            <i class="fas fa-campground filter-icon"></i>
-            <div class="filter-label">Camping</div>
-          </div>
-
-          <div class="filter-item <%= category === 'farms' ? 'active' : '' %>" onclick="setFilter('category', 'farms')">
-            <i class="fas fa-cow filter-icon"></i>
-            <div class="filter-label">Farms</div>
-          </div>
-
-          <div class="filter-item <%= category === 'arctic' ? 'active' : '' %>"
-            onclick="setFilter('category', 'arctic')">
-            <i class="fas fa-snowflake filter-icon"></i>
-            <div class="filter-label">Arctic</div>
-          </div>
-
-          <div class="filter-item <%= category === 'domes' ? 'active' : '' %>" onclick="setFilter('category', 'domes')">
-            <i class="fas fa-igloo filter-icon"></i>
-            <div class="filter-label">Domes</div>
-          </div>
-
-          <div class="filter-item <%= category === 'boats' ? 'active' : '' %>" onclick="setFilter('category', 'boats')">
-            <i class="fas fa-ship filter-icon"></i>
-            <div class="filter-label">Boats</div>
+                <button type="submit" class="btn-filter-apply">
+                  <i class="fas fa-search"></i> Apply
+                </button>
+              </form>
+            </div>
           </div>
         </div>
-      </div>
 
-      <!-- Search Controls -->
-      <div class="search-controls">
-        <form method="GET" action="/listings" class="row g-3">
-          <div class="col-md-3">
-            <label for="minPrice" class="form-label">Min Price (₹)</label>
-            <input type="number" class="form-control" id="minPrice" name="minPrice" value="<%= minPrice || '' %>"
-              placeholder="0" min="0">
-          </div>
-          <div class="col-md-3">
-            <label for="maxPrice" class="form-label">Max Price (₹)</label>
-            <input type="number" class="form-control" id="maxPrice" name="maxPrice" value="<%= maxPrice || '' %>"
-              placeholder="10000" min="0">
-          </div>
-          <div class="col-md-2">
-            <label for="guests" class="form-label">Guests</label>
-            <input type="number" class="form-control" id="guests" name="guests" value="<%= guests || '' %>"
-              placeholder="1" min="1" max="20">
-          </div>
-          <div class="col-md-2">
-            <label for="sort" class="form-label">Sort By</label>
-            <select class="form-select" id="sort" name="sort">
-              <option value="" <%=!sort ? 'selected' : '' %>>Default</option>
-              <option value="price_asc" <%=sort==='price_asc' ? 'selected' : '' %>>Price: Low to High</option>
-              <option value="price_desc" <%=sort==='price_desc' ? 'selected' : '' %>>Price: High to Low</option>
-              <option value="newest" <%=sort==='newest' ? 'selected' : '' %>>Newest First</option>
-            </select>
-          </div>
-          <div class="col-md-2 d-flex align-items-end">
-            <button type="submit" class="btn btn-primary w-100">
-              <i class="fas fa-search me-2"></i>Apply
-            </button>
-          </div>
-        </form>
-      </div>
-    </div>
-
-    <!-- Results Header -->
-    <div class="d-flex justify-content-between align-items-center mb-4">
-      <h3 class="mb-0">
-        <i class="fas fa-list me-2 text-primary"></i>
-        <%= allListings.length %> Properties Found
-          <% if (query) { %>
-            <small class="text-muted">for "<%= query %>"</small>
+        <!-- Results Header -->
+        <div class="d-flex justify-content-between align-items-center mb-4">
+          <h3 class="mb-0">
+            <i class="fas fa-list me-2 text-primary"></i>
+            <%= allListings.length %> Properties Found
+              <% if (query) { %>
+                <small class="text-muted">for "<%= query %>"</small>
+                <% } %>
+          </h3>
+          <% if (currUser) { %>
+            <a href="/listings/new" class="btn btn-info">
+              <i class="fas fa-plus me-2"></i>Add New Listing
+            </a>
             <% } %>
-      </h3>
-      <% if (currUser) { %>
-        <a href="/listings/new" class="btn btn-info">
-          <i class="fas fa-plus me-2"></i>Add New Listing
-        </a>
-        <% } %>
-    </div>
+        </div>
 
-    <!-- Active Filters -->
-    <div class="mb-4">
-      <% if (hasActiveFilters) { %>
-        <div class="d-flex flex-wrap gap-2 align-items-center mb-3">
-          <span class="fw-semibold">Active filters:</span>
-          <% if (query) { %>
-            <span class="chip">
-              Search: <b>
-                <%= query %>
-              </b>
-              <a href="/listings<%= makeQueryString({}, ['q']) %>">
-                <i class="fas fa-times"></i>
-              </a>
-            </span>
-            <% } %>
-              <% if (category && category !=='all' ) { %>
+        <!-- Active Filters -->
+        <div class="mb-4">
+          <% if (hasActiveFilters) { %>
+            <div class="d-flex flex-wrap gap-2 align-items-center mb-3">
+              <span class="fw-semibold">Active filters:</span>
+              <% if (query) { %>
                 <span class="chip">
-                  Category: <b>
-                    <%= category %>
+                  Search: <b>
+                    <%= query %>
                   </b>
-                  <a href="/listings<%= makeQueryString({}, ['category']) %>">
+                  <a href="/listings<%= makeQueryString({}, ['q']) %>">
                     <i class="fas fa-times"></i>
                   </a>
                 </span>
                 <% } %>
-                  <% if (minPrice) { %>
+                  <% if (category && category !=='all' ) { %>
                     <span class="chip">
-                      Min: ₹<b>
-                        <%= Number(minPrice).toLocaleString('en-IN') %>
+                      Category: <b>
+                        <%= category %>
                       </b>
-                      <a href="/listings<%= makeQueryString({}, ['minPrice']) %>">
+                      <a href="/listings<%= makeQueryString({}, ['category']) %>">
                         <i class="fas fa-times"></i>
                       </a>
                     </span>
                     <% } %>
-                      <% if (maxPrice) { %>
+                      <% if (minPrice) { %>
                         <span class="chip">
-                          Max: ₹<b>
-                            <%= Number(maxPrice).toLocaleString('en-IN') %>
+                          Min: ₹<b>
+                            <%= Number(minPrice).toLocaleString('en-IN') %>
                           </b>
-                          <a href="/listings<%= makeQueryString({}, ['maxPrice']) %>">
+                          <a href="/listings<%= makeQueryString({}, ['minPrice']) %>">
                             <i class="fas fa-times"></i>
                           </a>
                         </span>
                         <% } %>
-                          <% if (guests) { %>
+                          <% if (maxPrice) { %>
                             <span class="chip">
-                              Guests: <b>
-                                <%= guests %>
+                              Max: ₹<b>
+                                <%= Number(maxPrice).toLocaleString('en-IN') %>
                               </b>
-                              <a href="/listings<%= makeQueryString({}, ['guests']) %>">
+                              <a href="/listings<%= makeQueryString({}, ['maxPrice']) %>">
                                 <i class="fas fa-times"></i>
                               </a>
                             </span>
                             <% } %>
-                              <a href="/listings" class="btn btn-sm btn-outline-secondary ms-2">
-                                <i class="fas fa-times me-1"></i>Clear All
-                              </a>
-        </div>
-        <% } %>
-    </div>
-
-    <!-- Listings Grid -->
-    <% if (allListings.length> 0) { %>
-      <!-- Trending Section -->
-      <% if (typeof trendingListings !=='undefined' && trendingListings.length> 0) { %>
-        <div class="mb-5">
-          <h4 class="mb-4 d-flex align-items-center">
-            <i class="fas fa-fire text-danger me-2"></i>
-            Today's Trending
-          </h4>
-          <div class="listings-grid">
-            <% for (let t of trendingListings) { %>
-              <div class="listing-card animate-fade-in">
-                <div class="listing-image-container">
-                  <img
-                    src="<%= t.image?.url || 'https://images.unsplash.com/photo-1502672260266-1c1ef2d93688?w=400&h=250&fit=crop&crop=center' %>"
-                    class="listing-image" alt="<%= t.title %>">
-                  <button class="wishlist-btn" onclick="toggleWishlist(this, '<%= t._id %>')" title="Add to wishlist">
-                    <i class="far fa-heart"></i>
-                  </button>
-                  <div class="price-overlay">
-                    ₹<%= t.price ? Number(t.price).toLocaleString("en-IN") : "N/A" %>
-                  </div>
-                  <div class="trending-badge">Trending</div>
-                  <% if (t.reviews && t.reviews.length> 0) {
-                    const avgRating = (t.reviews.reduce((sum, r) => sum + (r.rating || 5), 0) /
-                    t.reviews.length).toFixed(1);
-                    if (avgRating >= 4.8) { %>
-                    <div class="guest-favorite-badge">
-                      <i class="fas fa-medal text-warning"></i> Guest favorite
-                    </div>
-                    <% } %>
-                      <div class="rating-badge">
-                        <span class="stars">★</span>
-                        <span>
-                          <%= avgRating %>
-                        </span>
-                      </div>
-                      <% } %>
-                </div>
-                <div class="listing-info">
-                  <h5 class="listing-title">
-                    <%= t.title %>
-                  </h5>
-                  <p class="listing-location">
-                    <i class="fas fa-map-marker-alt me-1"></i>
-                    <%= t.location %>, <%= t.country %>
-                  </p>
-                  <p class="listing-owner">
-                    <i class="fas fa-user me-1"></i>
-                    Hosted by <%= t.owner?.username || 'Unknown' %>
-                  </p>
-                  <div class="listing-actions">
-                    <a href="/listings/<%= t._id %>" class="btn btn-outline-primary flex-fill">
-                      <i class="fas fa-eye me-1"></i>View Details
-                    </a>
-                    <% if (currUser && t.owner._id.equals(currUser._id)) { %>
-                      <a href="/listings/<%= t._id %>/edit" class="btn btn-outline-secondary flex-fill ms-2">
-                        <i class="fas fa-edit me-1"></i>Edit
-                      </a>
-                      <% } %>
-                  </div>
-                </div>
-              </div>
-              <% } %>
-          </div>
-        </div>
-        <% } %>
-
-          <!-- All Listings -->
-          <div class="listings-grid">
-            <% for (let listing of allListings) { %>
-              <div class="listing-card animate-fade-in">
-                <div class="listing-image-container">
-                  <img
-                    src="<%= listing.image?.url || 'https://images.unsplash.com/photo-1502672260266-1c1ef2d93688?w=400&h=250&fit=crop&crop=center' %>"
-                    class="listing-image" alt="<%= listing.title %>">
-                  <button class="wishlist-btn" onclick="toggleWishlist(this, '<%= listing._id %>')"
-                    title="Add to wishlist">
-                    <i class="far fa-heart"></i>
-                  </button>
-                  <div class="price-overlay">
-                    ₹<%= listing.price ? Number(listing.price).toLocaleString("en-IN") : "N/A" %>
-                  </div>
-                  <% if (listing.reviews && listing.reviews.length> 0) {
-                    const avgRating = (listing.reviews.reduce((sum, r) => sum + (r.rating || 5), 0) /
-                    listing.reviews.length).toFixed(1);
-                    if (avgRating >= 4.8) { %>
-                    <div class="guest-favorite-badge">
-                      <i class="fas fa-medal text-warning"></i> Guest favorite
-                    </div>
-                    <% } %>
-                      <div class="rating-badge">
-                        <span class="stars">★</span>
-                        <span>
-                          <%= avgRating %>
-                        </span>
-                      </div>
-                      <% } %>
-                </div>
-                <div class="listing-info">
-                  <h5 class="listing-title">
-                    <%= listing.title %>
-                  </h5>
-                  <p class="listing-location">
-                    <i class="fas fa-map-marker-alt me-1"></i>
-                    <%= listing.location %>, <%= listing.country %>
-                  </p>
-                  <p class="listing-owner">
-                    <i class="fas fa-user me-1"></i>
-                    Hosted by <%= listing.owner?.username || 'Unknown' %>
-                  </p>
-                  <div class="listing-actions">
-                    <a href="/listings/<%= listing._id %>" class="btn btn-outline-primary flex-fill">
-                      <i class="fas fa-eye me-1"></i>View Details
-                    </a>
-                    <% if (currUser && listing.owner._id.equals(currUser._id)) { %>
-                      <a href="/listings/<%= listing._id %>/edit" class="btn btn-outline-secondary flex-fill ms-2">
-                        <i class="fas fa-edit me-1"></i>Edit
-                      </a>
-                      <% } %>
-                  </div>
-                </div>
-              </div>
-              <% } %>
-          </div>
-          <% } else { %>
-            <!-- No Results -->
-            <div class="text-center py-5">
-              <i class="fas fa-search fa-4x text-muted mb-3"></i>
-              <h4 class="text-muted">No properties found</h4>
-              <p class="text-muted mb-4">
-                <% if (query) { %>
-                  No results for "<%= query %>". Try adjusting your search criteria.
-                    <% } else { %>
-                      No properties are available at the moment.
-                      <% } %>
-              </p>
-              <a href="/listings" class="btn btn-primary">
-                <i class="fas fa-refresh me-2"></i>Clear Filters
-              </a>
+                              <% if (guests) { %>
+                                <span class="chip">
+                                  Guests: <b>
+                                    <%= guests %>
+                                  </b>
+                                  <a href="/listings<%= makeQueryString({}, ['guests']) %>">
+                                    <i class="fas fa-times"></i>
+                                  </a>
+                                </span>
+                                <% } %>
+                                  <a href="/listings" class="btn btn-sm btn-outline-secondary ms-2">
+                                    <i class="fas fa-times me-1"></i>Clear All
+                                  </a>
             </div>
             <% } %>
-              </div>
-
-              <script>
-                // Wishlist functionality
-                function toggleWishlist(btn, listingId) {
-                  btn.classList.toggle('active');
-                  const isActive = btn.classList.contains('active');
-
-                  // Update icon
-                  const icon = btn.querySelector('i');
-                  if (isActive) {
-                    icon.classList.remove('far');
-                    icon.classList.add('fas');
-
-                    // Save to localStorage
-                    let wishlist = JSON.parse(localStorage.getItem('wishlist') || '[]');
-                    if (!wishlist.includes(listingId)) {
-                      wishlist.push(listingId);
-                      localStorage.setItem('wishlist', JSON.stringify(wishlist));
-                    }
-
-                    // Show toast notification
-                    showNotification('Added to wishlist!', 'success');
-                  } else {
-                    icon.classList.add('far');
-                    icon.classList.remove('fas');
-
-                    // Remove from localStorage
-                    let wishlist = JSON.parse(localStorage.getItem('wishlist') || '[]');
-                    wishlist = wishlist.filter(id => id !== listingId);
-                    localStorage.setItem('wishlist', JSON.stringify(wishlist));
-
-                    showNotification('Removed from wishlist', 'info');
-                  }
-                }
-
-                // Show notification
-                function showNotification(message, type = 'info') {
-                  const toast = document.createElement('div');
-                  toast.className = `toast show align-items-center text-white bg-${type === 'success' ? 'success' : 'info'} border-0`;
-                  toast.setAttribute('role', 'alert');
-                  toast.innerHTML = `
-      <div class="d-flex">
-        <div class="toast-body">
-          <i class="fas ${type === 'success' ? 'fa-check-circle' : 'fa-info-circle'} me-2"></i>${message}
         </div>
-        <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"></button>
-      </div>
-    `;
 
-                  const container = document.querySelector('.position-fixed.top-0.end-0');
-                  if (container) {
-                    container.appendChild(toast);
-                    setTimeout(() => toast.remove(), 3000);
-                  }
-                }
+        <!-- Listings Grid -->
+        <% if (allListings.length> 0) { %>
+          <!-- Trending Section -->
+          <% if (!query && typeof trendingListings !=='undefined' && trendingListings.length> 0) { %>
+            <div class="mb-5">
+              <h4 class="mb-4 d-flex align-items-center">
+                <i class="fas fa-fire text-danger me-2"></i>
+                Today's Trending
+              </h4>
+              <div class="listings-grid">
+                <% for (let t of trendingListings) { %>
+                  <div class="listing-card animate-fade-in">
+                    <div class="listing-image-container">
+                      <img
+                        src="<%= t.image?.url || 'https://images.unsplash.com/photo-1502672260266-1c1ef2d93688?w=400&h=250&fit=crop&crop=center' %>"
+                        class="listing-image" alt="<%= t.title %>">
+                      <button class="wishlist-btn" data-id="<%= t._id %>"
+                        onclick="toggleWishlist(this, '<%= t._id %>', 'listing')" title="Add to wishlist">
+                        <i class="far fa-heart"></i>
+                      </button>
+                      <div class="price-overlay">
+                        ₹<%= t.price ? Number(t.price).toLocaleString("en-IN") : "N/A" %>
+                      </div>
+                      <div class="trending-badge">Trending</div>
+                      <% if (t.reviews && t.reviews.length> 0) {
+                        const avgRating = (t.reviews.reduce((sum, r) => sum + (r.rating || 5), 0) /
+                        t.reviews.length).toFixed(1);
+                        if (avgRating >= 4.8) { %>
+                        <div class="guest-favorite-badge">
+                          <i class="fas fa-medal text-warning"></i> Guest favorite
+                        </div>
+                        <% } %>
+                          <div class="rating-badge">
+                            <span class="stars">★</span>
+                            <span>
+                              <%= avgRating %>
+                            </span>
+                          </div>
+                          <% } %>
+                    </div>
+                    <div class="listing-info">
+                      <h5 class="listing-title">
+                        <%= t.title %>
+                      </h5>
+                      <p class="listing-location">
+                        <i class="fas fa-map-marker-alt me-1"></i>
+                        <%= t.location %>, <%= t.country %>
+                      </p>
+                      <p class="listing-owner">
+                        <i class="fas fa-user me-1"></i>
+                        Hosted by <%= t.owner?.username || 'Unknown' %>
+                      </p>
+                      <div class="listing-actions">
+                        <a href="/listings/<%= t._id %>" class="btn btn-outline-primary flex-fill">
+                          <i class="fas fa-eye me-1"></i>View Details
+                        </a>
+                        <% if (currUser && t.owner._id.equals(currUser._id)) { %>
+                          <a href="/listings/<%= t._id %>/edit" class="btn btn-outline-secondary flex-fill ms-2">
+                            <i class="fas fa-edit me-1"></i>Edit
+                          </a>
+                          <% } %>
+                      </div>
+                    </div>
+                  </div>
+                  <% } %>
+              </div>
+            </div>
+            <% } %>
 
-                // Filter functionality
-                function setFilter(type, value) {
-                  const url = new URL(window.location);
-                  if (value === 'all' || !value) {
-                    url.searchParams.delete(type);
-                  } else {
-                    url.searchParams.set(type, value);
-                  }
-                  // Preserve other filters
-                  ['q', 'sort', 'minPrice', 'maxPrice', 'guests'].forEach(param => {
-                    const paramValue = url.searchParams.get(param);
-                    if (paramValue) {
-                      url.searchParams.set(param, paramValue);
+              <!-- All Listings -->
+              <div class="listings-grid">
+                <% for (let listing of allListings) { %>
+                  <div class="listing-card animate-fade-in">
+                    <div class="listing-image-container">
+                      <img
+                        src="<%= listing.image?.url || 'https://images.unsplash.com/photo-1502672260266-1c1ef2d93688?w=400&h=250&fit=crop&crop=center' %>"
+                        class="listing-image" alt="<%= listing.title %>">
+                      <button class="wishlist-btn" data-id="<%= listing._id %>"
+                        onclick="toggleWishlist(this, '<%= listing._id %>', 'listing')" title="Add to wishlist">
+                        <i class="far fa-heart"></i>
+                      </button>
+                      <div class="price-overlay">
+                        ₹<%= listing.price ? Number(listing.price).toLocaleString("en-IN") : "N/A" %>
+                      </div>
+                      <% if (listing.reviews && listing.reviews.length> 0) {
+                        const avgRating = (listing.reviews.reduce((sum, r) => sum + (r.rating || 5), 0) /
+                        listing.reviews.length).toFixed(1);
+                        if (avgRating >= 4.8) { %>
+                        <div class="guest-favorite-badge">
+                          <i class="fas fa-medal text-warning"></i> Guest favorite
+                        </div>
+                        <% } %>
+                          <div class="rating-badge">
+                            <span class="stars">★</span>
+                            <span>
+                              <%= avgRating %>
+                            </span>
+                          </div>
+                          <% } %>
+                    </div>
+                    <div class="listing-info">
+                      <h5 class="listing-title">
+                        <%= listing.title %>
+                      </h5>
+                      <p class="listing-location">
+                        <i class="fas fa-map-marker-alt me-1"></i>
+                        <%= listing.location %>, <%= listing.country %>
+                      </p>
+                      <p class="listing-owner">
+                        <i class="fas fa-user me-1"></i>
+                        Hosted by <%= listing.owner?.username || 'Unknown' %>
+                      </p>
+                      <div class="listing-actions">
+                        <a href="/listings/<%= listing._id %>" class="btn btn-outline-primary flex-fill">
+                          <i class="fas fa-eye me-1"></i>View Details
+                        </a>
+                        <% if (currUser && listing.owner._id.equals(currUser._id)) { %>
+                          <a href="/listings/<%= listing._id %>/edit" class="btn btn-outline-secondary flex-fill ms-2">
+                            <i class="fas fa-edit me-1"></i>Edit
+                          </a>
+                          <% } %>
+                      </div>
+                    </div>
+                  </div>
+                  <% } %>
+              </div>
+              <% } else { %>
+                <!-- No Results -->
+                <div class="text-center py-5">
+                  <i class="fas fa-search fa-4x text-muted mb-3"></i>
+                  <h4 class="text-muted">No properties found</h4>
+                  <p class="text-muted mb-4">
+                    <% if (query) { %>
+                      No results for "<%= query %>". Try adjusting your search criteria.
+                        <% } else { %>
+                          No properties are available at the moment.
+                          <% } %>
+                  </p>
+                  <a href="/listings" class="btn btn-primary">
+                    <i class="fas fa-refresh me-2"></i>Clear Filters
+                  </a>
+                </div>
+                <% } %>
+                  </div>
+
+                  <script type="application/json" id="listings-data">
+    <%- JSON.stringify(allListings) %>
+  </script>
+
+                  <!-- Floating Map Toggle Button -->
+                  <button id="view-toggle-btn" class="map-view-btn">
+                    <span class="btn-text">Show Map</span>
+                    <i class="fas fa-map"></i>
+                  </button>
+
+                  <!-- Map View Container -->
+                  <div id="map-view-container" class="map-view-container" style="display: none;">
+                    <button id="close-map-btn" class="close-map-btn" title="Exit Map View">
+                      <i class="fas fa-times"></i>
+                    </button>
+                    <div id="map-listings-wrapper"></div>
+                  </div>
+
+                  <link rel="stylesheet" href="/css/map-listings-view.css">
+                  <style>
+                    .map-view-btn {
+                      position: fixed;
+                      bottom: 30px;
+                      left: 50%;
+                      transform: translateX(-50%);
+                      background: linear-gradient(135deg, #1a1a1a, #333);
+                      color: #fff;
+                      padding: 14px 28px;
+                      border-radius: 35px;
+                      border: 1px solid rgba(255, 255, 255, 0.1);
+                      z-index: 2100;
+                      font-size: 15px;
+                      font-weight: 700;
+                      display: flex;
+                      align-items: center;
+                      gap: 12px;
+                      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+                      transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+                      cursor: pointer;
+                      animation: float-btn 4s ease-in-out infinite;
+                      backdrop-filter: blur(10px);
                     }
-                  });
-                  window.location.href = url.toString();
-                }
 
-                // Enhanced interactions
-                document.addEventListener('DOMContentLoaded', function () {
-                  // Set active filters based on URL
-                  const urlParams = new URLSearchParams(window.location.search);
-                  const category = urlParams.get('category');
+                    .map-view-btn:hover {
+                      transform: translateX(-50%) scale(1.1);
+                      background: #ff385c;
+                      box-shadow: 0 10px 30px rgba(255, 56, 92, 0.4);
+                      border-color: #ff385c;
+                    }
 
-                  // Update filter UI
-                  if (category) {
-                    document.querySelectorAll('.filter-item').forEach(item => {
-                      item.classList.remove('active');
+                    .map-view-btn.active {
+                      background: #fff;
+                      color: #ff385c;
+                      border-color: #eee;
+                    }
+
+                    .map-view-container {
+                      position: fixed;
+                      top: 0 !important;
+                      left: 0;
+                      width: 100%;
+                      height: 100vh;
+                      background: white;
+                      z-index: 2000;
+                    }
+
+                    #map-listings-wrapper {
+                      height: 100%;
+                      width: 100%;
+                    }
+
+                    [data-theme="dark"] .map-view-container {
+                      background: #121212;
+                    }
+                  </style>
+
+                  <script src="/js/map-listings-view.js"></script>
+                  <script>
+                    // Filter Logic
+                    function setCategory(category) {
+                      // Update hidden input
+                      document.getElementById('categoryInput').value = category;
+
+                      // Update UI immediately for feel
+                      document.querySelectorAll('.filter-item').forEach(item => {
+                        item.classList.remove('active');
+                      });
+                      if (event && event.currentTarget) {
+                        event.currentTarget.classList.add('active');
+                      }
+
+                      // Submit form
+                      document.getElementById('filterForm').submit();
+                    }
+
+                    document.addEventListener('DOMContentLoaded', function () {
+                      const toggleBtn = document.getElementById('view-toggle-btn');
+                      const gridContainer = document.querySelector('.container');
+                      const heroSection = document.querySelector('.listings-hero');
+                      const resultsHeader = document.querySelector('.d-flex.justify-content-between.align-items-center.mb-4');
+                      const activeFilters = document.querySelector('.mb-4');
+                      const mapViewContainer = document.getElementById('map-view-container');
+                      const closeMapBtn = document.getElementById('close-map-btn');
+                      const listingsDataElement = document.getElementById('listings-data');
+
+                      // Safety check for listings data
+                      let listingsData = [];
+                      if (listingsDataElement && listingsDataElement.textContent) {
+                        try {
+                          listingsData = JSON.parse(listingsDataElement.textContent);
+                        } catch (e) {
+                          console.error("Error parsing listings data", e);
+                        }
+                      }
+
+                      let mapInitialized = false;
+                      let mapListingsView = null;
+
+                      toggleBtn.addEventListener('click', function () {
+                        const isShowingMap = mapViewContainer.style.display === 'block';
+                        if (isShowingMap) {
+                          closeMapView();
+                        } else {
+                          openMapView();
+                        }
+                      });
+
+                      closeMapBtn.addEventListener('click', closeMapView);
+
+                      function openMapView() {
+                        mapViewContainer.style.display = 'block';
+                        document.body.style.overflow = 'hidden';
+                        toggleBtn.querySelector('.btn-text').textContent = 'Show List';
+                        toggleBtn.querySelector('i').className = 'fas fa-list';
+                        toggleBtn.classList.add('active');
+
+                        if (!mapInitialized) {
+                          mapListingsView = new MapListingsView('map-listings-wrapper', {
+                            mapToken: '<%= process.env.MAP_TOKEN %>',
+                            listings: listingsData
+                          });
+                          mapInitialized = true;
+                        }
+                      }
+
+                      function closeMapView() {
+                        mapViewContainer.style.display = 'none';
+                        document.body.style.overflow = 'auto';
+                        toggleBtn.querySelector('.btn-text').textContent = 'Show Map';
+                        toggleBtn.querySelector('i').className = 'fas fa-map';
+                        toggleBtn.classList.remove('active');
+                        // Bring back elements
+                        gridContainer.style.opacity = '1';
+                        if (heroSection) heroSection.style.display = 'block';
+                      }
+
+                      // Wishlist functionality
+                      // ... existing code ...
                     });
-                    const activeFilter = document.querySelector(`[onclick*="${category}"]`);
-                    if (activeFilter) activeFilter.classList.add('active');
-                  }
+                  </script>
+                  <script src="/js/wishlist-handler.js"></script>
+                  </body>
 
-                  // Load wishlist from localStorage and update UI
-                  const wishlist = JSON.parse(localStorage.getItem('wishlist') || '[]');
-                  document.querySelectorAll('.wishlist-btn').forEach(btn => {
-                    const listingId = btn.getAttribute('onclick').match(/'([^']+)'/)[1];
-                    if (wishlist.includes(listingId)) {
-                      btn.classList.add('active');
-                      const icon = btn.querySelector('i');
-                      icon.classList.remove('far');
-                      icon.classList.add('fas');
-                    }
-                  });
-
-                  // Add staggered animations
-                  const cards = document.querySelectorAll('.listing-card');
-                  cards.forEach((card, index) => {
-                    card.style.animationDelay = `${index * 0.1}s`;
-                  });
-                });
-              </script>
-
-              </body>
-
-              </html>
+                  </html>

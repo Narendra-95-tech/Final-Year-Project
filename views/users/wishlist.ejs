@@ -1,0 +1,237 @@
+<% layout("layouts/boilerplate") %>
+
+    <style>
+        .wishlist-header {
+            background: linear-gradient(135deg, #FF6B6B 0%, #FF8E53 100%);
+            padding: 60px 0 80px;
+            color: white;
+            margin-bottom: -40px;
+            border-radius: 0 0 30px 30px;
+            text-align: center;
+            position: relative;
+        }
+
+        .wishlist-title {
+            font-weight: 800;
+            font-size: 36px;
+            letter-spacing: -1px;
+            margin-bottom: 10px;
+        }
+
+        .wishlist-subtitle {
+            font-size: 18px;
+            opacity: 0.95;
+        }
+
+        .wishlist-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px 60px;
+        }
+
+        .wishlist-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 30px;
+        }
+
+        /* Reuse/Refine Card Styles */
+        .listing-card {
+            background: white;
+            border-radius: 20px;
+            overflow: hidden;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.08);
+            transition: transform 0.3s, box-shadow 0.3s;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            position: relative;
+        }
+
+        .listing-card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 15px 50px rgba(0, 0, 0, 0.12);
+        }
+
+        .card-img-container {
+            height: 220px;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .card-img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 0.5s;
+        }
+
+        .listing-card:hover .card-img {
+            transform: scale(1.05);
+        }
+
+        .card-body-custom {
+            padding: 20px;
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .listing-title {
+            font-weight: 700;
+            font-size: 18px;
+            margin-bottom: 8px;
+            color: #222;
+            text-decoration: none;
+        }
+
+        .listing-location {
+            color: #666;
+            font-size: 14px;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .listing-price {
+            font-weight: 800;
+            font-size: 20px;
+            color: #222;
+            margin-top: auto;
+        }
+
+        /* Category Badge */
+        .category-badge {
+            position: absolute;
+            bottom: 15px;
+            left: 15px;
+            background: rgba(0, 0, 0, 0.6);
+            color: white;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+            backdrop-filter: blur(4px);
+        }
+
+        .remove-btn {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            background: white;
+            width: 35px;
+            height: 35px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #ccc;
+            /* Default to grey (outline/inactive) */
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
+            border: none;
+            transition: all 0.2s;
+            z-index: 10;
+            cursor: pointer;
+        }
+
+        .remove-btn.active {
+            color: #FF4D4D;
+            /* Active red */
+        }
+
+        .remove-btn:hover {
+            transform: scale(1.1);
+            background: #FF4D4D;
+            color: white;
+        }
+
+        .empty-wishlist {
+            text-align: center;
+            background: white;
+            padding: 60px;
+            border-radius: 20px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.05);
+        }
+    </style>
+
+    <div class="wishlist-header">
+        <h1 class="wishlist-title">My Wishlist</h1>
+        <p class="wishlist-subtitle">Your collection of favorite places and rides.</p>
+    </div>
+
+    <div class="wishlist-container">
+        <% const allItems=[ ...(wishlist || []).filter(i=> i).map(i => ({...i.toObject(), type: 'listing', apiType:
+            'listing'})),
+            ...(wishlistVehicles || []).filter(i => i).map(i => ({...i.toObject(), type: 'vehicle', apiType:
+            'vehicle'})),
+            ...(wishlistDhabas || []).filter(i => i).map(i => ({...i.toObject(), type: 'dhaba', apiType: 'dhaba'}))
+            ];
+            %>
+
+            <% if(allItems.length===0) { %>
+                <div class="empty-wishlist">
+                    <img src="https://cdni.iconscout.com/illustration/premium/thumb/empty-box-4085812-3385481.png"
+                        alt="Empty Wishlist" style="width: 200px; margin-bottom: 20px; opacity: 0.8;">
+                    <h3>Your wishlist is empty</h3>
+                    <p class="text-muted mb-4">Start exploring amazing places and save them for later!</p>
+                    <a href="/listings" class="btn btn-primary rounded-pill px-4 py-2 fw-bold"
+                        style="background: #FF6B6B; border: none;">Explore Listings</a>
+                </div>
+                <% } else { %>
+                    <div class="wishlist-grid">
+                        <% for(let item of allItems) { /* Normalize Item Data */ let title="Unknown" ; let price=0; let
+                            image="" ; let location="" ; let linkUrl="#" ; let badgeText="" ; if(item.type==='listing' )
+                            { title=item.title; price=item.price; image=item.image ? item.image.url : '' ;
+                            location=`${item.location}, ${item.country}`; linkUrl=`/listings/${item._id}`;
+                            badgeText="Stays" ; } else if(item.type==='vehicle' ) { title=`${item.brand} ${item.model}`;
+                            price=item.price; image=item.image ? item.image.url : '' ; location=`${item.location},
+                            ${item.country}`; linkUrl=`/vehicles/${item._id}`; badgeText="Vehicle" ; } else
+                            if(item.type==='dhaba' ) { title=item.title; price=null; image=item.images &&
+                            item.images.length> 0 ? item.images[0].url : '';
+                            location = `${item.address}, ${item.city}`;
+                            linkUrl = `/dhabas/${item._id}`;
+                            badgeText = "Eats";
+                            }
+                            %>
+                            <div class="listing-card">
+                                <button class="remove-btn active" data-id="<%= item._id %>"
+                                    onclick="toggleWishlist(this, '<%= item._id %>', '<%= item.type %>')"
+                                    title="Remove from Wishlist">
+                                    <i class="fas fa-heart" style="color: #FF4D4D;"></i>
+                                </button>
+
+                                <a href="<%= linkUrl %>" class="card-img-container">
+                                    <img src="<%= image %>" alt="<%= title %>" class="card-img">
+                                    <span class="category-badge">
+                                        <%= badgeText %>
+                                    </span>
+                                </a>
+
+                                <div class="card-body-custom">
+                                    <a href="<%= linkUrl %>" class="listing-title">
+                                        <%= title %>
+                                    </a>
+                                    <div class="listing-location">
+                                        <i class="fas fa-map-marker-alt"></i>
+                                        <%= location %>
+                                    </div>
+                                    <% if(price) { %>
+                                        <div class="listing-price">
+                                            &#8377; <%= price.toLocaleString("en-IN") %>
+                                                <span style="font-size: 14px; font-weight: 500; color: #888;">
+                                                    <%= item.type==='vehicle' ? '/ day' : '/ night' %>
+                                                </span>
+                                        </div>
+                                        <% } else { %>
+                                            <div class="listing-price" style="font-size: 16px; color: #555;">
+                                                View Menu
+                                            </div>
+                                            <% } %>
+                                </div>
+                            </div>
+                            <% } %>
+                    </div>
+                    <% } %>
+    </div>
+    <script src="/js/wishlist-handler.js"></script>

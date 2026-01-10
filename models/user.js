@@ -105,6 +105,14 @@ const userSchema = new Schema({
     wishlist: [{
         type: Schema.Types.ObjectId,
         ref: 'Listing'
+    }],
+    wishlistVehicles: [{
+        type: Schema.Types.ObjectId,
+        ref: 'Vehicle'
+    }],
+    wishlistDhabas: [{
+        type: Schema.Types.ObjectId,
+        ref: 'Dhaba'
     }]
 }, {
     timestamps: true,

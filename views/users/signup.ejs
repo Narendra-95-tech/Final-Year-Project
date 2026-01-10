@@ -1,247 +1,302 @@
 <% layout("layouts/boilerplate") %>
 
- <div class="row mt-3">
-    <h1 class="col-6 offset-3">Signup on Wanderlust</h1>
-     <div class="col-6 offset-3">
-        <% if (error && error.length > 0) { %>
-            <div class="alert alert-danger" role="alert">
-                <%= error %>
-            </div>
-        <% } %>
-        
-        <form action="/signup" method="POST" class="needs-validation" novalidate>
-    <div class="mb-3">
-        <label for="username" class="form-label">Username</label>
-        <input name="username" id="username" type="text" class="form-control" required 
-               minlength="3" maxlength="30" pattern="[a-zA-Z0-9_]+" 
-               placeholder="Enter username (3-30 characters)"/>
-        <div class="invalid-feedback">
-            Username must be 3-30 characters long and contain only letters, numbers, and underscores.
-        </div>
-        <div class="form-text">Username must be at least 3 characters long.</div>
-    </div>
-
-    <div class="mb-3">
-        <label for="email" class="form-label">Email</label>
-        <input name="email" id="email" type="email" class="form-control" required 
-               placeholder="Enter your email address"
-               pattern="[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,}$"
-               title="Please enter a valid email address"/>
-        <div class="invalid-feedback">
-            Please enter a valid email address (e.g., user@example.com).
-        </div>
-        <div class="form-text">We'll never share your email with anyone else.</div>
-    </div>
-
-    <div class="mb-3">
-        <label for="password" class="form-label">Password</label>
-        <input name="password" id="password" type="password" class="form-control" required 
-               minlength="6" maxlength="128"
-               placeholder="Enter password (min 6 characters)"/>
-        <div class="invalid-feedback">
-            Password must be at least 6 characters long.
-        </div>
-        <div class="form-text">Password must be at least 6 characters long.</div>
-    </div>
-    
-    <div class="mb-3">
-        <label for="confirmPassword" class="form-label">Confirm Password</label>
-        <input name="confirmPassword" id="confirmPassword" type="password" class="form-control" required 
-               minlength="6" maxlength="128"
-               placeholder="Confirm your password"/>
-        <div class="invalid-feedback">
-            Passwords do not match.
-        </div>
-    </div>
-    
-    <div class="mb-3 form-check">
-        <input type="checkbox" class="form-check-input" id="terms" required>
-        <label class="form-check-label" for="terms">
-            I agree to the <a href="#" data-bs-toggle="modal" data-bs-target="#termsModal">Terms and Conditions</a>
-        </label>
-        <div class="invalid-feedback">
-            You must agree to the terms and conditions.
-        </div>
-    </div>
-    
-    <button class="btn btn-success w-100">Sign Up</button>
-
-    <div class="my-3 d-flex align-items-center">
-        <div class="flex-grow-1" style="height: 1px; background: #e9ecef;"></div>
-        <span class="px-2" style="color: #6c757d; font-size: 0.9rem;">OR</span>
-        <div class="flex-grow-1" style="height: 1px; background: #e9ecef;"></div>
-    </div>
-
     <style>
-        .social-auth-btn {
-            position: relative;
-            width: 100%;
+        /* Premium Auth Styling (Consistent with Login) */
+        .auth-container {
+            min-height: 90vh;
             display: flex;
             align-items: center;
             justify-content: center;
-            gap: 10px;
-            padding: 12px 14px;
-            border-radius: 12px;
-            border: 1px solid rgba(60, 64, 67, 0.18);
-            background: linear-gradient(180deg, #ffffff 0%, #fafafa 100%);
-            color: #1f1f1f;
+            background-color: #f8f9fa;
+            padding: 40px 20px;
+        }
+
+        .auth-card {
+            background: white;
+            width: 100%;
+            max-width: 480px;
+            padding: 40px;
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+            border: 1px solid #eaeaea;
+        }
+
+        .auth-title {
+            font-size: 28px;
+            font-weight: 800;
+            color: #1a1a1a;
+            margin-bottom: 30px;
+            text-align: center;
+            letter-spacing: -0.5px;
+        }
+
+        .form-label {
             font-weight: 600;
-            letter-spacing: 0.1px;
-            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.08);
-            transition: transform 0.12s ease, box-shadow 0.2s ease, border-color 0.2s ease;
+            color: #4a4a4a;
+            margin-bottom: 6px;
+            font-size: 13px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
         }
-        .social-auth-btn:hover {
+
+        .form-control {
+            padding: 12px 16px;
+            border-radius: 12px;
+            border: 1px solid #e0e0e0;
+            font-size: 14px;
+            transition: all 0.2s ease;
+            background-color: #fcfcfc;
+        }
+
+        .form-control:focus {
+            border-color: #198754;
+            box-shadow: 0 0 0 4px rgba(25, 135, 84, 0.1);
+            background-color: white;
+        }
+
+        .form-text {
+            font-size: 11px;
+            color: #888;
+            margin-top: 4px;
+        }
+
+        .btn-signup {
+            background-color: #198754;
+            border: none;
+            padding: 14px;
+            font-weight: 600;
+            font-size: 16px;
+            border-radius: 12px;
+            width: 100%;
+            margin-top: 20px;
+            transition: all 0.2s ease;
+            box-shadow: 0 4px 12px rgba(25, 135, 84, 0.2);
+        }
+
+        .btn-signup:hover {
+            background-color: #157347;
             transform: translateY(-1px);
-            border-color: rgba(60, 64, 67, 0.28);
-            box-shadow: 0 14px 35px rgba(0, 0, 0, 0.12);
+            box-shadow: 0 6px 16px rgba(25, 135, 84, 0.3);
         }
-        .social-auth-btn:active {
-            transform: translateY(0px);
-            box-shadow: 0 8px 18px rgba(0, 0, 0, 0.10);
+
+        .divider {
+            margin: 24px 0;
+            border-top: 1px solid #eaeaea;
+            position: relative;
+            text-align: center;
         }
-        .social-auth-btn:focus {
-            box-shadow: 0 0 0 0.25rem rgba(66, 133, 244, 0.22), 0 12px 28px rgba(0, 0, 0, 0.10);
+
+        .divider-text {
+            background: white;
+            padding: 0 12px;
+            color: #888;
+            font-size: 13px;
+            position: relative;
+            top: -10px;
         }
-        .social-auth-icon {
-            position: absolute;
-            left: 12px;
-            width: 38px;
-            height: 38px;
-            border-radius: 10px;
-            background: #ffffff;
-            border: 1px solid rgba(0, 0, 0, 0.06);
-            display: inline-flex;
+
+        .btn-google {
+            background: white;
+            border: 1px solid #dadce0;
+            color: #3c4043;
+            width: 100%;
+            padding: 12px;
+            border-radius: 12px;
+            font-weight: 600;
+            font-size: 15px;
+            display: flex;
             align-items: center;
             justify-content: center;
-            box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.6);
+            gap: 12px;
+            transition: all 0.2s ease;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+            text-decoration: none;
         }
-        .social-auth-label {
-            margin-left: 24px;
+
+        .btn-google:hover {
+            background-color: #f8f9fa;
+            border-color: #dadce0;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            transform: translateY(-1px);
+            color: #202124;
         }
-        .social-auth-btn[aria-disabled="true"] {
-            pointer-events: none;
-            opacity: 0.78;
-            filter: grayscale(0.05);
+
+        .login-link {
+            text-align: center;
+            margin-top: 24px;
+            font-size: 14px;
+            color: #666;
+        }
+
+        .login-link a {
+            color: #198754;
+            text-decoration: none;
+            font-weight: 600;
+        }
+
+        .login-link a:hover {
+            text-decoration: underline;
+        }
+
+        .form-check-label a {
+            color: #198754;
+            text-decoration: none;
+        }
+
+        .password-toggle-wrapper {
+            position: relative;
+        }
+
+        .password-toggle-btn {
+            position: absolute;
+            right: 12px;
+            top: 50%;
+            transform: translateY(-50%);
+            border: none;
+            background: none;
+            cursor: pointer;
+            color: #666;
+            padding: 0;
+            display: flex;
+            align-items: center;
+        }
+
+        .password-toggle-btn:hover {
+            color: #198754;
         }
     </style>
 
-    <a id="googleSignupBtn" href="/auth/google" class="btn social-auth-btn" role="button" aria-label="Continue with Google">
-        <span class="social-auth-icon" aria-hidden="true">
-            <svg width="18" height="18" viewBox="0 0 48 48" xmlns="http://www.w3.org/2000/svg" style="display:block;">
-                <path fill="#EA4335" d="M24 9.5c3.54 0 6.72 1.22 9.23 3.22l6.9-6.9C35.91 2.34 30.33 0 24 0 14.62 0 6.51 5.38 2.56 13.22l8.05 6.26C12.54 13.09 17.77 9.5 24 9.5z"/>
-                <path fill="#4285F4" d="M46.64 24.55c0-1.64-.15-3.22-.43-4.75H24v9h12.7c-.55 2.9-2.18 5.36-4.62 7.02l7.07 5.49c4.14-3.82 6.49-9.45 6.49-16.76z"/>
-                <path fill="#FBBC05" d="M10.61 28.74c-.52-1.54-.82-3.19-.82-4.89s.3-3.35.82-4.89l-8.05-6.26C.92 16.46 0 20.09 0 23.85s.92 7.39 2.56 10.65l8.05-5.76z"/>
-                <path fill="#34A853" d="M24 48c6.33 0 11.65-2.09 15.53-5.69l-7.07-5.49c-1.96 1.32-4.47 2.1-8.46 2.1-6.23 0-11.46-3.59-13.39-8.98l-8.05 5.76C6.51 42.62 14.62 48 24 48z"/>
-            </svg>
-        </span>
-        <span id="googleSignupText" class="social-auth-label">Continue with Google</span>
-        <span id="googleSignupSpinner" class="spinner-border spinner-border-sm d-none" role="status" aria-hidden="true"></span>
-    </a>
-    
-    <div class="mt-3 text-center">
-        <span>Already have an account? <a href="/login">Login here</a></span>
-    </div>
-    </form>
-    </div>
-</div>
+    <div class="auth-container">
+        <div class="auth-card">
+            <h1 class="auth-title">Join WanderLust</h1>
 
-<!-- Terms and Conditions Modal -->
-<div class="modal fade" id="termsModal" tabindex="-1" aria-labelledby="termsModalLabel" aria-hidden="true">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="termsModalLabel">Terms and Conditions</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            <form action="/signup" method="POST" class="needs-validation" novalidate>
+                <div class="row">
+                    <div class="col-12 mb-3">
+                        <label for="username" class="form-label">Username</label>
+                        <input name="username" id="username" type="text" class="form-control" required minlength="3"
+                            maxlength="30" pattern="[a-zA-Z0-9_]+" placeholder="Choose a username" />
+                        <div class="invalid-feedback">3-30 chars, letters/numbers only.</div>
+                    </div>
+
+                    <div class="col-12 mb-3">
+                        <label for="email" class="form-label">Email</label>
+                        <input name="email" id="email" type="email" class="form-control" required
+                            placeholder="name@example.com" />
+                        <div class="invalid-feedback">Please enter a valid email.</div>
+                    </div>
+
+                    <div class="col-12 mb-3">
+                        <label for="password" class="form-label">Password</label>
+                        <div class="password-toggle-wrapper">
+                            <input name="password" id="password" type="password" class="form-control" required
+                                minlength="6" placeholder="Create a password" style="padding-right: 40px;" />
+                            <button type="button" class="password-toggle-btn" id="togglePasswordBtn" tabindex="-1">
+                                <i class="fas fa-eye-slash"></i>
+                            </button>
+                        </div>
+                        <div class="form-text">Must be at least 6 characters.</div>
+                    </div>
+                </div>
+
+                <div class="mb-3 form-check">
+                    <input type="checkbox" class="form-check-input" id="terms" required>
+                    <label class="form-check-label" for="terms">
+                        I agree to the <a href="#" data-bs-toggle="modal" data-bs-target="#termsModal">Terms and
+                            Conditions</a>
+                    </label>
+                </div>
+
+                <button class="btn btn-success btn-signup">Sign Up</button>
+            </form>
+
+            <div class="divider">
+                <span class="divider-text">OR</span>
             </div>
-            <div class="modal-body">
-                <h6>1. Acceptance of Terms</h6>
-                <p>By creating an account on WanderLust, you agree to these terms and conditions.</p>
-                
-                <h6>2. User Responsibilities</h6>
-                <p>You are responsible for maintaining the confidentiality of your account credentials.</p>
-                
-                <h6>3. Content</h6>
-                <p>You agree not to post any content that is illegal, harmful, or violates any rights.</p>
-                
-                <h6>4. Privacy</h6>
-                <p>We respect your privacy and will protect your personal information.</p>
-                
-                <h6>5. Service Availability</h6>
-                <p>We strive to provide the best service but cannot guarantee 100% uptime.</p>
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+
+            <a id="googleSignupBtn" href="/auth/google" class="btn btn-google" role="button">
+                <svg width="20" height="20" viewBox="0 0 48 48">
+                    <path fill="#EA4335"
+                        d="M24 9.5c3.54 0 6.72 1.22 9.23 3.22l6.9-6.9C35.91 2.34 30.33 0 24 0 14.62 0 6.51 5.38 2.56 13.22l8.05 6.26C12.54 13.09 17.77 9.5 24 9.5z" />
+                    <path fill="#4285F4"
+                        d="M46.64 24.55c0-1.64-.15-3.22-.43-4.75H24v9h12.7c-.55 2.9-2.18 5.36-4.62 7.02l7.07 5.49c4.14-3.82 6.49-9.45 6.49-16.76z" />
+                    <path fill="#FBBC05"
+                        d="M10.61 28.74c-.52-1.54-.82-3.19-.82-4.89s.3-3.35.82-4.89l-8.05-6.26C.92 16.46 0 20.09 0 23.85s.92 7.39 2.56 10.65l8.05-5.76z" />
+                    <path fill="#34A853"
+                        d="M24 48c6.33 0 11.65-2.09 15.53-5.69l-7.07-5.49c-1.96 1.32-4.47 2.1-8.46 2.1-6.23 0-11.46-3.59-13.39-8.98l-8.05 5.76C6.51 42.62 14.62 48 24 48z" />
+                </svg>
+                <span id="googleSignupText">Continue with Google</span>
+                <span id="googleSignupSpinner" class="spinner-border spinner-border-sm d-none" role="status"></span>
+            </a>
+
+            <div class="login-link">
+                Already have an account? <a href="/login">Log in</a>
             </div>
         </div>
     </div>
-</div>
 
-<script>
-// Form validation
-(function () {
-    'use strict'
-    
-    // Fetch the form
-    var form = document.querySelector('.needs-validation')
-    
-    // Password confirmation validation
-    var password = document.getElementById('password')
-    var confirmPassword = document.getElementById('confirmPassword')
-    var emailInput = document.getElementById('email')
-    
-    // Email validation function
-    function validateEmail(email) {
-        var emailRegex = /^[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,}$/;
-        return emailRegex.test(email.toLowerCase());
-    }
-    
-    // Real-time email validation
-    emailInput.addEventListener('input', function () {
-        var email = this.value.trim();
-        if (email && !validateEmail(email)) {
-            this.setCustomValidity('Please enter a valid email address')
-        } else {
-            this.setCustomValidity('')
-        }
-    })
-    
-    // Password confirmation validation
-    confirmPassword.addEventListener('input', function () {
-        if (password.value !== confirmPassword.value) {
-            confirmPassword.setCustomValidity('Passwords do not match')
-        } else {
-            confirmPassword.setCustomValidity('')
-        }
-    })
-    
-    // Prevent form submission with Bootstrap validation
-    form.addEventListener('submit', function (event) {
-        // Trim all input values
-        var inputs = form.querySelectorAll('input[type="text"], input[type="email"], input[type="password"]')
-        inputs.forEach(function(input) {
-            input.value = input.value.trim()
-        })
-        
-        if (!form.checkValidity()) {
-            event.preventDefault()
-            event.stopPropagation()
-        }
-        form.classList.add('was-validated')
-    }, false)
-})()
-</script>
+    <!-- Terms Modal (Simplified) -->
+    <div class="modal fade" id="termsModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content rounded-4 border-0">
+                <div class="modal-header border-bottom-0">
+                    <h5 class="modal-title fw-bold">Terms & Conditions</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body text-muted small">
+                    <p>Welcome to WanderLust. By creating an account, you agree to:</p>
+                    <ul>
+                        <li>Share accurate information during registration.</li>
+                        <li>Respect the community and other users.</li>
+                        <li>Not use the platform for illegal activities.</li>
+                    </ul>
+                    <p>We value your privacy and data security.</p>
+                </div>
+                <div class="modal-footer border-top-0">
+                    <button type="button" class="btn btn-secondary rounded-pill px-4" data-bs-dismiss="modal">I
+                        Understand</button>
+                </div>
+            </div>
+        </div>
+    </div>
 
-<script>
-    (function () {
-        const btn = document.getElementById('googleSignupBtn');
-        const text = document.getElementById('googleSignupText');
-        const spinner = document.getElementById('googleSignupSpinner');
-        if (!btn || !text || !spinner) return;
+    <script>
+        (function () {
+            'use strict'
+            var forms = document.querySelectorAll('.needs-validation')
+            Array.prototype.slice.call(forms).forEach(function (form) {
+                form.addEventListener('submit', function (event) {
+                    if (!form.checkValidity()) {
+                        event.preventDefault()
+                        event.stopPropagation()
+                    }
+                    form.classList.add('was-validated')
+                }, false)
+            })
 
-        btn.addEventListener('click', function () {
-            btn.setAttribute('aria-disabled', 'true');
-            spinner.classList.remove('d-none');
-            text.textContent = 'Redirecting...';
-        }, { once: true });
-    })();
-</script>
+            const btn = document.getElementById('googleSignupBtn');
+            const text = document.getElementById('googleSignupText');
+            const spinner = document.getElementById('googleSignupSpinner');
+            if (btn) {
+                btn.addEventListener('click', function () {
+                    btn.style.pointerEvents = 'none';
+                    btn.style.opacity = '0.8';
+                    spinner.classList.remove('d-none');
+                    text.textContent = 'Redirecting...';
+                });
+            }
+
+            // Password Toggle
+            const toggleBtn = document.getElementById('togglePasswordBtn');
+            const passInput = document.getElementById('password');
+            if (toggleBtn && passInput) {
+                toggleBtn.addEventListener('click', function () {
+                    const isPass = passInput.type === 'password';
+                    passInput.type = isPass ? 'text' : 'password';
+                    const icon = this.querySelector('i');
+                    icon.classList.toggle('fa-eye');
+                    icon.classList.toggle('fa-eye-slash');
+                });
+            }
+        })();
+    </script>

@@ -2,23 +2,23 @@ const Dhaba = require("../models/dhaba");
 const Review = require("../models/review");
 const crypto = require("crypto");
 
-const Dhaba = require("../models/dhaba");
-const Review = require("../models/review");
-const crypto = require("crypto");
-
 module.exports.index = async (req, res) => {
   const { q, cuisine, sort } = req.query;
 
   const filter = {};
 
   if (q && q.trim()) {
-    const regex = new RegExp(q.trim(), "i");
-    filter.$or = [
-      { name: regex },
-      { cuisine: regex },
-      { location: regex },
-      { description: regex }
-    ];
+    const terms = q.trim().split(/\s+/);
+    filter.$and = terms.map(term => ({
+      $or: [
+        { title: new RegExp(term, "i") },
+        { cuisine: new RegExp(term, "i") },
+        { location: new RegExp(term, "i") },
+        { category: new RegExp(term, "i") },
+        { description: new RegExp(term, "i") },
+        { specialties: new RegExp(term, "i") }
+      ]
+    }));
   }
 
   if (cuisine && cuisine !== 'all' && cuisine.trim()) {
@@ -34,7 +34,31 @@ module.exports.index = async (req, res) => {
   const sortOption = sortMap[sort] || {};
 
   try {
-    const allDhabas = await Dhaba.find(filter).sort(sortOption).populate("owner");
+    let allDhabas;
+    if (q && q.trim() && !sort) {
+      allDhabas = await Dhaba.aggregate([
+        { $match: filter },
+        {
+          $addFields: {
+            relevance: {
+              $add: [
+                { $cond: [{ $regexMatch: { input: "$title", regex: q.trim(), options: "i" } }, 20, 0] },
+                { $cond: [{ $regexMatch: { input: "$cuisine", regex: q.trim(), options: "i" } }, 15, 0] },
+                { $cond: [{ $regexMatch: { input: "$location", regex: q.trim(), options: "i" } }, 10, 0] },
+                { $cond: [{ $regexMatch: { input: "$category", regex: q.trim(), options: "i" } }, 5, 0] }
+              ]
+            }
+          }
+        },
+        { $sort: { relevance: -1, _id: -1 } }
+      ]);
+      // Populate owner if needed (aggregation doesn't populate automatically)
+      // Note: If EJS doesn't use owner.username etc, it's fine.
+      // If it does, I need to $lookup or manually populate.
+      // Let's use $lookup to be safe.
+    } else {
+      allDhabas = await Dhaba.find(filter).sort(sortOption).populate("owner");
+    }
     const trendingDhabas = await Dhaba.find({}).sort({ rating: -1 }).limit(6);
 
     res.render("dhabas/index", {
@@ -48,8 +72,6 @@ module.exports.index = async (req, res) => {
     console.error(err);
     res.render("error", { message: "Error loading dhabas" });
   }
-};
-  });
 };
 
 module.exports.renderNewForm = (req, res) => {

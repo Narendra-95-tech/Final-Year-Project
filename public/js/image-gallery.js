@@ -90,32 +90,23 @@ class ImageGallery {
     }
 
     attachEventListeners() {
-        // Navigation buttons
-        const prevBtn = document.getElementById('gallery-prev');
-        const nextBtn = document.getElementById('gallery-next');
-
-        if (prevBtn) prevBtn.addEventListener('click', () => this.prev());
-        if (nextBtn) nextBtn.addEventListener('click', () => this.next());
-
-        // Thumbnails
-        const thumbnails = document.querySelectorAll('.gallery-thumbnail');
-        thumbnails.forEach(thumb => {
-            thumb.addEventListener('click', (e) => {
+        // Grid item clicks
+        const gridItems = this.container.querySelectorAll('.gallery-grid-img');
+        gridItems.forEach(img => {
+            img.addEventListener('click', (e) => {
                 const index = parseInt(e.target.dataset.index);
-                this.goToSlide(index);
+                this.currentIndex = index;
+                this.openModal();
             });
         });
-
-        // Main image click - open fullscreen
-        const mainImage = document.getElementById('main-gallery-image');
-        if (mainImage) {
-            mainImage.addEventListener('click', () => this.openModal());
-        }
 
         // View all photos button
         const viewAllBtn = document.getElementById('view-all-photos');
         if (viewAllBtn) {
-            viewAllBtn.addEventListener('click', () => this.openModal());
+            viewAllBtn.addEventListener('click', () => {
+                this.currentIndex = 0;
+                this.openModal();
+            });
         }
 
         // Modal controls
@@ -127,35 +118,25 @@ class ImageGallery {
         if (modalClose) modalClose.addEventListener('click', () => this.closeModal());
         if (modal) {
             modal.addEventListener('click', (e) => {
-                if (e.target === modal) this.closeModal();
+                if (e.target === modal || e.target.closest('.modal-content')) {
+                    // Don't close if clicking image itself, but maybe allow closing if clicking background
+                    if (e.target === modal) this.closeModal();
+                }
             });
         }
         if (modalPrev) modalPrev.addEventListener('click', () => this.prev(true));
         if (modalNext) modalNext.addEventListener('click', () => this.next(true));
 
-        // Touch/swipe support
-        const galleryMain = document.getElementById('gallery-main');
-        if (galleryMain) {
-            galleryMain.addEventListener('touchstart', (e) => {
-                this.touchStartX = e.changedTouches[0].screenX;
-            });
-
-            galleryMain.addEventListener('touchend', (e) => {
-                this.touchEndX = e.changedTouches[0].screenX;
-                this.handleSwipe();
-            });
-        }
-
-        // Modal touch support
+        // Touch/swipe support for modal
         if (modal) {
             modal.addEventListener('touchstart', (e) => {
                 this.touchStartX = e.changedTouches[0].screenX;
-            });
+            }, { passive: true });
 
             modal.addEventListener('touchend', (e) => {
                 this.touchEndX = e.changedTouches[0].screenX;
                 this.handleSwipe(true);
-            });
+            }, { passive: true });
         }
     }
 
@@ -164,11 +145,13 @@ class ImageGallery {
             const modal = document.getElementById('gallery-modal');
             const isModalOpen = modal && modal.classList.contains('active');
 
+            if (!isModalOpen) return;
+
             if (e.key === 'ArrowLeft') {
-                this.prev(isModalOpen);
+                this.prev(true);
             } else if (e.key === 'ArrowRight') {
-                this.next(isModalOpen);
-            } else if (e.key === 'Escape' && isModalOpen) {
+                this.next(true);
+            } else if (e.key === 'Escape') {
                 this.closeModal();
             }
         });
@@ -180,10 +163,8 @@ class ImageGallery {
 
         if (Math.abs(diff) > swipeThreshold) {
             if (diff > 0) {
-                // Swipe left - next image
                 this.next(isModal);
             } else {
-                // Swipe right - previous image
                 this.prev(isModal);
             }
         }
@@ -199,35 +180,23 @@ class ImageGallery {
         this.updateImage(isModal);
     }
 
-    goToSlide(index) {
-        this.currentIndex = index;
-        this.updateImage(false);
-    }
-
     updateImage(isModal = false) {
-        const mainImage = document.getElementById('main-gallery-image');
         const modalImage = document.getElementById('modal-image');
         const counter = document.querySelector('.gallery-counter');
 
-        if (mainImage && !isModal) {
-            mainImage.src = this.images[this.currentIndex].url;
-            mainImage.alt = this.images[this.currentIndex].caption || 'Property image';
-        }
-
         if (modalImage && isModal) {
-            modalImage.src = this.images[this.currentIndex].url;
-            modalImage.alt = this.images[this.currentIndex].caption || 'Property image';
+            // Add fade-in effect for image change
+            modalImage.style.opacity = '0';
+            setTimeout(() => {
+                modalImage.src = this.images[this.currentIndex].url;
+                modalImage.alt = this.images[this.currentIndex].caption || 'Property image';
+                modalImage.style.opacity = '1';
+            }, 150);
         }
 
         if (counter) {
-            counter.textContent = `${this.currentIndex + 1} / ${this.images.length}`;
+            counter.innerHTML = `<span class="current-idx">${this.currentIndex + 1}</span> / ${this.images.length}`;
         }
-
-        // Update thumbnails
-        const thumbnails = document.querySelectorAll('.gallery-thumbnail');
-        thumbnails.forEach((thumb, index) => {
-            thumb.classList.toggle('active', index === this.currentIndex);
-        });
     }
 
     openModal() {
@@ -236,6 +205,8 @@ class ImageGallery {
             modal.classList.add('active');
             document.body.style.overflow = 'hidden';
             this.updateImage(true);
+
+            // GSAP-like entrance animation (CSS handled)
         }
     }
 

@@ -143,3 +143,56 @@
     transform: scale(1.15) translateY(-5px);
     box-shadow: 0 10px 25px rgba(255, 107, 107, 0.25);
 }
+
+/* Premium Hover Preview Card */
+.premium-preview-popup .mapboxgl-popup-content {
+    padding: 0 !important;
+    overflow: hidden;
+    width: 220px;
+    border-radius: 12px !important;
+}
+
+.preview-card-p {
+    display: flex;
+    flex-direction: column;
+}
+
+.preview-img-p {
+    width: 100%;
+    height: 120px;
+    object-fit: cover;
+}
+
+.preview-info-p {
+    padding: 12px;
+}
+
+.preview-title-p {
+    font-size: 14px;
+    font-weight: 700;
+    margin-bottom: 4px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    color: #333;
+}
+
+.preview-meta-p {
+    display: flex;
+    justify-content: space-between;
+    font-size: 13px;
+    font-weight: 600;
+}
+
+/* Dark Mode Preview */
+body.dark-mode .premium-preview-popup .mapboxgl-popup-content {
+    background: #212529 !important;
+}
+
+body.dark-mode .preview-title-p {
+    color: #f8f9fa;
+}
+
+body.dark-mode .preview-meta-p {
+    color: #adb5bd;
+}

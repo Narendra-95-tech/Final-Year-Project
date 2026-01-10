@@ -11,15 +11,18 @@ module.exports.index = async (req, res) => {
     const filter = {};
 
     if (q && q.trim().length > 0) {
-        const regex = new RegExp(q.trim(), "i");
-        filter.$or = [
-            { title: regex },
-            { location: regex },
-            { country: regex },
-            { description: regex },
-            { brand: regex },
-            { model: regex }
-        ];
+        const terms = q.trim().split(/\s+/);
+        filter.$and = terms.map(term => ({
+            $or: [
+                { title: new RegExp(term, "i") },
+                { location: new RegExp(term, "i") },
+                { country: new RegExp(term, "i") },
+                { description: new RegExp(term, "i") },
+                { brand: new RegExp(term, "i") },
+                { model: new RegExp(term, "i") },
+                { vehicleType: new RegExp(term, "i") }
+            ]
+        }));
     }
 
     if (minPrice || maxPrice) {
@@ -48,6 +51,34 @@ module.exports.index = async (req, res) => {
         filter.seats = Number(seats);
     }
 
+    // Availability filter
+    const { startDate, endDate } = req.query;
+    if (startDate && endDate) {
+        const start = new Date(startDate);
+        const end = new Date(endDate);
+        if (!isNaN(start) && !isNaN(end) && end > start) {
+            const overlappingBookings = await Booking.find({
+                $or: [
+                    { startDate: { $lte: end } },
+                    { endDate: { $gte: start } }
+                ]
+            }).select("vehicle"); // Note: Booking likely has 'vehicle' field if it's a vehicle booking
+
+            // Wait, does Booking model differentiate Listing vs Vehicle?
+            // Usually schema has { listing: Ref, vehicle: Ref }.
+            // I should check Booking model to be sure, but assuming standard polymorphic or separate fields.
+            // If overlappingBookings returns docs with 'vehicle', map them.
+
+            const excludedIds = overlappingBookings
+                .filter(b => b.vehicle)
+                .map(b => b.vehicle);
+
+            if (excludedIds.length > 0) {
+                filter._id = { $nin: excludedIds };
+            }
+        }
+    }
+
     const sortMap = {
         price_asc: { price: 1 },
         price_desc: { price: -1 },
@@ -58,7 +89,28 @@ module.exports.index = async (req, res) => {
 
     const sortOption = sortMap[sort] || {};
 
-    const allVehicles = await Vehicle.find(filter).sort(sortOption);
+    let allVehicles;
+    if (q && q.trim().length > 0 && !sort) {
+        allVehicles = await Vehicle.aggregate([
+            { $match: filter },
+            {
+                $addFields: {
+                    relevance: {
+                        $add: [
+                            { $cond: [{ $regexMatch: { input: "$title", regex: q.trim(), options: "i" } }, 20, 0] },
+                            { $cond: [{ $regexMatch: { input: "$brand", regex: q.trim(), options: "i" } }, 15, 0] },
+                            { $cond: [{ $regexMatch: { input: "$model", regex: q.trim(), options: "i" } }, 15, 0] },
+                            { $cond: [{ $regexMatch: { input: "$location", regex: q.trim(), options: "i" } }, 10, 0] },
+                            { $cond: [{ $regexMatch: { input: "$country", regex: q.trim(), options: "i" } }, 5, 0] }
+                        ]
+                    }
+                }
+            },
+            { $sort: { relevance: -1, _id: -1 } }
+        ]);
+    } else {
+        allVehicles = await Vehicle.find(filter).sort(sortOption);
+    }
 
     // Get unique values for filters
     const brands = await Vehicle.distinct('brand');

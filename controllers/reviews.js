@@ -3,7 +3,7 @@ const Listing = require("../models/listing");
 const Vehicle = require("../models/vehicle");
 const Dhaba = require("../models/dhaba");
 
-module.exports.createReview = async(req, res) => {
+module.exports.createReview = async (req, res) => {
     let model, redirectPath;
 
     // Determine which model to use based on the route
@@ -26,6 +26,12 @@ module.exports.createReview = async(req, res) => {
         return res.redirect("/");
     }
 
+    // Prevent owner from reviewing their own item
+    if (item.owner.equals(req.user._id)) {
+        req.flash("error", "You cannot review your own listing!");
+        return res.redirect(redirectPath);
+    }
+
     let newReview = new Review({
         rating: req.body.review.rating,
         comment: req.body.review.comment
@@ -37,13 +43,13 @@ module.exports.createReview = async(req, res) => {
 
     await newReview.save();
     await item.save();
-    req.flash("success","New Review Created!");
+    req.flash("success", "New Review Created!");
 
     res.redirect(redirectPath);
 };
 
-module.exports.destroyReview = async(req,res) => {
-    let {id, reviewId} =  req.params;
+module.exports.destroyReview = async (req, res) => {
+    let { id, reviewId } = req.params;
     let model, redirectPath;
 
     // Determine which model to use based on the route
@@ -60,8 +66,8 @@ module.exports.destroyReview = async(req,res) => {
         return res.status(400).json({ error: "Invalid route" });
     }
 
-    await model.findByIdAndUpdate(id, {$pull: {reviews: reviewId}});
+    await model.findByIdAndUpdate(id, { $pull: { reviews: reviewId } });
     await Review.findByIdAndDelete(reviewId);
-    req.flash("success","Review Deleted!");
+    req.flash("success", "Review Deleted!");
     res.redirect(redirectPath);
 };

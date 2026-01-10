@@ -449,7 +449,7 @@ app.get("/", async (req, res) => {
 app.get("/search", async (req, res) => {
   const { q } = req.query;
   if (!q) {
-    return res.redirect("/home");
+    return res.redirect("/");
   }
 
   try {
@@ -457,23 +457,48 @@ app.get("/search", async (req, res) => {
     const Vehicle = require("./models/vehicle");
     const Dhaba = require("./models/dhaba");
 
+    const terms = q.trim().split(/\s+/);
+    const buildFilter = (fields) => ({
+      $and: terms.map(term => ({
+        $or: fields.map(field => ({ [field]: new RegExp(term, "i") }))
+      }))
+    });
+
+    const buildPipeline = (fields) => [
+      { $match: buildFilter(fields) },
+      {
+        $addFields: {
+          relevance: {
+            $add: fields.map(field => ({
+              $cond: [{ $regexMatch: { input: "$" + field, regex: q.trim(), options: "i" } }, 10, 0]
+            }))
+          }
+        }
+      },
+      { $sort: { relevance: -1, _id: -1 } },
+      { $limit: 12 }
+    ];
+
     const [listings, vehicles, dhabas] = await Promise.all([
-      Listing.find({ $text: { $search: q } }),
-      Vehicle.find({ $text: { $search: q } }),
-      Dhaba.find({ $text: { $search: q } }),
+      Listing.aggregate(buildPipeline(['title', 'location', 'country', 'propertyType'])),
+      Vehicle.aggregate(buildPipeline(['title', 'location', 'country', 'brand', 'model', 'vehicleType'])),
+      Dhaba.aggregate(buildPipeline(['title', 'location', 'country', 'cuisine', 'category'])),
     ]);
+
+    const totalResults = listings.length + vehicles.length + dhabas.length;
 
     res.render("search", {
       query: q,
       listings,
       vehicles,
       dhabas,
+      totalResults,
       mapToken: process.env.MAP_TOKEN,
     });
   } catch (error) {
     console.error("Search error:", error);
     req.flash("error", "Error performing search");
-    res.redirect("/home");
+    res.redirect("/");
   }
 });
 

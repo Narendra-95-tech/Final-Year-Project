@@ -6,10 +6,31 @@ const ExpressError = require("./utils/ExpressError.js");
 const { listingSchema, vehicleSchema, dhabaSchema, reviewSchema } = require("./schema.js");
 
 module.exports.isLoggedIn = (req, res, next) => {
-
     if (!req.isAuthenticated()) {
         req.session.redirectUrl = req.originalUrl;
-        req.flash("error", "You must be logged in to create listing!");
+
+        // Context-aware flash message
+        let message = "You must be logged in to create listing!";
+        if (req.originalUrl.includes('/bookings')) {
+            message = "You must be logged in to book!";
+        } else if (req.originalUrl.includes('/reviews')) {
+            message = "You must be logged in to leave a review!";
+        } else if (req.originalUrl.includes('/wishlist')) {
+            message = "You must be logged in to manage your wishlist!";
+        }
+
+        req.flash("error", message);
+
+        // Handle AJAX/JSON requests
+        if (req.xhr || req.headers.accept?.includes('application/json') || req.originalUrl.startsWith('/api/') || req.headers['content-type'] === 'application/json') {
+            return res.status(401).json({
+                success: false,
+                message: message,
+                redirectUrl: "/login",
+                error: "UNAUTHORIZED"
+            });
+        }
+
         return res.redirect("/login");
     }
     next();
@@ -217,7 +238,7 @@ module.exports.normalizeDhabaForm = (req, res, next) => {
 module.exports.isReviewAuthor = async (req, res, next) => {
     let { id, reviewId } = req.params;
     let review = await Review.findById(reviewId);
-    if (!review.author.equals(res.locals.currUser._id)) {
+    if (!res.locals.currUser._id.equals(review.author) && req.user.role !== 'admin') {
         req.flash("error", "You are not the author of this review");
         // Redirect to the appropriate path based on route
         if (req.originalUrl.includes('/listings/')) {

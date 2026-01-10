@@ -105,6 +105,11 @@ exports.createListingBooking = wrapAsync(async (req, res) => {
     return res.status(404).json({ error: "Listing not found." });
   }
 
+  // Prevent owner from booking their own listing
+  if (listing.owner.equals(req.user._id)) {
+    return res.status(400).json({ error: "You cannot book your own listing!" });
+  }
+
   const nights = Math.ceil((end - start) / (1000 * 60 * 60 * 24));
   const perNightPrice = Number(listing.price) || 0;
   const amount = perNightPrice * nights * guestCount;

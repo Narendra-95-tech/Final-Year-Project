@@ -4,11 +4,12 @@
  */
 
 class ReviewsComponent {
-  constructor(reviews, overallRating, listingId, currentUserId) {
+  constructor(reviews, overallRating, listingId, currentUserId, itemType = 'listings') {
     this.reviews = reviews || [];
     this.overallRating = overallRating || 0;
     this.listingId = listingId;
     this.currentUserId = currentUserId;
+    this.itemType = itemType;
     this.currentPage = 1;
     this.reviewsPerPage = 6;
   }
@@ -72,14 +73,16 @@ class ReviewsComponent {
     ];
 
     return `
-      <div class="rating-breakdown">
+      <div class="rating-grid-premium">
         ${categories.map(cat => `
-          <div class="rating-category">
-            <span class="category-name">${cat.label}</span>
-            <div class="rating-bar-container">
-              <div class="rating-bar-fill" style="width: ${(averages[cat.key] / 5) * 100}%"></div>
+          <div class="rating-category-premium">
+            <span class="category-label-p">${cat.label}</span>
+            <div class="category-value-group">
+              <div class="rating-bar-container-p">
+                <div class="rating-bar-fill-p" style="width: ${(averages[cat.key] / 5) * 100}%"></div>
+              </div>
+              <span class="category-score-p">${averages[cat.key]}</span>
             </div>
-            <span class="category-score">${averages[cat.key]}</span>
           </div>
         `).join('')}
       </div>
@@ -139,7 +142,7 @@ class ReviewsComponent {
               </div>
               
               ${isAuthor ? `
-              <form class="ms-2 delete-review-form" method="POST" action="/listings/${this.listingId}/reviews/${review._id}?_method=DELETE" onsubmit="return confirm('Are you sure you want to delete this review?');">
+              <form class="ms-2 delete-review-form" method="POST" action="/${this.itemType}/${this.listingId}/reviews/${review._id}?_method=DELETE" onsubmit="return confirm('Are you sure you want to delete this review?');">
                 <button class="btn btn-sm btn-link text-decoration-none text-danger p-0 delete-review-btn" title="Delete your review" style="opacity: 0.7; transition: opacity 0.2s;">
                   <span style="font-size: 0.9rem; font-weight: 500;">Delete</span> <i class="fas fa-trash-alt ms-1"></i>
                 </button>
@@ -221,17 +224,20 @@ class ReviewsComponent {
     if (!container) return;
 
     const html = `
-      <div class="reviews-section" id="reviews-section">
-        <div class="reviews-header">
-          <i class="fas fa-star" style="color: #FF385C; font-size: 24px; margin-right: 8px;"></i>
-          <span class="overall-rating">${this.overallRating.toFixed(1)}</span>
-          <span class="reviews-count"> · ${this.reviews.length} ${this.reviews.length === 1 ? 'review' : 'reviews'}</span>
+      <div class="reviews-section-premium" id="reviews-section">
+        <div class="reviews-summary-header">
+          <div class="overall-rating-large">
+            <i class="fas fa-star" style="color: var(--primary);"></i>
+            <span>${this.overallRating.toFixed(1)}</span>
+            <span class="dot-separator">·</span>
+            <span class="reviews-count-large">${this.reviews.length} ${this.reviews.length === 1 ? 'review' : 'reviews'}</span>
+          </div>
         </div>
         
         ${this.reviews.length > 0 ? this.renderRatingBreakdown() : ''}
         
-        <div id="reviews-container">
-          ${this.reviews.length > 0 ? this.renderReviews() : '<div class="no-reviews-message">No reviews yet. Be the first to review!</div>'}
+        <div id="reviews-container" class="mt-5">
+          ${this.reviews.length > 0 ? this.renderReviews() : '<div class="no-reviews-message-p">No reviews yet. Be the first to share your experience!</div>'}
         </div>
       </div>
     `;

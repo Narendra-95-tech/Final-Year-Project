@@ -12,6 +12,31 @@ class WishlistHandler {
     init() {
         this.loadWishlist();
         this.attachEventListeners();
+        // Wait for DOM to be ready for querySelectorAll
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', () => this.updateAllIcons());
+        } else {
+            this.updateAllIcons();
+        }
+    }
+
+    updateAllIcons() {
+        const buttons = document.querySelectorAll('[data-id]');
+        buttons.forEach(btn => {
+            // Check if it's a wishlist button
+            if (btn.classList.contains('card-wishlist') || btn.classList.contains('wishlist-btn') || btn.classList.contains('save-btn') || btn.classList.contains('remove-btn')) {
+                const id = btn.getAttribute('data-id');
+                if (id && this.wishlistItems.has(id)) {
+                    const icon = btn.querySelector('i');
+                    if (icon) {
+                        icon.classList.remove('far');
+                        icon.classList.add('fas');
+                        icon.style.color = '#ff385c';
+                    }
+                    btn.classList.add('active');
+                }
+            }
+        });
     }
 
     loadWishlist() {
@@ -42,7 +67,7 @@ class WishlistHandler {
         }
     }
 
-    async toggleWishlist(startListingId = null) {
+    async toggleWishlist(startListingId = null, type = 'listing') {
         // Get listing ID from argument or page
         let listingId = startListingId;
 
@@ -75,13 +100,13 @@ class WishlistHandler {
         try {
             if (isInWishlist) {
                 // Remove from wishlist
-                await this.removeFromWishlist(listingId);
+                await this.removeFromWishlist(listingId, type);
                 this.wishlistItems.delete(listingId);
                 this.updateWishlistIcon(listingId);
                 this.showNotification('Removed from wishlist');
             } else {
                 // Add to wishlist
-                await this.addToWishlist(listingId);
+                await this.addToWishlist(listingId, type);
                 this.wishlistItems.add(listingId);
                 this.updateWishlistIcon(listingId);
                 this.showNotification('Added to wishlist');
@@ -94,8 +119,8 @@ class WishlistHandler {
         }
     }
 
-    async addToWishlist(listingId) {
-        const response = await fetch(`/api/wishlist/${listingId}`, {
+    async addToWishlist(listingId, type = 'listing') {
+        const response = await fetch(`/api/wishlist/${type}/${listingId}`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
@@ -110,8 +135,8 @@ class WishlistHandler {
         return response.json();
     }
 
-    async removeFromWishlist(listingId) {
-        const response = await fetch(`/api/wishlist/${listingId}`, {
+    async removeFromWishlist(listingId, type = 'listing') {
+        const response = await fetch(`/api/wishlist/${type}/${listingId}`, {
             method: 'DELETE',
             headers: {
                 'Content-Type': 'application/json'
@@ -160,11 +185,13 @@ class WishlistHandler {
     }
 
     updateWishlistIcon(listingId) {
-        // Update all save buttons for this listing
-        const saveBtns = document.querySelectorAll('.save-btn');
+        // Update all buttons for this listing (using data-id)
+        // This covers card-wishlist, wishlist-btn, and save-btn if they have data-id
+        const buttons = document.querySelectorAll(`[data-id="${listingId}"]`);
+
         const isInWishlist = this.isInWishlist(listingId);
 
-        saveBtns.forEach(btn => {
+        buttons.forEach(btn => {
             const icon = btn.querySelector('i');
             if (isInWishlist) {
                 if (icon) {
@@ -183,31 +210,34 @@ class WishlistHandler {
             }
         });
 
-        // Also update legacy button if it exists
-        const wishlistBtn = document.getElementById('wishlist-btn');
-        if (wishlistBtn) {
-            const icon = wishlistBtn.querySelector('i');
+        // Fallback for show page button if it lacks data-id but has ID 'wishlist-btn'
+        // AND match the listingId if possible (but show page usually only has one main item)
+        // We'll trust the show page button logic for now if it's generic
+        const mainWishlistBtn = document.getElementById('wishlist-btn');
+        if (mainWishlistBtn && !mainWishlistBtn.hasAttribute('data-id')) {
+            // Basic toggle for single view
+            const icon = mainWishlistBtn.querySelector('i');
             if (isInWishlist) {
                 if (icon) {
                     icon.classList.remove('far');
                     icon.classList.add('fas');
                 }
-                wishlistBtn.classList.add('active');
+                mainWishlistBtn.classList.add('active');
             } else {
                 if (icon) {
                     icon.classList.remove('fas');
                     icon.classList.add('far');
                 }
-                wishlistBtn.classList.remove('active');
+                mainWishlistBtn.classList.remove('active');
             }
         }
     }
 }
 
 // Global function for onclick events
-window.toggleWishlist = function (btn, listingId) {
+window.toggleWishlist = function (btn, listingId, type) {
     if (window.wishlistHandler) {
-        window.wishlistHandler.toggleWishlist(listingId);
+        window.wishlistHandler.toggleWishlist(listingId, type);
     } else {
         console.error('Wishlist handler not initialized');
     }

@@ -10,41 +10,56 @@ const userController = require("../controllers/users.js");
 
 
 router.route("/signup")
-.get( userController.renderSignupForm)
-.post( wrapAsync(userController.signup));
+  .get(userController.renderSignupForm)
+  .post(wrapAsync(userController.signup));
 
 
 router.route("/login")
-.get( userController.renderLoginForm)
-.post(saveRedirectUrl, passport.authenticate("local", { failureRedirect: '/login', failureFlash: true }), userController.login);
+  .get(userController.renderLoginForm)
+  .post(saveRedirectUrl, passport.authenticate("local", { failureRedirect: '/login', failureFlash: true }), userController.login);
 
 
+// Logout
 router.get("/logout", userController.logout);
 
-// Wishlist (Favorites)
-router.post("/favorites/:listingId", isLoggedIn, wrapAsync(async (req, res) => {
-  const { listingId } = req.params;
-  
-  // Validate ObjectId
-  if (!listingId.match(/^[0-9a-fA-F]{24}$/)) {
-    req.flash("error", "Invalid listing ID");
-    return res.redirect("/listings");
-  }
-  
-  const listing = await Listing.findById(listingId);
-  if (!listing) {
-    req.flash("error", "Listing not found");
-    return res.redirect("/listings");
+// User Profile
+router.get("/profile", isLoggedIn, userController.renderProfile);
+
+// Wishlist (Favorites) - Universal Route
+router.post("/wishlist/:type/:id", isLoggedIn, wrapAsync(async (req, res) => {
+  const { type, id } = req.params;
+  const user = await User.findById(req.user._id);
+
+  let targetModel;
+  let targetField;
+
+  if (type === 'listing') {
+    targetModel = Listing;
+    targetField = 'wishlist';
+  } else if (type === 'vehicle') {
+    targetModel = require("../models/vehicle");
+    targetField = 'wishlistVehicles';
+  } else if (type === 'dhaba') {
+    targetModel = require("../models/dhaba");
+    targetField = 'wishlistDhabas';
+  } else {
+    req.flash("error", "Invalid item type");
+    return res.redirect("back");
   }
 
-  const user = await User.findById(req.user._id);
-  const existingIndex = user.favorites.findIndex(id => id.equals(listing._id));
+  const item = await targetModel.findById(id);
+  if (!item) {
+    req.flash("error", "Item not found");
+    return res.redirect("back");
+  }
+
+  const existingIndex = user[targetField].findIndex(itemId => itemId.equals(item._id));
   if (existingIndex >= 0) {
-    user.favorites.splice(existingIndex, 1);
+    user[targetField].splice(existingIndex, 1);
     await user.save();
     req.flash("success", "Removed from wishlist");
   } else {
-    user.favorites.push(listing._id);
+    user[targetField].push(item._id);
     await user.save();
     req.flash("success", "Saved to wishlist");
   }
@@ -52,8 +67,21 @@ router.post("/favorites/:listingId", isLoggedIn, wrapAsync(async (req, res) => {
 }));
 
 router.get("/wishlist", isLoggedIn, wrapAsync(async (req, res) => {
-  const user = await User.findById(req.user._id).populate("favorites");
-  res.render("bookings/myBookings", { bookings: [], wishlist: user.favorites });
+  const user = await User.findById(req.user._id)
+    .populate("wishlist")
+    .populate("wishlistVehicles")
+    .populate("wishlistDhabas");
+
+  res.render("users/wishlist", {
+    wishlist: user.wishlist || [],
+    wishlistVehicles: user.wishlistVehicles || [],
+    wishlistDhabas: user.wishlistDhabas || []
+  });
 }));
+
+// Edit Profile
+router.route("/profile/edit")
+  .get(isLoggedIn, userController.renderEditProfile)
+  .post(isLoggedIn, wrapAsync(userController.updateProfile));
 
 module.exports = router;

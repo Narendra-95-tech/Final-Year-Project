@@ -590,7 +590,8 @@
                     ? reviews.reduce((sum, r) => sum + r.rating, 0) / reviews.length
                     : 0;
 
-                window.reviewsComponent = new ReviewsComponent(reviews, overallRating);
+                const currUserId = "<%= currUser ? currUser._id : '' %>";
+                window.reviewsComponent = new ReviewsComponent(reviews, overallRating, listing._id, currUserId, 'listings');
                 reviewsComponent.render('reviews-display-container');
 
                 // Initialize Calendar

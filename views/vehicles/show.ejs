@@ -1,9 +1,20 @@
 <% layout("/layouts/boilerplate") -%>
 
     <!-- Link Premium CSS -->
+    <link rel="stylesheet" href="/css/listing-details.css">
     <link rel="stylesheet" href="/css/vehicle-premium.css">
     <link rel="stylesheet" href="/css/share-premium.css">
     <link rel="stylesheet" href="/css/vehicle-management.css">
+
+    <!-- Mapbox Geocoder CSS -->
+    <link rel="stylesheet"
+        href="https://api.mapbox.com/mapbox-gl-js/plugins/mapbox-gl-geocoder/v5.0.0/mapbox-gl-geocoder.css"
+        type="text/css">
+
+    <!-- Mapbox Geocoder JS -->
+    <script
+        src="https://api.mapbox.com/mapbox-gl-js/plugins/mapbox-gl-geocoder/v5.0.0/mapbox-gl-geocoder.min.js"></script>
+
     <script src="/js/wishlist-handler.js"></script>
 
     <body class="listing-details-page">
@@ -15,6 +26,9 @@
             const mapToken = "<%= process.env.MAP_TOKEN %>";
             const vehicle = JSON.parse(document.getElementById('vehicle-data').textContent);
         </script>
+
+        <!-- Dynamic Image Gallery -->
+        <div id="image-gallery-container"></div>
 
         <div class="container mt-4">
             <!-- Premium Header Section -->
@@ -42,27 +56,13 @@
 
                 <div class="header-actions d-flex gap-2">
                     <!-- Share & Save Buttons (Included in Partial) -->
-                    <%- include('../partials/socialShare', { itemId: vehicle._id, shareTitle: 'Share' ,
-                        iconClass: 'fas fa-share-alt' , btnClass: 'action-btn' , currentUrl: `https://${process.env.HOST
-                        || 'localhost:3000' }/vehicles/${vehicle._id}`, shareText: `Check out '${vehicle.title}' on
-                        WanderLust`, shareSubject: `Check out '${vehicle.title}' on WanderLust` }) %>
-                </div>
-            </div>
-
-            <!-- Bento Grid Gallery -->
-            <div class="bento-gallery">
-                <div class="bento-item bento-main">
-                    <img src="<%= vehicle.image?.url || 'https://images.unsplash.com/photo-1503376785-2acd3d0a0821' %>"
-                        alt="<%= vehicle.title %>">
-                    <button class="view-all-photos"><i class="fas fa-images me-2"></i>View all photos</button>
-                </div>
-                <div class="bento-item">
-                    <img src="https://images.unsplash.com/photo-1494976388531-d1058494cdd8?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80"
-                        alt="Interior">
-                </div>
-                <div class="bento-item">
-                    <img src="https://images.unsplash.com/photo-1583121274602-3e2820c69888?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80"
-                        alt="Exterior">
+                    <% const isWishlisted=currUser && currUser.wishlistVehicles && currUser.wishlistVehicles.some(id=>
+                        id.toString() === vehicle._id.toString()); %>
+                        <%- include('../partials/socialShare', { itemId: vehicle._id, isWishlisted, itemType: 'vehicle'
+                            , iconClass: 'fas fa-share-alt' , btnClass: 'action-btn' , currentUrl:
+                            `https://${process.env.HOST || 'localhost:3000' }/vehicles/${vehicle._id}`, shareText:
+                            `Check out '${vehicle.title}' on WanderLust`, shareSubject: `Check out '${vehicle.title}' on
+                            WanderLust` }) %>
                 </div>
             </div>
 
@@ -297,7 +297,7 @@
                 <div class="detail-booking">
                     <div class="sticky-booking-sidebar">
                         <div class="booking-card">
-                            <% if(!currUser || !vehicle.owner._id.equals(currUser._id)) { %>
+                            <% if(!currUser || (vehicle.owner && !vehicle.owner._id.equals(currUser._id))) { %>
                                 <!-- Booking Highlight -->
                                 <div class="booking-highlight">
                                     <p class="booking-highlight-text"><i class="fas fa-fire me-1"></i> Recently booked 3
@@ -315,7 +315,7 @@
                                     </div>
                                 </div>
 
-                                <form id="vehicle-booking-form">
+                                <form id="vehicle-premium-booking-form">
                                     <div class="row g-2 mb-3">
                                         <div class="col-6">
                                             <label class="extra-small fw-bold text-uppercase text-muted">Pick-up</label>
@@ -420,6 +420,8 @@
             </div>
         </div>
 
+        <!-- Gallery Component Script -->
+        <script src="/js/image-gallery.js"></script>
         <script>
             document.addEventListener("DOMContentLoaded", () => {
                 const startDateInput = document.getElementById("booking-start-date");
@@ -428,7 +430,7 @@
                 const baseTotal = document.getElementById("base-total");
                 const finalTotal = document.getElementById("final-total");
 
-                const pricePerDay = <%= vehicle.price || 0 %>;
+                const pricePerDay = <%= (vehicle && vehicle.price) ? vehicle.price : 0 %>;
 
                 const updatePrice = () => {
                     if (!startDateInput.value || !endDateInput.value) return;
@@ -444,217 +446,116 @@
                     }
                 };
 
-                startDateInput.addEventListener("change", updatePrice);
-                endDateInput.addEventListener("change", updatePrice);
+                if (startDateInput && endDateInput) {
+                    startDateInput.addEventListener("change", updatePrice);
+                    endDateInput.addEventListener("change", updatePrice);
+                }
 
                 // Booking Form Submission
-                document.getElementById('vehicle-booking-form').addEventListener('submit', async (e) => {
-                    e.preventDefault();
-                    const btn = e.target.querySelector('button');
-                    btn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Processing...';
-                    btn.disabled = true;
+                const bookingForm = document.getElementById('vehicle-premium-booking-form');
+                if (bookingForm) {
+                    bookingForm.addEventListener('submit', async (e) => {
+                        e.preventDefault();
+                        const btn = e.target.querySelector('button');
+                        btn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Processing...';
+                        btn.disabled = true;
 
-                    const formData = new FormData(e.target);
-                    const data = Object.fromEntries(formData.entries());
+                        const formData = new FormData(e.target);
+                        const data = Object.fromEntries(formData.entries());
 
-                    try {
-                        const res = await fetch(`/bookings/vehicles/<%= vehicle._id %>/book`, {
-                            method: 'POST',
-                            headers: { 'Content-Type': 'application/json' },
-                            body: JSON.stringify(data)
-                        });
-
-                        const result = await res.json();
-                        if (res.ok) {
-                            const checkoutRes = await fetch('/bookings/create-checkout-session', {
+                        try {
+                            const res = await fetch(`/bookings/vehicles/<%= vehicle._id %>/book`, {
                                 method: 'POST',
                                 headers: { 'Content-Type': 'application/json' },
-                                body: JSON.stringify({ bookingId: result.bookingId })
+                                body: JSON.stringify(data)
                             });
-                            const checkout = await checkoutRes.json();
-                            window.location.href = checkout.url;
-                        } else {
-                            alert(result.error || 'Booking failed');
+
+                            const result = await res.json();
+                            if (res.ok) {
+                                const checkoutRes = await fetch('/bookings/create-checkout-session', {
+                                    method: 'POST',
+                                    headers: { 'Content-Type': 'application/json' },
+                                    body: JSON.stringify({ bookingId: result.bookingId })
+                                });
+                                const checkout = await checkoutRes.json();
+                                window.location.href = checkout.url;
+                            } else {
+                                alert(result.error || 'Booking failed');
+                            }
+                        } catch (err) {
+                            console.error(err);
+                            alert('Something went wrong');
+                        } finally {
+                            btn.innerHTML = 'Book Now';
+                            btn.disabled = false;
                         }
-                    } catch (err) {
-                        console.error(err);
-                        alert('Something went wrong');
-                    } finally {
-                        btn.innerHTML = 'Book Now';
-                        btn.disabled = false;
-                    }
-                });
+                    });
+                }
 
-                // Initialize Enhanced Mapbox Map
+                // Initialize Image Gallery
+                const images = vehicle.images && vehicle.images.length > 0
+                    ? vehicle.images
+                    : vehicle.image ? [vehicle.image] : [{ url: 'https://images.unsplash.com/photo-1503376785-2acd3d0a0821', caption: vehicle.title }];
+
+                new ImageGallery('image-gallery-container', images);
+
+                // Initialize Enhanced Map (like Dhabas)
                 if (vehicle.geometry && vehicle.geometry.coordinates) {
-                    mapboxgl.accessToken = mapToken;
-                    const map = new mapboxgl.Map({
-                        container: 'map',
-                        style: 'mapbox://styles/mapbox/streets-v12',
-                        center: vehicle.geometry.coordinates,
-                        zoom: 13,
-                        pitch: 45, // 3D tilt
-                        bearing: 0,
-                        antialias: true
+                    const vehicleCoords = vehicle.geometry.coordinates;
+                    const mapContainer = document.getElementById('map');
+
+                    // Clear placeholder content
+                    if (mapContainer) {
+                        mapContainer.innerHTML = '';
+                        mapContainer.className = 'map-container';
+                    }
+
+                    // Initialize EnhancedMap with search enabled
+                    const enhancedMap = new EnhancedMap('map', {
+                        mapToken: mapToken,
+                        center: vehicleCoords,
+                        zoom: 14,
+                        searchEnabled: true,
+                        clusterEnabled: false,
+                        mapStyle: 'mapbox://styles/mapbox/streets-v12',
+                        showControls: true
                     });
 
-                    // Add navigation controls
-                    map.addControl(new mapboxgl.NavigationControl(), 'top-right');
-
-                    // Add fullscreen control
-                    map.addControl(new mapboxgl.FullscreenControl(), 'top-right');
-
-                    // Add geolocate control
-                    map.addControl(
-                        new mapboxgl.GeolocateControl({
-                            positionOptions: {
-                                enableHighAccuracy: true
-                            },
-                            trackUserLocation: true,
-                            showUserHeading: true
-                        }),
-                        'top-right'
-                    );
-
-                    // Add scale control
-                    map.addControl(new mapboxgl.ScaleControl({
-                        maxWidth: 100,
-                        unit: 'metric'
-                    }), 'bottom-left');
-
-                    map.on('load', () => {
-                        // Add 3D terrain
-                        map.addSource('mapbox-dem', {
-                            'type': 'raster-dem',
-                            'url': 'mapbox://mapbox.mapbox-terrain-dem-v1',
-                            'tileSize': 512,
-                            'maxzoom': 14
-                        });
-                        map.setTerrain({ 'source': 'mapbox-dem', 'exaggeration': 1.5 });
-
-                        // Add sky layer for 3D effect
-                        map.addLayer({
-                            'id': 'sky',
-                            'type': 'sky',
-                            'paint': {
-                                'sky-type': 'atmosphere',
-                                'sky-atmosphere-sun': [0.0, 0.0],
-                                'sky-atmosphere-sun-intensity': 15
-                            }
-                        });
-
-                        // Add a circle layer around the location
-                        map.addSource('radius', {
-                            'type': 'geojson',
-                            'data': {
-                                'type': 'Feature',
-                                'geometry': {
-                                    'type': 'Point',
-                                    'coordinates': vehicle.geometry.coordinates
-                                }
-                            }
-                        });
-
-                        map.addLayer({
-                            'id': 'radius-circle',
-                            'type': 'circle',
-                            'source': 'radius',
-                            'paint': {
-                                'circle-radius': {
-                                    'base': 1.75,
-                                    'stops': [
-                                        [12, 80],
-                                        [22, 300]
-                                    ]
-                                },
-                                'circle-color': '#ff7675',
-                                'circle-opacity': 0.15,
-                                'circle-stroke-width': 2,
-                                'circle-stroke-color': '#ff7675',
-                                'circle-stroke-opacity': 0.5
-                            }
-                        });
-                    });
-
-                    // Create custom marker element
+                    // Create custom marker element for vehicle
                     const markerEl = document.createElement('div');
-                    markerEl.className = 'custom-marker';
-                    markerEl.innerHTML = '<i class="fas fa-car" style="color: white; font-size: 20px;"></i>';
-                    markerEl.style.cssText = `
-                        width: 50px;
-                        height: 50px;
-                        background: linear-gradient(135deg, #ff7675, #d63031);
-                        border-radius: 50% 50% 50% 0;
-                        transform: rotate(-45deg);
-                        display: flex;
-                        align-items: center;
-                        justify-content: center;
-                        box-shadow: 0 4px 12px rgba(214, 48, 49, 0.4);
-                        border: 3px solid white;
-                        cursor: pointer;
-                    `;
+                    markerEl.className = 'vehicle-custom-marker';
+                    markerEl.innerHTML = '<i class="fas fa-car"></i>';
+
+                    // Style the marker
+                    Object.assign(markerEl.style, {
+                        width: '50px',
+                        height: '50px',
+                        background: 'linear-gradient(135deg, #ff7675, #d63031)',
+                        borderRadius: '50% 50% 50% 0',
+                        transform: 'rotate(-45deg)',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        boxShadow: '0 4px 12px rgba(214, 48, 49, 0.4)',
+                        border: '3px solid white',
+                        cursor: 'pointer',
+                        color: 'white',
+                        fontSize: '20px'
+                    });
                     markerEl.querySelector('i').style.transform = 'rotate(45deg)';
 
-                    // Add custom marker with popup
-                    const popup = new mapboxgl.Popup({
-                        offset: 25,
-                        closeButton: false,
-                        className: 'custom-map-popup'
-                    }).setHTML(`
-                        <div style="padding: 10px;">
-                            <h6 style="margin: 0 0 8px 0; font-weight: 700; color: #2d3436;">${vehicle.title}</h6>
-                            <p style="margin: 0; color: #636e72; font-size: 0.85rem;">
-                                <i class="fas fa-map-marker-alt" style="color: #ff7675; margin-right: 5px;"></i>
-                                ${vehicle.location}, ${vehicle.country}
-                            </p>
-                            <p style="margin: 8px 0 0 0; color: #00b894; font-weight: 600; font-size: 0.9rem;">
-                                <i class="fas fa-check-circle" style="margin-right: 5px;"></i>
-                                Available for pickup
-                            </p>
-                        </div>
-                    `);
-
-                    new mapboxgl.Marker({ element: markerEl })
-                        .setLngLat(vehicle.geometry.coordinates)
-                        .setPopup(popup)
-                        .addTo(map);
-
-                    // Show popup on load
-                    setTimeout(() => popup.addTo(map), 500);
-
-                    // Add map style switcher
-                    const styles = [
-                        { name: 'Streets', style: 'mapbox://styles/mapbox/streets-v12' },
-                        { name: 'Satellite', style: 'mapbox://styles/mapbox/satellite-streets-v12' },
-                        { name: 'Outdoors', style: 'mapbox://styles/mapbox/outdoors-v12' }
-                    ];
-
-                    const styleControl = document.createElement('div');
-                    styleControl.className = 'mapboxgl-ctrl mapboxgl-ctrl-group';
-                    styleControl.style.cssText = 'position: absolute; top: 10px; left: 10px; z-index: 1;';
-
-                    styles.forEach((s, index) => {
-                        const btn = document.createElement('button');
-                        btn.textContent = s.name;
-                        btn.className = index === 0 ? 'active' : '';
-                        btn.style.cssText = `
-                            padding: 8px 12px;
-                            background: white;
-                            border: none;
-                            cursor: pointer;
-                            font-size: 0.8rem;
-                            font-weight: 600;
-                            transition: all 0.3s;
-                        `;
-                        btn.onclick = () => {
-                            map.setStyle(s.style);
-                            styleControl.querySelectorAll('button').forEach(b => b.classList.remove('active'));
-                            btn.classList.add('active');
-                        };
-                        styleControl.appendChild(btn);
+                    // Add marker to map
+                    enhancedMap.addMarker('vehicle', vehicleCoords, {
+                        customElement: markerEl,
+                        title: vehicle.title,
+                        description: `<div style="padding:4px;">
+                            <h6 style="margin:0; font-weight:700;">${vehicle.title}</h6>
+                            <span style="color:#717171; font-size:12px;">${vehicle.location}, ${vehicle.country}</span><br>
+                            <span style="color:#00b894; font-weight:600; font-size:12px;">✓ Available for pickup</span>
+                        </div>`,
+                        popup: true,
+                        offset: [0, -20]
                     });
-
-                    map.getContainer().appendChild(styleControl);
                 }
 
                 // Initialize AOS if available

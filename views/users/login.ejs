@@ -1,107 +1,254 @@
 <% layout("layouts/boilerplate") %>
 
- <div class="row mt-3">
-    <h1 class="col-6 offset-3">Login</h1>
-     <div class="col-6 offset-3">
-        <form action="/login" method="POST"class="needs-validation" novalidate>
-    <div class="mb-3">
-        <label for="username" class="form-label">Username</label>
-        <input name="username" id="username" type="text" class="form-control" required/>
-      
-    </div>
-
-
-   
-    <div class="mb-3">
-        <label for="password" class="form-label">Password</label>
-        <input name="password" id="password" type="password" class="form-control" required/>
-    </div>
-
-
-    <button class="btn btn-success">Login</button>
-    </form>
-
-    <hr />
-
     <style>
-        .social-auth-btn {
-            position: relative;
-            width: 100%;
+        /* Premium Auth Styling */
+        .auth-container {
+            min-height: 80vh;
             display: flex;
             align-items: center;
             justify-content: center;
-            gap: 10px;
-            padding: 12px 14px;
-            border-radius: 12px;
-            border: 1px solid rgba(60, 64, 67, 0.18);
-            background: linear-gradient(180deg, #ffffff 0%, #fafafa 100%);
-            color: #1f1f1f;
+            background-color: #f8f9fa;
+            padding: 20px;
+        }
+
+        .auth-card {
+            background: white;
+            width: 100%;
+            max-width: 450px;
+            padding: 40px;
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+            border: 1px solid #eaeaea;
+        }
+
+        .auth-title {
+            font-size: 32px;
+            font-weight: 800;
+            color: #1a1a1a;
+            margin-bottom: 30px;
+            letter-spacing: -0.5px;
+        }
+
+        .form-label {
             font-weight: 600;
-            letter-spacing: 0.1px;
-            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.08);
-            transition: transform 0.12s ease, box-shadow 0.2s ease, border-color 0.2s ease;
+            color: #4a4a4a;
+            margin-bottom: 8px;
+            font-size: 14px;
         }
-        .social-auth-btn:hover {
+
+        .form-control {
+            padding: 12px 16px;
+            border-radius: 12px;
+            border: 1px solid #e0e0e0;
+            font-size: 15px;
+            transition: all 0.2s ease;
+            background-color: #fcfcfc;
+        }
+
+        .form-control:focus {
+            border-color: #198754;
+            box-shadow: 0 0 0 4px rgba(25, 135, 84, 0.1);
+            background-color: white;
+        }
+
+        .btn-login {
+            background-color: #198754;
+            border: none;
+            padding: 14px;
+            font-weight: 600;
+            font-size: 16px;
+            border-radius: 12px;
+            width: 100%;
+            margin-top: 10px;
+            transition: all 0.2s ease;
+            box-shadow: 0 4px 12px rgba(25, 135, 84, 0.2);
+        }
+
+        .btn-login:hover {
+            background-color: #157347;
             transform: translateY(-1px);
-            border-color: rgba(60, 64, 67, 0.28);
-            box-shadow: 0 14px 35px rgba(0, 0, 0, 0.12);
+            box-shadow: 0 6px 16px rgba(25, 135, 84, 0.3);
         }
-        .social-auth-btn:active {
-            transform: translateY(0px);
-            box-shadow: 0 8px 18px rgba(0, 0, 0, 0.10);
+
+        .divider {
+            margin: 24px 0;
+            border-top: 1px solid #eaeaea;
+            position: relative;
+            text-align: center;
         }
-        .social-auth-btn:focus {
-            box-shadow: 0 0 0 0.25rem rgba(66, 133, 244, 0.22), 0 12px 28px rgba(0, 0, 0, 0.10);
+
+        .divider-text {
+            background: white;
+            padding: 0 12px;
+            color: #888;
+            font-size: 13px;
+            position: relative;
+            top: -10px;
         }
-        .social-auth-icon {
-            position: absolute;
-            left: 12px;
-            width: 38px;
-            height: 38px;
-            border-radius: 10px;
-            background: #ffffff;
-            border: 1px solid rgba(0, 0, 0, 0.06);
-            display: inline-flex;
+
+        /* Google Button Refined */
+        .btn-google {
+            background: white;
+            border: 1px solid #dadce0;
+            color: #3c4043;
+            width: 100%;
+            padding: 12px;
+            border-radius: 12px;
+            font-weight: 600;
+            font-size: 15px;
+            display: flex;
             align-items: center;
             justify-content: center;
-            box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.6);
+            gap: 12px;
+            transition: all 0.2s ease;
+            position: relative;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
         }
-        .social-auth-label {
-            margin-left: 24px;
+
+        .btn-google:hover {
+            background-color: #f8f9fa;
+            border-color: #dadce0;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            transform: translateY(-1px);
+            color: #202124;
         }
-        .social-auth-btn[aria-disabled="true"] {
-            pointer-events: none;
-            opacity: 0.78;
-            filter: grayscale(0.05);
+
+        .signup-link {
+            text-align: center;
+            margin-top: 24px;
+            font-size: 14px;
+            color: #666;
+        }
+
+        .signup-link a {
+            color: #198754;
+            text-decoration: none;
+            font-weight: 600;
+        }
+
+        .signup-link a:hover {
+            text-decoration: underline;
+        }
+
+        .password-toggle-wrapper {
+            position: relative;
+        }
+
+        .password-toggle-btn {
+            position: absolute;
+            right: 12px;
+            top: 50%;
+            transform: translateY(-50%);
+            border: none;
+            background: none;
+            cursor: pointer;
+            color: #666;
+            padding: 0;
+            display: flex;
+            align-items: center;
+        }
+
+        .password-toggle-btn:hover {
+            color: #198754;
         }
     </style>
 
-    <a id="googleLoginBtn" href="/auth/google" class="btn social-auth-btn" role="button" aria-label="Continue with Google">
-        <span class="social-auth-icon" aria-hidden="true">
-            <svg width="18" height="18" viewBox="0 0 48 48" xmlns="http://www.w3.org/2000/svg" style="display:block;">
-                <path fill="#EA4335" d="M24 9.5c3.54 0 6.72 1.22 9.23 3.22l6.9-6.9C35.91 2.34 30.33 0 24 0 14.62 0 6.51 5.38 2.56 13.22l8.05 6.26C12.54 13.09 17.77 9.5 24 9.5z"/>
-                <path fill="#4285F4" d="M46.64 24.55c0-1.64-.15-3.22-.43-4.75H24v9h12.7c-.55 2.9-2.18 5.36-4.62 7.02l7.07 5.49c4.14-3.82 6.49-9.45 6.49-16.76z"/>
-                <path fill="#FBBC05" d="M10.61 28.74c-.52-1.54-.82-3.19-.82-4.89s.3-3.35.82-4.89l-8.05-6.26C.92 16.46 0 20.09 0 23.85s.92 7.39 2.56 10.65l8.05-5.76z"/>
-                <path fill="#34A853" d="M24 48c6.33 0 11.65-2.09 15.53-5.69l-7.07-5.49c-1.96 1.32-4.47 2.1-8.46 2.1-6.23 0-11.46-3.59-13.39-8.98l-8.05 5.76C6.51 42.62 14.62 48 24 48z"/>
-            </svg>
-        </span>
-        <span id="googleLoginText" class="social-auth-label">Continue with Google</span>
-        <span id="googleLoginSpinner" class="spinner-border spinner-border-sm d-none" role="status" aria-hidden="true"></span>
-    </a>
+    <div class="auth-container">
+        <div class="auth-card">
+            <h1 class="auth-title">Login</h1>
+
+            <form action="/login" method="POST" class="needs-validation" novalidate>
+                <div class="mb-4">
+                    <label for="username" class="form-label">Username</label>
+                    <input name="username" id="username" type="text" class="form-control" required
+                        placeholder="Enter your username" />
+                    <div class="invalid-feedback">Please enter your username.</div>
+                </div>
+
+                <div class="mb-4">
+                    <label for="password" class="form-label">Password</label>
+                    <div class="password-toggle-wrapper">
+                        <input name="password" id="password" type="password" class="form-control" required
+                            placeholder="Enter your password" style="padding-right: 40px;" />
+                        <button type="button" class="password-toggle-btn" id="togglePasswordBtn" tabindex="-1">
+                            <i class="fas fa-eye-slash"></i>
+                        </button>
+                    </div>
+                    <div class="invalid-feedback">Please enter your password.</div>
+                </div>
+
+                <button class="btn btn-success btn-login">Login</button>
+            </form>
+
+            <div class="divider">
+                <span class="divider-text">OR</span>
+            </div>
+
+            <a id="googleLoginBtn" href="/auth/google" class="btn btn-google" role="button"
+                aria-label="Continue with Google">
+                <svg width="20" height="20" viewBox="0 0 48 48">
+                    <path fill="#EA4335"
+                        d="M24 9.5c3.54 0 6.72 1.22 9.23 3.22l6.9-6.9C35.91 2.34 30.33 0 24 0 14.62 0 6.51 5.38 2.56 13.22l8.05 6.26C12.54 13.09 17.77 9.5 24 9.5z" />
+                    <path fill="#4285F4"
+                        d="M46.64 24.55c0-1.64-.15-3.22-.43-4.75H24v9h12.7c-.55 2.9-2.18 5.36-4.62 7.02l7.07 5.49c4.14-3.82 6.49-9.45 6.49-16.76z" />
+                    <path fill="#FBBC05"
+                        d="M10.61 28.74c-.52-1.54-.82-3.19-.82-4.89s.3-3.35.82-4.89l-8.05-6.26C.92 16.46 0 20.09 0 23.85s.92 7.39 2.56 10.65l8.05-5.76z" />
+                    <path fill="#34A853"
+                        d="M24 48c6.33 0 11.65-2.09 15.53-5.69l-7.07-5.49c-1.96 1.32-4.47 2.1-8.46 2.1-6.23 0-11.46-3.59-13.39-8.98l-8.05 5.76C6.51 42.62 14.62 48 24 48z" />
+                </svg>
+                <span id="googleLoginText">Continue with Google</span>
+                <span id="googleLoginSpinner" class="spinner-border spinner-border-sm d-none" role="status"></span>
+            </a>
+
+            <div class="signup-link">
+                Don't have an account? <a href="/signup">Sign up</a>
+            </div>
+        </div>
+    </div>
 
     <script>
+        // Validation
+        (function () {
+            'use strict'
+            var forms = document.querySelectorAll('.needs-validation')
+            Array.prototype.slice.call(forms).forEach(function (form) {
+                form.addEventListener('submit', function (event) {
+                    if (!form.checkValidity()) {
+                        event.preventDefault()
+                        event.stopPropagation()
+                    }
+                    form.classList.add('was-validated')
+                }, false)
+            })
+        })();
+
+        // Google Button Logic
         (function () {
             const btn = document.getElementById('googleLoginBtn');
             const text = document.getElementById('googleLoginText');
             const spinner = document.getElementById('googleLoginSpinner');
-            if (!btn || !text || !spinner) return;
+            if (!btn) return;
 
             btn.addEventListener('click', function () {
-                btn.setAttribute('aria-disabled', 'true');
+                btn.style.pointerEvents = 'none';
+                btn.style.opacity = '0.8';
                 spinner.classList.remove('d-none');
                 text.textContent = 'Redirecting...';
-            }, { once: true });
+            });
+        })();
+
+        // Show/Hide Password Toggle
+        (function () {
+            const toggleBtn = document.getElementById('togglePasswordBtn');
+            const input = document.getElementById('password');
+            if (toggleBtn && input) {
+                toggleBtn.addEventListener('click', function () {
+                    const isPassword = input.type === 'password';
+                    input.type = isPassword ? 'text' : 'password';
+                    const icon = this.querySelector('i');
+                    icon.classList.toggle('fa-eye');
+                    icon.classList.toggle('fa-eye-slash');
+                });
+            }
         })();
     </script>
-    </div>
-</div>

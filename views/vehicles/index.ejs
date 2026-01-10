@@ -14,10 +14,18 @@
   <!-- Fast Search Overlap -->
   <div class="container position-relative">
     <div class="vehicle-fast-search" data-aos="zoom-in" data-aos-delay="200">
-      <div class="search-field flex-grow-1">
+      <div class="search-field flex-grow-1" style="position: relative;">
         <span class="search-label">Where</span>
         <input type="text" class="search-input" placeholder="City or airport" id="search-location"
-          value="<%= query || '' %>">
+          value="<%= query || '' %>" style="padding-right: 35px;">
+        <button type="button" id="vehicleVoiceBtn" title="Search by Voice"
+          style="background: none; border: none; position: absolute; right: 40px; top: 50%; transform: translateY(-10%); color: #ff385c; cursor: pointer;">
+          <i class="fas fa-microphone"></i>
+        </button>
+        <button type="button" id="vehicleClearSearch"
+          style="display: none; background: none; border: none; position: absolute; right: 10px; top: 50%; transform: translateY(-10%); color: #999; cursor: pointer;">
+          <i class="fas fa-times-circle"></i>
+        </button>
       </div>
       <div class="search-field">
         <span class="search-label">Type</span>
@@ -105,7 +113,8 @@
                   <% if(vehicle.averageRating>= 4.5) { %>
                     <div class="card-badge"><i class="fas fa-star text-warning me-1"></i> Top Rated</div>
                     <% } %>
-                      <button class="card-wishlist">
+                      <button class="card-wishlist" data-id="<%= vehicle._id %>"
+                        onclick="toggleWishlist(this, '<%= vehicle._id %>', 'vehicle')">
                         <i class="far fa-heart"></i>
                       </button>
               </div>
@@ -211,5 +220,78 @@
           hub.scrollLeft += evt.deltaY;
         });
       }
+
+      // Clear search logic
+      const vehicleInput = document.getElementById('search-location');
+      const vehicleClearBtn = document.getElementById('vehicleClearSearch');
+      if (vehicleInput && vehicleClearBtn) {
+        const toggleVehicleClear = () => {
+          vehicleClearBtn.style.display = vehicleInput.value.trim().length > 0 ? 'block' : 'none';
+        };
+        vehicleInput.addEventListener('input', toggleVehicleClear);
+        toggleVehicleClear();
+        vehicleClearBtn.addEventListener('click', () => {
+          vehicleInput.value = '';
+          toggleVehicleClear();
+          vehicleInput.focus();
+          if (window.location.search.includes('q=')) {
+            executeFastSearch();
+          }
+        });
+      }
+
+      // Vehicle Voice Search Logic
+      const vehicleVoiceBtn = document.getElementById('vehicleVoiceBtn');
+      if (vehicleVoiceBtn && vehicleInput) {
+        vehicleVoiceBtn.addEventListener('click', () => {
+          startVehicleVoiceSearch(vehicleInput);
+        });
+      }
+
+      function startVehicleVoiceSearch(targetInput) {
+        const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+        if (!SpeechRecognition) return;
+
+        const recognition = new SpeechRecognition();
+        recognition.continuous = false;
+        recognition.lang = 'en-US';
+        recognition.interimResults = true;
+
+        const overlay = document.querySelector('.voice-overlay');
+        const statusText = document.getElementById('voice-status');
+        const previewText = document.getElementById('voice-preview');
+        const micPulse = document.querySelector('.voice-mic-pulse');
+
+        recognition.onstart = () => {
+          overlay.classList.add('active');
+          micPulse.classList.add('pulsing');
+          statusText.textContent = 'Listening...';
+          previewText.textContent = 'Speak now...';
+        };
+
+        recognition.onresult = (event) => {
+          let interimTranscript = '';
+          let finalTranscript = '';
+          for (let i = event.resultIndex; i < event.results.length; ++i) {
+            if (event.results[i].isFinal) finalTranscript += event.results[i][0].transcript;
+            else interimTranscript += event.results[i][0].transcript;
+          }
+          if (finalTranscript) {
+            targetInput.value = finalTranscript;
+            previewText.textContent = finalTranscript;
+            statusText.textContent = 'Searching...';
+            setTimeout(() => {
+              overlay.classList.remove('active');
+              executeFastSearch();
+            }, 800);
+          } else {
+            previewText.textContent = interimTranscript;
+          }
+        };
+
+        recognition.onerror = () => overlay.classList.remove('active');
+        recognition.start();
+      }
     });
   </script>
+  <script src="/js/wishlist-handler.js"></script>

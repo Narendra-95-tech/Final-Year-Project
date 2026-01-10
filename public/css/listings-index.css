@@ -310,36 +310,33 @@
 }
 
 /* ==================== FILTERS SECTION ==================== */
-/* ==================== FILTERS SECTION (CATEGORY BAR) ==================== */
+/* ==================== BOUTIQUE FILTER SYSTEM ==================== */
 .filters-section {
-    background: white;
-    padding: 20px 0 10px;
-    margin-bottom: var(--space-4);
-    border-bottom: 1px solid var(--gray-400);
+    background: rgba(255, 255, 255, 0.98);
+    backdrop-filter: blur(20px);
+    padding: 24px 0 20px;
+    margin-bottom: 30px;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.08);
     position: sticky;
     top: 70px;
-    /* Adjust based on navbar height */
     z-index: 99;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
-    border-radius: 0;
-    border: none;
-    border-bottom: 1px solid #ebebeb;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.03);
 }
 
+/* Category Scroller */
 .category-scroll-container {
     display: flex;
     gap: 32px;
     overflow-x: auto;
-    padding: 0 var(--space-6);
+    padding: 0 40px 15px;
     scrollbar-width: none;
-    /* Hide scrollbar Firefox */
     -ms-overflow-style: none;
-    /* Hide scrollbar IE/Edge */
+    margin-bottom: 20px;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.06);
 }
 
 .category-scroll-container::-webkit-scrollbar {
     display: none;
-    /* Hide scrollbar Chrome/Safari */
 }
 
 .filter-item {
@@ -347,95 +344,176 @@
     flex-direction: column;
     align-items: center;
     gap: 8px;
-    min-width: 64px;
+    min-width: 72px;
     cursor: pointer;
-    opacity: 0.6;
-    transition: all 0.2s ease;
-    padding-bottom: 12px;
-    border-bottom: 2px solid transparent;
-    background: transparent;
-    border-radius: 0;
-    padding: 0 0 12px 0;
+    opacity: 0.65;
+    transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+    position: relative;
+    padding-bottom: 10px;
 }
 
 .filter-item:hover {
     opacity: 1;
-    background: transparent;
-    transform: none;
-    border-bottom: 2px solid var(--gray-500);
+    transform: translateY(-2px);
 }
 
 .filter-item.active {
     opacity: 1;
-    border-color: var(--gray-900);
-    background: transparent;
 }
 
-.filter-icon {
+.filter-item.active::after {
+    content: '';
+    position: absolute;
+    bottom: -16px;
+    /* Matches padding + border offset */
+    left: 50%;
+    transform: translateX(-50%);
+    width: 100%;
+    height: 3px;
+    background: #000;
+    border-radius: 2px 2px 0 0;
+}
+
+.filter-icon-circle {
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: #f7f7f7;
+    transition: all 0.3s ease;
+    border: 1px solid transparent;
+}
+
+.filter-item:hover .filter-icon-circle {
+    background: #fff;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    border-color: #ddd;
+}
+
+.filter-item.active .filter-icon-circle {
+    background: #FF9500;
+    /* Orange Accent */
+    color: white;
+    box-shadow: 0 4px 15px rgba(255, 149, 0, 0.3);
+}
+
+.filter-item i {
     font-size: 24px;
-    margin-bottom: 0;
-    color: var(--gray-700);
+    color: #484848;
+    transition: color 0.3s ease;
 }
 
-.filter-item.active .filter-icon {
-    color: var(--gray-900);
+.filter-item.active i {
+    color: white;
 }
 
 .filter-label {
-    font-size: 12px;
+    font-size: 13px;
     font-weight: 600;
-    color: var(--gray-900);
-    text-transform: capitalize;
-    letter-spacing: normal;
+    color: #222;
     white-space: nowrap;
 }
 
-/* ==================== SEARCH CONTROLS ==================== */
-.search-controls {
-    background: var(--gray-200);
-    border-radius: 12px;
-    padding: var(--space-5);
-    margin-bottom: var(--space-6);
+/* Detailed Filter Row */
+.detailed-filters-row {
+    padding: 0 40px;
+    max-width: 1400px;
+    margin: 0 auto;
 }
 
-.search-controls .form-label {
-    font-weight: 600;
-    color: var(--gray-900);
-    margin-bottom: var(--space-2);
-    font-size: 12px;
+.filter-form {
+    display: flex;
+    align-items: flex-end;
+    gap: 20px;
+    flex-wrap: wrap;
+}
+
+.filter-group {
+    flex: 1;
+    min-width: 150px;
+}
+
+.sort-group {
+    flex: 1.5;
+}
+
+.filter-group label {
+    display: block;
+    font-size: 11px;
+    font-weight: 700;
     text-transform: uppercase;
+    color: #717171;
+    margin-bottom: 8px;
     letter-spacing: 0.5px;
 }
 
-.search-controls .form-control,
-.search-controls .form-select {
-    border: 1px solid var(--gray-500);
-    border-radius: 8px;
-    padding: 10px var(--space-3);
+.filter-group input,
+.filter-group select {
+    width: 100%;
+    padding: 12px 16px;
+    border: 1px solid #DDDDDD;
+    border-radius: 12px;
     font-size: 14px;
-    transition: all 0.15s ease;
+    color: #222;
+    background: white;
+    transition: all 0.2s ease;
+    outline: none;
 }
 
-.search-controls .form-control:focus,
-.search-controls .form-select:focus {
-    border-color: var(--gray-900);
-    box-shadow: 0 0 0 1px var(--gray-900);
+.filter-group input:focus,
+.filter-group select:focus {
+    border-color: #222;
+    box-shadow: 0 0 0 1px #222;
 }
 
-.search-controls .btn-primary {
-    background: var(--gray-900);
-    border-color: var(--gray-900);
-    border-radius: 8px;
-    padding: 10px var(--space-4);
+.filter-group input::placeholder {
+    color: #aaa;
+}
+
+.btn-filter-apply {
+    background: #222;
+    color: white;
+    border: none;
+    padding: 12px 32px;
+    border-radius: 12px;
     font-weight: 600;
-    transition: all 0.15s ease;
+    font-size: 14px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    height: 47px;
+    /* Match input height */
 }
 
-.search-controls .btn-primary:hover {
-    background: var(--gray-800);
-    border-color: var(--gray-800);
-    transform: translateY(-1px);
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.15);
+.btn-filter-apply:hover {
+    background: #000;
+    transform: translateY(-2px);
+    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.15);
+}
+
+@media (max-width: 768px) {
+    .filter-form {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 15px;
+    }
+
+    .category-scroll-container {
+        padding: 0 20px 15px;
+    }
+
+    .detailed-filters-row {
+        padding: 0 20px;
+    }
+
+    .btn-filter-apply {
+        width: 100%;
+        justify-content: center;
+    }
 }
 
 /* ==================== HERO SECTION ==================== */

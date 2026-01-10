@@ -7,28 +7,7 @@
 
     <body class="listing-details-page">
 
-        <!-- Sticky Scroll Header -->
-        <div id="sticky-header" class="sticky-header">
-            <div class="sticky-header-content">
-                <div class="sticky-header-left">
-                    <span class="sticky-header-title">
-                        <%= listing.title %>
-                    </span>
-                    <span class="sticky-header-rating">
-                        <i class="fas fa-star"></i>
-                        <%= listing.reviews && listing.reviews.length> 0
-                            ? (listing.reviews.reduce((sum, r)=> sum + r.rating, 0) / listing.reviews.length).toFixed(1)
-                            : 'New' %>
-                    </span>
-                </div>
-                <div class="sticky-header-right">
-                    <button class="sticky-reserve-btn"
-                        onclick="document.querySelector('.booking-card').scrollIntoView({behavior: 'smooth'})">
-                        Reserve
-                    </button>
-                </div>
-            </div>
-        </div>
+
 
 
 
@@ -43,16 +22,6 @@
             const currUserId = "<%= currUser ? currUser._id : '' %>";
             const isOwner = "<%= currUser && listing.owner._id.equals(currUser._id) ? 'true' : 'false' %>" === 'true';
 
-            // Sticky Header Scroll Logic
-            window.addEventListener('scroll', () => {
-                const header = document.getElementById('sticky-header');
-                const trigger = document.querySelector('.property-header'); // Show after passing header
-                if (trigger && window.scrollY > trigger.offsetTop + trigger.offsetHeight) {
-                    header.classList.add('visible');
-                } else {
-                    header.classList.remove('visible');
-                }
-            });
         </script>
 
         <!-- Image Gallery Section -->
@@ -105,59 +74,76 @@
 
                 <hr class="section-divider">
 
-                <!-- Host Info Row -->
                 <!-- Enhanced Host Profile Card -->
-                <!-- Host Info Row -->
-                <div class="host-info-row">
-                    <img src="<%= listing.owner.avatar?.url || '/images/default-avatar.png' %>"
-                        alt="<%= listing.owner.username %>" class="host-avatar-large" />
-                    <div class="host-text">
-                        <div class="host-name">Hosted by <%= listing.owner.username %>
+                <div class="host-profile-card-premium" data-aos="fade-up">
+                    <div class="host-card-top">
+                        <div class="host-avatar-wrapper">
+                            <img src="<%= listing.owner.avatar?.url || '/images/default-avatar.png' %>"
+                                alt="<%= listing.owner.username %>" class="host-avatar-xl" />
+                            <div class="host-verified-badge">
+                                <i class="fas fa-check"></i>
+                            </div>
                         </div>
-                        <div class="host-badge text-secondary">Superhost · 4 years hosting</div>
+                        <div class="host-intro">
+                            <h2 class="host-name-large">Hosted by <%= listing.owner.username %>
+                            </h2>
+                            <p class="host-meta-text">Superhost · Joined in 2020</p>
+                        </div>
+                    </div>
+                    <div class="host-card-stats">
+                        <div class="host-stat">
+                            <div class="stat-value">4.9</div>
+                            <div class="stat-label">Rating</div>
+                        </div>
+                        <div class="host-stat">
+                            <div class="stat-value">120</div>
+                            <div class="stat-label">Reviews</div>
+                        </div>
+                        <div class="host-stat">
+                            <div class="stat-value">100%</div>
+                            <div class="stat-label">Response rate</div>
+                        </div>
                     </div>
                 </div>
 
                 <hr class="section-divider">
 
                 <!-- Property Highlights (Vertical List) -->
-                <div class="property-highlights-list">
-                    <!-- Highlight 1: Property Type -->
-                    <div class="highlight-list-item">
-                        <i class="highlight-icon fas fa-home"></i>
-                        <div class="highlight-content">
-                            <div class="highlight-title">Entire <%= listing.propertyType || 'home' %>
-                            </div>
-                            <div class="highlight-sub">You’ll have the <%= listing.propertyType?.toLowerCase()
-                                    || 'place' %> to yourself.</div>
+                <div class="property-highlights-list-premium">
+                    <div class="highlight-item-premium" data-aos="fade-right" data-aos-delay="100">
+                        <i class="highlight-icon-p fas fa-medal"></i>
+                        <div class="highlight-info-p">
+                            <div class="highlight-title-p">Elite Stay</div>
+                            <div class="highlight-sub-p">One of the most loved homes on WanderLust based on guest
+                                reviews.</div>
                         </div>
                     </div>
 
-                    <!-- Highlight 2: Self Check-in -->
-                    <div class="highlight-list-item">
-                        <i class="highlight-icon fas fa-door-open"></i>
-                        <div class="highlight-content">
-                            <div class="highlight-title">Self check-in</div>
-                            <div class="highlight-sub">Check yourself in with the lockbox.</div>
+                    <div class="highlight-item-premium" data-aos="fade-right" data-aos-delay="200">
+                        <i class="highlight-icon-p fas fa-key"></i>
+                        <div class="highlight-info-p">
+                            <div class="highlight-title-p">Self check-in</div>
+                            <div class="highlight-sub-p">Check yourself in with the smart lock.</div>
                         </div>
                     </div>
 
-                    <!-- Highlight 3: Great Location -->
-                    <div class="highlight-list-item">
-                        <i class="highlight-icon fas fa-map-marker-alt"></i>
-                        <div class="highlight-content">
-                            <div class="highlight-title">Great location</div>
-                            <div class="highlight-sub">100% of recent guests gave the location a 5-star rating.</div>
+                    <div class="highlight-item-premium" data-aos="fade-right" data-aos-delay="300">
+                        <i class="highlight-icon-p fas fa-shield-alt"></i>
+                        <div class="highlight-info-p">
+                            <div class="highlight-title-p">Safety first</div>
+                            <div class="highlight-sub-p">Equipped with smoke alarm, carbon monoxide detector, and first
+                                aid kit.</div>
                         </div>
                     </div>
 
-                    <!-- Highlight 4: Workstation (if applicable) -->
-                    <% if (listing.amenities && listing.amenities.includes('Workspace')) { %>
-                        <div class="highlight-list-item">
-                            <i class="highlight-icon fas fa-laptop"></i>
-                            <div class="highlight-content">
-                                <div class="highlight-title">Dedicated workspace</div>
-                                <div class="highlight-sub">A common area with wifi that’s well-suited for working.</div>
+                    <% if (listing.amenities && (listing.amenities.includes('Workspace') ||
+                        listing.amenities.includes('WiFi'))) { %>
+                        <div class="highlight-item-premium" data-aos="fade-right" data-aos-delay="400">
+                            <i class="highlight-icon-p fas fa-laptop-house"></i>
+                            <div class="highlight-info-p">
+                                <div class="highlight-title-p">Work-ready space</div>
+                                <div class="highlight-sub-p">A dedicated area with fast wifi, perfect for digital
+                                    nomads.</div>
                             </div>
                         </div>
                         <% } %>
@@ -265,13 +251,39 @@
                 <div id="reviews-display-container"></div>
 
                 <!-- Map Section -->
-                <div class="map-section">
+                <div class="map-section mt-5" data-aos="fade-up">
                     <h2 class="section-title">Where you' ll be</h2>
                                             <p class="text-secondary mb-3">
                                                 <%= listing.location %>, <%= listing.country %>
                                             </p>
-                                            <div class="map-container">
-                                                <div id="map" style="width: 100%; height: 100%;"></div>
+                                            <div class="map-container-premium">
+                                                <div id="map" style="width: 100%; height: 500px; border-radius: 16px;">
+                                                </div>
+
+                                                <!-- Premium Map Overlay Controls -->
+                                                <div class="map-overlay-controls">
+                                                    <button id="btn-3d-tour" class="map-p-btn"
+                                                        title="3D Neighborhood Tour">
+                                                        <i class="fas fa-cube"></i> <span>3D Tour</span>
+                                                    </button>
+                                                    <button id="btn-pois-toggle" class="map-p-btn"
+                                                        title="Show Local Gems">
+                                                        <i class="fas fa-map-marker-alt"></i> <span>Local Gems</span>
+                                                    </button>
+                                                </div>
+
+                                                <!-- Travel Time Card -->
+                                                <div id="travel-time-card" class="travel-time-card-p">
+                                                    <div class="eta-header-p">Travel Time from You</div>
+                                                    <div class="eta-row-p">
+                                                        <div class="eta-item-p"><i class="fas fa-walking"></i> <span
+                                                                id="eta-walking">Calculating...</span></div>
+                                                        <div class="eta-item-p"><i class="fas fa-car"></i> <span
+                                                                id="eta-driving">...</span></div>
+                                                        <div class="eta-item-p"><i class="fas fa-bicycle"></i> <span
+                                                                id="eta-cycling">...</span></div>
+                                                    </div>
+                                                </div>
                                             </div>
                                 </div>
 
@@ -369,42 +381,59 @@
 
                                         <!-- Leave a Review (if logged in and not owner) -->
                                         <% if (currUser && !listing.owner._id.equals(currUser._id)) { %>
-                                            <div class="amenities-section">
-                                                <h2 class="section-title">Leave a review</h2>
-                                                <form action="/listings/<%= listing._id %>/reviews" method="POST"
-                                                    class="needs-validation" novalidate>
-                                                    <div class="mb-3">
-                                                        <label for="rating" class="form-label">Rating</label>
-                                                        <fieldset class="starability-slot">
-                                                            <input type="radio" id="no-rate" class="input-no-rate"
-                                                                name="review[rating]" value="1" checked
-                                                                aria-label="No rating." />
-                                                            <input type="radio" id="first-rate1" name="review[rating]"
-                                                                value="1" />
-                                                            <label for="first-rate1" title="Terrible">1 star</label>
-                                                            <input type="radio" id="first-rate2" name="review[rating]"
-                                                                value="2" />
-                                                            <label for="first-rate2" title="Not good">2 stars</label>
-                                                            <input type="radio" id="first-rate3" name="review[rating]"
-                                                                value="3" />
-                                                            <label for="first-rate3" title="Average">3 stars</label>
-                                                            <input type="radio" id="first-rate4" name="review[rating]"
-                                                                value="4" />
-                                                            <label for="first-rate4" title="Very good">4 stars</label>
-                                                            <input type="radio" id="first-rate5" name="review[rating]"
-                                                                value="5" />
-                                                            <label for="first-rate5" title="Amazing">5 stars</label>
-                                                        </fieldset>
+                                            <div class="review-section">
+                                                <div class="review-form-card">
+                                                    <div class="review-form-header">
+                                                        <i class="fas fa-star-half-alt"></i>
+                                                        <h2 class="section-title mb-0">Leave a review</h2>
                                                     </div>
-                                                    <div class="mb-3">
-                                                        <label for="comment" class="form-label">Comments</label>
-                                                        <textarea name="review[comment]" id="comment" cols="30" rows="5"
-                                                            class="form-control" required></textarea>
-                                                        <div class="invalid-feedback">Please add some comments for
-                                                            review</div>
-                                                    </div>
-                                                    <button class="btn btn-primary">Submit Review</button>
-                                                </form>
+                                                    <p class="review-form-subtitle">Share your experience with other
+                                                        guests</p>
+
+                                                    <form action="/listings/<%= listing._id %>/reviews" method="POST"
+                                                        class="needs-validation" novalidate>
+                                                        <div class="mb-4">
+                                                            <label for="rating" class="form-label fw-600">Your
+                                                                Rating</label>
+                                                            <fieldset class="starability-slot">
+                                                                <input type="radio" id="no-rate" class="input-no-rate"
+                                                                    name="review[rating]" value="1" checked
+                                                                    aria-label="No rating." />
+                                                                <input type="radio" id="first-rate1"
+                                                                    name="review[rating]" value="1" />
+                                                                <label for="first-rate1" title="Terrible">1 star</label>
+                                                                <input type="radio" id="first-rate2"
+                                                                    name="review[rating]" value="2" />
+                                                                <label for="first-rate2" title="Not good">2
+                                                                    stars</label>
+                                                                <input type="radio" id="first-rate3"
+                                                                    name="review[rating]" value="3" />
+                                                                <label for="first-rate3" title="Average">3 stars</label>
+                                                                <input type="radio" id="first-rate4"
+                                                                    name="review[rating]" value="4" />
+                                                                <label for="first-rate4" title="Very good">4
+                                                                    stars</label>
+                                                                <input type="radio" id="first-rate5"
+                                                                    name="review[rating]" value="5" />
+                                                                <label for="first-rate5" title="Amazing">5 stars</label>
+                                                            </fieldset>
+                                                        </div>
+                                                        <div class="mb-4">
+                                                            <label for="comment" class="form-label fw-600">Your
+                                                                Comments</label>
+                                                            <textarea name="review[comment]" id="comment" cols="30"
+                                                                rows="4" class="form-control review-textarea"
+                                                                placeholder="Tell us what you loved about this place..."
+                                                                required></textarea>
+                                                            <div class="invalid-feedback">Please share some feedback
+                                                                about your stay.</div>
+                                                        </div>
+                                                        <button class="btn-submit-review">
+                                                            <span>Submit Review</span>
+                                                            <i class="fas fa-paper-plane"></i>
+                                                        </button>
+                                                    </form>
+                                                </div>
                                             </div>
                                             <% } %>
 
@@ -468,39 +497,67 @@
                                 </div>
                             </div>
 
-                            <button class="reserve-btn" id="reserve-btn">Reserve</button>
+                            <% if (currUser && listing.owner._id.equals(currUser._id)) { %>
+                                <div class="owner-management-card p-3 bg-light rounded-3 border mb-3">
+                                    <div class="d-flex align-items-center gap-2 mb-3 text-primary">
+                                        <i class="fas fa-user-shield"></i>
+                                        <span class="fw-bold">Owner Management</span>
+                                    </div>
+                                    <div class="d-grid gap-2">
+                                        <a href="/listings/<%= listing._id %>/edit"
+                                            class="btn btn-primary d-flex align-items-center justify-content-center gap-2">
+                                            <i class="fas fa-edit"></i> Edit Listing
+                                        </a>
+                                        <form action="/listings/<%= listing._id %>?_method=DELETE" method="POST"
+                                            class="d-grid">
+                                            <button type="submit"
+                                                class="btn btn-outline-danger d-flex align-items-center justify-content-center gap-2"
+                                                onclick="return confirm('Are you sure you want to delete this listing?')">
+                                                <i class="fas fa-trash-alt"></i> Delete Listing
+                                            </button>
+                                        </form>
+                                    </div>
+                                </div>
+                                <button class="reserve-btn w-100 opacity-50 cursor-not-allowed" disabled>Owner View
+                                    Only</button>
+                                <% } else { %>
+                                    <button class="reserve-btn" id="reserve-btn">Reserve</button>
+                                    <% } %>
 
-                            <p class="booking-note">You won't be charged yet</p>
+                                        <p class="booking-note text-center mt-2">You won't be charged yet</p>
 
-                            <div class="price-breakdown">
-                                <div class="price-row">
-                                    <span id="nights-display">₹<%= listing.price.toLocaleString('en-IN') %> × 1
-                                            night</span>
-                                    <span id="subtotal-display">₹<%= listing.price.toLocaleString('en-IN') %></span>
-                                </div>
-                                <div class="price-row">
-                                    <span>Cleaning fee</span>
-                                    <span id="cleaning-fee-display">₹<%= Math.max(Math.round(listing.price * 0.1),
-                                            500).toLocaleString('en-IN') %></span>
-                                </div>
-                                <div class="price-row">
-                                    <span>Service fee</span>
-                                    <span id="service-fee-display">₹<%= Math.round((listing.price +
-                                            Math.max(Math.round(listing.price * 0.1), 500)) *
-                                            0.05).toLocaleString('en-IN') %>
-                                    </span>
-                                </div>
-                                <div class="price-row" id="extra-guest-fee-row" style="display: none;">
-                                    <span>Extra guest fee</span>
-                                    <span id="extra-guest-fee-display">₹0</span>
-                                </div>
-                                <div class="price-row total">
-                                    <span>Total</span>
-                                    <span id="total-display">₹<%= (listing.price + Math.max(Math.round(listing.price *
-                                            0.1), 500) + Math.round((listing.price + Math.max(Math.round(listing.price *
-                                            0.1), 500)) * 0.05)).toLocaleString('en-IN') %></span>
-                                </div>
-                            </div>
+                                        <div class="price-breakdown">
+                                            <div class="price-row">
+                                                <span id="nights-display">₹<%= listing.price.toLocaleString('en-IN') %>
+                                                        × 1
+                                                        night</span>
+                                                <span id="subtotal-display">₹<%= listing.price.toLocaleString('en-IN')
+                                                        %></span>
+                                            </div>
+                                            <div class="price-row">
+                                                <span>Cleaning fee</span>
+                                                <span id="cleaning-fee-display">₹<%= Math.max(Math.round(listing.price *
+                                                        0.1), 500).toLocaleString('en-IN') %></span>
+                                            </div>
+                                            <div class="price-row">
+                                                <span>Service fee</span>
+                                                <span id="service-fee-display">₹<%= Math.round((listing.price +
+                                                        Math.max(Math.round(listing.price * 0.1), 500)) *
+                                                        0.05).toLocaleString('en-IN') %>
+                                                </span>
+                                            </div>
+                                            <div class="price-row" id="extra-guest-fee-row" style="display: none;">
+                                                <span>Extra guest fee</span>
+                                                <span id="extra-guest-fee-display">₹0</span>
+                                            </div>
+                                            <div class="price-row total">
+                                                <span>Total</span>
+                                                <span id="total-display">₹<%= (listing.price +
+                                                        Math.max(Math.round(listing.price * 0.1), 500) +
+                                                        Math.round((listing.price + Math.max(Math.round(listing.price *
+                                                        0.1), 500)) * 0.05)).toLocaleString('en-IN') %></span>
+                                            </div>
+                                        </div>
                         </div>
                     </div>
 
@@ -514,7 +571,15 @@
                                     listing.price.toLocaleString('en-IN') %></span>
                             <span class="mobile-price-period">/ night</span>
                         </div>
-                        <button class="mobile-reserve-btn" id="mobile-reserve-btn">Reserve</button>
+                        <% if (currUser && listing.owner._id.equals(currUser._id)) { %>
+                            <div class="d-flex gap-2 align-items-center">
+                                <a href="/listings/<%= listing._id %>/edit"
+                                    class="btn btn-outline-dark btn-sm rounded-pill">Edit</a>
+                                <span class="badge bg-primary rounded-pill px-3 py-2">Owner</span>
+                            </div>
+                            <% } else { %>
+                                <button class="mobile-reserve-btn" id="mobile-reserve-btn">Reserve</button>
+                                <% } %>
                     </div>
                 </div>
 
@@ -666,7 +731,7 @@
                             : 0;
 
                         const currUserId = "<%= currUser ? currUser._id : '' %>";
-                        window.reviewsComponent = new ReviewsComponent(reviews, overallRating, listing._id, currUserId);
+                        window.reviewsComponent = new ReviewsComponent(reviews, overallRating, listing._id, currUserId, 'listings');
                         reviewsComponent.render('reviews-display-container');
 
                         // Initialize Calendar
@@ -691,7 +756,7 @@
                                 mapToken: mapToken,
                                 center: listingCoords,
                                 zoom: 14,
-                                searchEnabled: false,
+                                searchEnabled: true,
                                 clusterEnabled: false
                             });
 
@@ -747,7 +812,48 @@
                                 popup: true
                             });
 
-                            // Transport mode handling removed (feature deprecated)
+                            // 3D Tour Button
+                            const btn3d = document.getElementById('btn-3d-tour');
+                            let isOrbiting = false;
+                            if (btn3d) {
+                                btn3d.addEventListener('click', () => {
+                                    if (isOrbiting) {
+                                        enhancedMap.stopOrbit();
+                                        btn3d.classList.remove('active');
+                                        btn3d.querySelector('span').textContent = '3D Tour';
+                                    } else {
+                                        enhancedMap.orbitTo(listingCoords);
+                                        btn3d.classList.add('active');
+                                        btn3d.querySelector('span').textContent = 'Stop Tour';
+                                    }
+                                    isOrbiting = !isOrbiting;
+                                });
+                            }
+
+                            // POIs Toggle
+                            const btnPois = document.getElementById('btn-pois-toggle');
+                            let poisEnabled = false;
+                            if (btnPois) {
+                                btnPois.addEventListener('click', () => {
+                                    poisEnabled = !poisEnabled;
+                                    enhancedMap.togglePOIsLayer(poisEnabled);
+                                    btnPois.classList.toggle('active', poisEnabled);
+                                });
+                            }
+
+                            // Calculate ETAs
+                            setTimeout(async () => {
+                                const etas = await enhancedMap.getTravelTimes(listingCoords);
+                                if (etas) {
+                                    document.getElementById('eta-walking').textContent = enhancedMap.formatDuration(etas.walking);
+                                    document.getElementById('eta-driving').textContent = enhancedMap.formatDuration(etas.driving);
+                                    document.getElementById('eta-cycling').textContent = enhancedMap.formatDuration(etas.cycling);
+                                    document.getElementById('travel-time-card').classList.add('visible');
+                                } else {
+                                    document.getElementById('travel-time-card').style.display = 'none';
+                                }
+                            }, 2000);
+
                         }
 
                         // Policy grid logic is now CSS-only, no JS needed for accordion

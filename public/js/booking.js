@@ -8,7 +8,7 @@ class BookingSystem {
     this.endDate = null;
     this.taxRate = 0.18; // 18% GST
     this.platformFee = 0.05; // 5% platform fee
-    
+
     this.init();
   }
 
@@ -21,7 +21,7 @@ class BookingSystem {
     // Date pickers
     const startDateInput = document.getElementById('booking-start-date');
     const endDateInput = document.getElementById('booking-end-date');
-    
+
     if (startDateInput) {
       startDateInput.addEventListener('change', (e) => {
         this.startDate = new Date(e.target.value);
@@ -39,7 +39,7 @@ class BookingSystem {
     // Guest counter
     const decreaseBtn = document.getElementById('decrease-guests');
     const increaseBtn = document.getElementById('increase-guests');
-    
+
     if (decreaseBtn) {
       decreaseBtn.addEventListener('click', () => this.decreaseGuests());
     }
@@ -52,7 +52,7 @@ class BookingSystem {
   setMinDates() {
     const today = new Date().toISOString().split('T')[0];
     const startDateInput = document.getElementById('booking-start-date');
-    
+
     if (startDateInput) {
       startDateInput.setAttribute('min', today);
     }
@@ -111,7 +111,7 @@ class BookingSystem {
 
   updatePriceCalculation() {
     const nights = this.calculateNights();
-    
+
     if (nights <= 0) {
       this.clearPriceDisplay();
       return;
@@ -217,16 +217,16 @@ class BookingSystem {
 }
 
 // Initialize booking system when DOM is ready
-document.addEventListener('DOMContentLoaded', function() {
+document.addEventListener('DOMContentLoaded', function () {
   const pricePerNight = parseFloat(document.getElementById('price-per-night')?.textContent || '0');
   window.bookingSystem = new BookingSystem(pricePerNight);
 
   // Handle booking form submission
   const bookingForm = document.getElementById('listing-booking-form');
   if (bookingForm) {
-    bookingForm.addEventListener('submit', function(e) {
+    bookingForm.addEventListener('submit', function (e) {
       e.preventDefault();
-      
+
       const validation = window.bookingSystem.validateBooking();
       if (!validation.valid) {
         alert(validation.message);
@@ -235,7 +235,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
       const bookingData = window.bookingSystem.getBookingData();
       console.log('Booking Data:', bookingData);
-      
+
       // Submit to server
       submitBooking(bookingData);
     });
@@ -246,17 +246,17 @@ document.addEventListener('DOMContentLoaded', function() {
 async function submitBooking(bookingData) {
   const submitBtn = document.querySelector('button[type="submit"]');
   const originalBtnText = submitBtn?.innerHTML;
-  
+
   // Debug: Log the received booking data
   console.log('submitBooking called with data:', bookingData);
-  
+
   // Ensure bookingData is an object
   if (!bookingData || typeof bookingData !== 'object') {
     console.error('Invalid booking data:', bookingData);
     alert('Invalid booking data. Please try again.');
     return;
   }
-  
+
   try {
     // Show loading state
     if (submitBtn) {
@@ -266,7 +266,7 @@ async function submitBooking(bookingData) {
 
     const listingId = document.getElementById('listing-id')?.value;
     const csrfToken = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content');
-    
+
     // Prepare booking data
     if (!listingId) {
       console.error('No listing ID found');
@@ -281,7 +281,7 @@ async function submitBooking(bookingData) {
     };
 
     console.log('Submitting booking with data:', bookingPayload);
-    
+
     const response = await fetch(`/bookings/create-checkout-session`, {
       method: 'POST',
       headers: {
@@ -304,9 +304,15 @@ async function submitBooking(bookingData) {
         statusText: response.statusText,
         result
       });
-      
+
+      // Handle UNAUTHORIZED (401)
+      if (response.status === 401) {
+        window.location.href = '/login';
+        return;
+      }
+
       let errorMessage = 'Failed to process your booking. ';
-      
+
       // Handle specific error cases
       if (result.error === 'MISSING_FIELDS') {
         errorMessage += 'Please fill in all required fields.';
@@ -319,7 +325,7 @@ async function submitBooking(bookingData) {
       } else {
         errorMessage += 'Please try again later.';
       }
-      
+
       throw new Error(errorMessage);
     }
 
@@ -335,22 +341,22 @@ async function submitBooking(bookingData) {
       error: error.message,
       stack: error.stack
     });
-    
+
     // Show error message to user
-    const errorContainer = document.getElementById('booking-error') || 
-                         document.createElement('div');
-    
+    const errorContainer = document.getElementById('booking-error') ||
+      document.createElement('div');
+
     if (!document.getElementById('booking-error')) {
       errorContainer.id = 'booking-error';
       errorContainer.className = 'alert alert-danger mt-3';
       document.querySelector('.booking-form')?.appendChild(errorContainer);
     }
-    
+
     errorContainer.innerHTML = `
       <i class="fas fa-exclamation-circle me-2"></i>
       ${error.message || 'An unexpected error occurred. Please try again.'}
     `;
-    
+
     // Scroll to error message
     errorContainer.scrollIntoView({ behavior: 'smooth', block: 'center' });
   } finally {

@@ -12,19 +12,27 @@ module.exports.index = async (req, res) => {
     const filter = {};
 
     if (q && q.trim().length > 0) {
-        const regex = new RegExp(q.trim(), "i");
-        filter.$or = [
-            { title: regex },
-            { location: regex },
-            { country: regex },
-            { description: regex }
-        ];
+        const terms = q.trim().split(/\s+/);
+        filter.$and = terms.map(term => ({
+            $or: [
+                { title: new RegExp(term, "i") },
+                { location: new RegExp(term, "i") },
+                { country: new RegExp(term, "i") },
+                { description: new RegExp(term, "i") },
+                { propertyType: new RegExp(term, "i") }
+            ]
+        }));
     }
 
     if (minPrice || maxPrice) {
         filter.price = {};
         if (minPrice) filter.price.$gte = Number(minPrice);
         if (maxPrice) filter.price.$lte = Number(maxPrice);
+    }
+
+    if (guests) {
+        // Filter listings that can accommodate at least 'guests' number of people
+        filter.guests = { $gte: Number(guests) };
     }
 
     const sortMap = {
@@ -65,7 +73,28 @@ module.exports.index = async (req, res) => {
         }
     }
 
-    const allListings = await Listing.find(filter).sort(sortOption);
+    let allListings;
+    if (q && q.trim().length > 0 && !sort) {
+        // Advanced Relevance Scoring using Aggregation
+        allListings = await Listing.aggregate([
+            { $match: filter },
+            {
+                $addFields: {
+                    relevance: {
+                        $add: [
+                            { $cond: [{ $regexMatch: { input: "$title", regex: q.trim(), options: "i" } }, 20, 0] },
+                            { $cond: [{ $regexMatch: { input: "$location", regex: q.trim(), options: "i" } }, 10, 0] },
+                            { $cond: [{ $regexMatch: { input: "$country", regex: q.trim(), options: "i" } }, 5, 0] },
+                            { $cond: [{ $regexMatch: { input: "$description", regex: q.trim(), options: "i" } }, 2, 0] }
+                        ]
+                    }
+                }
+            },
+            { $sort: { relevance: -1, _id: -1 } }
+        ]);
+    } else {
+        allListings = await Listing.find(filter).sort(sortOption);
+    }
 
     // Compute a simple trending list: highest price items today
     const trendingListings = await Listing.find({})

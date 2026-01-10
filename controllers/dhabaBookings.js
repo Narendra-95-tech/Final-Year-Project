@@ -101,6 +101,11 @@ exports.createDhabaBooking = wrapAsync(async (req, res) => {
     return res.status(404).json({ error: "Dhaba not found." });
   }
 
+  // Prevent owner from booking their own dhaba
+  if (dhaba.owner.equals(req.user._id)) {
+    return res.status(400).json({ error: "You cannot book your own dhaba!" });
+  }
+
   const perGuestPrice = Number(dhaba.price) || 0;
   const amount = perGuestPrice * guestCount;
   if (amount <= 0) {
@@ -161,7 +166,7 @@ exports.handleSuccess = wrapAsync(async (req, res) => {
   try {
     // Retrieve the session from Stripe
     const session = await stripe.checkout.sessions.retrieve(sessionId);
-    
+
     if (session.payment_status === 'paid') {
       // Find and update the booking
       const booking = await Booking.findOne({ stripeSessionId: sessionId })

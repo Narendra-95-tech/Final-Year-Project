@@ -145,45 +145,43 @@ class BookingWidget {
     updatePriceDisplay() {
         const pricing = this.calculatePrice();
 
-        // Update price breakdown
-        const nightsDisplay = document.getElementById('nights-display');
-        const subtotalDisplay = document.getElementById('subtotal-display');
-        const cleaningFeeDisplay = document.getElementById('cleaning-fee-display');
-        const serviceFeeDisplay = document.getElementById('service-fee-display');
-        const extraGuestFeeDisplay = document.getElementById('extra-guest-fee-display');
-        const totalDisplay = document.getElementById('total-display');
+        // Helper for animated number update
+        const animateValue = (id, start, end, duration, isCurrency = true) => {
+            const obj = document.getElementById(id);
+            if (!obj) return;
 
-        if (nightsDisplay) {
-            nightsDisplay.textContent = `₹${this.basePrice.toLocaleString('en-IN')} × ${pricing.nights} ${pricing.nights === 1 ? 'night' : 'nights'}`;
-        }
+            // Add pop animation class
+            obj.parentElement.classList.add('price-updating');
+            setTimeout(() => obj.parentElement.classList.remove('price-updating'), 300);
 
-        if (subtotalDisplay) {
-            subtotalDisplay.textContent = `₹${pricing.subtotal.toLocaleString('en-IN')}`;
-        }
+            let startTimestamp = null;
+            const step = (timestamp) => {
+                if (!startTimestamp) startTimestamp = timestamp;
+                const progress = Math.min((timestamp - startTimestamp) / duration, 1);
+                const current = Math.floor(progress * (end - start) + start);
+                obj.textContent = isCurrency ? `₹${current.toLocaleString('en-IN')}` : current;
+                if (progress < 1) {
+                    window.requestAnimationFrame(step);
+                }
+            };
+            window.requestAnimationFrame(step);
+        };
 
-        if (cleaningFeeDisplay) {
-            cleaningFeeDisplay.textContent = `₹${pricing.cleaningFee.toLocaleString('en-IN')}`;
-        }
+        // Get current values from DOM for animation start points
+        const parseContent = (id) => {
+            const el = document.getElementById(id);
+            if (!el) return 0;
+            return parseInt(el.textContent.replace(/[₹,]/g, '')) || 0;
+        };
 
-        if (serviceFeeDisplay) {
-            serviceFeeDisplay.textContent = `₹${pricing.serviceFee.toLocaleString('en-IN')}`;
-        }
+        if (pricing.nights > 0) {
+            animateValue('subtotal-display', parseContent('subtotal-display'), pricing.subtotal, 400);
+            animateValue('total-display', parseContent('total-display'), pricing.total, 500);
 
-        if (extraGuestFeeDisplay && pricing.extraGuestFee > 0) {
-            extraGuestFeeDisplay.parentElement.style.display = 'flex';
-            extraGuestFeeDisplay.textContent = `₹${pricing.extraGuestFee.toLocaleString('en-IN')}`;
-        } else if (extraGuestFeeDisplay) {
-            extraGuestFeeDisplay.parentElement.style.display = 'none';
-        }
-
-        if (totalDisplay) {
-            totalDisplay.textContent = `₹${pricing.total.toLocaleString('en-IN')}`;
-        }
-
-        // Update mobile booking bar
-        const mobilePriceAmount = document.getElementById('mobile-price-amount');
-        if (mobilePriceAmount) {
-            mobilePriceAmount.textContent = `₹${this.basePrice.toLocaleString('en-IN')}`;
+            const nightsDisplay = document.getElementById('nights-display');
+            if (nightsDisplay) {
+                nightsDisplay.textContent = `₹${this.basePrice.toLocaleString('en-IN')} × ${pricing.nights} ${pricing.nights === 1 ? 'night' : 'nights'}`;
+            }
         }
     }
 
@@ -322,6 +320,10 @@ class BookingWidget {
             const data = await response.json();
 
             if (!response.ok) {
+                if (response.status === 401) {
+                    window.location.href = '/login';
+                    return;
+                }
                 throw new Error(data.error || data.details || 'Payment setup failed');
             }
 

@@ -1,233 +1,339 @@
 <% layout("/layouts/boilerplate") -%>
 
-<style>
-  .search-results {
-    padding: 2rem 0;
-  }
+  <link rel="stylesheet" href="/css/search-premium.css">
+  <style>
+    :root {
+      --stay-gradient: linear-gradient(135deg, #FF385C 0%, #E31C5F 100%);
+      --vehicle-gradient: linear-gradient(135deg, #00C2FF 0%, #007aff 100%);
+      --dhaba-gradient: linear-gradient(135deg, #FF9500 0%, #fe6b00 100%);
+    }
 
-  .section-card {
-    transition: transform 0.3s ease, box-shadow 0.3s ease;
-    border: none;
-    border-radius: 15px;
-    overflow: hidden;
-    margin-bottom: 2rem;
-  }
+    .search-hero {
+      background: #f8f9fa;
+      padding: 60px 0;
+      border-bottom: 1px solid #eee;
+      margin-bottom: 40px;
+    }
 
-  .section-card:hover {
-    transform: translateY(-5px);
-    box-shadow: 0 10px 25px rgba(0,0,0,0.15);
-  }
+    .result-section {
+      margin-bottom: 60px;
+    }
 
-  .section-header {
-    background: linear-gradient(135deg, #ff6b6b, #ee5a52);
-    color: white;
-    padding: 1.5rem;
-    text-align: center;
-  }
+    .section-title-wrapper {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 25px;
+      border-bottom: 2px solid #f0f0f0;
+      padding-bottom: 15px;
+    }
 
-  .section-icon {
-    font-size: 2rem;
-    margin-bottom: 0.5rem;
-  }
+    .section-title {
+      font-weight: 800;
+      font-size: 1.75rem;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
 
-  .item-card {
-    border: none;
-    border-radius: 10px;
-    overflow: hidden;
-    transition: transform 0.2s ease;
-    margin-bottom: 1rem;
-  }
+    .section-badge {
+      font-size: 0.9rem;
+      padding: 6px 16px;
+      border-radius: 50px;
+      color: white;
+      font-weight: 600;
+    }
 
-  .item-card:hover {
-    transform: translateY(-3px);
-  }
+    .badge-stay {
+      background: var(--stay-gradient);
+    }
 
-  .item-image {
-    height: 200px;
-    object-fit: cover;
-  }
+    .badge-vehicle {
+      background: var(--vehicle-gradient);
+    }
 
-  .price-badge {
-    position: absolute;
-    top: 10px;
-    right: 10px;
-    background: rgba(255, 107, 107, 0.9);
-    color: white;
-    padding: 5px 10px;
-    border-radius: 20px;
-    font-size: 0.9rem;
-  }
+    .badge-dhaba {
+      background: var(--dhaba-gradient);
+    }
 
-  .no-results {
-    text-align: center;
-    padding: 3rem 0;
-    color: #666;
-  }
+    .premium-result-card {
+      border-radius: 20px;
+      overflow: hidden;
+      background: white;
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+      transition: all 0.3s ease;
+      height: 100%;
+      border: 1px solid #f0f0f0;
+    }
 
-  .no-results i {
-    font-size: 4rem;
-    color: #ddd;
-    margin-bottom: 1rem;
-  }
-</style>
+    .premium-result-card:hover {
+      transform: translateY(-8px);
+      box-shadow: 0 12px 30px rgba(0, 0, 0, 0.1);
+    }
 
-<div class="search-results">
-  <div class="container">
-    <!-- Search Header -->
-    <div class="text-center mb-5">
-      <h2>Search Results</h2>
-      <p class="text-muted">
-        <% if (query) { %>
-          Showing results for "<strong><%= query %></strong>"
-        <% } %>
-        <% if (totalResults > 0) { %>
-          - Found <strong><%= totalResults %></strong> results
-        <% } %>
+    .card-img-box {
+      height: 200px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .card-img-box img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      transition: transform 0.5s ease;
+    }
+
+    .premium-result-card:hover .card-img-box img {
+      transform: scale(1.1);
+    }
+
+    .price-overlay {
+      position: absolute;
+      bottom: 15px;
+      left: 15px;
+      background: rgba(0, 0, 0, 0.7);
+      backdrop-filter: blur(5px);
+      color: white;
+      padding: 5px 12px;
+      border-radius: 10px;
+      font-weight: 600;
+      font-size: 0.9rem;
+    }
+
+    .card-info {
+      padding: 20px;
+    }
+
+    .card-tag {
+      font-size: 0.75rem;
+      text-transform: uppercase;
+      font-weight: 700;
+      letter-spacing: 1px;
+      margin-bottom: 8px;
+      display: block;
+    }
+
+    .tag-stay {
+      color: #FF385C;
+    }
+
+    .tag-vehicle {
+      color: #007aff;
+    }
+
+    .tag-dhaba {
+      color: #fe6b00;
+    }
+
+    .result-name {
+      font-size: 1.15rem;
+      font-weight: 700;
+      margin-bottom: 8px;
+      color: #222;
+      line-height: 1.3;
+      display: -webkit-box;
+      -webkit-line-clamp: 1;
+      line-clamp: 1;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+    }
+
+    .result-loc {
+      color: #666;
+      font-size: 0.9rem;
+      margin-bottom: 15px;
+      display: flex;
+      align-items: center;
+      gap: 5px;
+    }
+
+    .empty-state {
+      text-align: center;
+      padding: 80px 20px;
+      background: white;
+      border-radius: 30px;
+      border: 2px dashed #eee;
+    }
+
+    .empty-icon {
+      font-size: 4rem;
+      color: #ddd;
+      margin-bottom: 20px;
+    }
+  </style>
+
+  <div class="search-hero">
+    <div class="container text-center">
+      <h1 class="fw-bold mb-3">Global Search</h1>
+      <p class="text-muted lead">
+        Discover everything WanderLust has for "<strong>
+          <%= query %>
+        </strong>"
       </p>
+      <div class="d-flex justify-content-center gap-2 mt-4">
+        <span class="badge rounded-pill bg-light text-dark border px-3 py-2">
+          🏘️ <%= listings.length %> Stays
+        </span>
+        <span class="badge rounded-pill bg-light text-dark border px-3 py-2">
+          🚗 <%= vehicles.length %> Wheels
+        </span>
+        <span class="badge rounded-pill bg-light text-dark border px-3 py-2">
+          🍛 <%= dhabas.length %> Food
+        </span>
+      </div>
     </div>
+  </div>
 
-    <!-- Listings Results -->
-    <% if (listings && listings.length > 0) { %>
-      <div class="section-card card">
-        <div class="section-header">
-          <i class="fa fa-home section-icon"></i>
-          <h3>Vacation Rentals (<%= listings.length %>)</h3>
+  <div class="container pb-5">
+
+    <!-- STAYS SECTION -->
+    <% if (listings && listings.length> 0) { %>
+      <div class="result-section" data-aos="fade-up">
+        <div class="section-title-wrapper">
+          <h2 class="section-title">
+            <i class="fas fa-home" style="color: #FF385C;"></i> Stays
+          </h2>
+          <span class="section-badge badge-stay">
+            <%= listings.length %> matching
+          </span>
         </div>
-        <div class="card-body">
-          <div class="row">
-            <% for (let listing of listings) { %>
-              <div class="col-md-4 col-sm-6 mb-4">
-                <div class="card item-card position-relative">
-                  <img src="<%= listing.image?.url || 'https://via.placeholder.com/300x200?text=No+Image' %>"
-                       class="card-img-top item-image" alt="<%= listing.title %>">
-                  <span class="price-badge">₹<%= listing.price ? Number(listing.price).toLocaleString("en-IN") : "N/A" %> / night</span>
-                  <div class="card-body">
-                    <h6 class="card-title"><%= listing.title %></h6>
-                    <p class="card-text small text-muted">
-                      <i class="fa fa-map-marker-alt me-1"></i><%= listing.location %>
-                    </p>
-                    <a href="/listings/<%= listing._id %>" class="btn btn-sm btn-outline-primary">View Details</a>
+        <div class="row g-4">
+          <% for (let listing of listings) { %>
+            <div class="col-lg-3 col-md-6">
+              <a href="/listings/<%= listing._id %>" class="text-decoration-none">
+                <div class="premium-result-card">
+                  <div class="card-img-box">
+                    <img src="<%= listing.image?.url %>" alt="<%= listing.title %>">
+                    <div class="price-overlay">₹<%= listing.price.toLocaleString("en-IN") %> / night</div>
                   </div>
-                </div>
-              </div>
-            <% } %>
-          </div>
-          <div class="text-center mt-3">
-            <a href="/listings?q=<%= query %>" class="btn btn-outline-primary">View All Listings →</a>
-          </div>
-        </div>
-      </div>
-    <% } %>
-
-    <!-- Vehicles Results -->
-    <% if (vehicles && vehicles.length > 0) { %>
-      <div class="section-card card">
-        <div class="section-header" style="background: linear-gradient(135deg, #28a745, #20c997);">
-          <i class="fa fa-car section-icon"></i>
-          <h3>Vehicle Rentals (<%= vehicles.length %>)</h3>
-        </div>
-        <div class="card-body">
-          <div class="row">
-            <% for (let vehicle of vehicles) { %>
-              <div class="col-md-4 col-sm-6 mb-4">
-                <div class="card item-card position-relative">
-                  <img src="<%= vehicle.image?.url || 'https://via.placeholder.com/300x200?text=No+Image' %>"
-                       class="card-img-top item-image" alt="<%= vehicle.title %>">
-                  <span class="price-badge">₹<%= vehicle.price ? Number(vehicle.price).toLocaleString("en-IN") : "N/A" %> / day</span>
-                  <div class="card-body">
-                    <h6 class="card-title"><%= vehicle.title %></h6>
-                    <p class="card-text small text-muted">
-                      <span class="badge badge-secondary me-1"><%= vehicle.vehicleType %></span>
-                      <i class="fa fa-map-marker-alt me-1"></i><%= vehicle.location %>
-                    </p>
-                    <a href="/vehicles/<%= vehicle._id %>" class="btn btn-sm btn-outline-success">View Details</a>
-                  </div>
-                </div>
-              </div>
-            <% } %>
-          </div>
-          <div class="text-center mt-3">
-            <a href="/vehicles?q=<%= query %>" class="btn btn-outline-success">View All Vehicles →</a>
-          </div>
-        </div>
-      </div>
-    <% } %>
-
-    <!-- Dhabas Results -->
-    <% if (dhabas && dhabas.length > 0) { %>
-      <div class="section-card card">
-        <div class="section-header" style="background: linear-gradient(135deg, #fd7e14, #e83e8c);">
-          <i class="fa fa-utensils section-icon"></i>
-          <h3>Local Dhabas (<%= dhabas.length %>)</h3>
-        </div>
-        <div class="card-body">
-          <div class="row">
-            <% for (let dhaba of dhabas) { %>
-              <div class="col-md-4 col-sm-6 mb-4">
-                <div class="card item-card position-relative">
-                  <img src="<%= dhaba.image?.url || 'https://via.placeholder.com/300x200?text=No+Image' %>"
-                       class="card-img-top item-image" alt="<%= dhaba.title %>">
-                  <span class="price-badge"><%= dhaba.category %> • <%= dhaba.cuisine %></span>
-                  <div class="card-body">
-                    <h6 class="card-title"><%= dhaba.title %></h6>
-                    <div class="mb-2">
-                      <% for (let i = 1; i <= 5; i++) { %>
-                        <i class="fa fa-star <%= i <= dhaba.rating ? 'text-warning' : 'text-muted' %>"></i>
-                      <% } %>
-                      <span class="ms-2 text-muted">(<%= dhaba.rating %>)</span>
+                  <div class="card-info">
+                    <span class="card-tag tag-stay">
+                      <%= listing.propertyType || 'VILLA' %>
+                    </span>
+                    <h3 class="result-name">
+                      <%= listing.title %>
+                    </h3>
+                    <div class="result-loc">
+                      <i class="fas fa-map-marker-alt"></i>
+                      <%= listing.location %>
                     </div>
-                    <p class="card-text small text-muted">
-                      <i class="fa fa-map-marker-alt me-1"></i><%= dhaba.location %>
-                    </p>
-                    <a href="/dhabas/<%= dhaba._id %>" class="btn btn-sm btn-outline-warning">View Details</a>
                   </div>
                 </div>
-              </div>
+              </a>
+            </div>
             <% } %>
-          </div>
-          <div class="text-center mt-3">
-            <a href="/dhabas?q=<%= query %><%= (typeof minRating !== 'undefined' && minRating) ? '&minRating=' + minRating : '' %>" class="btn btn-outline-warning">View All Dhabas →</a>
-          </div>
         </div>
       </div>
-    <% } %>
+      <% } %>
 
-    <!-- No Results -->
-    <% if (!listings || listings.length === 0 && (!vehicles || vehicles.length === 0) && (!dhabas || dhabas.length === 0)) { %>
-      <div class="no-results">
-        <i class="fa fa-search"></i>
-        <h4>No results found</h4>
-        <p>We couldn't find anything matching "<%= query %>". Try adjusting your search terms or browse our categories:</p>
-        <div class="mt-4">
-          <a href="/listings" class="btn btn-primary me-3">
-            <i class="fa fa-home me-2"></i>Browse Stays
-          </a>
-          <a href="/vehicles" class="btn btn-success me-3">
-            <i class="fa fa-car me-2"></i>Browse Vehicles
-          </a>
-          <a href="/dhabas" class="btn btn-warning">
-            <i class="fa fa-utensils me-2"></i>Browse Dhabas
-          </a>
-        </div>
-      </div>
-    <% } %>
+        <!-- VEHICLES SECTION -->
+        <% if (vehicles && vehicles.length> 0) { %>
+          <div class="result-section" data-aos="fade-up">
+            <div class="section-title-wrapper">
+              <h2 class="section-title">
+                <i class="fas fa-car" style="color: #007aff;"></i> Wheels
+              </h2>
+              <span class="section-badge badge-vehicle">
+                <%= vehicles.length %> matching
+              </span>
+            </div>
+            <div class="row g-4">
+              <% for (let vehicle of vehicles) { %>
+                <div class="col-lg-3 col-md-6">
+                  <a href="/vehicles/<%= vehicle._id %>" class="text-decoration-none">
+                    <div class="premium-result-card">
+                      <div class="card-img-box">
+                        <img
+                          src="<%= vehicle.image?.url || 'https://images.unsplash.com/photo-1503376785-2acd3d0a0821?w=400' %>"
+                          alt="<%= vehicle.title %>">
+                        <div class="price-overlay">₹<%= (vehicle.price || 0).toLocaleString("en-IN") %> / day</div>
+                      </div>
+                      <div class="card-info">
+                        <span class="card-tag tag-vehicle">
+                          <%= vehicle.brand %>
+                            <%= vehicle.model %>
+                        </span>
+                        <h3 class="result-name">
+                          <%= vehicle.title %>
+                        </h3>
+                        <div class="result-loc">
+                          <i class="fas fa-map-marker-alt"></i>
+                          <%= vehicle.location %>
+                        </div>
+                      </div>
+                    </div>
+                  </a>
+                </div>
+                <% } %>
+            </div>
+          </div>
+          <% } %>
+
+            <!-- DHABAS SECTION -->
+            <% if (dhabas && dhabas.length> 0) { %>
+              <div class="result-section" data-aos="fade-up">
+                <div class="section-title-wrapper">
+                  <h2 class="section-title">
+                    <i class="fas fa-utensils" style="color: #fe6b00;"></i> Food
+                  </h2>
+                  <span class="section-badge badge-dhaba">
+                    <%= dhabas.length %> matching
+                  </span>
+                </div>
+                <div class="row g-4">
+                  <% for (let dhaba of dhabas) { %>
+                    <div class="col-lg-3 col-md-6">
+                      <a href="/dhabas/<%= dhaba._id %>" class="text-decoration-none">
+                        <div class="premium-result-card">
+                          <div class="card-img-box">
+                            <img
+                              src="<%= (dhaba.image && dhaba.image.length > 0) ? dhaba.image[0].url : 'https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?w=400' %>"
+                              alt="<%= dhaba.title %>">
+                            <div class="price-overlay">
+                              <%= dhaba.cuisine %>
+                            </div>
+                          </div>
+                          <div class="card-info">
+                            <span class="card-tag tag-dhaba">
+                              <%= dhaba.category %>
+                            </span>
+                            <h3 class="result-name">
+                              <%= dhaba.title %>
+                            </h3>
+                            <div class="result-loc">
+                              <i class="fas fa-map-marker-alt"></i>
+                              <%= dhaba.location %>
+                            </div>
+                          </div>
+                        </div>
+                      </a>
+                    </div>
+                    <% } %>
+                </div>
+              </div>
+              <% } %>
+
+                <!-- EMPTY STATE -->
+                <% if (totalResults===0) { %>
+                  <div class="empty-state" data-aos="zoom-in">
+                    <div class="empty-icon"><i class="fas fa-search"></i></div>
+                    <h3>No matches for "<%= query %>"</h3>
+                    <p class="text-muted">Try searching for a city, or a specific brand of car, or cuisine type.</p>
+                    <div class="mt-4 d-flex justify-content-center gap-3">
+                      <a href="/listings" class="btn btn-primary px-4">Stays</a>
+                      <a href="/vehicles" class="btn btn-outline-primary px-4">Wheels</a>
+                      <a href="/dhabas" class="btn btn-outline-warning px-4">Food</a>
+                    </div>
+                  </div>
+                  <% } %>
 
   </div>
-</div>
 
-<!-- Search Tips -->
-<% if (totalResults > 0) { %>
-<div class="bg-light py-4">
-  <div class="container">
-    <div class="row justify-content-center">
-      <div class="col-md-8 text-center">
-        <h6>Search Tips</h6>
-        <p class="text-muted small mb-0">
-          Try searching for location names (Mumbai, Delhi), property types (villa, apartment),
-          vehicle types (car, bike), or cuisine types (Punjabi, Italian) for better results.
-        </p>
-      </div>
-    </div>
-  </div>
-</div>
-<% } %>
+  <script>
+    document.addEventListener('DOMContentLoaded', function () {
+      if (typeof AOS !== 'undefined') {
+        AOS.init({ duration: 800, once: true });
+      }
+    });
+  </script>

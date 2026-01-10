@@ -99,27 +99,73 @@
       flex: 1;
       display: flex;
       align-items: center;
-      background: var(--white);
-      border-radius: var(--radius-full);
-      padding: 0.5rem 1.5rem;
-      box-shadow: var(--shadow-md);
+      gap: 1rem;
+      padding: 0 1rem;
+      border-right: 1px solid rgba(0, 0, 0, 0.1);
     }
 
-    .search-input-group i {
-      color: var(--gray-400);
-      margin-right: 0.75rem;
-      font-size: 1.25rem;
+    .search-input-group:last-child {
+      border-right: none;
+    }
+
+    .search-field-wrapper {
+      display: flex;
+      flex-direction: column;
+      align-items: start;
+      width: 100%;
+    }
+
+    .search-label {
+      font-size: 0.75rem;
+      font-weight: 700;
+      color: var(--gray-500);
+      margin-bottom: 2px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
     }
 
     .search-input {
-      border: none;
       width: 100%;
-      padding: 0.5rem 0;
-      font-size: 1.1rem;
-      font-weight: 500;
-      color: var(--gray-800);
-      outline: none !important;
+      border: none;
+      background: transparent;
+      font-size: 0.95rem;
+      font-weight: 600;
+      color: var(--gray-900);
+      padding: 0;
+      outline: none;
     }
+
+    .search-input::placeholder {
+      color: var(--gray-400);
+      font-weight: 400;
+    }
+
+    @media (max-width: 768px) {
+      .search-container {
+        flex-direction: column;
+        border-radius: 20px;
+        padding: 1rem;
+        background: rgba(255, 255, 255, 0.95);
+      }
+
+      .search-input-group {
+        border-right: none;
+        border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+        padding: 1rem 0;
+        width: 100%;
+      }
+
+      .search-input-group:last-of-type {
+        border-bottom: none;
+      }
+
+      .btn-search {
+        width: 100%;
+        border-radius: 12px;
+        margin-top: 10px;
+      }
+    }
+
 
     .btn-search {
       background: var(--primary-orange);
@@ -623,11 +669,17 @@
   <section class="hero-section">
     <div class="hero-overlay"></div>
     <div class="hero-content" data-aos="fade-up">
-      <h1 class="hero-title">Discover Your Next Adventure</h1>
+      <h1 class="hero-title">
+        <i class="fas fa-paper-plane" style="color: #fe6b00; margin-right: 15px;"></i>
+        Experience <span style="color: #fe6b00;">WanderLust</span>
+      </h1>
       <p class="hero-subtitle">Book unique stays, rent local vehicles, and explore authentic food.</p>
 
       <div class="search-tabs" data-aos="fade-up" data-aos-delay="200">
-        <button class="search-tab active" data-type="listings" onclick="switchSearchTab(this, 'listings')">
+        <button class="search-tab active" data-type="global" onclick="switchSearchTab(this, 'global')">
+          🌏 <span>Global</span>
+        </button>
+        <button class="search-tab" data-type="listings" onclick="switchSearchTab(this, 'listings')">
           🏘️ <span>Stays</span>
         </button>
         <button class="search-tab" data-type="vehicles" onclick="switchSearchTab(this, 'vehicles')">
@@ -638,13 +690,45 @@
         </button>
       </div>
 
-      <form action="/listings" method="GET" class="search-container glass" id="hero-search-form" data-aos="zoom-in"
+      <!-- Advanced Pro Search Bar -->
+      <form action="/search" method="GET" class="search-container glass" id="hero-search-form" data-aos="zoom-in"
         data-aos-delay="300">
+
+        <!-- Location Field -->
         <div class="search-input-group">
-          <i class="fas fa-search" id="search-icon"></i>
-          <input type="text" name="location" class="search-input" id="hero-search-input"
-            placeholder="Search for amazing stays..." autocomplete="off">
+          <div class="search-field-wrapper">
+            <label class="search-label">Location</label>
+            <input type="text" name="q" class="search-input" id="hero-search-input" placeholder="Where are you going?"
+              autocomplete="off" style="flex: 1;">
+            <button type="button" id="homeVoiceBtn" class="hero-voice-btn" title="Search by Voice"
+              style="background: none; border: none; padding: 5px; color: #ff385c; cursor: pointer; position: absolute; right: 40px; top: 50%; transform: translateY(-50%); font-size: 1.2rem;">
+              <i class="fas fa-microphone"></i>
+            </button>
+            <button type="button" id="homeClearSearch" class="hero-clear-btn"
+              style="display: none; background: none; border: none; padding: 5px; color: #666; cursor: pointer; position: absolute; right: 10px; top: 50%; transform: translateY(-50%);">
+              <i class="fas fa-times-circle"></i>
+            </button>
+          </div>
         </div>
+
+        <!-- Date Field (Dynamic) -->
+        <div class="search-input-group" id="date-group">
+          <div class="search-field-wrapper">
+            <label class="search-label">Check in - Check out</label>
+            <input type="text" class="search-input flatpickr-input" id="date-range" placeholder="Add dates">
+            <input type="hidden" name="startDate" id="startDate">
+            <input type="hidden" name="endDate" id="endDate">
+          </div>
+        </div>
+
+        <!-- Guests Field (Dynamic) -->
+        <div class="search-input-group" id="guests-group">
+          <div class="search-field-wrapper">
+            <label class="search-label">Guests</label>
+            <input type="number" name="guests" min="1" class="search-input" placeholder="Add guests">
+          </div>
+        </div>
+
         <button type="submit" class="btn-search">Search</button>
       </form>
     </div>
@@ -861,8 +945,9 @@
                           src="<%= listing.image?.url || 'https://images.unsplash.com/photo-1502672260266-1c1ef2d93688?w=800&fit=crop' %>"
                           alt="<%= listing.title %>">
                         <span class="card-badge">Top Rated</span>
-                        <div class="card-wishlist ms-wishlist-toggle" data-id="<%= listing._id %>" data-type="listing">
-                          <i class="fas fa-heart"></i>
+                        <div class="card-wishlist" data-id="<%= listing._id %>"
+                          onclick="toggleWishlist(this, '<%= listing._id %>', 'listing')">
+                          <i class="far fa-heart"></i>
                         </div>
                       </div>
                       <div class="premium-card-body">
@@ -916,6 +1001,10 @@
                         <span class="card-badge" style="background: var(--secondary-green); color: white;">
                           <%= vehicle.vehicleType %>
                         </span>
+                        <div class="card-wishlist" data-id="<%= vehicle._id %>"
+                          onclick="toggleWishlist(this, '<%= vehicle._id %>', 'vehicle')">
+                          <i class="far fa-heart"></i>
+                        </div>
                       </div>
                       <div class="premium-card-body">
                         <div class="card-location">
@@ -968,6 +1057,10 @@
                         <span class="card-badge" style="background: var(--primary-orange); color: white;">
                           <%= dhaba.cuisine %>
                         </span>
+                        <div class="card-wishlist" data-id="<%= dhaba._id %>"
+                          onclick="toggleWishlist(this, '<%= dhaba._id %>', 'dhaba')">
+                          <i class="far fa-heart"></i>
+                        </div>
                       </div>
                       <div class="premium-card-body">
                         <div class="card-location">
@@ -1012,6 +1105,13 @@
         </section>
         <% } %>
 
+          <!-- Load Wishlist Handler -->
+          <script src="/js/wishlist-handler.js"></script>
+
+          <!-- Flatpickr for Modern Date Range -->
+          <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+          <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+
           <script>
             document.addEventListener('DOMContentLoaded', function () {
               // Initialize AOS
@@ -1024,23 +1124,20 @@
                 });
               }
 
-              // Wishlist Toggle Interaction
-              const wishlistBtns = document.querySelectorAll('.card-wishlist');
-              wishlistBtns.forEach(btn => {
-                btn.addEventListener('click', function (e) {
-                  e.preventDefault();
-                  e.stopPropagation();
-                  this.classList.toggle('active');
-                  const icon = this.querySelector('i');
-                  if (this.classList.contains('active')) {
-                    icon.classList.remove('far');
-                    icon.classList.add('fas');
-                  } else {
-                    // Note: If using FontAwesome Solid/Regular
-                    // icon.classList.remove('fas');
-                    // icon.classList.add('far');
+              // Initialize Flatpickr
+              flatpickr("#date-range", {
+                mode: "range",
+                minDate: "today",
+                dateFormat: "Y-m-d",
+                disableMobile: "true", // Force native feel if needed, but custom UI is better
+                onChange: function (selectedDates, dateStr, instance) {
+                  if (selectedDates.length === 2) {
+                    const start = instance.formatDate(selectedDates[0], "Y-m-d");
+                    const end = instance.formatDate(selectedDates[1], "Y-m-d");
+                    document.getElementById('startDate').value = start;
+                    document.getElementById('endDate').value = end;
                   }
-                });
+                }
               });
             });
           </script>
@@ -1056,28 +1153,109 @@
               const input = document.getElementById('hero-search-input');
               const icon = document.getElementById('search-icon');
 
-              if (type === 'listings') {
+              if (type === 'global') {
+                form.action = '/search';
+                input.placeholder = 'Search for anything anywhere...';
+                input.name = 'q';
+                icon.className = 'fas fa-globe';
+                dateGroup.style.display = 'none';
+                guestsGroup.style.display = 'none';
+              } else if (type === 'listings') {
                 form.action = '/listings';
-                input.placeholder = 'Search for amazing stays...';
-                input.name = 'location';
+                input.placeholder = 'Where are you going?';
+                input.name = 'q';
                 icon.className = 'fas fa-search';
+                dateGroup.style.display = 'flex';
+                guestsGroup.style.display = 'flex';
               } else if (type === 'vehicles') {
                 form.action = '/vehicles';
-                input.placeholder = 'Search for rental cars, bikes...';
-                input.name = 'location';
+                input.placeholder = 'Pick-up location';
+                input.name = 'q';
                 icon.className = 'fas fa-car';
+                dateGroup.style.display = 'flex';
+                guestsGroup.style.display = 'none';
               } else if (type === 'dhabas') {
                 form.action = '/dhabas';
-                input.placeholder = 'Search for authentic dhabas...';
-                input.name = 'location';
+                input.placeholder = 'Search for food...';
+                input.name = 'q';
                 icon.className = 'fas fa-utensils';
+                dateGroup.style.display = 'none';
+                guestsGroup.style.display = 'none';
               }
 
-              // Add a subtle animation to the input
-              if (input && input.parentElement) {
-                input.parentElement.style.animation = 'none';
-                input.parentElement.offsetHeight; // trigger reflow
-                input.parentElement.style.animation = 'pulse-bg 0.4s ease-out';
+              // Clear search button logic
+              const clearBtn = document.getElementById('homeClearSearch');
+              if (input && clearBtn) {
+                const toggleClear = () => {
+                  clearBtn.style.display = input.value.trim().length > 0 ? 'block' : 'none';
+                };
+                input.addEventListener('input', toggleClear);
+                clearBtn.addEventListener('click', () => {
+                  input.value = '';
+                  toggleClear();
+                  input.focus();
+                });
+              }
+
+              // Home Voice Search Logic
+              const homeVoiceBtn = document.getElementById('homeVoiceBtn');
+              if (homeVoiceBtn && input) {
+                homeVoiceBtn.addEventListener('click', () => {
+                  // Reuse the logic from navbar by triggering its voice button
+                  const navVoiceBtn = document.querySelector('.voice-btn');
+                  if (navVoiceBtn) {
+                    // Switch input focus so the navbar logic populates the right field
+                    // Actually, the navbar logic is hardcoded to navInput.
+                    // Let's make it smarter or duplicate for home.
+                    // Best to duplicate for specific target inputs.
+                    startVoiceSearch(input, 'hero-search-form');
+                  }
+                });
+              }
+
+              function startVoiceSearch(targetInput, formId) {
+                const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+                if (!SpeechRecognition) return;
+
+                const recognition = new SpeechRecognition();
+                recognition.continuous = false;
+                recognition.lang = 'en-US';
+                recognition.interimResults = true;
+
+                const overlay = document.querySelector('.voice-overlay');
+                const statusText = document.getElementById('voice-status');
+                const previewText = document.getElementById('voice-preview');
+                const micPulse = document.querySelector('.voice-mic-pulse');
+
+                recognition.onstart = () => {
+                  overlay.classList.add('active');
+                  micPulse.classList.add('pulsing');
+                  statusText.textContent = 'Listening...';
+                  previewText.textContent = 'Speak now...';
+                };
+
+                recognition.onresult = (event) => {
+                  let interimTranscript = '';
+                  let finalTranscript = '';
+                  for (let i = event.resultIndex; i < event.results.length; ++i) {
+                    if (event.results[i].isFinal) finalTranscript += event.results[i][0].transcript;
+                    else interimTranscript += event.results[i][0].transcript;
+                  }
+                  if (finalTranscript) {
+                    targetInput.value = finalTranscript;
+                    previewText.textContent = finalTranscript;
+                    statusText.textContent = 'Searching...';
+                    setTimeout(() => {
+                      overlay.classList.remove('active');
+                      document.getElementById(formId).submit();
+                    }, 800);
+                  } else {
+                    previewText.textContent = interimTranscript;
+                  }
+                };
+
+                recognition.onerror = () => overlay.classList.remove('active');
+                recognition.start();
               }
             }
           </script>

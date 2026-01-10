@@ -39,62 +39,41 @@
       });
     </script>
 
+    <!-- Dynamic Image Gallery -->
+    <div id="image-gallery-container"></div>
+
     <!-- Header Section -->
     <div class="container mt-4">
       <div class="row mb-4 animate-fade-up">
-        <div class="col-12">
-          <h1 class="fw-bold mb-2">
-            <%= dhaba.title %>
-          </h1>
-          <div class="d-flex align-items-center gap-3 text-muted">
-            <span><i class="fas fa-map-marker-alt me-1"></i>
-              <%= dhaba.location %>, <%= dhaba.country %>
-            </span>
-            <span>•</span>
-            <span class="text-warning"><i class="fas fa-star"></i>
-              <%= dhaba.rating || 'New' %>
-            </span>
-            <span>•</span>
-            <span class="badge bg-success-subtle text-success">
-              <%= dhaba.category %>
-            </span>
-          </div>
-        </div>
-      </div>
-
-      <!-- Bento Gallery -->
-      <div class="dhabas-bento-gallery animate-fade-up">
-        <!-- Main Large Image (First Image) -->
-        <div class="bento-item bento-main">
-          <img
-            src="<%= dhaba.image && dhaba.image.length > 0 ? dhaba.image[0].url : 'https://images.unsplash.com/photo-1517248135467-4c7edcad34c4' %>"
-            alt="<%= dhaba.title %> Main View">
-        </div>
-
-        <!-- Side Images (Images 2 and 3) -->
-        <% if (dhaba.image && dhaba.image.length> 1) { %>
-          <div class="bento-item">
-            <img src="<%= dhaba.image[1].url %>" alt="<%= dhaba.title %> Interior">
-          </div>
-          <% } else { %>
-            <div class="bento-item">
-              <img src="https://images.unsplash.com/photo-1552566626-52f8b828add9?q=80&w=800&auto=format&fit=crop"
-                alt="Default Interior">
+        <div class="col-12 d-flex justify-content-between align-items-center">
+          <div>
+            <h1 class="fw-bold mb-2">
+              <%= dhaba.title %>
+            </h1>
+            <div class="d-flex align-items-center gap-3 text-muted">
+              <span><i class="fas fa-map-marker-alt me-1"></i>
+                <%= dhaba.location %>, <%= dhaba.country %>
+              </span>
+              <span>•</span>
+              <span class="text-warning"><i class="fas fa-star"></i>
+                <%= dhaba.rating || 'New' %>
+              </span>
+              <span>•</span>
+              <span class="badge bg-success-subtle text-success">
+                <%= dhaba.category %>
+              </span>
             </div>
-            <% } %>
+          </div>
 
-              <% if (dhaba.image && dhaba.image.length> 2) { %>
-                <div class="bento-item">
-                  <img src="<%= dhaba.image[2].url %>" alt="<%= dhaba.title %> Food">
-                  <button class="view-photos-btn"><i class="fas fa-th me-2"></i>View All Photos</button>
-                </div>
-                <% } else { %>
-                  <div class="bento-item">
-                    <img src="https://images.unsplash.com/photo-1559339352-11d035aa65de?q=80&w=800&auto=format&fit=crop"
-                      alt="Default Food">
-                    <button class="view-photos-btn"><i class="fas fa-th me-2"></i>View All Photos</button>
-                  </div>
-                  <% } %>
+          <div class="header-actions">
+            <% const isWishlisted=currUser && currUser.wishlistDhabas && currUser.wishlistDhabas.some(id=> id.toString()
+              === dhaba._id.toString()); %>
+              <%- include('../partials/socialShare', { itemId: dhaba._id, isWishlisted, itemType: 'dhaba' ,
+                iconClass: 'fas fa-share-alt' , btnClass: 'action-btn' , currentUrl: `https://${process.env.HOST
+                || 'localhost:3000' }/dhabas/${dhaba._id}`, shareText: `Check out '${dhaba.title}' on WanderLust`,
+                shareSubject: `Check out '${dhaba.title}' on WanderLust` }) %>
+          </div>
+        </div>
       </div>
 
       <div class="row">
@@ -247,8 +226,7 @@
                 <div class="category-content active" id="breads-content">
                   <div class="menu-items-grid">
                     <div class="menu-item-card">
-                      <img src="https://images.unsplash.com/photo-1601050638917-3d06630d70da?q=80&w=400"
-                        class="menu-item-image" alt="Garlic Naan">
+                      <img src="/images/food/garlic_naan.png" class="menu-item-image" alt="Garlic Naan">
                       <div class="menu-item-info">
                         <div class="menu-item-name">Garlic Naan</div>
                         <div class="menu-item-description">Soft leavened bread with garlic and butter.</div>
@@ -259,8 +237,7 @@
                       </div>
                     </div>
                     <div class="menu-item-card">
-                      <img src="https://images.unsplash.com/photo-1633454350171-d6a04efc8cc6?q=80&w=400"
-                        class="menu-item-image" alt="Tandoori Roti">
+                      <img src="/images/food/tandoori_roti.png" class="menu-item-image" alt="Tandoori Roti">
                       <div class="menu-item-info">
                         <div class="menu-item-name">Tandoori Roti</div>
                         <div class="menu-item-description">Whole wheat bread baked in clay oven.</div>
@@ -319,8 +296,9 @@
                       </div>
                     </div>
                     <div class="menu-item-card">
-                      <img src="https://images.unsplash.com/photo-1596797038543-bf376c4ca3ec?q=80&w=400"
-                        class="menu-item-image" alt="Jeera Rice">
+                      <img src="https://cdn.pixabay.com/photo/2017/06/16/11/38/breakfast-2408818_640.jpg"
+                        class="menu-item-image" alt="Jeera Rice"
+                        onerror="this.src='https://via.placeholder.com/400x300/FFE4B5/8B4513?text=Jeera+Rice'">
                       <div class="menu-item-info">
                         <div class="menu-item-name">Jeera Rice</div>
                         <div class="menu-item-description">Basmati rice sautéed with cumin seeds.</div>
@@ -428,7 +406,8 @@
                     Number(dhaba.price).toLocaleString("en-IN") : "N/A" %> / guest</span>
               </div>
               <div class="card-body p-4">
-                <p class="text-muted small mb-3">Secured online payment powered by Stripe. Cancel anytime before the
+                <p class="text-muted small mb-3">Secured online payment powered by Stripe. Cancel anytime before
+                  the
                   booking slot.</p>
                 <button class="btn btn-success w-100 py-3 fw-bold shadow-sm" data-bs-toggle="modal"
                   data-bs-target="#dhabaBookingModal">
@@ -514,10 +493,12 @@
                           <%= review.comment %>
                         </p>
                       </div>
-                      <form class="mb-3" method="POST"
-                        action="/dhabas/<%=dhaba._id %>/reviews/<%= review._id %>?_method=DELETE">
-                        <button class="btn btn-sm btn-dark">Delete</button>
-                      </form>
+                      <% if(currUser && review.author._id.equals(currUser._id)) { %>
+                        <form class="mb-3" method="POST"
+                          action="/dhabas/<%=dhaba._id %>/reviews/<%= review._id %>?_method=DELETE">
+                          <button class="btn btn-sm btn-dark">Delete</button>
+                        </form>
+                        <% } %>
                     </div>
                     <% } %>
                 </div>
@@ -533,7 +514,8 @@
           <div class="text-center text-muted">
             <i class="fas fa-map-marked-alt fa-3x mb-3 text-secondary"></i>
             <h5 class="fw-bold">Map Visualization</h5>
-            <p class="small mb-0">Map will appear here when <code class="text-dark">MAP_TOKEN</code> is configured.</p>
+            <p class="small mb-0">Map will appear here when <code class="text-dark">MAP_TOKEN</code> is
+              configured.</p>
           </div>
         </div>
       </div>
@@ -667,6 +649,7 @@
       const dhabaData = dhabaTokenData ? JSON.parse(dhabaTokenData.textContent) : null;
     </script>
 
+    <script src="/js/image-gallery.js"></script>
     <!-- Map Initialization -->
     <script>
       document.addEventListener("DOMContentLoaded", () => {
@@ -686,6 +669,13 @@
           console.error("Mapbox Token is missing.");
           return;
         }
+
+        // Initialize Image Gallery
+        const dhabaImages = dhabaData.image && dhabaData.image.length > 0
+          ? dhabaData.image
+          : [{ url: 'https://images.unsplash.com/photo-1517248135467-4c7edcad34c4', caption: dhabaData.title }];
+
+        new ImageGallery('image-gallery-container', dhabaImages);
 
         // CLEAR PLACEHOLDER CONTENT and RESET CLASSES
         if (mapContainer) {
@@ -755,7 +745,7 @@
              customElement: userEl,
              title: "Your Location"
         });
-
+ 
         setTimeout(() => {
              enhancedMap.addRoute('route-demo', [userCoords, dhabaCoords], {
                  color: '#ff385c',

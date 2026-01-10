@@ -1,0 +1,107 @@
+<% layout("layouts/boilerplate") %>
+
+    <style>
+        .edit-profile-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 80vh;
+            background-color: #fcece2;
+            /* Matching login/signup bg */
+            padding: 40px 20px;
+        }
+
+        .edit-profile-card {
+            background: white;
+            width: 100%;
+            max-width: 500px;
+            border-radius: 20px;
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1);
+            padding: 40px;
+        }
+
+        .edit-profile-title {
+            font-weight: 800;
+            text-align: center;
+            margin-bottom: 30px;
+            color: #222;
+            font-size: 28px;
+        }
+
+        .form-label-custom {
+            font-weight: 600;
+            color: #555;
+            margin-bottom: 8px;
+        }
+
+        .form-control-custom {
+            border-radius: 12px;
+            padding: 12px 15px;
+            border: 1px solid #e0e0e0;
+            background: #fdfdfd;
+            transition: all 0.2s;
+            margin-bottom: 20px;
+        }
+
+        .form-control-custom:focus {
+            border-color: #198754;
+            box-shadow: 0 0 0 4px rgba(25, 135, 84, 0.1);
+            background: white;
+        }
+
+        .btn-save {
+            background: #198754;
+            color: white;
+            border: none;
+            padding: 12px;
+            border-radius: 12px;
+            width: 100%;
+            font-weight: 700;
+            font-size: 16px;
+            transition: all 0.2s;
+            box-shadow: 0 4px 15px rgba(25, 135, 84, 0.25);
+        }
+
+        .btn-save:hover {
+            background: #157347;
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(25, 135, 84, 0.3);
+        }
+
+        .cancel-link {
+            display: block;
+            text-align: center;
+            margin-top: 15px;
+            color: #888;
+            text-decoration: none;
+            font-weight: 500;
+        }
+
+        .cancel-link:hover {
+            color: #555;
+        }
+    </style>
+    <div class="edit-profile-container">
+        <div class="edit-profile-card">
+            <h2 class="edit-profile-title">Edit Profile</h2>
+
+            <form method="POST" action="/profile/edit" class="needs-validation" novalidate>
+                <div>
+                    <label for="username" class="form-label-custom">Username</label>
+                    <input type="text" id="username" name="username" class="form-control form-control-custom"
+                        value="<%= user.username %>" required>
+                    <div class="invalid-feedback">Please enter a username.</div>
+                </div>
+
+                <div>
+                    <label for="email" class="form-label-custom">Email Address</label>
+                    <input type="email" id="email" name="email" class="form-control form-control-custom"
+                        value="<%= user.email %>" required>
+                    <div class="invalid-feedback">Please enter a valid email.</div>
+                </div>
+
+                <button type="submit" class="btn-save">Save Changes</button>
+                <a href="/profile" class="cancel-link">Cancel</a>
+            </form>
+        </div>
+    </div>

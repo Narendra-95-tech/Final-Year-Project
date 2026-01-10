@@ -53,7 +53,7 @@ router.post("/create-checkout-session", isLoggedIn, async (req, res) => {
     // Check Stripe configuration
     if (!process.env.STRIPE_SECRET_KEY) {
       console.error('Stripe not configured');
-      return res.status(500).json({ 
+      return res.status(500).json({
         success: false,
         error: 'STRIPE_NOT_CONFIGURED'
       });
@@ -62,7 +62,7 @@ router.post("/create-checkout-session", isLoggedIn, async (req, res) => {
     // First check if this is a pre-created booking
     const { bookingId } = req.body;
     let existingBooking;
-    
+
     if (bookingId) {
       // If bookingId is provided, load the existing booking
       existingBooking = await Booking.findById(bookingId)
@@ -80,8 +80,8 @@ router.post("/create-checkout-session", isLoggedIn, async (req, res) => {
 
       // Use the booking details for the Stripe session
       const itemTitle = existingBooking.type === 'listing' ? existingBooking.listing?.title :
-                       existingBooking.type === 'vehicle' ? existingBooking.vehicle?.title :
-                       existingBooking.dhaba?.title;
+        existingBooking.type === 'vehicle' ? existingBooking.vehicle?.title :
+          existingBooking.dhaba?.title;
 
       if (!itemTitle) {
         return res.status(400).json({
@@ -130,7 +130,7 @@ router.post("/create-checkout-session", isLoggedIn, async (req, res) => {
       existingBooking.stripeSessionId = session.id;
       await existingBooking.save();
 
-      return res.json({ 
+      return res.json({
         success: true,
         url: session.url,
         bookingId: existingBooking._id
@@ -139,11 +139,11 @@ router.post("/create-checkout-session", isLoggedIn, async (req, res) => {
 
     // If no bookingId, validate required fields for direct booking
     const { type, listingId, startDate, endDate, guests, time, date, pickupLocation } = req.body;
-    
+
     const missingFields = [];
     if (!type) missingFields.push('type');
     if (!listingId) missingFields.push('listingId');
-    
+
     // Validate fields based on booking type
     switch (type) {
       case 'listing':
@@ -162,7 +162,7 @@ router.post("/create-checkout-session", isLoggedIn, async (req, res) => {
         if (!guests) missingFields.push('guests');
         break;
     }
-    
+
     if (missingFields.length > 0) {
       console.error('Missing required fields:', {
         receivedFields: req.body,
@@ -183,7 +183,7 @@ router.post("/create-checkout-session", isLoggedIn, async (req, res) => {
 
     const start = new Date(startDate);
     const end = new Date(endDate);
-    
+
     if (isNaN(start.getTime()) || isNaN(end.getTime())) {
       return res.status(400).json({
         success: false,
@@ -238,6 +238,15 @@ router.post("/create-checkout-session", isLoggedIn, async (req, res) => {
       return res.status(404).json({
         success: false,
         message: `${type.charAt(0).toUpperCase() + type.slice(1)} not found`
+      });
+    }
+
+    // Prevent owner from booking their own item
+    if (listing.owner && listing.owner.equals(req.user._id)) {
+      return res.status(400).json({
+        success: false,
+        message: `You cannot book your own ${type}!`,
+        error: 'OWNER_BOOKING_RESTRICTED'
       });
     }
 
@@ -300,7 +309,7 @@ router.post("/create-checkout-session", isLoggedIn, async (req, res) => {
       userId: req.user._id,
       customerEmail: req.user.email
     });
-    
+
     // Create Stripe checkout session
     const session = await stripe.checkout.sessions.create({
       payment_method_types: ['card'],
@@ -332,7 +341,7 @@ router.post("/create-checkout-session", isLoggedIn, async (req, res) => {
     await booking.save();
 
     console.log('Checkout session created:', session.id);
-    res.json({ 
+    res.json({
       success: true,
       url: session.url,
       bookingId: booking._id
@@ -346,7 +355,7 @@ router.post("/create-checkout-session", isLoggedIn, async (req, res) => {
       param: error.param,
       detail: error.detail
     });
-    
+
     let errorMessage = 'Failed to create checkout session';
     if (error.type === 'StripeCardError') {
       errorMessage = 'Your card was declined';
@@ -355,7 +364,7 @@ router.post("/create-checkout-session", isLoggedIn, async (req, res) => {
     } else if (error.code === 'currency_not_supported') {
       errorMessage = 'Currency not supported';
     }
-    
+
     // Delete the booking if payment failed
     try {
       await Booking.findByIdAndDelete(booking._id);
@@ -363,9 +372,9 @@ router.post("/create-checkout-session", isLoggedIn, async (req, res) => {
       console.error('Failed to delete booking after payment error:', deleteError);
     }
 
-    return res.status(500).json({ 
+    return res.status(500).json({
       error: errorMessage,
-      details: error.message 
+      details: error.message
     });
   }
 });
@@ -442,7 +451,88 @@ router.get('/cancel', isLoggedIn, async (req, res) => {
   }
 });
 
-router.get("/user", isLoggedIn, getUserBookings);
+router.get("/", isLoggedIn, getUserBookings);
+router.get("/user", isLoggedIn, getUserBookings); // Keep for backward compatibility
+
+// Pay Now for existing booking
+router.post("/:id/pay", isLoggedIn, async (req, res) => {
+  try {
+    const { id } = req.params;
+    const booking = await Booking.findById(id).populate('listing').populate('vehicle').populate('dhaba');
+
+    if (!booking) {
+      req.flash("error", "Booking not found");
+      return res.redirect("/bookings");
+    }
+
+    // Verify ownership
+    if (!booking.user.equals(req.user._id)) {
+      req.flash("error", "You do not have permission to pay for this booking");
+      return res.redirect("/bookings");
+    }
+
+    if (booking.isPaid) {
+      req.flash("success", "This booking is already paid");
+      return res.redirect("/bookings");
+    }
+
+    // Determine details based on type
+    let itemTitle, description, image;
+    if (booking.type === 'listing' && booking.listing) {
+      itemTitle = booking.listing.title;
+      description = `${itemTitle} - ${booking.nights || 1} night(s)`;
+      image = booking.listing.image?.url;
+    } else if (booking.type === 'vehicle' && booking.vehicle) {
+      itemTitle = `${booking.vehicle.brand} ${booking.vehicle.model}`;
+      description = `${itemTitle} - Rental`;
+      image = booking.vehicle.image?.url;
+    } else if (booking.type === 'dhaba' && booking.dhaba) {
+      itemTitle = booking.dhaba.title;
+      description = `${itemTitle} - Dining Reservation`;
+      image = booking.dhaba.images?.[0]?.url;
+    } else {
+      itemTitle = "Booking Payment";
+      description = `Payment for Booking #${booking._id.toString().slice(-6).toUpperCase()}`;
+    }
+
+    // Create Stripe Session
+    const session = await stripe.checkout.sessions.create({
+      payment_method_types: ['card'],
+      line_items: [{
+        price_data: {
+          currency: 'inr',
+          product_data: {
+            name: itemTitle,
+            description: description,
+            images: image ? [image] : undefined,
+          },
+          unit_amount: Math.round(booking.totalPrice * 100),
+        },
+        quantity: 1,
+      }],
+      mode: 'payment',
+      success_url: `${req.protocol}://${req.get('host')}/bookings/success?session_id={CHECKOUT_SESSION_ID}`,
+      cancel_url: `${req.protocol}://${req.get('host')}/bookings/cancel`,
+      metadata: {
+        bookingId: booking._id.toString(),
+        userId: req.user._id.toString(),
+        type: booking.type
+      },
+      customer_email: req.user.email
+    });
+
+    // Save session ID
+    booking.stripeSessionId = session.id;
+    await booking.save();
+
+    res.redirect(session.url);
+
+  } catch (error) {
+    console.error("Payment initiation error:", error);
+    req.flash("error", "Failed to initiate payment");
+    res.redirect("/bookings");
+  }
+});
 
 router.get("/admin", isLoggedIn, isAdmin, getAdminBookings);
 router.post("/admin/:bookingId/status", isLoggedIn, isAdmin, updateBookingStatus);

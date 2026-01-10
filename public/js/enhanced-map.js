@@ -47,6 +47,11 @@ class EnhancedMap {
     this.currentStyle = 'streets';
 
     this.init();
+
+    // Listen for theme changes to sync map style
+    window.addEventListener('wanderlust:themeChange', (e) => {
+      this.setTheme(e.detail.isDarkMode ? 'dark' : 'streets');
+    });
   }
 
   init() {
@@ -753,7 +758,7 @@ class EnhancedMap {
   addPOIsLayer() {
     if (this.poisLayerId) return;
 
-    // Add points of interest
+    // Add points of interest with premium icons
     this.map.addLayer({
       id: 'poi-labels',
       type: 'symbol',
@@ -762,13 +767,27 @@ class EnhancedMap {
       layout: {
         'text-field': ['get', 'name'],
         'text-font': ['DIN Offc Pro Medium', 'Arial Unicode MS Bold'],
-        'text-size': 11,
-        'text-anchor': 'top'
+        'text-size': 12,
+        'text-anchor': 'top',
+        'text-offset': [0, 1.2],
+        'icon-image': [
+          'match',
+          ['get', 'class'],
+          'restaurant', 'restaurant-15',
+          'cafe', 'cafe-15',
+          'park', 'park-15',
+          'museum', 'museum-15',
+          'airport', 'airport-15',
+          'bus', 'bus-15',
+          'marker-15'
+        ],
+        'icon-size': 1.2,
+        'icon-allow-overlap': false
       },
       paint: {
-        'text-color': '#666',
-        'text-halo-color': 'rgba(255,255,255,0.75)',
-        'text-halo-width': 1
+        'text-color': '#444',
+        'text-halo-color': 'rgba(255,255,255,0.8)',
+        'text-halo-width': 1.5
       }
     });
 
@@ -1148,48 +1167,61 @@ class EnhancedMap {
 
   addGeocoder() {
     const geocoderContainer = document.createElement('div');
-    geocoderContainer.className = 'mapboxgl-ctrl mapboxgl-ctrl-group geocoder-container';
+    geocoderContainer.className = 'map-search-overlay enhanced-geocoder';
     geocoderContainer.innerHTML = `
-      <div style="padding: 10px; background: white; border-radius: 4px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
-        <input 
-          type="text" 
-          id="geocoder-input" 
-          placeholder="🔍 Search location..." 
-          style="width: 200px; padding: 8px 12px; border: 1px solid #ddd; border-radius: 4px; font-size: 14px;"
-        />
-        <div id="geocoder-results" style="position: absolute; top: 45px; width: 200px; background: white; border: 1px solid #ddd; border-radius: 4px; max-height: 200px; overflow-y: auto; display: none; z-index: 1000;"></div>
-        <div id="search-suggestions" style="position: absolute; top: 45px; left: 0; width: 250px; background: white; border: 1px solid #ddd; border-radius: 4px; padding: 10px; display: none; z-index: 999; box-shadow: 0 2px 4px rgba(0,0,0,0.1); margin-top: 5px;">
-          <div style="font-size: 13px; color: #666; margin-bottom: 8px; font-weight: 600;">💡 Popular Searches:</div>
-          <div id="suggestion-tags" style="display: flex; flex-wrap: wrap; gap: 5px;"></div>
+      <div class="search-box-premium">
+        <i class="fas fa-search search-icon-p"></i>
+        <input type="text" id="geocoder-input" placeholder="Search location..." autocomplete="off">
+        <div id="search-clear-enhanced" class="search-clear-btn" style="display: none;">
+          <i class="fas fa-times"></i>
         </div>
+      </div>
+      <div id="geocoder-results" class="search-results-premium" style="display: none;"></div>
+      <div id="search-suggestions" class="search-results-premium suggestions-overlay" style="display: none;">
+        <div style="padding: 12px 16px; font-size: 13px; color: #ff385c; font-weight: 600; border-bottom: 1px solid rgba(0,0,0,0.05);">
+          <i class="fas fa-fire-alt me-2"></i>Popular Destinations
+        </div>
+        <div id="suggestion-tags" class="suggestion-grid-p"></div>
       </div>
     `;
 
-    const topRight = document.querySelector('.mapboxgl-ctrl-top-right');
-    if (topRight) {
-      topRight.insertBefore(geocoderContainer, topRight.firstChild);
-    }
+    const mapContainer = this.map.getContainer();
+    mapContainer.appendChild(geocoderContainer);
 
     const input = document.getElementById('geocoder-input');
     const resultsDiv = document.getElementById('geocoder-results');
     const suggestionsDiv = document.getElementById('search-suggestions');
+    const clearBtn = document.getElementById('search-clear-enhanced');
 
     // Show suggestions when input is focused
     input.addEventListener('focus', () => {
-      this.showPopularSuggestions();
+      if (!input.value.trim()) {
+        this.showPopularSuggestions();
+      }
     });
 
     input.addEventListener('input', (e) => {
-      this.handleGeocoderSearch(e.target.value, resultsDiv);
-      // Hide popular suggestions when user starts typing results
-      if (suggestionsDiv) {
-        if (e.target.value.length > 0) {
-          suggestionsDiv.style.display = 'none';
-        } else {
-          suggestionsDiv.style.display = 'block';
-        }
+      const query = e.target.value.trim();
+      clearBtn.style.display = query ? 'flex' : 'none';
+
+      if (query.length > 0) {
+        suggestionsDiv.style.display = 'none';
+        this.handleGeocoderSearch(query, resultsDiv);
+      } else {
+        resultsDiv.style.display = 'none';
+        this.showPopularSuggestions();
       }
     });
+
+    if (clearBtn) {
+      clearBtn.addEventListener('click', () => {
+        input.value = '';
+        clearBtn.style.display = 'none';
+        resultsDiv.style.display = 'none';
+        this.showPopularSuggestions();
+        input.focus();
+      });
+    }
 
     // Initialize suggestions when map loads
     setTimeout(() => {
@@ -1213,58 +1245,40 @@ class EnhancedMap {
 
     if (!suggestionsDiv || !tagsDiv) return;
 
-    // Always show suggestions
     suggestionsDiv.style.display = 'block';
     tagsDiv.innerHTML = '';
 
-    const popularSearches = [
-      { text: 'Mumbai Airport', icon: '✈️' },
-      { text: 'Pune Railway Station', icon: '🚂' },
-      { text: 'Lonavala', icon: '🏔️' },
-      { text: 'Mahabaleshwar', icon: '🕉️' },
-      { text: 'Shirdi', icon: '🛕' },
-      { text: 'Goa Beach', icon: '🏖️' },
-      { text: 'Mumbai Hotels', icon: '🏨' },
-      { text: 'Pune Restaurants', icon: '🍽️' }
+    const popularLocations = [
+      { name: 'Mumbai Airport', icon: '✈️', coords: [72.8679, 19.0896] },
+      { name: 'Pune Station', icon: '🚂', coords: [73.8567, 18.5294] },
+      { name: 'Lonavala', icon: '🏔️', coords: [73.4084, 18.7546] },
+      { name: 'Mahabaleshwar', icon: '⛰️', coords: [73.6588, 17.9249] },
+      { name: 'Shirdi', icon: '🙏', coords: [74.4797, 19.7680] },
+      { name: 'Gateway India', icon: '🏛️', coords: [72.8347, 18.9220] },
+      { name: 'Marine Drive', icon: '🌊', coords: [72.8209, 18.9440] },
+      { name: 'Goa Beaches', icon: '🏖️', coords: [73.7273, 15.5442] }
     ];
 
-    popularSearches.forEach(search => {
-      const tag = document.createElement('span');
-      tag.style.cssText = `
-        background: #f0f0f0;
-        border: 1px solid #ddd;
-        border-radius: 15px;
-        padding: 5px 10px;
-        font-size: 12px;
-        cursor: pointer;
-        transition: all 0.2s ease;
-        display: inline-flex;
-        align-items: center;
-        gap: 4px;
-        color: #666;
-        margin: 2px;
+    popularLocations.forEach(location => {
+      const item = document.createElement('div');
+      item.className = 'suggestion-item-p';
+      item.innerHTML = `
+        <span class="suggestion-icon-p">${location.icon}</span>
+        <span>${location.name}</span>
       `;
 
-      tag.innerHTML = `<span style="font-size: 14px;">${search.icon}</span> ${search.text}`;
-
-      tag.addEventListener('click', () => {
-        document.getElementById('geocoder-input').value = search.text;
-        this.handleGeocoderSearch(search.text, document.getElementById('geocoder-results'));
+      item.addEventListener('click', () => {
+        document.getElementById('geocoder-input').value = location.name;
+        this.map.flyTo({
+          center: location.coords,
+          zoom: 14,
+          speed: 1.5,
+          curve: 1
+        });
+        suggestionsDiv.style.display = 'none';
       });
 
-      tag.addEventListener('mouseenter', () => {
-        tag.style.background = '#e0e0e0';
-        tag.style.borderColor = '#999';
-        tag.style.color = '#333';
-      });
-
-      tag.addEventListener('mouseleave', () => {
-        tag.style.background = '#f0f0f0';
-        tag.style.borderColor = '#ddd';
-        tag.style.color = '#666';
-      });
-
-      tagsDiv.appendChild(tag);
+      tagsDiv.appendChild(item);
     });
   }
 
@@ -2100,6 +2114,85 @@ class EnhancedMap {
     } catch (error) {
       console.error('Error creating fallback route:', error);
     }
+  }
+
+  // Cinematic 3D Orbit
+  orbitTo(coords, duration = 20000) {
+    const center = coords || this.map.getCenter();
+    this.map.easeTo({
+      center: center,
+      zoom: 16,
+      pitch: 60,
+      bearing: 0,
+      duration: 3000,
+      essential: true
+    });
+
+    setTimeout(() => {
+      this.isOrbiting = true;
+      const rotate = () => {
+        if (!this.isOrbiting) return;
+        this.map.rotateTo((this.map.getBearing() + 0.1) % 360, { duration: 0 });
+        this.orbitAnimationFrame = requestAnimationFrame(rotate);
+      };
+      this.orbitAnimationFrame = requestAnimationFrame(rotate);
+    }, 3500);
+  }
+
+  stopOrbit() {
+    this.isOrbiting = false;
+    if (this.orbitAnimationFrame) {
+      cancelAnimationFrame(this.orbitAnimationFrame);
+    }
+    this.map.easeTo({
+      pitch: 0,
+      duration: 1000
+    });
+  }
+
+  // Get Real-Time Travel ETAs
+  async getTravelTimes(destination) {
+    try {
+      const userLocation = await this.getCurrentLocation().catch(() => null);
+      if (!userLocation) return null;
+
+      const start = userLocation.coords;
+      const end = destination;
+
+      const modes = ['walking', 'driving', 'cycling'];
+      const results = {};
+
+      for (const mode of modes) {
+        const url = `https://api.mapbox.com/directions/v5/mapbox/${mode}/${start[0]},${start[1]};${end[0]},${end[1]}?access_token=${this.mapToken}`;
+        const response = await fetch(url);
+        const data = await response.json();
+
+        if (data.routes && data.routes[0]) {
+          results[mode] = Math.round(data.routes[0].duration / 60); // minutes
+        }
+      }
+      return results;
+    } catch (error) {
+      console.error('Error fetching travel times:', error);
+      return null;
+    }
+  }
+
+  // Theme Syncing
+  setTheme(theme) {
+    if (theme === 'dark') {
+      this.changeMapStyle('dark');
+    } else {
+      this.changeMapStyle('streets');
+    }
+  }
+
+  // Format duration (minutes to "Hh Mm")
+  formatDuration(mins) {
+    if (mins < 60) return `${mins}m`;
+    const h = Math.floor(mins / 60);
+    const m = mins % 60;
+    return m > 0 ? `${h}h ${m}m` : `${h}h`;
   }
 }
 

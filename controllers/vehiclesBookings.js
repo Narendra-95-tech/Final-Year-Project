@@ -104,6 +104,11 @@ exports.createVehicleBooking = wrapAsync(async (req, res) => {
     return res.status(404).json({ error: "Vehicle not found." });
   }
 
+  // Prevent owner from booking their own vehicle
+  if (vehicle.owner.equals(req.user._id)) {
+    return res.status(400).json({ error: "You cannot book your own vehicle!" });
+  }
+
   const days = Math.ceil((end - start) / (1000 * 60 * 60 * 24));
   const perDayPrice = Number(vehicle.price) || 0;
   const amount = perDayPrice * days;
