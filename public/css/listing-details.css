@@ -1223,6 +1223,10 @@ body.dark-mode .map-container-premium {
   padding: 10px var(--space-3);
   border-right: 1px solid var(--border);
   cursor: pointer;
+  position: relative;
+  /* Ensure context for absolute elements if any */
+  min-width: 0;
+  /* Prevent grid overflow */
 }
 
 .date-input-group:last-child {
@@ -1246,6 +1250,9 @@ body.dark-mode .map-container-premium {
   color: var(--text-primary);
   cursor: pointer;
   font-family: var(--font-display);
+  background: transparent;
+  min-width: 0;
+  text-overflow: ellipsis;
 }
 
 .date-input:focus {
