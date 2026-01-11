@@ -40,105 +40,35 @@ const wishlistRoutes = require("./routes/wishlist");
 // --------------------  
 // Database Connection
 // --------------------
-const isAtlas = process.env.USE_ATLAS === "true";
+// --------------------  
+// Database Connection
+// --------------------
+const dbUrl = process.env.ATLASDB_URL;
 
-const dbUrl = isAtlas
-  ? process.env.ATLASDB_URL
-  : "mongodb://127.0.0.1:27017/wanderlust";
+if (!dbUrl) {
+  console.error("❌ FATAL ERROR: ATLASDB_URL is not defined.");
+  process.exit(1);
+}
+
+console.log("🚀 Connecting to Database...");
+console.log(`Target: ${dbUrl.includes("mongodb+srv") ? "MongoDB Atlas (Cloud)" : "Local MongoDB"}`);
 
 mongoose.connect(dbUrl)
   .then(() => {
-    console.log("✅ MongoDB connected");
+    console.log("✅ Database Connected Successfully!");
   })
   .catch((err) => {
-    console.error("❌ MongoDB connection error:", err);
+    console.error("❌ Database Connection Failed:", err);
+    console.log("Retrying in 5 seconds...");
+    setTimeout(() => {
+      mongoose.connect(dbUrl).catch(e => console.error("Retry failed:", e));
+    }, 5000);
   });
-
-
-// Check if we want to use Atlas (only in production or if explicitly set)
-const useAtlas = process.env.USE_ATLAS === 'true'; // Allow Atlas connection when requested
-
-if (useAtlas && dbUrl.includes('mongodb+srv')) {
-  // Production: Try Atlas with multiple SSL approaches
-  console.log('Attempting to connect to MongoDB Atlas...');
-
-  // Try different connection options
-  const connectionOptions = [
-    // Option 1: Basic SSL
-    {
-      serverSelectionTimeoutMS: 10000,
-      socketTimeoutMS: 45000,
-      maxPoolSize: 10,
-      retryWrites: true,
-      retryReads: true,
-    },
-    // Option 2: With SSL options
-    {
-      serverSelectionTimeoutMS: 10000,
-      socketTimeoutMS: 45000,
-      maxPoolSize: 10,
-      retryWrites: true,
-      retryReads: true,
-      ssl: true,
-      tls: true,
-      tlsAllowInvalidCertificates: true,
-      tlsAllowInvalidHostnames: true,
-    },
-    // Option 3: Minimal SSL
-    {
-      serverSelectionTimeoutMS: 10000,
-      socketTimeoutMS: 45000,
-      maxPoolSize: 10,
-      retryWrites: true,
-      retryReads: true,
-      sslValidate: false,
-    }
-  ];
-
-  // Try each connection option
-  async function tryAtlasConnection() {
-    for (let i = 0; i < connectionOptions.length; i++) {
-      try {
-        console.log(`Trying Atlas connection option ${i + 1}...`);
-        await mongoose.connect(dbUrl, connectionOptions[i]);
-        console.log('✅ Connected to MongoDB Atlas');
-        return;
-      } catch (err) {
-        console.error(`Option ${i + 1} failed:`, err.message);
-        if (i === connectionOptions.length - 1) {
-          // Last option failed, fall back to local
-          console.log('All Atlas options failed. Falling back to local MongoDB...');
-          connectToLocal();
-        }
-      }
-    }
-  }
-
-  tryAtlasConnection();
-} else {
-  // Development: Use local MongoDB directly
-  console.log('Using local MongoDB...');
-  connectToLocal();
-}
-
-function connectToLocal() {
-  mongoose.connect('mongodb://127.0.0.1:27017/wanderlust', {
-    serverSelectionTimeoutMS: 5000,
-    socketTimeoutMS: 45000,
-  }).then(() => {
-    console.log('Connected to local MongoDB');
-  }).catch(err => {
-    console.error('Local MongoDB connection failed:', err);
-    console.log('\nPlease ensure MongoDB is installed and running locally');
-    console.log('Download MongoDB Community Server: https://www.mongodb.com/try/download/community');
-    process.exit(1);
-  });
-}
 
 const db = mongoose.connection;
 db.on("error", console.error.bind(console, "connection error:"));
 db.once("open", () => {
-  console.log("Database connected");
+  console.log("Database connection established.");
 });
 
 // --------------------
@@ -253,7 +183,7 @@ app.use('/uploads', express.static('uploads'));
 const secret = process.env.SECRET || "thisshouldbeabettersecret";
 
 const store = MongoStore.create({
-  mongoUrl: useAtlas ? dbUrl : 'mongodb://127.0.0.1:27017/wanderlust', // Use local in development
+  mongoUrl: dbUrl,
   touchAfter: 24 * 60 * 60,
   collectionName: 'sessions',
   autoRemove: 'interval',
