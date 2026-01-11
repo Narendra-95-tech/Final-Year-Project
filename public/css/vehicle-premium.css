@@ -642,23 +642,56 @@ body {
     color: white;
 }
 
-/* Mobile Adjustments */
-@media (max-width: 992px) {
+/* ===== RESPONSIVE DESIGN ===== */
+
+/* Tablet Landscape & Small Desktop (992px - 1199px) */
+@media (max-width: 1199px) {
+    .specs-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+
+    .features-grid {
+        grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+    }
+}
+
+/* Tablet (768px - 991px) */
+@media (max-width: 991px) {
     .detail-grid {
         grid-template-columns: 1fr;
     }
 
-    .detail-gallery {
-        grid-template-columns: 1fr;
-        grid-template-rows: auto;
+    .sticky-booking-sidebar {
+        position: static;
     }
 
-    .gallery-side {
+    .booking-card {
+        margin-top: 30px;
+    }
+
+    .detail-gallery,
+    .bento-gallery {
+        grid-template-columns: 1fr;
+        grid-template-rows: 300px;
+    }
+
+    .gallery-side,
+    .bento-item:not(.bento-main) {
         display: none;
+    }
+
+    .vehicle-premium-hero {
+        height: 350px;
+        margin-bottom: -50px;
+        border-radius: 0 0 30px 30px;
     }
 
     .vehicle-premium-hero h1 {
         font-size: 2.5rem;
+    }
+
+    .hero-content .lead {
+        font-size: 1.1rem;
     }
 
     .vehicle-fast-search {
@@ -666,19 +699,454 @@ body {
         border-radius: 20px;
         padding: 20px;
         transform: translateY(-40px);
+        max-width: 95%;
     }
 
     .search-field {
         border-right: none;
         border-bottom: 1px solid var(--vp-gray-light);
         width: 100%;
-        padding: 10px 0;
+        padding: 15px 0;
+    }
+
+    .search-field:last-of-type {
+        border-bottom: none;
     }
 
     .search-btn {
         width: 100%;
-        border-radius: 10px;
+        height: 50px;
+        border-radius: 12px;
         margin-top: 15px;
         margin-left: 0;
+    }
+
+    .vehicle-category-hub {
+        justify-content: flex-start;
+        gap: 20px;
+        padding: 10px 20px;
+    }
+
+    .category-item {
+        min-width: 70px;
+    }
+
+    .specs-grid {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 15px;
+    }
+
+    .features-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+
+    .host-stats {
+        flex-wrap: wrap;
+    }
+}
+
+/* Mobile Landscape & Large Phones (576px - 767px) */
+@media (max-width: 767px) {
+    .vehicle-premium-hero {
+        height: 280px;
+        margin-bottom: -40px;
+        border-radius: 0 0 20px 20px;
+        background-attachment: scroll;
+    }
+
+    .vehicle-premium-hero h1 {
+        font-size: 2rem;
+    }
+
+    .hero-content .lead {
+        font-size: 1rem;
+    }
+
+    .vehicle-fast-search {
+        padding: 15px;
+        transform: translateY(-30px);
+    }
+
+    .search-field {
+        padding: 12px 0;
+    }
+
+    .search-label {
+        font-size: 0.7rem;
+    }
+
+    .search-input {
+        font-size: 0.95rem;
+    }
+
+    .vehicle-category-hub {
+        gap: 15px;
+        padding: 10px 15px;
+    }
+
+    .category-icon {
+        font-size: 1.3rem;
+    }
+
+    .category-label {
+        font-size: 0.75rem;
+    }
+
+    .premium-vehicle-card {
+        margin-bottom: 20px;
+    }
+
+    .card-img-wrapper {
+        height: 200px;
+    }
+
+    .card-content {
+        padding: 15px;
+    }
+
+    .card-price-tag {
+        font-size: 1.2rem;
+    }
+
+    .card-title {
+        font-size: 1rem;
+    }
+
+    .card-spec-bar {
+        gap: 10px;
+        flex-wrap: wrap;
+    }
+
+    .spec-pill {
+        font-size: 0.75rem;
+    }
+
+    .detail-gallery,
+    .bento-gallery {
+        grid-template-rows: 250px;
+        border-radius: 15px;
+    }
+
+    .booking-card {
+        padding: 20px;
+        border-radius: 20px;
+    }
+
+    .premium-btn-book {
+        padding: 14px;
+        font-size: 1rem;
+    }
+
+    .specs-grid {
+        grid-template-columns: 1fr;
+        gap: 12px;
+    }
+
+    .spec-card {
+        padding: 12px;
+    }
+
+    .features-grid {
+        grid-template-columns: 1fr;
+        gap: 10px;
+    }
+
+    .feature-item {
+        padding: 10px 14px;
+    }
+
+    .host-profile-card {
+        padding: 20px;
+    }
+
+    .host-stats {
+        gap: 15px;
+    }
+
+    .price-breakdown {
+        padding: 15px;
+    }
+
+    .review-summary {
+        padding: 20px;
+    }
+}
+
+/* Mobile Portrait (320px - 575px) */
+@media (max-width: 575px) {
+    .vehicle-premium-hero {
+        height: 240px;
+        margin-bottom: -35px;
+        border-radius: 0 0 15px 15px;
+    }
+
+    .vehicle-premium-hero h1 {
+        font-size: 1.75rem;
+        margin-bottom: 10px;
+    }
+
+    .hero-content {
+        padding: 0 15px;
+    }
+
+    .hero-content .lead {
+        font-size: 0.9rem;
+    }
+
+    .vehicle-fast-search {
+        padding: 12px;
+        transform: translateY(-25px);
+        border-radius: 15px;
+    }
+
+    .search-field {
+        padding: 10px 0;
+    }
+
+    .search-label {
+        font-size: 0.65rem;
+        margin-bottom: 3px;
+    }
+
+    .search-input {
+        font-size: 0.9rem;
+    }
+
+    .search-btn {
+        height: 46px;
+        font-size: 1.1rem;
+        margin-top: 10px;
+    }
+
+    .vehicle-category-hub {
+        gap: 12px;
+        padding: 10px;
+        margin: 30px 0;
+    }
+
+    .category-item {
+        min-width: 60px;
+    }
+
+    .category-icon {
+        font-size: 1.2rem;
+    }
+
+    .category-label {
+        font-size: 0.7rem;
+    }
+
+    .premium-vehicle-card {
+        margin-bottom: 15px;
+    }
+
+    .card-img-wrapper {
+        height: 180px;
+    }
+
+    .card-badge {
+        top: 10px;
+        left: 10px;
+        padding: 5px 10px;
+        font-size: 0.7rem;
+    }
+
+    .card-wishlist {
+        top: 10px;
+        right: 10px;
+        width: 32px;
+        height: 32px;
+    }
+
+    .card-content {
+        padding: 12px;
+    }
+
+    .card-price-row {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 5px;
+    }
+
+    .card-price-tag {
+        font-size: 1.1rem;
+    }
+
+    .card-price-unit {
+        font-size: 0.8rem;
+    }
+
+    .card-title {
+        font-size: 0.95rem;
+        margin: 8px 0;
+    }
+
+    .card-spec-bar {
+        gap: 8px;
+        margin: 10px 0;
+        padding: 8px 0;
+    }
+
+    .spec-pill {
+        font-size: 0.7rem;
+        gap: 4px;
+    }
+
+    .spec-pill i {
+        font-size: 0.9rem;
+    }
+
+    .detail-gallery,
+    .bento-gallery {
+        grid-template-rows: 220px;
+        gap: 8px;
+        border-radius: 12px;
+        margin-bottom: 20px;
+    }
+
+    .view-all-photos {
+        bottom: 10px;
+        right: 10px;
+        padding: 8px 15px;
+        font-size: 0.85rem;
+    }
+
+    .booking-card {
+        padding: 15px;
+        border-radius: 15px;
+    }
+
+    .booking-price-row {
+        flex-direction: column;
+        align-items: flex-start;
+        margin-bottom: 15px;
+    }
+
+    .premium-btn-book {
+        padding: 12px;
+        font-size: 0.95rem;
+        border-radius: 10px;
+    }
+
+    .booking-highlight {
+        padding: 10px;
+        font-size: 0.8rem;
+    }
+
+    .specs-grid {
+        gap: 10px;
+    }
+
+    .spec-card {
+        padding: 10px;
+    }
+
+    .spec-card i {
+        font-size: 1.1rem;
+    }
+
+    .spec-card-label {
+        font-size: 0.7rem;
+    }
+
+    .spec-card-value {
+        font-size: 0.9rem;
+    }
+
+    .features-grid {
+        gap: 8px;
+    }
+
+    .feature-item {
+        padding: 8px 12px;
+    }
+
+    .feature-icon {
+        font-size: 1.1rem;
+    }
+
+    .feature-label {
+        font-size: 0.85rem;
+    }
+
+    .host-profile-card {
+        padding: 15px;
+        border-radius: 15px;
+    }
+
+    .host-stats {
+        gap: 12px;
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .host-stat-value {
+        font-size: 1.1rem;
+    }
+
+    .host-stat-label {
+        font-size: 0.7rem;
+    }
+
+    .price-breakdown {
+        padding: 12px;
+        border-radius: 10px;
+    }
+
+    .review-summary {
+        padding: 15px;
+        border-radius: 12px;
+    }
+
+    .rating-bar-row {
+        gap: 8px;
+        margin-bottom: 8px;
+    }
+
+    .rating-bar-label {
+        min-width: 50px;
+        font-size: 0.8rem;
+    }
+
+    .rating-bar-count {
+        min-width: 35px;
+        font-size: 0.8rem;
+    }
+
+    /* Touch-friendly adjustments */
+    .action-btn {
+        min-height: 44px;
+        padding: 10px 14px;
+    }
+
+    .btn {
+        min-height: 44px;
+    }
+}
+
+/* Extra Small Devices (< 360px) */
+@media (max-width: 359px) {
+    .vehicle-premium-hero h1 {
+        font-size: 1.5rem;
+    }
+
+    .hero-content .lead {
+        font-size: 0.85rem;
+    }
+
+    .card-img-wrapper {
+        height: 160px;
+    }
+
+    .card-content {
+        padding: 10px;
+    }
+
+    .card-title {
+        font-size: 0.9rem;
+    }
+
+    .spec-pill {
+        font-size: 0.65rem;
     }
 }

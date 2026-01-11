@@ -61,6 +61,10 @@ module.exports.index = async (req, res) => {
     }
     const trendingDhabas = await Dhaba.find({}).sort({ rating: -1 }).limit(6);
 
+    if (Object.keys(req.query).length === 0 && (!res.locals.success || res.locals.success.length === 0)) {
+      res.locals.success = "Welcome to Dhabas!";
+    }
+
     res.render("dhabas/index", {
       allDhabas,
       trendingDhabas,

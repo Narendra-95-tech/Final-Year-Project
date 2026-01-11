@@ -126,6 +126,14 @@ module.exports.index = async (req, res) => {
     const queryParams = { ...req.query };
     const queryString = new URLSearchParams(queryParams).toString();
 
+    // Check for real visual messages
+    const existingSuccess = res.locals.success;
+    const hasVisualSuccess = existingSuccess && existingSuccess.length > 0 && existingSuccess.some(m => m && m.trim().length > 0);
+
+    if (!hasVisualSuccess && Object.keys(req.query).length === 0) {
+        res.locals.success = "Welcome to Vehicles!";
+    }
+
     res.render("vehicles/index", {
         allVehicles,
         trendingVehicles,

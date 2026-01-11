@@ -48,6 +48,14 @@ module.exports.index = async (req, res) => {
     const allDhabas = await Dhaba.find(filter).sort(sortOption).populate("owner");
     const trendingDhabas = await Dhaba.find({}).sort({ rating: -1 }).limit(6);
 
+    // Check for real visual messages
+    const existingSuccess = res.locals.success;
+    const hasVisualSuccess = existingSuccess && existingSuccess.length > 0 && existingSuccess.some(m => m && m.trim().length > 0);
+
+    if (!hasVisualSuccess && Object.keys(req.query).length === 0) {
+      res.locals.success = "Welcome to Dhabas!";
+    }
+
     res.render("dhabas/index", {
       allDhabas,
       trendingDhabas,

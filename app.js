@@ -432,6 +432,14 @@ app.get("/", async (req, res) => {
       return u;
     });
 
+    // Check for real visual messages
+    const existingSuccess = res.locals.success;
+    const hasVisualSuccess = existingSuccess && existingSuccess.length > 0 && existingSuccess.some(m => m && m.trim().length > 0);
+
+    if (!hasVisualSuccess) {
+      res.locals.success = "Welcome to WanderLust!";
+    }
+
     res.render("home", {
       featuredListings,
       featuredVehicles,
@@ -545,6 +553,14 @@ app.get("/home", async (req, res) => {
       u.hostedCount = Math.floor(Math.random() * 50) + 10;
       return u;
     });
+
+    // Check for real visual messages
+    const existingSuccessHome = res.locals.success;
+    const hasVisualSuccessHome = existingSuccessHome && existingSuccessHome.length > 0 && existingSuccessHome.some(m => m && m.trim().length > 0);
+
+    if (!hasVisualSuccessHome) {
+      res.locals.success = "Welcome to WanderLust!";
+    }
 
     res.render("home", {
       featuredListings,

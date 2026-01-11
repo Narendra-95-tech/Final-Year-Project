@@ -101,6 +101,14 @@ module.exports.index = async (req, res) => {
         .sort({ price: -1 })
         .limit(6);
 
+    // Check for real visual messages
+    const existingSuccess = res.locals.success;
+    const hasVisualSuccess = existingSuccess && existingSuccess.length > 0 && existingSuccess.some(m => m && m.trim().length > 0);
+
+    if (!hasVisualSuccess && (Object.keys(req.query).length === 0)) {
+        res.locals.success = "Welcome to Listings!";
+    }
+
     res.render("listings/index", {
         allListings,
         trendingListings,

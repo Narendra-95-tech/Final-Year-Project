@@ -1,0 +1,420 @@
+/* ===== COMPREHENSIVE RESPONSIVE DESIGN FOR LISTING DETAILS ===== */
+
+/* Tablet Landscape & Small Desktop (992px - 1199px) */
+@media (max-width: 1199px) {
+    .listing-details-grid {
+        grid-template-columns: 1fr 340px;
+        gap: var(--space-8);
+    }
+
+    .amenities-grid {
+        column-gap: 60px;
+    }
+}
+
+/* Tablet (768px - 991px) */
+@media (max-width: 991px) {
+    .listing-details-grid {
+        grid-template-columns: 1fr;
+        gap: 0;
+    }
+
+    .listing-sidebar {
+        order: -1;
+        margin-bottom: var(--space-8);
+    }
+
+    .booking-card {
+        position: static;
+        max-width: 100%;
+    }
+
+    .image-gallery-container {
+        padding: 0 var(--space-4);
+    }
+
+    .gallery-grid {
+        grid-template-rows: 180px 180px;
+    }
+
+    .view-all-photos-btn {
+        right: calc(var(--space-4) + 8px);
+    }
+
+    .property-title {
+        font-size: 24px;
+    }
+
+    .property-highlights {
+        grid-template-columns: 1fr;
+        gap: var(--space-5);
+    }
+
+    .amenities-grid {
+        grid-template-columns: 1fr;
+        column-gap: 0;
+        row-gap: 14px;
+    }
+
+    .host-stats {
+        flex-wrap: wrap;
+    }
+}
+
+/* Mobile Landscape & Large Phones (576px - 767px) */
+@media (max-width: 767px) {
+    .listing-breadcrumbs {
+        padding: 0 var(--space-4);
+        font-size: 13px;
+    }
+
+    .image-gallery-container {
+        padding: 0;
+        margin-bottom: var(--space-4);
+    }
+
+    .gallery-grid {
+        display: block;
+        height: 300px;
+        border-radius: 0;
+    }
+
+    .gallery-grid-item:not(:first-child) {
+        display: none;
+    }
+
+    .gallery-grid-item:first-child {
+        height: 100%;
+    }
+
+    .view-all-photos-btn {
+        bottom: 20px;
+        right: 20px;
+        left: auto;
+        font-size: 13px;
+        padding: 5px 12px;
+    }
+
+    .listing-details-grid {
+        padding: 0 var(--space-4) var(--space-8);
+    }
+
+    .property-title {
+        font-size: 22px;
+    }
+
+    .property-meta {
+        font-size: 13px;
+    }
+
+    .property-highlights {
+        padding: var(--space-6) 0;
+        gap: var(--space-4);
+    }
+
+    .highlight-icon {
+        width: 28px;
+        height: 28px;
+        font-size: 20px;
+    }
+
+    .highlight-label {
+        font-size: 11px;
+    }
+
+    .highlight-value {
+        font-size: 15px;
+    }
+
+    .host-profile-card {
+        padding: 20px;
+        border-radius: 16px;
+    }
+
+    .host-avatar-large {
+        width: 56px;
+        height: 56px;
+    }
+
+    .host-stats {
+        gap: 16px;
+    }
+
+    .contact-host-btn {
+        width: 100%;
+        padding: 10px 20px;
+        font-size: 15px;
+    }
+
+    .property-description {
+        padding: var(--space-6) 0;
+    }
+
+    .section-title {
+        font-size: 20px;
+    }
+
+    .description-text {
+        font-size: 15px;
+    }
+
+    .amenities-section {
+        padding: 40px 0;
+    }
+
+    .amenity-item {
+        font-size: 15px;
+        gap: 14px;
+    }
+
+    .amenity-icon {
+        width: 28px;
+        height: 28px;
+        font-size: 20px;
+    }
+
+    .show-all-amenities-btn {
+        width: 100%;
+        padding: 12px 20px;
+        font-size: 15px;
+    }
+
+    .booking-card {
+        padding: var(--space-5);
+    }
+
+    .price-row {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: var(--space-2);
+    }
+
+    .sticky-header {
+        display: none;
+    }
+}
+
+/* Mobile Portrait (320px - 575px) */
+@media (max-width: 575px) {
+    .listing-breadcrumbs {
+        padding: 0 var(--space-3);
+        font-size: 12px;
+    }
+
+    .gallery-grid {
+        height: 250px;
+    }
+
+    .view-all-photos-btn {
+        bottom: 15px;
+        right: 15px;
+        font-size: 12px;
+        padding: 4px 10px;
+    }
+
+    .listing-details-grid {
+        padding: 0 var(--space-3) var(--space-6);
+    }
+
+    .property-title {
+        font-size: 20px;
+    }
+
+    .property-meta {
+        font-size: 12px;
+    }
+
+    .property-highlights {
+        padding: var(--space-5) 0;
+        gap: var(--space-3);
+    }
+
+    .highlight-item {
+        gap: var(--space-3);
+    }
+
+    .highlight-icon {
+        width: 24px;
+        height: 24px;
+        font-size: 18px;
+    }
+
+    .highlight-label {
+        font-size: 10px;
+    }
+
+    .highlight-value {
+        font-size: 14px;
+    }
+
+    .host-profile-card {
+        padding: 16px;
+        border-radius: 14px;
+    }
+
+    .host-avatar-large {
+        width: 48px;
+        height: 48px;
+    }
+
+    .host-verified-badge {
+        width: 20px;
+        height: 20px;
+        font-size: 0.6rem;
+    }
+
+    .host-stats {
+        gap: 12px;
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .host-stat-value {
+        font-size: 1rem;
+    }
+
+    .host-stat-label {
+        font-size: 0.65rem;
+    }
+
+    .contact-host-btn {
+        padding: 10px 18px;
+        font-size: 14px;
+    }
+
+    .property-description {
+        padding: var(--space-5) 0;
+    }
+
+    .section-title {
+        font-size: 18px;
+        margin-bottom: var(--space-3);
+    }
+
+    .description-text {
+        font-size: 14px;
+        line-height: 1.5;
+    }
+
+    .amenities-section {
+        padding: 32px 0;
+    }
+
+    .amenities-grid {
+        row-gap: 12px;
+        margin-bottom: 24px;
+    }
+
+    .amenity-item {
+        font-size: 14px;
+        gap: 12px;
+    }
+
+    .amenity-icon {
+        width: 24px;
+        height: 24px;
+        font-size: 18px;
+    }
+
+    .show-all-amenities-btn {
+        padding: 10px 18px;
+        font-size: 14px;
+    }
+
+    .booking-card {
+        padding: var(--space-4);
+        border-radius: 14px;
+    }
+
+    .price-per-night {
+        font-size: 20px;
+    }
+
+    .price-unit {
+        font-size: 14px;
+    }
+
+    .booking-dates {
+        grid-template-columns: 1fr;
+        gap: 0;
+    }
+
+    .date-input-group {
+        border-radius: 10px;
+    }
+
+    .reserve-btn {
+        padding: 12px;
+        font-size: 15px;
+        min-height: 44px;
+    }
+
+    .amenities-modal-content {
+        padding: var(--space-6);
+    }
+
+    .modal-close {
+        width: 36px;
+        height: 36px;
+        font-size: 18px;
+    }
+
+    .gallery-nav {
+        width: 40px;
+        height: 40px;
+    }
+
+    .gallery-nav-prev {
+        left: 12px;
+    }
+
+    .gallery-nav-next {
+        right: 12px;
+    }
+
+    /* Touch-friendly adjustments */
+    .contact-host-btn,
+    .show-all-amenities-btn,
+    .reserve-btn {
+        min-height: 44px;
+    }
+}
+
+/* Extra Small Devices (< 360px) */
+@media (max-width: 359px) {
+    .property-title {
+        font-size: 18px;
+    }
+
+    .gallery-grid {
+        height: 220px;
+    }
+
+    .section-title {
+        font-size: 16px;
+    }
+
+    .description-text {
+        font-size: 13px;
+    }
+
+    .price-per-night {
+        font-size: 18px;
+    }
+}
+
+/* Landscape Mode Adjustments */
+@media (max-height: 500px) and (orientation: landscape) {
+    .gallery-modal {
+        padding: var(--space-4);
+    }
+
+    .modal-image {
+        max-height: 75vh;
+    }
+
+    .gallery-nav {
+        width: 36px;
+        height: 36px;
+    }
+}
