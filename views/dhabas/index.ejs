@@ -112,10 +112,10 @@
                           <div class="status-badge popular">
                             <i class="fas fa-fire me-1"></i> Trending
                           </div>
-                          <button class="card-wishlist" data-id="<%= dhaba._id %>"
-                            onclick="toggleWishlist(this, '<%= dhaba._id %>', 'dhaba')"
-                            style="position:absolute; top:10px; right:10px; width:35px; height:35px; border-radius:50%; background:rgba(255,255,255,0.9); border:none; display:flex; align-items:center; justify-content:center; cursor:pointer; color:#aaa; z-index:10;">
-                            <i class="far fa-heart"></i>
+                          <button class="wishlist-btn" data-id="<%= dhaba._id %>"
+                            onclick="toggleWishlist(event, '<%= dhaba._id %>', 'dhaba')" title="Add to wishlist"
+                            style="position: absolute; top: 12px; right: 12px; width: 28px; height: 28px; border-radius: 50%; background: rgba(255,255,255,0.9); border: none; display: flex; align-items: center; justify-content: center; z-index: 100; cursor: pointer;">
+                            <i class="far fa-heart" style="font-size: 14px; color: #222;"></i>
                           </button>
                         </div>
 
@@ -143,12 +143,13 @@
                           <div class="dhaba-divider"></div>
 
                           <div class="dhaba-footer">
-                            <a href="/dhabas/<%= dhaba._id %>" class="view-btn-text">
+                            <a href="/dhabas/<%= dhaba._id %>" class="view-btn-text stretched-link">
                               View Details <i class="fas fa-chevron-right ms-1 small"></i>
                             </a>
 
                             <% if (currUser && dhaba.owner && dhaba.owner._id.equals(currUser._id)) { %>
-                              <a href="/dhabas/<%= dhaba._id %>/edit" class="text-muted small text-decoration-none">
+                              <a href="/dhabas/<%= dhaba._id %>/edit" class="text-muted small text-decoration-none"
+                                style="position: relative; z-index: 2;">
                                 <i class="fas fa-edit"></i> Edit
                               </a>
                               <% } %>
@@ -175,10 +176,10 @@
                               ₹<%= Number(dhaba.price).toLocaleString("en-IN") %> for two
                             </div>
                             <% } %>
-                              <button class="card-wishlist" data-id="<%= dhaba._id %>"
-                                onclick="toggleWishlist(this, '<%= dhaba._id %>', 'dhaba')"
-                                style="position:absolute; top:10px; right:10px; width:35px; height:35px; border-radius:50%; background:rgba(255,255,255,0.9); border:none; display:flex; align-items:center; justify-content:center; cursor:pointer; color:#aaa; z-index:10;">
-                                <i class="far fa-heart"></i>
+                              <button class="wishlist-btn" data-id="<%= dhaba._id %>"
+                                onclick="toggleWishlist(event, '<%= dhaba._id %>', 'dhaba')" title="Add to wishlist"
+                                style="position: absolute; top: 12px; right: 12px; width: 28px; height: 28px; border-radius: 50%; background: rgba(255,255,255,0.9); border: none; display: flex; align-items: center; justify-content: center; z-index: 100; cursor: pointer;">
+                                <i class="far fa-heart" style="font-size: 14px; color: #222;"></i>
                               </button>
                         </div>
 
@@ -206,12 +207,13 @@
                           <div class="dhaba-divider"></div>
 
                           <div class="dhaba-footer">
-                            <a href="/dhabas/<%= dhaba._id %>" class="view-btn-text">
+                            <a href="/dhabas/<%= dhaba._id %>" class="view-btn-text stretched-link">
                               View Details <i class="fas fa-chevron-right ms-1 small"></i>
                             </a>
 
                             <% if (currUser && dhaba.owner && dhaba.owner._id.equals(currUser._id)) { %>
-                              <a href="/dhabas/<%= dhaba._id %>/edit" class="text-muted small text-decoration-none">
+                              <a href="/dhabas/<%= dhaba._id %>/edit" class="text-muted small text-decoration-none"
+                                style="position: relative; z-index: 2;">
                                 <i class="fas fa-edit"></i> Edit
                               </a>
                               <% } %>
@@ -274,10 +276,9 @@
             }
 
             // Add staggered animations
+            // Animations removed for speed
             const cards = document.querySelectorAll('.dhaba-card');
-            cards.forEach((card, index) => {
-              card.style.animationDelay = `${index * 0.1}s`;
-            });
+            cards.forEach(card => card.style.opacity = '1');
 
             // Clear search logic
             const dhabaInput = document.getElementById('dhabaSearchInput');

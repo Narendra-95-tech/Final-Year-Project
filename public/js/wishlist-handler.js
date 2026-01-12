@@ -103,7 +103,13 @@ class WishlistHandler {
         }
     }
 
-    async toggleWishlist(startListingId = null, type = 'listing') {
+    async toggleWishlist(event, startListingId = null, type = 'listing') {
+        // Prevent event bubbling to parent links
+        if (event) {
+            event.preventDefault();
+            event.stopPropagation();
+        }
+
         // Get listing ID from argument or page
         let listingId = startListingId;
 
@@ -142,6 +148,15 @@ class WishlistHandler {
                 // Add to wishlist
                 await this.addToWishlist(listingId, type);
                 this.showNotification('Added to wishlist');
+
+                // Add pop animation to the specific button clicked
+                const targetBtn = (event && event.currentTarget) ? event.currentTarget : null;
+                if (targetBtn) {
+                    targetBtn.classList.add('heart-pop');
+                    setTimeout(() => {
+                        targetBtn.classList.remove('heart-pop');
+                    }, 450);
+                }
             }
 
             this.saveWishlist();
@@ -301,9 +316,9 @@ class WishlistHandler {
 }
 
 // Global function for onclick events
-window.toggleWishlist = function (btn, listingId, type) {
+window.toggleWishlist = function (event, listingId, type) {
     if (window.wishlistHandler) {
-        window.wishlistHandler.toggleWishlist(listingId, type);
+        window.wishlistHandler.toggleWishlist(event, listingId, type);
     } else {
         console.error('Wishlist handler not initialized');
     }

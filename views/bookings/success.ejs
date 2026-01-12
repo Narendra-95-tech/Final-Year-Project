@@ -1,27 +1,326 @@
 <% layout("/layouts/boilerplate") -%>
 
-<div class="container mt-5">
-  <div class="row justify-content-center">
-    <div class="col-md-6">
-      <div class="card text-center">
-        <div class="card-body">
-          <i class="fas fa-check-circle text-success fa-4x mb-3"></i>
-          <h3 class="card-title">Booking Confirmed!</h3>
-          <p class="card-text">Your booking has been successfully confirmed.</p>
-          <p class="card-text">Booking ID: <%= booking._id %></p>
-          <% if (booking.type === 'listing') { %>
-            <p>Stay at <%= booking.listing.title %></p>
-            <p>From <%= booking.startDate.toLocaleDateString() %> to <%= booking.endDate.toLocaleDateString() %></p>
-          <% } else if (booking.type === 'dhaba') { %>
-            <p>Table at <%= booking.dhaba.title %></p>
-            <p>On <%= booking.date.toLocaleDateString() %> at <%= booking.time %></p>
-          <% } else if (booking.type === 'vehicle') { %>
-            <p>Rental of <%= booking.vehicle.title %></p>
-            <p>From <%= booking.startDate.toLocaleDateString() %> <%= booking.startTime %> to <%= booking.endDate.toLocaleDateString() %> <%= booking.endTime %></p>
-          <% } %>
-          <a href="/bookings/user" class="btn btn-primary">View My Bookings</a>
+  <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+
+  <style>
+    /* Screen Styles */
+    .success-page-container {
+      padding: 4rem 0;
+      min-height: 80vh;
+      background: linear-gradient(180deg, rgba(34, 197, 94, 0.05) 0%, transparent 100%);
+    }
+
+    .success-card {
+      background: white;
+      border: none;
+      border-radius: 24px;
+      box-shadow: 0 10px 40px rgba(0, 0, 0, 0.08);
+      overflow: hidden;
+      position: relative;
+      max-width: 800px;
+      margin: 0 auto;
+    }
+
+    .receipt-header {
+      background: #0FAA5B;
+      color: white;
+      padding: 3rem 2rem;
+      text-align: center;
+      position: relative;
+      overflow: hidden;
+    }
+
+    /* Invoice/Print Specific Styles */
+    .invoice-only {
+      display: none;
+    }
+
+    .booking-info-section {
+      padding: 3rem;
+    }
+
+    .info-group {
+      margin-bottom: 2rem;
+    }
+
+    .info-label {
+      font-size: 0.75rem;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      color: #6b7280;
+      margin-bottom: 0.5rem;
+      font-weight: 700;
+    }
+
+    .info-value-lg {
+      font-size: 1.1rem;
+      font-weight: 600;
+      color: #111827;
+    }
+
+    .action-buttons {
+      display: flex;
+      gap: 1rem;
+      margin-top: 2rem;
+      justify-content: center;
+    }
+
+    .btn-action {
+      padding: 12px 24px;
+      border-radius: 12px;
+      font-weight: 600;
+      border: none;
+      transition: all 0.2s;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      cursor: pointer;
+    }
+
+    .btn-primary-action {
+      background: #0FAA5B;
+      color: white;
+    }
+
+    .btn-secondary-action {
+      background: #f3f4f6;
+      color: #374151;
+    }
+
+    .btn-secondary-action:hover {
+      background: #e5e7eb;
+    }
+
+    /* Table Styles */
+    .receipt-table {
+      width: 100%;
+      margin: 2rem 0;
+      border-collapse: collapse;
+    }
+
+    .receipt-table th {
+      text-align: left;
+      color: #6b7280;
+      font-size: 0.85rem;
+      padding: 10px 0;
+      border-bottom: 1px solid #e5e7eb;
+    }
+
+    .receipt-table td {
+      padding: 15px 0;
+      border-bottom: 1px solid #f3f4f6;
+    }
+
+    .total-row td {
+      border-top: 2px solid #e5e7eb;
+      border-bottom: none;
+      padding-top: 1.5rem;
+      font-size: 1.25rem;
+      font-weight: 700;
+      color: #0FAA5B;
+    }
+
+    /* Print Media Query */
+    @media print {
+      body * {
+        visibility: hidden;
+      }
+
+      .navbar,
+      footer,
+      .floating-blobs,
+      .action-buttons,
+      .alert-box {
+        display: none !important;
+      }
+
+      .success-page-container {
+        background: white !important;
+        padding: 0;
+        margin: 0;
+      }
+
+      .success-card {
+        visibility: visible;
+        position: absolute;
+        left: 0;
+        top: 0;
+        width: 100%;
+        max-width: 100%;
+        box-shadow: none;
+        border-radius: 0;
+      }
+
+      .success-card * {
+        visibility: visible;
+      }
+
+      .receipt-header {
+        background: white !important;
+        color: black !important;
+        padding: 0 0 2rem 0;
+        border-bottom: 2px solid #000;
+        text-align: left;
+      }
+
+      .success-icon-wrapper {
+        display: none;
+      }
+
+      .invoice-only {
+        display: block;
+      }
+
+      .screen-only {
+        display: none;
+      }
+
+      .booking-info-section {
+        padding: 2rem 0;
+      }
+
+    }
+  </style>
+
+  <div class="success-page-container">
+    <div class="container">
+      <div id="receipt-content" class="success-card animate__animated animate__fadeInUp">
+
+        <!-- Receipt/Success Header -->
+        <div class="receipt-header">
+          <div class="invoice-only mb-4">
+            <div class="d-flex justify-content-between align-items-center">
+              <h1 class="m-0 fw-bold">INVOICE</h1>
+              <div class="text-end">
+                <h4 class="m-0">WanderLust</h4>
+                <small>Travel & Experiences Co.</small>
+              </div>
+            </div>
+          </div>
+
+          <div class="screen-only">
+            <div class="status-icon mb-3">
+              <i class="fas fa-check-circle fa-4x text-white"></i>
+            </div>
+            <h1 class="fw-bold mb-2">Payment Successful!</h1>
+            <p class="opacity-75 mb-0">Thank you for your booking.</p>
+          </div>
+        </div>
+
+        <div class="booking-info-section">
+          <!-- Invoice Meta Data -->
+          <div class="row mb-5">
+            <div class="col-6">
+              <div class="info-group">
+                <div class="info-label">Billed To</div>
+                <div class="info-value-lg">
+                  <%= currUser.fullName || currUser.username || 'Valued Customer' %>
+                </div>
+                <div class="text-muted small">
+                  <%= currUser.email %>
+                </div>
+              </div>
+            </div>
+            <div class="col-6 text-end text-md-start">
+              <div class="row">
+                <div class="col-md-6 mb-3">
+                  <div class="info-label">Invoice Date</div>
+                  <div class="fw-bold">
+                    <%= new Date().toLocaleDateString('en-IN') %>
+                  </div>
+                </div>
+                <div class="col-md-6 mb-3">
+                  <div class="info-label">Booking Ref</div>
+                  <div class="fw-bold font-monospace">#<%= booking._id.toString().slice(-8).toUpperCase() %>
+                  </div>
+                </div>
+                <div class="col-md-6">
+                  <div class="info-label">Payment Method</div>
+                  <div class="fw-bold">
+                    <%= booking.paymentMethod || 'Online' %>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <hr class="text-muted opacity-25">
+
+          <!-- Itemized List -->
+          <% let itemTitle, price; if (booking.type==='listing' && booking.listing) { itemTitle=`Stay at
+            ${booking.listing.title}`; } else if (booking.type==='vehicle' && booking.vehicle) { itemTitle=`Rental:
+            ${booking.vehicle.brand} ${booking.vehicle.model}`; } else if (booking.type==='dhaba' && booking.dhaba) {
+            itemTitle=`Dining at ${booking.dhaba.title}`; } %>
+
+            <table class="receipt-table">
+              <thead>
+                <tr>
+                  <th>Description</th>
+                  <th class="text-end">Amount</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>
+                    <div class="fw-bold">
+                      <%= itemTitle %>
+                    </div>
+                    <div class="text-muted small">
+                      <% if(booking.startDate) { %>
+                        <%= new Date(booking.startDate).toLocaleDateString() %> - <%= new
+                            Date(booking.endDate).toLocaleDateString() %>
+                            <% } else { %>
+                              <%= new Date(booking.date).toLocaleDateString() %>
+                                <% } %>
+                    </div>
+                  </td>
+                  <td class="text-end">₹<%= Math.round(booking.totalPrice * 0.82).toLocaleString() %>
+                  </td>
+                </tr>
+                <tr>
+                  <td>Taxes & Fees (18%)</td>
+                  <td class="text-end">₹<%= Math.round(booking.totalPrice * 0.18).toLocaleString() %>
+                  </td>
+                </tr>
+                <tr class="total-row">
+                  <td>Total Paid</td>
+                  <td class="text-end">₹<%= booking.totalPrice.toLocaleString('en-IN') %>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+
+            <!-- Footer Notes -->
+            <div class="mt-5 pt-4 text-center border-top">
+              <p class="text-muted small mb-0">
+                For support, please contact us at help@wanderlust.com with your booking reference.<br>
+                WanderLust Inc, 123 Travel Road, Mumbai, India.
+              </p>
+            </div>
+
+            <!-- Buttons -->
+            <div class="action-buttons screen-only">
+              <a href="/bookings" class="btn-action btn-secondary-action text-decoration-none">
+                <i class="fas fa-arrow-left"></i> My Bookings
+              </a>
+              <button onclick="window.print()" class="btn-action btn-primary-action">
+                <i class="fas fa-print"></i> Print Receipt
+              </button>
+            </div>
+
         </div>
       </div>
     </div>
   </div>
-</div>
+
+  <script>
+    // Confetti
+    document.addEventListener('DOMContentLoaded', () => {
+      confetti({
+        particleCount: 150,
+        spread: 70,
+        origin: { y: 0.6 },
+        colors: ['#0FAA5B', '#22c55e']
+      });
+    });
+  </script>

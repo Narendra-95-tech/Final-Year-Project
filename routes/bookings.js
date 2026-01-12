@@ -11,6 +11,9 @@ const { isLoggedIn, isAdmin } = require("../middleware");
 const {
   createListingBooking,
   checkListingAvailability,
+  createCheckoutSession,
+  handleSuccess,
+  handleCancel,
 } = require("../controllers/listingsBookings");
 
 const {
@@ -21,8 +24,6 @@ const {
 const {
   createDhabaBooking,
   checkAvailability,
-  handleSuccess,
-  handleCancel,
   verifyPayment,
   getUserBookings,
   getAdminBookings,
@@ -191,6 +192,13 @@ router.post("/:id/pay", isLoggedIn, async (req, res) => {
   }
 });
 
+// Pay with Card (Stripe Checkout)
+router.post("/create-checkout-session", isLoggedIn, createCheckoutSession);
+
+// Stripe Success & Cancel Routes
+router.get("/success", isLoggedIn, handleSuccess);
+router.get("/cancel", isLoggedIn, handleCancel);
+
 // Pay with Wallet
 router.post("/:id/pay-wallet", isLoggedIn, async (req, res) => {
   try {
@@ -198,17 +206,24 @@ router.post("/:id/pay-wallet", isLoggedIn, async (req, res) => {
     const booking = await Booking.findById(id).populate('listing').populate('vehicle').populate('dhaba');
     if (!booking) return res.status(404).json({ success: false, message: "Booking not found" });
 
-    // Check Logic (Mock Wallet deduction)
-    // Assume user has unlimited funds for demo or check field
-    // user.walletBalance -= booking.totalPrice
+    // Real Wallet Logic
+    const user = await User.findById(req.user._id);
+
+    if (user.walletBalance < booking.totalPrice) {
+      return res.status(400).json({ success: false, message: "Insufficient wallet balance" });
+    }
+
+    user.walletBalance -= booking.totalPrice;
+    await user.save();
 
     booking.paymentStatus = 'Paid';
     booking.isPaid = true;
     booking.status = 'Confirmed';
     booking.paymentMethod = 'Wallet';
+    booking.paymentDate = new Date();
     await booking.save();
 
-    res.json({ success: true, redirectUrl: `/bookings/${booking._id}` });
+    res.json({ success: true, redirectUrl: `/bookings/success?bookingId=${booking._id}` });
 
   } catch (e) {
     console.error(e);

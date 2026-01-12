@@ -99,6 +99,7 @@ body {
     margin-bottom: -60px;
     /* Overlap effect for search */
     border-radius: 0 0 40px 40px;
+    z-index: 10;
 }
 
 .hero-content {
@@ -226,11 +227,19 @@ body {
     height: 100%;
     display: flex;
     flex-direction: column;
+    cursor: pointer;
+    /* Interaction hint */
 }
 
 .premium-vehicle-card:hover {
     transform: translateY(-4px);
     box-shadow: var(--vp-shadow-hover);
+    z-index: 2;
+}
+
+.premium-vehicle-card:active {
+    transform: scale(0.98);
+    transition: transform 0.1s ease;
 }
 
 .card-img-wrapper {
@@ -277,7 +286,24 @@ body {
     justify-content: center;
     box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
     border: none;
-    color: var(--vp-gray-dark);
+    color: var(--vp-gray-400);
+    cursor: pointer;
+    transition: all var(--vp-transition-fast);
+    z-index: 10;
+}
+
+.card-wishlist:hover {
+    color: #ff385c;
+    transform: scale(1.1);
+}
+
+.card-wishlist.active i {
+    color: #ff385c !important;
+    font-weight: 900;
+}
+
+.card-wishlist i {
+    transition: all 0.2s ease;
 }
 
 .card-content {

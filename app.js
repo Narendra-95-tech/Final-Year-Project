@@ -150,8 +150,14 @@ app.engine("ejs", ejsMate);
 app.set("view engine", "ejs");
 app.set("views", path.join(__dirname, "views"));
 
-// Serve static files from public directory
+const compression = require('compression');
+
+// Compress all HTTP responses
+app.use(compression());
+
+// Serve static files from public directory with caching
 app.use(express.static(path.join(__dirname, 'public'), {
+  maxAge: '1d', // Cache static assets for 1 day
   setHeaders: (res, path) => {
     // Set proper MIME types for specific file types if needed
     if (path.endsWith('.css')) {

@@ -29,6 +29,9 @@ router
 // New Listing Form
 router.get("/new", isLoggedIn, listingController.renderNewForm);
 
+// API: Get Map Data (Lazy Load)
+router.get("/api/map", wrapAsync(listingController.getMapData));
+
 // ============================
 // AI: Generate Description (Owner Only)
 // ============================

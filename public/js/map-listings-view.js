@@ -21,8 +21,10 @@ class MapListingsView {
       dhabas: 'orange'
     };
 
+    this.fetchUrl = options.fetchUrl || null;
+
     this.init();
-    console.log('MapListingsView initialized with:', this.listings.length, 'listings');
+    console.log('MapListingsView initialized');
   }
 
   init() {
@@ -39,11 +41,47 @@ class MapListingsView {
     // Initialize map
     this.initializeMap();
 
-    // Add listings to map
-    this.addListingsToMap();
+    // Load data
+    if (this.listings.length === 0 && this.fetchUrl) {
+      this.loadDataFromApi();
+    } else {
+      this.addListingsToMap();
+      this.renderListingsList();
+    }
 
     // Setup event listeners
     this.setupEventListeners();
+  }
+
+  async loadDataFromApi() {
+    try {
+      // Show loading state
+      const listContainer = document.getElementById('listings-list');
+      if (listContainer) listContainer.innerHTML = '<div class="p-4 text-center"><i class="fas fa-spinner fa-spin fa-2x"></i><p>Loading locations...</p></div>';
+
+      const response = await fetch(this.fetchUrl);
+      const data = await response.json();
+
+      this.listings = data;
+      console.log('Loaded', this.listings.length, 'listings from API');
+
+      // Update Map
+      this.addListingsToMap();
+
+      // Update List
+      this.renderListingsList();
+
+      // Update Map Center if needed
+      if (this.map && this.listings.length > 0) {
+        const center = this.calculateCenter();
+        this.map.flyTo({ center: center, zoom: 10 });
+      }
+
+    } catch (err) {
+      console.error('Error loading map data:', err);
+      const listContainer = document.getElementById('listings-list');
+      if (listContainer) listContainer.innerHTML = '<div class="p-4 text-danger">Failed to load data</div>';
+    }
   }
 
   createContainer() {

@@ -231,13 +231,15 @@
               </h4>
               <div class="listings-grid">
                 <% for (let t of trendingListings) { %>
-                  <div class="listing-card animate-fade-in">
+                  <div class="listing-card">
                     <div class="listing-image-container">
-                      <img
-                        src="<%= t.image?.url || 'https://images.unsplash.com/photo-1502672260266-1c1ef2d93688?w=400&h=250&fit=crop&crop=center' %>"
-                        class="listing-image" alt="<%= t.title %>">
+                      <a href="/listings/<%= t._id %>" style="display: block; width: 100%; height: 100%;">
+                        <img
+                          src="<%= t.image?.url || 'https://images.unsplash.com/photo-1502672260266-1c1ef2d93688?w=400&h=250&fit=crop&crop=center' %>"
+                          class="listing-image" alt="<%= t.title %>">
+                      </a>
                       <button class="wishlist-btn" data-id="<%= t._id %>"
-                        onclick="toggleWishlist(this, '<%= t._id %>', 'listing')" title="Add to wishlist">
+                        onclick="toggleWishlist(event, '<%= t._id %>', 'listing')" title="Add to wishlist">
                         <i class="far fa-heart"></i>
                       </button>
                       <div class="price-overlay">
@@ -273,11 +275,12 @@
                         Hosted by <%= t.owner?.username || 'Unknown' %>
                       </p>
                       <div class="listing-actions">
-                        <a href="/listings/<%= t._id %>" class="btn btn-outline-primary flex-fill">
+                        <a href="/listings/<%= t._id %>" class="btn btn-outline-primary flex-fill stretched-link">
                           <i class="fas fa-eye me-1"></i>View Details
                         </a>
                         <% if (currUser && t.owner._id.equals(currUser._id)) { %>
-                          <a href="/listings/<%= t._id %>/edit" class="btn btn-outline-secondary flex-fill ms-2">
+                          <a href="/listings/<%= t._id %>/edit" class="btn btn-outline-secondary flex-fill ms-2"
+                            style="position: relative; z-index: 2;">
                             <i class="fas fa-edit me-1"></i>Edit
                           </a>
                           <% } %>
@@ -292,13 +295,15 @@
               <!-- All Listings -->
               <div class="listings-grid">
                 <% for (let listing of allListings) { %>
-                  <div class="listing-card animate-fade-in">
+                  <div class="listing-card">
                     <div class="listing-image-container">
-                      <img
-                        src="<%= listing.image?.url || 'https://images.unsplash.com/photo-1502672260266-1c1ef2d93688?w=400&h=250&fit=crop&crop=center' %>"
-                        class="listing-image" alt="<%= listing.title %>">
+                      <a href="/listings/<%= listing._id %>" style="display: block; width: 100%; height: 100%;">
+                        <img
+                          src="<%= listing.image?.url || 'https://images.unsplash.com/photo-1502672260266-1c1ef2d93688?w=400&h=250&fit=crop&crop=center' %>"
+                          class="listing-image" alt="<%= listing.title %>">
+                      </a>
                       <button class="wishlist-btn" data-id="<%= listing._id %>"
-                        onclick="toggleWishlist(this, '<%= listing._id %>', 'listing')" title="Add to wishlist">
+                        onclick="toggleWishlist(event, '<%= listing._id %>', 'listing')">
                         <i class="far fa-heart"></i>
                       </button>
                       <div class="price-overlay">
@@ -333,11 +338,12 @@
                         Hosted by <%= listing.owner?.username || 'Unknown' %>
                       </p>
                       <div class="listing-actions">
-                        <a href="/listings/<%= listing._id %>" class="btn btn-outline-primary flex-fill">
+                        <a href="/listings/<%= listing._id %>" class="btn btn-outline-primary flex-fill stretched-link">
                           <i class="fas fa-eye me-1"></i>View Details
                         </a>
                         <% if (currUser && listing.owner._id.equals(currUser._id)) { %>
-                          <a href="/listings/<%= listing._id %>/edit" class="btn btn-outline-secondary flex-fill ms-2">
+                          <a href="/listings/<%= listing._id %>/edit" class="btn btn-outline-secondary flex-fill ms-2"
+                            style="position: relative; z-index: 2;">
                             <i class="fas fa-edit me-1"></i>Edit
                           </a>
                           <% } %>
@@ -365,9 +371,7 @@
                 <% } %>
                   </div>
 
-                  <script type="application/json" id="listings-data">
-    <%- JSON.stringify(allListings) %>
-  </script>
+
 
                   <!-- Floating Map Toggle Button -->
                   <button id="view-toggle-btn" class="map-view-btn">
@@ -468,17 +472,6 @@
                       const activeFilters = document.querySelector('.mb-4');
                       const mapViewContainer = document.getElementById('map-view-container');
                       const closeMapBtn = document.getElementById('close-map-btn');
-                      const listingsDataElement = document.getElementById('listings-data');
-
-                      // Safety check for listings data
-                      let listingsData = [];
-                      if (listingsDataElement && listingsDataElement.textContent) {
-                        try {
-                          listingsData = JSON.parse(listingsDataElement.textContent);
-                        } catch (e) {
-                          console.error("Error parsing listings data", e);
-                        }
-                      }
 
                       let mapInitialized = false;
                       let mapListingsView = null;
@@ -504,7 +497,8 @@
                         if (!mapInitialized) {
                           mapListingsView = new MapListingsView('map-listings-wrapper', {
                             mapToken: '<%= process.env.MAP_TOKEN %>',
-                            listings: listingsData
+                            listings: [], // Start empty for faster initial load
+                            fetchUrl: '/listings/api/map' // Fetch data asynchronously
                           });
                           mapInitialized = true;
                         }

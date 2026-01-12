@@ -471,8 +471,11 @@ exports.showBooking = wrapAsync(async (req, res) => {
     return res.redirect("/bookings");
   }
 
-  // Render the payment page which handles both confirmed (paid) and unconfirmed states
-  // OR render a dedicated show page if available. 
-  // For now, reusing payment.ejs logic as it has the 'Success' view.
+  // If booking is paid, show the enhanced success/receipt page
+  if (booking.isPaid || booking.status === 'Confirmed') {
+    return res.render("bookings/success", { booking, currUser: req.user, sessionId: null });
+  }
+
+  // Otherwise show the payment confirmation page
   res.render("bookings/payment", { booking, currUser: req.user });
 });

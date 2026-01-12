@@ -124,6 +124,20 @@ module.exports.index = async (req, res) => {
     });
 };
 
+module.exports.getMapData = async (req, res) => {
+    try {
+        // Return only necessary fields for map pins to reduce payload
+        const listings = await Listing.find({})
+            .select('title price location geometry image rating description')
+            .lean();
+
+        res.json(listings);
+    } catch (err) {
+        console.error('Map data error:', err);
+        res.status(500).json({ error: 'Failed to fetch map data' });
+    }
+};
+
 
 module.exports.renderNewForm = (req, res) => {
     res.render("listings/new.ejs")

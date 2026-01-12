@@ -239,11 +239,9 @@
                       </div>
                       <% if (currUser.walletBalance>= booking.totalPrice) { %>
                         <p class="small text-muted mb-3">Instant confirmation using your wallet funds.</p>
-                        <form action="/bookings/<%= booking._id %>/pay-wallet" method="POST">
-                          <button type="submit" class="btn btn-warning w-100 py-3 fw-bold">
-                            Confirm with Wallet
-                          </button>
-                        </form>
+                        <button onclick="payWithWallet()" class="btn btn-warning w-100 py-3 fw-bold" id="payWalletBtn">
+                          Confirm with Wallet
+                        </button>
                         <% } else { %>
                           <p class="small text-danger mb-0">Insufficient balance. Need ₹<%= (booking.totalPrice -
                               currUser.walletBalance).toLocaleString() %> more.</p>
@@ -293,51 +291,210 @@
     </div>
   </div>
 
-  <!-- UPI Payment Modal -->
+  <!-- Modal and Overlay for Professional Wallet Flow -->
+
+  <!-- 3. UPI Payment Modal -->
   <div class="modal fade" id="upiModal" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered">
-      <div class="modal-content">
+      <div class="modal-content border-0 shadow-lg" style="border-radius: 24px;">
         <div class="modal-header border-0 pb-0">
-          <h5 class="modal-title fw-bold">Scan to Pay via UPI</h5>
           <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
         </div>
-        <div class="modal-body text-center py-4">
-          <div class="mb-3">
+        <div class="modal-body text-center px-4 pb-5 pt-0">
+          <h4 class="fw-bold mb-3">Scan & Pay via UPI</h4>
+          <p class="text-muted small mb-4">Scan the QR code below with any UPI app</p>
+
+          <div class="bg-light p-4 rounded-4 mb-4 d-inline-block position-relative">
+            <!-- Dynamic QR Code -->
             <img
-              src="https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=upi://pay?pa=mockmerchant@upi&pn=WanderLust&am=<%= booking.totalPrice %>&cu=INR"
-              alt="UPI QR Code" class="img-fluid border p-2 rounded">
+              src="https://api.qrserver.com/v1/create-qr-code/?size=180x180&data=upi://pay?pa=wanderlust@upi&pn=WanderLust&am=<%= booking.totalPrice %>&cu=INR"
+              alt="UPI QR Code" class="img-fluid rounded-3 mb-3">
+            <div class="fw-bold text-dark fs-5">₹<%= booking.totalPrice.toLocaleString("en-IN") %>
+            </div>
+            <p class="small text-muted mb-0">WanderLust Payments</p>
           </div>
-          <h4 class="mb-2">₹<%= booking.totalPrice.toLocaleString("en-IN") %>
-          </h4>
-          <p class="text-muted small mb-4">Scan using any UPI app (GPay, PhonePe, Paytm)</p>
 
-          <div id="upiProcessing" class="d-none">
+          <div id="upiProcessing" class="d-none mb-3">
             <div class="spinner-border text-primary mb-2" role="status"></div>
-            <p class="small text-muted">Verifying payment status...</p>
+            <p class="text-muted small animate-pulse">Verifying payment status...</p>
           </div>
 
-          <button id="verifyUpiBtn" class="btn btn-success w-100 py-3 fw-bold" onclick="verifyUPIPayment()">
-            <i class="fas fa-check-circle me-2"></i> I have Paid
+          <button id="verifyUpiBtn" onclick="verifyUPIPayment()"
+            class="btn btn-primary w-100 py-3 rounded-pill fw-bold shadow-sm">
+            <i class="fas fa-check-circle me-2"></i>I have paid
           </button>
         </div>
       </div>
     </div>
   </div>
 
+  <!-- 1. Secure Wallet Confirmation Modal -->
+  <div class="modal fade" id="walletConfirmModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content border-0 shadow-lg" style="border-radius: 24px; overflow: hidden;">
+        <div class="modal-header border-0 bg-light pb-0">
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body text-center px-4 pb-5 pt-0">
+          <div class="mb-3 mt-n4">
+            <div
+              style="width: 80px; height: 80px; background: #fff8f4; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; box-shadow: 0 10px 20px rgba(254, 107, 0, 0.1);">
+              <i class="fas fa-wallet fa-2x text-warning"></i>
+            </div>
+          </div>
+
+          <h4 class="fw-bold mb-1">Confirm Payment</h4>
+          <p class="text-muted small mb-4">You are about to pay using your WanderLust Wallet</p>
+
+          <div class="bg-light p-3 rounded-4 mb-4 text-start">
+            <div class="d-flex justify-content-between mb-2">
+              <span class="text-muted small">Total Amount</span>
+              <span class="fw-bold">₹<%= booking.totalPrice.toLocaleString('en-IN') %></span>
+            </div>
+            <div class="d-flex justify-content-between mb-2">
+              <span class="text-muted small">Current Balance</span>
+              <span class="text-dark">₹<%= (currUser.walletBalance || 0).toLocaleString('en-IN') %></span>
+            </div>
+            <hr class="my-2 border-secondary opacity-25">
+            <div class="d-flex justify-content-between align-items-center">
+              <span class="text-muted small">Balance After</span>
+              <span class="fw-bold text-success">₹<%= ((currUser.walletBalance || 0) -
+                  booking.totalPrice).toLocaleString('en-IN') %></span>
+            </div>
+          </div>
+
+          <div class="mb-4">
+            <label class="form-label small text-start w-100 fw-bold text-muted">ENTER SECURITY PIN (1234)</label>
+            <div class="d-flex gap-2 justify-content-center">
+              <input type="password" id="walletPin" class="form-control form-control-lg text-center fw-bold"
+                maxlength="4" placeholder="••••" style="letter-spacing: 5px; font-size: 24px; border-radius: 12px;">
+            </div>
+            <div id="pinError" class="text-danger small mt-2 d-none"><i class="fas fa-exclamation-circle me-1"></i>
+              Incorrect PIN</div>
+          </div>
+
+          <button onclick="processWalletConfirm()"
+            class="btn btn-warning w-100 py-3 rounded-pill fw-bold shadow-sm hover-elevate">
+            Pay ₹<%= booking.totalPrice.toLocaleString('en-IN') %> Securely
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 2. Professional Processing Overlay -->
+  <div id="paymentOverlay"
+    style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(255,255,255,0.98); z-index: 9999; align-items: center; justify-content: center; flex-direction: column;">
+    <div class="payment-loader mb-4">
+      <div class="spinner-grow text-warning" role="status" style="width: 3rem; height: 3rem; animation-duration: 0.8s;">
+      </div>
+      <div class="spinner-grow text-warning mx-2" role="status"
+        style="width: 3rem; height: 3rem; animation-delay: 0.2s; animation-duration: 0.8s;"></div>
+      <div class="spinner-grow text-warning" role="status"
+        style="width: 3rem; height: 3rem; animation-delay: 0.4s; animation-duration: 0.8s;"></div>
+    </div>
+    <h3 class="fw-bold text-dark animate-pulse">Processing Payment...</h3>
+    <p class="text-muted">Please do not close this window</p>
+  </div>
+
+  <style>
+    .hover-elevate:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+    }
+
+    .animate-pulse {
+      animation: pulse 1.5s infinite;
+    }
+
+    @keyframes pulse {
+      0% {
+        opacity: 0.6;
+      }
+
+      50% {
+        opacity: 1;
+      }
+
+      100% {
+        opacity: 0.6;
+      }
+    }
+  </style>
+
   <script>
-    let upiModal;
+    let upiModal, walletModal; // Declare globally
+
     document.addEventListener('DOMContentLoaded', function () {
-      upiModal = new bootstrap.Modal(document.getElementById('upiModal'));
+      // Initialize Modals
+      const upiEl = document.getElementById('upiModal');
+      const walletEl = document.getElementById('walletConfirmModal');
+
+      if (upiEl) upiModal = new bootstrap.Modal(upiEl);
+      if (walletEl) walletModal = new bootstrap.Modal(walletEl);
     });
+
+    // --- Updated Wallet Flow ---
+    function payWithWallet() {
+      // Step 1: Open Confirmation Modal
+      if (walletModal) {
+        walletModal.show();
+        // Focus pin input
+        setTimeout(() => document.getElementById('walletPin').focus(), 500);
+      }
+    }
+
+    async function processWalletConfirm() {
+      const pinInput = document.getElementById('walletPin');
+      const errorMsg = document.getElementById('pinError');
+      const overlay = document.getElementById('paymentOverlay');
+
+      // Step 2: Validate PIN (Mock check)
+      if (pinInput.value !== '1234') {
+        pinInput.classList.add('is-invalid');
+        errorMsg.classList.remove('d-none');
+        return;
+      }
+
+      // Valid PIN
+      pinInput.classList.remove('is-invalid');
+      errorMsg.classList.add('d-none');
+      walletModal.hide(); // Hide modal
+
+      // Step 3: Show Premium Processing Overlay
+      overlay.style.display = 'flex';
+
+      // Artificial delay for "Processing" feel (Professionalism) - Speed up
+      await new Promise(r => setTimeout(r, 800));
+
+      // Step 4: Actual API Call
+      try {
+        const response = await fetch('/bookings/<%= booking._id %>/pay-wallet', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' }
+        });
+
+        const data = await response.json();
+
+        if (data.success) {
+          window.location.href = data.redirectUrl;
+        } else {
+          overlay.style.display = 'none'; // Hide overlay on error
+          alert(data.message || 'Payment failed');
+        }
+      } catch (error) {
+        console.error('Wallet Error:', error);
+        overlay.style.display = 'none';
+        alert('Something went wrong. Please try again.');
+      }
+    }
 
     function payWithUPI() {
       if (upiModal) {
         upiModal.show();
       } else {
-        console.error('UPI Modal not initialized');
-        // Fallback or retry initialization
         const modalEl = document.getElementById('upiModal');
-        if (modalEl && window.bootstrap) {
+        if (modalEl) {
           upiModal = new bootstrap.Modal(modalEl);
           upiModal.show();
         }
@@ -351,7 +508,6 @@
       btn.classList.add('d-none');
       processing.classList.remove('d-none');
 
-      // Simulate network delay
       await new Promise(r => setTimeout(r, 2000));
 
       try {
@@ -377,21 +533,17 @@
       }
     }
 
+    // Legacy card payment function (kept for reference)
     async function processPayment() {
       try {
         const btn = document.querySelector('button[onclick="processPayment()"]');
-        const originalText = btn.innerHTML;
         btn.disabled = true;
         btn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Processing...';
 
         const response = await fetch('/bookings/create-checkout-session', {
           method: 'POST',
-          headers: {
-            'Content-Type': 'application/json'
-          },
-          body: JSON.stringify({
-            bookingId: '<%= booking._id %>'
-          })
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ bookingId: '<%= booking._id %>' })
         });
 
         const data = await response.json();
@@ -405,10 +557,8 @@
         console.error('Payment error:', error);
         alert('Payment processing failed. Please try again.');
         const btn = document.querySelector('button[onclick="processPayment()"]');
-        if (btn) {
-          btn.disabled = false;
-          btn.innerHTML = btn.dataset.originalText || '<i class="fas fa-credit-card me-2"></i>Pay with Card';
-        }
+        if (btn) btn.disabled = false;
+        btn.innerHTML = '<i class="fas fa-credit-card me-2"></i>Pay with Card';
       }
     }
   </script>

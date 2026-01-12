@@ -5,7 +5,7 @@
             <span>Share</span>
         </button>
         <button class="action-btn save-btn <%= isActive ? 'active' : '' %>" data-id="<%= itemId %>"
-            onclick="toggleWishlist(this, '<%= itemId %>', '<%= typeof itemType !== 'undefined' ? itemType : 'listing' %>')">
+            onclick="toggleWishlist(event, '<%= itemId %>', '<%= typeof itemType !== 'undefined' ? itemType : 'listing' %>')">
             <i class="<%= isActive ? 'fas' : 'far' %> fa-heart" <%=isActive ? 'style="color: #ff385c;"' : '' %>></i>
             <span>
                 <%= isActive ? 'Saved' : 'Save' %>

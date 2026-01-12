@@ -1,361 +1,364 @@
 <% layout("/layouts/boilerplate") -%>
 
-<!-- Hero Section -->
-<section class="vehicles-hero">
-  <div class="container text-center">
-    <h1 class="vehicles-title">Vehicle Rentals</h1>
-    <p class="vehicles-subtitle">Rent cars, bikes, and more for your perfect journey</p>
-  </div>
-</section>
+  <!-- Hero Section -->
+  <section class="vehicles-hero">
+    <div class="container text-center">
+      <h1 class="vehicles-title">Vehicle Rentals</h1>
+      <p class="vehicles-subtitle">Rent cars, bikes, and more for your perfect journey</p>
+    </div>
+  </section>
 
-<div class="container">
-  <!-- Filters Section -->
-  <div class="filters-section animate-fade-in">
-    <h4 class="mb-4">Find Your Perfect Vehicle</h4>
-    
-    <form method="GET" action="/vehicles" id="vehicle-filter-form">
-      <div class="row g-3">
-        <!-- Vehicle Type Filter -->
-        <div class="col-md-12">
-          <div class="filter-group">
-            <div class="filter-group-title">Vehicle Type</div>
-            <div class="filter-options">
-              <label class="filter-option <%= !vehicleType || vehicleType === 'all' ? 'active' : '' %>">
-                <input type="radio" name="vehicleType" value="all" <%= !vehicleType || vehicleType === 'all' ? 'checked' : '' %> style="display: none;">
-                <i class="fas fa-th-large me-1"></i> All
-              </label>
-              <label class="filter-option <%= vehicleType === 'car' ? 'active' : '' %>">
-                <input type="radio" name="vehicleType" value="car" <%= vehicleType === 'car' ? 'checked' : '' %> style="display: none;">
-                <i class="fas fa-car me-1"></i> Cars
-              </label>
-              <label class="filter-option <%= vehicleType === 'bike' ? 'active' : '' %>">
-                <input type="radio" name="vehicleType" value="bike" <%= vehicleType === 'bike' ? 'checked' : '' %> style="display: none;">
-                <i class="fas fa-motorcycle me-1"></i> Bikes
-              </label>
-              <label class="filter-option <%= vehicleType === 'scooter' ? 'active' : '' %>">
-                <input type="radio" name="vehicleType" value="scooter" <%= vehicleType === 'scooter' ? 'checked' : '' %> style="display: none;">
-                <i class="fas fa-bicycle me-1"></i> Scooters
-              </label>
-              <label class="filter-option <%= vehicleType === 'van' ? 'active' : '' %>">
-                <input type="radio" name="vehicleType" value="van" <%= vehicleType === 'van' ? 'checked' : '' %> style="display: none;">
-                <i class="fas fa-shuttle-van me-1"></i> Vans
-              </label>
-              <label class="filter-option <%= vehicleType === 'truck' ? 'active' : '' %>">
-                <input type="radio" name="vehicleType" value="truck" <%= vehicleType === 'truck' ? 'checked' : '' %> style="display: none;">
-                <i class="fas fa-truck me-1"></i> Trucks
-              </label>
+  <div class="container">
+    <!-- Filters Section -->
+    <div class="filters-section animate-fade-in">
+      <h4 class="mb-4">Find Your Perfect Vehicle</h4>
+
+      <form method="GET" action="/vehicles" id="vehicle-filter-form">
+        <div class="row g-3">
+          <!-- Vehicle Type Filter -->
+          <div class="col-md-12">
+            <div class="filter-group">
+              <div class="filter-group-title">Vehicle Type</div>
+              <div class="filter-options">
+                <label class="filter-option <%= !vehicleType || vehicleType === 'all' ? 'active' : '' %>">
+                  <input type="radio" name="vehicleType" value="all" <%=!vehicleType || vehicleType==='all' ? 'checked'
+                    : '' %> style="display: none;">
+                  <i class="fas fa-th-large me-1"></i> All
+                </label>
+                <label class="filter-option <%= vehicleType === 'car' ? 'active' : '' %>">
+                  <input type="radio" name="vehicleType" value="car" <%=vehicleType==='car' ? 'checked' : '' %>
+                  style="display: none;">
+                  <i class="fas fa-car me-1"></i> Cars
+                </label>
+                <label class="filter-option <%= vehicleType === 'bike' ? 'active' : '' %>">
+                  <input type="radio" name="vehicleType" value="bike" <%=vehicleType==='bike' ? 'checked' : '' %>
+                  style="display: none;">
+                  <i class="fas fa-motorcycle me-1"></i> Bikes
+                </label>
+                <label class="filter-option <%= vehicleType === 'scooter' ? 'active' : '' %>">
+                  <input type="radio" name="vehicleType" value="scooter" <%=vehicleType==='scooter' ? 'checked' : '' %>
+                  style="display: none;">
+                  <i class="fas fa-bicycle me-1"></i> Scooters
+                </label>
+                <label class="filter-option <%= vehicleType === 'van' ? 'active' : '' %>">
+                  <input type="radio" name="vehicleType" value="van" <%=vehicleType==='van' ? 'checked' : '' %>
+                  style="display: none;">
+                  <i class="fas fa-shuttle-van me-1"></i> Vans
+                </label>
+                <label class="filter-option <%= vehicleType === 'truck' ? 'active' : '' %>">
+                  <input type="radio" name="vehicleType" value="truck" <%=vehicleType==='truck' ? 'checked' : '' %>
+                  style="display: none;">
+                  <i class="fas fa-truck me-1"></i> Trucks
+                </label>
+              </div>
             </div>
           </div>
-        </div>
 
-        <!-- Fuel Type Filter -->
-        <div class="col-md-3">
-          <div class="filter-group">
-            <div class="filter-group-title">Fuel Type</div>
-            <div class="filter-options">
-              <label class="filter-option <%= !fuelType || fuelType === 'all' ? 'active' : '' %>">
-                <input type="radio" name="fuelType" value="all" <%= !fuelType || fuelType === 'all' ? 'checked' : '' %> style="display: none;">
-                All
-              </label>
-              <label class="filter-option <%= fuelType === 'petrol' ? 'active' : '' %>">
-                <input type="radio" name="fuelType" value="petrol" <%= fuelType === 'petrol' ? 'checked' : '' %> style="display: none;">
-                Petrol
-              </label>
-              <label class="filter-option <%= fuelType === 'diesel' ? 'active' : '' %>">
-                <input type="radio" name="fuelType" value="diesel" <%= fuelType === 'diesel' ? 'checked' : '' %> style="display: none;">
-                Diesel
-              </label>
-              <label class="filter-option <%= fuelType === 'electric' ? 'active' : '' %>">
-                <input type="radio" name="fuelType" value="electric" <%= fuelType === 'electric' ? 'checked' : '' %> style="display: none;">
-                Electric
-              </label>
-              <label class="filter-option <%= fuelType === 'hybrid' ? 'active' : '' %>">
-                <input type="radio" name="fuelType" value="hybrid" <%= fuelType === 'hybrid' ? 'checked' : '' %> style="display: none;">
-                Hybrid
-              </label>
+          <!-- Fuel Type Filter -->
+          <div class="col-md-3">
+            <div class="filter-group">
+              <div class="filter-group-title">Fuel Type</div>
+              <div class="filter-options">
+                <label class="filter-option <%= !fuelType || fuelType === 'all' ? 'active' : '' %>">
+                  <input type="radio" name="fuelType" value="all" <%=!fuelType || fuelType==='all' ? 'checked' : '' %>
+                  style="display: none;">
+                  All
+                </label>
+                <label class="filter-option <%= fuelType === 'petrol' ? 'active' : '' %>">
+                  <input type="radio" name="fuelType" value="petrol" <%=fuelType==='petrol' ? 'checked' : '' %>
+                  style="display: none;">
+                  Petrol
+                </label>
+                <label class="filter-option <%= fuelType === 'diesel' ? 'active' : '' %>">
+                  <input type="radio" name="fuelType" value="diesel" <%=fuelType==='diesel' ? 'checked' : '' %>
+                  style="display: none;">
+                  Diesel
+                </label>
+                <label class="filter-option <%= fuelType === 'electric' ? 'active' : '' %>">
+                  <input type="radio" name="fuelType" value="electric" <%=fuelType==='electric' ? 'checked' : '' %>
+                  style="display: none;">
+                  Electric
+                </label>
+                <label class="filter-option <%= fuelType === 'hybrid' ? 'active' : '' %>">
+                  <input type="radio" name="fuelType" value="hybrid" <%=fuelType==='hybrid' ? 'checked' : '' %>
+                  style="display: none;">
+                  Hybrid
+                </label>
+              </div>
             </div>
           </div>
-        </div>
 
-        <!-- Transmission Filter -->
-        <div class="col-md-3">
-          <div class="filter-group">
-            <div class="filter-group-title">Transmission</div>
-            <div class="filter-options">
-              <label class="filter-option <%= !transmission || transmission === 'all' ? 'active' : '' %>">
-                <input type="radio" name="transmission" value="all" <%= !transmission || transmission === 'all' ? 'checked' : '' %> style="display: none;">
-                All
-              </label>
-              <label class="filter-option <%= transmission === 'manual' ? 'active' : '' %>">
-                <input type="radio" name="transmission" value="manual" <%= transmission === 'manual' ? 'checked' : '' %> style="display: none;">
-                Manual
-              </label>
-              <label class="filter-option <%= transmission === 'automatic' ? 'active' : '' %>">
-                <input type="radio" name="transmission" value="automatic" <%= transmission === 'automatic' ? 'checked' : '' %> style="display: none;">
-                Automatic
-              </label>
+          <!-- Transmission Filter -->
+          <div class="col-md-3">
+            <div class="filter-group">
+              <div class="filter-group-title">Transmission</div>
+              <div class="filter-options">
+                <label class="filter-option <%= !transmission || transmission === 'all' ? 'active' : '' %>">
+                  <input type="radio" name="transmission" value="all" <%=!transmission || transmission==='all'
+                    ? 'checked' : '' %> style="display: none;">
+                  All
+                </label>
+                <label class="filter-option <%= transmission === 'manual' ? 'active' : '' %>">
+                  <input type="radio" name="transmission" value="manual" <%=transmission==='manual' ? 'checked' : '' %>
+                  style="display: none;">
+                  Manual
+                </label>
+                <label class="filter-option <%= transmission === 'automatic' ? 'active' : '' %>">
+                  <input type="radio" name="transmission" value="automatic" <%=transmission==='automatic' ? 'checked'
+                    : '' %> style="display: none;">
+                  Automatic
+                </label>
+              </div>
             </div>
           </div>
-        </div>
 
-        <!-- Price Range -->
-        <div class="col-md-3">
-          <label for="minPrice" class="form-label">Min Price (₹/day)</label>
-          <input type="number" class="form-control" id="minPrice" name="minPrice" value="<%= minPrice || '' %>" placeholder="0" min="0">
-        </div>
-        <div class="col-md-3">
-          <label for="maxPrice" class="form-label">Max Price (₹/day)</label>
-          <input type="number" class="form-control" id="maxPrice" name="maxPrice" value="<%= maxPrice || '' %>" placeholder="10000" min="0">
-        </div>
+          <!-- Price Range -->
+          <div class="col-md-3">
+            <label for="minPrice" class="form-label">Min Price (₹/day)</label>
+            <input type="number" class="form-control" id="minPrice" name="minPrice" value="<%= minPrice || '' %>"
+              placeholder="0" min="0">
+          </div>
+          <div class="col-md-3">
+            <label for="maxPrice" class="form-label">Max Price (₹/day)</label>
+            <input type="number" class="form-control" id="maxPrice" name="maxPrice" value="<%= maxPrice || '' %>"
+              placeholder="10000" min="0">
+          </div>
 
-        <!-- Location Filter -->
-        <div class="col-md-6">
-          <label for="location" class="form-label">Location</label>
-          <input type="text" class="form-control" id="location" name="location" value="<%= location || '' %>" placeholder="Enter city or area">
-        </div>
+          <!-- Location Filter -->
+          <div class="col-md-6">
+            <label for="location" class="form-label">Location</label>
+            <input type="text" class="form-control" id="location" name="location" value="<%= location || '' %>"
+              placeholder="Enter city or area">
+          </div>
 
-        <!-- Sort -->
-        <div class="col-md-3">
-          <label for="sort" class="form-label">Sort By</label>
-          <select class="form-select" id="sort" name="sort">
-            <option value="" <%= !sort ? 'selected' : '' %>>Default</option>
-            <option value="price_asc" <%= sort === 'price_asc' ? 'selected' : '' %>>Price: Low to High</option>
-            <option value="price_desc" <%= sort === 'price_desc' ? 'selected' : '' %>>Price: High to Low</option>
-            <option value="rating" <%= sort === 'rating' ? 'selected' : '' %>>Highest Rated</option>
-            <option value="newest" <%= sort === 'newest' ? 'selected' : '' %>>Newest First</option>
-          </select>
-        </div>
+          <!-- Sort -->
+          <div class="col-md-3">
+            <label for="sort" class="form-label">Sort By</label>
+            <select class="form-select" id="sort" name="sort">
+              <option value="" <%=!sort ? 'selected' : '' %>>Default</option>
+              <option value="price_asc" <%=sort==='price_asc' ? 'selected' : '' %>>Price: Low to High</option>
+              <option value="price_desc" <%=sort==='price_desc' ? 'selected' : '' %>>Price: High to Low</option>
+              <option value="rating" <%=sort==='rating' ? 'selected' : '' %>>Highest Rated</option>
+              <option value="newest" <%=sort==='newest' ? 'selected' : '' %>>Newest First</option>
+            </select>
+          </div>
 
-        <!-- Apply Button -->
-        <div class="col-md-3 d-flex align-items-end">
-          <button type="submit" class="btn btn-primary w-100">
-            <i class="fas fa-search me-2"></i>Apply Filters
-          </button>
-        </div>
-      </div>
-    </form>
-  </div>
-
-  <!-- Results Header -->
-  <div class="d-flex justify-content-between align-items-center mb-4">
-    <h3 class="mb-0">
-      <i class="fas fa-car me-2 text-success"></i>
-      <%= allVehicles.length %> Vehicles Found
-    </h3>
-    <% if (currUser) { %>
-      <a href="/vehicles/new" class="btn btn-primary">
-        <i class="fas fa-plus me-2"></i>Add New Vehicle
-      </a>
-    <% } %>
-  </div>
-
-  <!-- Vehicles Grid -->
-  <% if (allVehicles.length > 0) { %>
-    <div class="vehicles-grid">
-      <% for (let vehicle of allVehicles) { %>
-        <div class="vehicle-card animate-fade-in" data-vehicle-id="<%= vehicle._id %>">
-          <div class="vehicle-image-container">
-            <img src="<%= vehicle.image?.url || 'https://images.unsplash.com/photo-1549317661-bd32c8ce0db2?w=400&h=250&fit=crop' %>"
-                 class="vehicle-image" alt="<%= vehicle.title %>">
-            
-            <!-- Availability Badge -->
-            <div class="availability-badge <%= vehicle.availability ? 'available' : 'unavailable' %>">
-              <i class="fas <%= vehicle.availability ? 'fa-check-circle' : 'fa-times-circle' %>"></i>
-              <%= vehicle.availability ? 'Available' : 'Booked' %>
-            </div>
-
-            <!-- Compare Checkbox -->
-            <div class="compare-checkbox" title="Add to compare">
-              <input type="checkbox" data-vehicle-id="<%= vehicle._id %>">
-            </div>
-
-            <!-- Wishlist Button -->
-            <button class="wishlist-btn" onclick="toggleWishlist(this, '<%= vehicle._id %>')" title="Add to wishlist" style="position: absolute; bottom: 10px; left: 10px;">
-              <i class="far fa-heart"></i>
+          <!-- Apply Button -->
+          <div class="col-md-3 d-flex align-items-end">
+            <button type="submit" class="btn btn-primary w-100">
+              <i class="fas fa-search me-2"></i>Apply Filters
             </button>
           </div>
-
-          <!-- Vehicle Specs -->
-          <div class="vehicle-specs">
-            <div class="spec-item">
-              <i class="fas fa-gas-pump spec-icon"></i>
-              <span class="spec-value"><%= vehicle.fuelType %></span>
-            </div>
-            <div class="spec-item">
-              <i class="fas fa-cogs spec-icon"></i>
-              <span class="spec-value"><%= vehicle.transmission %></span>
-            </div>
-            <div class="spec-item">
-              <i class="fas fa-users spec-icon"></i>
-              <span class="spec-value"><%= vehicle.seats %> Seats</span>
-            </div>
-            <div class="spec-item">
-              <i class="fas fa-tachometer-alt spec-icon"></i>
-              <span class="spec-value"><%= vehicle.mileage || 'N/A' %></span>
-            </div>
-          </div>
-
-          <!-- Vehicle Info -->
-          <div class="vehicle-price-section">
-            <h5 class="vehicle-title" style="font-size: 1.1rem; font-weight: 600; margin-bottom: 0.5rem;">
-              <%= vehicle.brand %> <%= vehicle.model %>
-            </h5>
-            <p class="vehicle-location" style="color: var(--gray-600); font-size: 0.85rem; margin-bottom: 1rem;">
-              <i class="fas fa-map-marker-alt me-1"></i>
-              <%= vehicle.location %>, <%= vehicle.country %>
-            </p>
-
-            <!-- Rating -->
-            <% if (vehicle.reviews && vehicle.reviews.length > 0) { %>
-              <div style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 1rem;">
-                <span style="color: var(--secondary-yellow);">★</span>
-                <strong><%= (vehicle.reviews.reduce((sum, r) => sum + (r.rating || 5), 0) / vehicle.reviews.length).toFixed(1) %></strong>
-                <span style="color: var(--gray-600); font-size: 0.85rem;">(<%= vehicle.reviews.length %> reviews)</span>
-              </div>
-            <% } %>
-
-            <!-- Price -->
-            <div class="price-main">
-              ₹<%= vehicle.price ? vehicle.price.toLocaleString('en-IN') : 'N/A' %>
-              <span class="price-unit">/ day</span>
-            </div>
-            
-            <% if (vehicle.pricePerHour) { %>
-              <div class="price-options">
-                <div class="price-option">
-                  <span class="price-option-label">Hourly</span>
-                  <span class="price-option-value">₹<%= vehicle.pricePerHour.toLocaleString('en-IN') %></span>
-                </div>
-                <% if (vehicle.pricePerWeek) { %>
-                  <div class="price-option">
-                    <span class="price-option-label">Weekly</span>
-                    <span class="price-option-value">₹<%= vehicle.pricePerWeek.toLocaleString('en-IN') %></span>
-                  </div>
-                <% } %>
-              </div>
-            <% } %>
-          </div>
-
-          <!-- Actions -->
-          <div class="vehicle-actions">
-            <% if (vehicle.availability) { %>
-              <button class="btn-book" onclick="openBookingModal('<%= vehicle._id %>')">
-                <i class="fas fa-calendar-check"></i>
-                Book Now
-              </button>
-            <% } else { %>
-              <button class="btn-book" disabled style="opacity: 0.6; cursor: not-allowed;">
-                <i class="fas fa-ban"></i>
-                Unavailable
-              </button>
-            <% } %>
-            <a href="/vehicles/<%= vehicle._id %>" class="btn-details">
-              <i class="fas fa-info-circle"></i>
-            </a>
-          </div>
         </div>
-      <% } %>
+      </form>
     </div>
-  <% } else { %>
-    <!-- No Results -->
-    <div class="text-center py-5">
-      <i class="fas fa-car fa-4x text-muted mb-3"></i>
-      <h4 class="text-muted">No vehicles found</h4>
-      <p class="text-muted mb-4">Try adjusting your search criteria.</p>
-      <a href="/vehicles" class="btn btn-primary">
-        <i class="fas fa-refresh me-2"></i>Clear Filters
-      </a>
-    </div>
-  <% } %>
-</div>
 
-<!-- Compare Bar (Fixed Bottom) -->
-<div id="compare-bar" class="compare-bar">
-  <div class="compare-bar-content">
-    <div class="compare-info">
-      <span class="compare-count" id="compare-count">0</span>
-      <span class="compare-text">vehicles selected for comparison</span>
+    <!-- Results Header -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+      <h3 class="mb-0">
+        <i class="fas fa-car me-2 text-success"></i>
+        <%= allVehicles.length %> Vehicles Found
+      </h3>
+      <% if (currUser) { %>
+        <a href="/vehicles/new" class="btn btn-primary">
+          <i class="fas fa-plus me-2"></i>Add New Vehicle
+        </a>
+        <% } %>
     </div>
-    <div class="compare-actions">
-      <button id="btn-compare-vehicles" class="btn-compare">
-        <i class="fas fa-balance-scale me-2"></i>Compare Now
-      </button>
-      <button id="btn-clear-compare" class="btn-clear-compare">
-        <i class="fas fa-times me-2"></i>Clear
-      </button>
+
+    <!-- Vehicles Grid -->
+    <% if (allVehicles.length> 0) { %>
+      <div class="vehicles-grid">
+        <% for (let vehicle of allVehicles) { %>
+          <div class="vehicle-card animate-fade-in" data-vehicle-id="<%= vehicle._id %>">
+            <div class="vehicle-image-container">
+              <img
+                src="<%= vehicle.image?.url || 'https://images.unsplash.com/photo-1549317661-bd32c8ce0db2?w=400&h=250&fit=crop' %>"
+                class="vehicle-image" alt="<%= vehicle.title %>">
+
+              <!-- Availability Badge -->
+              <div class="availability-badge <%= vehicle.availability ? 'available' : 'unavailable' %>">
+                <i class="fas <%= vehicle.availability ? 'fa-check-circle' : 'fa-times-circle' %>"></i>
+                <%= vehicle.availability ? 'Available' : 'Booked' %>
+              </div>
+
+              <!-- Compare Checkbox -->
+              <div class="compare-checkbox" title="Add to compare">
+                <input type="checkbox" data-vehicle-id="<%= vehicle._id %>">
+              </div>
+
+              <!-- Wishlist Button -->
+              <button class="wishlist-btn" data-id="<%= vehicle._id %>"
+                onclick="toggleWishlist(event, '<%= vehicle._id %>', 'vehicle')" title="Add to wishlist"
+                style="position: absolute; top: 12px; right: 12px; width: 28px; height: 28px; border-radius: 50%; background: rgba(255,255,255,0.9); border: none; display: flex; align-items: center; justify-content: center; z-index: 100; cursor: pointer;">
+                <i class="far fa-heart" style="font-size: 14px; color: #222;"></i>
+              </button>
+            </div>
+
+            <!-- Vehicle Specs -->
+            <div class="vehicle-specs">
+              <div class="spec-item">
+                <i class="fas fa-gas-pump spec-icon"></i>
+                <span class="spec-value">
+                  <%= vehicle.fuelType %>
+                </span>
+              </div>
+              <div class="spec-item">
+                <i class="fas fa-cogs spec-icon"></i>
+                <span class="spec-value">
+                  <%= vehicle.transmission %>
+                </span>
+              </div>
+              <div class="spec-item">
+                <i class="fas fa-users spec-icon"></i>
+                <span class="spec-value">
+                  <%= vehicle.seats %> Seats
+                </span>
+              </div>
+              <div class="spec-item">
+                <i class="fas fa-tachometer-alt spec-icon"></i>
+                <span class="spec-value">
+                  <%= vehicle.mileage || 'N/A' %>
+                </span>
+              </div>
+            </div>
+
+            <!-- Vehicle Info -->
+            <div class="vehicle-price-section">
+              <h5 class="vehicle-title" style="font-size: 1.1rem; font-weight: 600; margin-bottom: 0.5rem;">
+                <%= vehicle.brand %>
+                  <%= vehicle.model %>
+              </h5>
+              <p class="vehicle-location" style="color: var(--gray-600); font-size: 0.85rem; margin-bottom: 1rem;">
+                <i class="fas fa-map-marker-alt me-1"></i>
+                <%= vehicle.location %>, <%= vehicle.country %>
+              </p>
+
+              <!-- Rating -->
+              <% if (vehicle.reviews && vehicle.reviews.length> 0) { %>
+                <div style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 1rem;">
+                  <span style="color: var(--secondary-yellow);">★</span>
+                  <strong>
+                    <%= (vehicle.reviews.reduce((sum, r)=> sum + (r.rating || 5), 0) /
+                      vehicle.reviews.length).toFixed(1) %>
+                  </strong>
+                  <span style="color: var(--gray-600); font-size: 0.85rem;">(<%= vehicle.reviews.length %>
+                      reviews)</span>
+                </div>
+                <% } %>
+
+                  <!-- Price -->
+                  <div class="price-main">
+                    ₹<%= vehicle.price ? vehicle.price.toLocaleString('en-IN') : 'N/A' %>
+                      <span class="price-unit">/ day</span>
+                  </div>
+
+                  <% if (vehicle.pricePerHour) { %>
+                    <div class="price-options">
+                      <div class="price-option">
+                        <span class="price-option-label">Hourly</span>
+                        <span class="price-option-value">₹<%= vehicle.pricePerHour.toLocaleString('en-IN') %></span>
+                      </div>
+                      <% if (vehicle.pricePerWeek) { %>
+                        <div class="price-option">
+                          <span class="price-option-label">Weekly</span>
+                          <span class="price-option-value">₹<%= vehicle.pricePerWeek.toLocaleString('en-IN') %></span>
+                        </div>
+                        <% } %>
+                    </div>
+                    <% } %>
+            </div>
+
+            <!-- Actions -->
+            <div class="vehicle-actions">
+              <% if (vehicle.availability) { %>
+                <button class="btn-book" onclick="openBookingModal('<%= vehicle._id %>')">
+                  <i class="fas fa-calendar-check"></i>
+                  Book Now
+                </button>
+                <% } else { %>
+                  <button class="btn-book" disabled style="opacity: 0.6; cursor: not-allowed;">
+                    <i class="fas fa-ban"></i>
+                    Unavailable
+                  </button>
+                  <% } %>
+                    <a href="/vehicles/<%= vehicle._id %>" class="btn-details">
+                      <i class="fas fa-info-circle"></i>
+                    </a>
+            </div>
+          </div>
+          <% } %>
+      </div>
+      <% } else { %>
+        <!-- No Results -->
+        <div class="text-center py-5">
+          <i class="fas fa-car fa-4x text-muted mb-3"></i>
+          <h4 class="text-muted">No vehicles found</h4>
+          <p class="text-muted mb-4">Try adjusting your search criteria.</p>
+          <a href="/vehicles" class="btn btn-primary">
+            <i class="fas fa-refresh me-2"></i>Clear Filters
+          </a>
+        </div>
+        <% } %>
+  </div>
+
+  <!-- Compare Bar (Fixed Bottom) -->
+  <div id="compare-bar" class="compare-bar">
+    <div class="compare-bar-content">
+      <div class="compare-info">
+        <span class="compare-count" id="compare-count">0</span>
+        <span class="compare-text">vehicles selected for comparison</span>
+      </div>
+      <div class="compare-actions">
+        <button id="btn-compare-vehicles" class="btn-compare">
+          <i class="fas fa-balance-scale me-2"></i>Compare Now
+        </button>
+        <button id="btn-clear-compare" class="btn-clear-compare">
+          <i class="fas fa-times me-2"></i>Clear
+        </button>
+      </div>
     </div>
   </div>
-</div>
 
-<!-- Compare Modal -->
-<div id="compare-modal" class="compare-modal">
-  <div class="compare-modal-content">
-    <div class="compare-modal-header">
-      <h3 class="compare-modal-title">Compare Vehicles</h3>
-      <button id="close-compare-modal" class="compare-modal-close">
-        <i class="fas fa-times"></i>
-      </button>
-    </div>
-    <div id="compare-modal-body" class="compare-modal-body">
-      <!-- Comparison table will be inserted here -->
+  <!-- Compare Modal -->
+  <div id="compare-modal" class="compare-modal">
+    <div class="compare-modal-content">
+      <div class="compare-modal-header">
+        <h3 class="compare-modal-title">Compare Vehicles</h3>
+        <button id="close-compare-modal" class="compare-modal-close">
+          <i class="fas fa-times"></i>
+        </button>
+      </div>
+      <div id="compare-modal-body" class="compare-modal-body">
+        <!-- Comparison table will be inserted here -->
+      </div>
     </div>
   </div>
-</div>
 
-<script>
-  // Filter form handling
-  document.querySelectorAll('.filter-option input').forEach(input => {
-    input.addEventListener('change', function() {
-      // Update active class
-      const parent = this.closest('.filter-options');
-      parent.querySelectorAll('.filter-option').forEach(opt => opt.classList.remove('active'));
-      this.closest('.filter-option').classList.add('active');
-      
-      // Auto-submit form
-      document.getElementById('vehicle-filter-form').submit();
+  <script>
+    // Filter form handling
+    document.querySelectorAll('.filter-option input').forEach(input => {
+      input.addEventListener('change', function () {
+        // Update active class
+        const parent = this.closest('.filter-options');
+        parent.querySelectorAll('.filter-option').forEach(opt => opt.classList.remove('active'));
+        this.closest('.filter-option').classList.add('active');
+
+        // Auto-submit form
+        document.getElementById('vehicle-filter-form').submit();
+      });
     });
-  });
 
-  // Open booking modal
-  function openBookingModal(vehicleId) {
-    // This would open a booking modal
-    alert('Booking modal for vehicle: ' + vehicleId);
-    // In production, this would trigger a modal with booking form
-  }
-
-  // Wishlist toggle (reusing from listings)
-  function toggleWishlist(btn, vehicleId) {
-    btn.classList.toggle('active');
-    const isActive = btn.classList.contains('active');
-    
-    const icon = btn.querySelector('i');
-    if (isActive) {
-      icon.classList.remove('far');
-      icon.classList.add('fas');
-      
-      let wishlist = JSON.parse(localStorage.getItem('vehicleWishlist') || '[]');
-      if (!wishlist.includes(vehicleId)) {
-        wishlist.push(vehicleId);
-        localStorage.setItem('vehicleWishlist', JSON.stringify(wishlist));
-      }
-      
-      showNotification('Added to wishlist!', 'success');
-    } else {
-      icon.classList.add('far');
-      icon.classList.remove('fas');
-      
-      let wishlist = JSON.parse(localStorage.getItem('vehicleWishlist') || '[]');
-      wishlist = wishlist.filter(id => id !== vehicleId);
-      localStorage.setItem('vehicleWishlist', JSON.stringify(wishlist));
-      
-      showNotification('Removed from wishlist', 'info');
+    // Open booking modal
+    function openBookingModal(vehicleId) {
+      // This would open a booking modal
+      alert('Booking modal for vehicle: ' + vehicleId);
+      // In production, this would trigger a modal with booking form
     }
-  }
 
-  // Load wishlist on page load
-  document.addEventListener('DOMContentLoaded', function() {
-    const wishlist = JSON.parse(localStorage.getItem('vehicleWishlist') || '[]');
-    document.querySelectorAll('.wishlist-btn').forEach(btn => {
+    // Load wishlist on page load
+    document.addEventListener('DOMContentLoaded', function () {
+      const wishlist = JSON.parse(localStorage.getItem('vehicleWishlist') || '[]');
       const vehicleId = btn.getAttribute('onclick').match(/'([^']+)'/)[1];
       if (wishlist.includes(vehicleId)) {
         btn.classList.add('active');
@@ -364,5 +367,5 @@
         icon.classList.add('fas');
       }
     });
-  });
-</script>
+    });
+  </script>

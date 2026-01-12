@@ -100,7 +100,7 @@
     <% if (allVehicles.length> 0) { %>
       <div class="row g-4 mb-5">
         <% for (let vehicle of allVehicles) { %>
-          <div class="col-lg-4 col-md-6" data-aos="fade-up">
+          <div class="col-lg-4 col-md-6">
             <div class="premium-vehicle-card">
               <div class="card-img-wrapper">
                 <% const getVehicleImage=(v)=> {
@@ -113,9 +113,10 @@
                   <% if(vehicle.averageRating>= 4.5) { %>
                     <div class="card-badge"><i class="fas fa-star text-warning me-1"></i> Top Rated</div>
                     <% } %>
-                      <button class="card-wishlist" data-id="<%= vehicle._id %>"
-                        onclick="toggleWishlist(this, '<%= vehicle._id %>', 'vehicle')">
-                        <i class="far fa-heart"></i>
+                      <button class="wishlist-btn" data-id="<%= vehicle._id %>"
+                        onclick="toggleWishlist(event, '<%= vehicle._id %>', 'vehicle')" title="Add to wishlist"
+                        style="position: absolute; top: 12px; right: 12px; width: 28px; height: 28px; border-radius: 50%; background: rgba(255,255,255,0.9); border: none; display: flex; align-items: center; justify-content: center; z-index: 100; cursor: pointer;">
+                        <i class="far fa-heart" style="font-size: 14px; color: #222;"></i>
                       </button>
               </div>
 
@@ -161,7 +162,7 @@
                 </div>
 
                 <div class="d-grid mt-3">
-                  <a href="/vehicles/<%= vehicle._id %>" class="btn btn-dark rounded-pill py-2">
+                  <a href="/vehicles/<%= vehicle._id %>" class="btn btn-dark rounded-pill py-2 stretched-link">
                     Check Availability
                   </a>
                 </div>

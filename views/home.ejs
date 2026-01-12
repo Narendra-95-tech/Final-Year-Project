@@ -991,7 +991,7 @@
                           alt="<%= listing.title %>">
                         <span class="card-badge">Top Rated</span>
                         <div class="card-wishlist" data-id="<%= listing._id %>"
-                          onclick="toggleWishlist(this, '<%= listing._id %>', 'listing')">
+                          onclick="toggleWishlist(event, '<%= listing._id %>', 'listing')">
                           <i class="far fa-heart"></i>
                         </div>
                       </div>
@@ -1047,7 +1047,7 @@
                           <%= vehicle.vehicleType %>
                         </span>
                         <div class="card-wishlist" data-id="<%= vehicle._id %>"
-                          onclick="toggleWishlist(this, '<%= vehicle._id %>', 'vehicle')">
+                          onclick="toggleWishlist(event, '<%= vehicle._id %>', 'vehicle')">
                           <i class="far fa-heart"></i>
                         </div>
                       </div>
@@ -1103,7 +1103,7 @@
                           <%= dhaba.cuisine %>
                         </span>
                         <div class="card-wishlist" data-id="<%= dhaba._id %>"
-                          onclick="toggleWishlist(this, '<%= dhaba._id %>', 'dhaba')">
+                          onclick="toggleWishlist(event, '<%= dhaba._id %>', 'dhaba')">
                           <i class="far fa-heart"></i>
                         </div>
                       </div>

@@ -215,6 +215,13 @@ const dhabaSchema = new Schema({
     },
 });
 
+// Indexes for Search & Filter Performance
+dhabaSchema.index({ title: 'text', location: 'text', cuisine: 'text' });
+dhabaSchema.index({ category: 1 });
+dhabaSchema.index({ cuisine: 1 });
+dhabaSchema.index({ rating: -1 }); // Optimize for top-rated
+dhabaSchema.index({ geometry: '2dsphere' });
+
 dhabaSchema.post("findOneAndDelete", async (dhaba) => {
     if (dhaba) {
         await Review.deleteMany({ _id: { $in: dhaba.reviews } });

@@ -138,6 +138,12 @@ const vehicleSchema = new Schema({
 
 });
 
+// Indexes for Search & Filter Performance
+vehicleSchema.index({ title: 'text', location: 'text', brand: 'text', model: 'text' });
+vehicleSchema.index({ vehicleType: 1 });
+vehicleSchema.index({ price: 1 });
+vehicleSchema.index({ seats: 1 });
+vehicleSchema.index({ geometry: '2dsphere' });
 vehicleSchema.post("findOneAndDelete", async (vehicle) => {
     if (vehicle) {
         await Review.deleteMany({ _id: { $in: vehicle.reviews } });

@@ -111,6 +111,14 @@ const listingSchema = new Schema({
   toObject: { virtuals: true }
 });
 
+// Indexes for Search & Filter Performance
+listingSchema.index({ title: 'text', location: 'text', country: 'text' });
+listingSchema.index({ price: 1 });
+listingSchema.index({ propertyType: 1 });
+listingSchema.index({ category: 1 });
+listingSchema.index({ guests: 1 });
+listingSchema.index({ geometry: '2dsphere' }); // Geospatial Index
+
 listingSchema.post("findOneAndDelete", async (listing) => {
   if (listing) {
     await Review.deleteMany({ _id: { $in: listing.reviews } });

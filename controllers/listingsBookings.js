@@ -167,15 +167,33 @@ exports.checkListingAvailability = wrapAsync(async (req, res) => {
 });
 
 exports.handleSuccess = wrapAsync(async (req, res) => {
-  const { session_id: sessionId } = req.query;
-  if (!sessionId) {
-    req.flash("error", "Payment session not found.");
-    return res.redirect("/listings");
+  const { session_id: sessionId, bookingId } = req.query;
+
+  let booking;
+
+  if (sessionId) {
+    const result = await getBookingFromSession(sessionId);
+    booking = result.booking;
+  } else if (bookingId) {
+    booking = await Booking.findById(bookingId)
+      .populate("listing")
+      .populate("dhaba")
+      .populate("vehicle")
+      .populate("user");
   }
 
-  const { booking } = await getBookingFromSession(sessionId);
-  req.flash("success", `Your stay at ${booking.listing.title} is confirmed!`);
-  res.render("bookings/success", { booking, sessionId });
+  if (!booking) {
+    req.flash("error", "Booking/Payment record not found.");
+    return res.redirect("/bookings");
+  }
+
+  let itemTitle = "WanderLust Experience";
+  if (booking.listing) itemTitle = booking.listing.title;
+  else if (booking.vehicle) itemTitle = booking.vehicle.title || `${booking.vehicle.brand} ${booking.vehicle.model}`;
+  else if (booking.dhaba) itemTitle = booking.dhaba.title;
+
+  req.flash("success", `Your booking for ${itemTitle} is confirmed!`);
+  res.render("bookings/success", { booking, sessionId: sessionId || '' });
 });
 
 exports.handleCancel = wrapAsync(async (req, res) => {
@@ -252,4 +270,65 @@ exports.updateBookingStatus = wrapAsync(async (req, res) => {
 
   req.flash("success", "Booking status updated.");
   res.redirect("/admin/bookings");
+});
+
+exports.createCheckoutSession = wrapAsync(async (req, res) => {
+  ensureStripe();
+  const { bookingId } = req.body;
+
+  if (!bookingId) {
+    return res.status(400).json({ success: false, message: "Booking ID is required" });
+  }
+
+  const booking = await Booking.findById(bookingId)
+    .populate("listing")
+    .populate("vehicle")
+    .populate("dhaba");
+
+  if (!booking) {
+    return res.status(404).json({ success: false, message: "Booking not found" });
+  }
+
+  // Double check if already paid
+  if (booking.isPaid) {
+    return res.status(400).json({ success: false, message: "This booking is already paid" });
+  }
+
+  let itemTitle = "WanderLust Booking";
+  if (booking.type === 'listing' && booking.listing) {
+    itemTitle = booking.listing.title;
+  } else if (booking.type === 'vehicle' && booking.vehicle) {
+    itemTitle = `${booking.vehicle.brand} ${booking.vehicle.model}`;
+  } else if (booking.type === 'dhaba' && booking.dhaba) {
+    itemTitle = booking.dhaba.title;
+  }
+
+  const session = await stripe.checkout.sessions.create({
+    payment_method_types: ["card"],
+    line_items: [
+      {
+        price_data: {
+          currency: "inr",
+          product_data: {
+            name: itemTitle,
+            description: `Reservation for ${itemTitle} on WanderLust`,
+          },
+          unit_amount: Math.round(booking.totalPrice * 100),
+        },
+        quantity: 1,
+      },
+    ],
+    mode: "payment",
+    success_url: `${req.protocol}://${req.get("host")}/bookings/success?session_id={CHECKOUT_SESSION_ID}`,
+    cancel_url: `${req.protocol}://${req.get("host")}/bookings/cancel?session_id={CHECKOUT_SESSION_ID}`,
+    metadata: {
+      bookingId: booking._id.toString(),
+      type: booking.type
+    },
+  });
+
+  booking.stripeSessionId = session.id;
+  await booking.save();
+
+  res.json({ success: true, url: session.url });
 });
