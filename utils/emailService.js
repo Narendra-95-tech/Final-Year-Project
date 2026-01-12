@@ -10,11 +10,17 @@ if (missingVars.length > 0) {
 }
 
 // Create transporter
+// Robustly handle whitespace/newlines from copy-paste errors
+const emailService = (process.env.EMAIL_SERVICE || 'gmail').trim();
+const emailUser = (process.env.EMAIL_USER || '').trim();
+// Remove all whitespace from password (app passwords often copied with spaces)
+const emailPass = (process.env.EMAIL_PASSWORD || '').replace(/\s+/g, '');
+
 const transporter = nodemailer.createTransport({
-  service: process.env.EMAIL_SERVICE || 'gmail',
+  service: emailService,
   auth: {
-    user: process.env.EMAIL_USER,
-    pass: process.env.EMAIL_PASSWORD
+    user: emailUser,
+    pass: emailPass
   }
 });
 
