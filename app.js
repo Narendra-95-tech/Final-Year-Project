@@ -338,6 +338,25 @@ app.get('/test', (req, res) => {
 app.get('/debug/email', async (req, res) => {
   const { transporter } = require('./utils/emailService');
 
+  // 0. TCP Connectivity Test
+  const net = require('net');
+  const tcpTest = (host, port) => new Promise(resolve => {
+    const socket = net.createConnection(port, host, () => {
+      socket.end();
+      resolve('CONNECTED');
+    });
+    socket.on('error', err => resolve('ERROR: ' + err.message));
+    socket.setTimeout(5000, () => {
+      socket.destroy();
+      resolve('TIMEOUT');
+    });
+  });
+
+  const tcpResults = {
+    'google_443': await tcpTest('google.com', 443),
+    'gmail_465': await tcpTest('smtp.gmail.com', 465)
+  };
+
   // 1. Check Env Vars (Masked)
   const envStatus = {
     EMAIL_SERVICE: process.env.EMAIL_SERVICE,
@@ -380,6 +399,7 @@ app.get('/debug/email', async (req, res) => {
       message: 'Email sent successfully!',
       messageId: info.messageId,
       recipient: targetEmail,
+      tcp: tcpResults, // Show TCP test
       env: envStatus
     });
 
@@ -388,6 +408,7 @@ app.get('/debug/email', async (req, res) => {
       status: 'Failed',
       error: error.message,
       stack: error.stack,
+      tcp: tcpResults, // Show TCP test even on failure
       env: envStatus
     });
   }

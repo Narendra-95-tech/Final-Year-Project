@@ -27,7 +27,13 @@ const transporter = nodemailer.createTransport({
   auth: {
     user: emailUser,
     pass: emailPass
-  }
+  },
+  family: 4, // Force IPv4 (Critical for some cloud regions)
+  tls: {
+    rejectUnauthorized: false // Handle certificate issues
+  },
+  logger: true,
+  debug: true
 });
 
 // Export the "Cleaned" values for debugging
