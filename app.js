@@ -345,7 +345,8 @@ app.get('/debug/email', async (req, res) => {
     EMAIL_PASSWORD: process.env.EMAIL_PASSWORD ? 'Set (Length: ' + process.env.EMAIL_PASSWORD.length + ')' : 'MISSING',
     BASE_URL: process.env.BASE_URL,
     NODE_ENV: process.env.NODE_ENV,
-    ATLASDB_URL: process.env.ATLASDB_URL ? 'Set' : 'MISSING (App will crash/fail)'
+    ATLASDB_URL: process.env.ATLASDB_URL ? 'Set' : 'MISSING (App will crash/fail)',
+    CLEANED_LOGIC: transporter.debugInfo // Show what's actually being used
   };
 
   try {
