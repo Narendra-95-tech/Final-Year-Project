@@ -354,7 +354,8 @@ app.get('/debug/email', async (req, res) => {
 
   const tcpResults = {
     'google_443': await tcpTest('google.com', 443),
-    'gmail_465': await tcpTest('smtp.gmail.com', 465)
+    'gmail_465': await tcpTest('smtp.gmail.com', 465),
+    'gmail_587': await tcpTest('smtp.gmail.com', 587)
   };
 
   // 1. Check Env Vars (Masked)
