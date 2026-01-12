@@ -56,17 +56,21 @@ if (!dbUrl) {
 console.log("🚀 Connecting to Database...");
 console.log(`Target: ${dbUrl.includes("mongodb+srv") ? "MongoDB Atlas (Cloud)" : "Local MongoDB"}`);
 
-mongoose.connect(dbUrl)
-  .then(() => {
-    console.log("✅ Database Connected Successfully!");
-  })
-  .catch((err) => {
-    console.error("❌ Database Connection Failed:", err);
-    console.log("Retrying in 5 seconds...");
-    setTimeout(() => {
-      mongoose.connect(dbUrl).catch(e => console.error("Retry failed:", e));
-    }, 5000);
-  });
+if (dbUrl) {
+  mongoose.connect(dbUrl)
+    .then(() => {
+      console.log("✅ Database Connected Successfully!");
+    })
+    .catch((err) => {
+      console.error("❌ Database Connection Failed:", err);
+      console.log("Retrying in 5 seconds...");
+      setTimeout(() => {
+        if (dbUrl) mongoose.connect(dbUrl).catch(e => console.error("Retry failed:", e));
+      }, 5000);
+    });
+} else {
+  console.log("⚠️ Skipping Database Connection (ATLASDB_URL missing)");
+}
 
 const db = mongoose.connection;
 db.on("error", console.error.bind(console, "connection error:"));
