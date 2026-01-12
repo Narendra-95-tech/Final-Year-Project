@@ -12,7 +12,13 @@ if (missingVars.length > 0) {
 // Create transporter
 // Robustly handle whitespace/newlines from copy-paste errors
 const emailService = (process.env.EMAIL_SERVICE || 'gmail').trim();
-const emailUser = (process.env.EMAIL_USER || '').trim();
+let rawUser = (process.env.EMAIL_USER || '').trim();
+// If user put "Name <email@gmail.com>", extract just the email
+const emailMatch = rawUser.match(/<([^>]+)>/);
+if (emailMatch) {
+  rawUser = emailMatch[1];
+}
+const emailUser = rawUser;
 // Remove all whitespace from password (app passwords often copied with spaces)
 const emailPass = (process.env.EMAIL_PASSWORD || '').replace(/\s+/g, '');
 
