@@ -354,56 +354,58 @@ app.get('/debug/email', async (req, res) => {
 
   const tcpResults = {
     'google_443': await tcpTest('google.com', 443),
+    'brevo_api_443': await tcpTest('api.brevo.com', 443),
     'gmail_465': await tcpTest('smtp.gmail.com', 465),
-    'gmail_587': await tcpTest('smtp.gmail.com', 587),
-    'gmail_25': await tcpTest('smtp.gmail.com', 25),
-    'gmail_2525': await tcpTest('smtp.gmail.com', 2525),
-    'gmail_relay_587': await tcpTest('smtp-relay.gmail.com', 587)
+    'gmail_587': await tcpTest('smtp.gmail.com', 587)
   };
 
   // 1. Check Env Vars (Masked)
   const envStatus = {
     EMAIL_SERVICE: process.env.EMAIL_SERVICE,
     EMAIL_USER: process.env.EMAIL_USER ? 'Set (Ends with ' + process.env.EMAIL_USER.slice(-4) + ')' : 'MISSING',
-    EMAIL_PASSWORD: process.env.EMAIL_PASSWORD ? 'Set (Length: ' + process.env.EMAIL_PASSWORD.length + ')' : 'MISSING',
+    BREVO_API_KEY: process.env.BREVO_API_KEY ? 'Set (Starts with ' + process.env.BREVO_API_KEY.slice(0, 5) + '...)' : 'MISSING',
     BASE_URL: process.env.BASE_URL,
     NODE_ENV: process.env.NODE_ENV,
-    ATLASDB_URL: process.env.ATLASDB_URL ? 'Set' : 'MISSING (App will crash/fail)',
-    CLEANED_LOGIC: transporter.debugInfo // Show what's actually being used
+    ATLASDB_URL: process.env.ATLASDB_URL ? 'Set' : 'MISSING',
+    CLEANED_LOGIC: transporter.debugInfo
   };
 
   try {
-    // 2. Verify Connection
-    await new Promise((resolve, reject) => {
-      transporter.verify((error, success) => {
-        if (error) reject(error);
-        else resolve(success);
-      });
-    });
+    const { sendEmailViaBrevo } = require('./utils/emailService');
+    const targetEmail = req.user ? req.user.email : (process.env.EMAIL_USER || 'test@example.com');
 
-    // 3. Send Self-Test Email if user is logged in, otherwise to fixed test address or fail safely
-    const targetEmail = req.user ? req.user.email : process.env.EMAIL_USER;
-    if (!targetEmail) {
-      return res.json({
-        status: 'Half-Success',
-        message: 'Connection verified, but no email address to send to (not logged in & no EMAIL_USER).',
-        env: envStatus
+    let info;
+    if (process.env.BREVO_API_KEY) {
+      // 2. Test Brevo API
+      info = await sendEmailViaBrevo({
+        to: targetEmail,
+        subject: 'Render Debug Test (Brevo API)',
+        text: 'If you see this, Brevo API is working on Render!',
+        html: '<h1>Brevo API Test</h1><p>Working!</p>'
+      });
+    } else {
+      // Fallback to Transporter verify
+      await new Promise((resolve, reject) => {
+        transporter.verify((error, success) => {
+          if (error) reject(error);
+          else resolve(success);
+        });
+      });
+
+      info = await transporter.sendMail({
+        from: process.env.EMAIL_FROM || process.env.EMAIL_USER,
+        to: targetEmail,
+        subject: 'Render Debug Test (SMTP)',
+        text: 'If you see this, SMTP is working (Unlikely on Render Free)!'
       });
     }
-
-    const info = await transporter.sendMail({
-      from: process.env.EMAIL_FROM || process.env.EMAIL_USER,
-      to: targetEmail,
-      subject: 'Render Debug Test',
-      text: 'If you see this, email is working on Render!'
-    });
 
     res.json({
       status: 'Success',
       message: 'Email sent successfully!',
       messageId: info.messageId,
       recipient: targetEmail,
-      tcp: tcpResults, // Show TCP test
+      tcp: tcpResults,
       env: envStatus
     });
 
@@ -412,7 +414,7 @@ app.get('/debug/email', async (req, res) => {
       status: 'Failed',
       error: error.message,
       stack: error.stack,
-      tcp: tcpResults, // Show TCP test even on failure
+      tcp: tcpResults,
       env: envStatus
     });
   }

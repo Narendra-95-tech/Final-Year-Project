@@ -1,12 +1,13 @@
 const nodemailer = require('nodemailer');
+const axios = require('axios');
 
 // Check for required environment variables
 const requiredEnvVars = ['EMAIL_USER', 'EMAIL_PASSWORD'];
 const missingVars = requiredEnvVars.filter(key => !process.env[key]);
 
-if (missingVars.length > 0) {
+if (missingVars.length > 0 && !process.env.BREVO_API_KEY) {
   console.warn(`⚠️  WARNING: Missing Email Environment Variables: ${missingVars.join(', ')}`);
-  console.warn('   Email features (OTP, Confirmations) will NOT work.');
+  console.warn('   Email features (OTP, Confirmations) will NOT work unless BREVO_API_KEY is set.');
 }
 
 // Create transporter
@@ -28,19 +29,55 @@ const transporter = nodemailer.createTransport({
     user: emailUser,
     pass: emailPass
   },
-  family: 4, // Force IPv4 (Critical for some cloud regions)
+  family: 4,
   tls: {
-    rejectUnauthorized: false // Handle certificate issues
-  },
-  logger: true,
-  debug: true
+    rejectUnauthorized: false
+  }
 });
+
+// Brevo API Helper
+async function sendEmailViaBrevo({ to, subject, html, text, attachments = [] }) {
+  if (!process.env.BREVO_API_KEY) {
+    throw new Error('BREVO_API_KEY is not configured');
+  }
+
+  const data = {
+    sender: {
+      name: "WanderLust",
+      email: process.env.EMAIL_FROM || emailUser
+    },
+    to: [{ email: to }],
+    subject: subject,
+    htmlContent: html,
+    textContent: text
+  };
+
+  if (attachments && attachments.length > 0) {
+    data.attachment = attachments.map(att => ({
+      content: att.content.toString('base64'),
+      name: att.filename
+    }));
+  }
+
+  try {
+    const response = await axios.post('https://api.brevo.com/v3/smtp/email', data, {
+      headers: {
+        'api-key': process.env.BREVO_API_KEY,
+        'Content-Type': 'application/json'
+      }
+    });
+    return { success: true, messageId: response.data.messageId };
+  } catch (error) {
+    console.error('❌ Brevo API Error:', error.response ? error.response.data : error.message);
+    throw error;
+  }
+}
 
 // Export the "Cleaned" values for debugging
 transporter.debugInfo = {
   extractedEmail: emailUser ? emailUser.slice(0, 3) + '...' + emailUser.slice(-7) : 'MISSING',
   passLength: emailPass.length,
-  logic: 'Simple Service'
+  hasBrevo: !!process.env.BREVO_API_KEY
 };
 
 // Verify connection on startup - DISABLED to prevent startup delays/crashes
@@ -213,9 +250,14 @@ async function sendBookingConfirmation(booking, user) {
   };
 
   try {
-    const info = await transporter.sendMail(mailOptions);
+    let result;
+    if (process.env.BREVO_API_KEY) {
+      result = await sendEmailViaBrevo(mailOptions);
+    } else {
+      result = await transporter.sendMail(mailOptions);
+    }
     console.log('✅ Booking confirmation email sent with invoice to:', user.email);
-    return { success: true, messageId: info.messageId };
+    return { success: true, messageId: result.messageId };
   } catch (error) {
     console.error('❌ Email send error:', error.message);
     return { success: false, error: error.message };
@@ -301,9 +343,14 @@ async function sendPaymentReceipt(booking, user) {
   };
 
   try {
-    const info = await transporter.sendMail(mailOptions);
+    let result;
+    if (process.env.BREVO_API_KEY) {
+      result = await sendEmailViaBrevo(mailOptions);
+    } else {
+      result = await transporter.sendMail(mailOptions);
+    }
     console.log('✅ Payment receipt sent to:', user.email);
-    return { success: true, messageId: info.messageId };
+    return { success: true, messageId: result.messageId };
   } catch (error) {
     console.error('❌ Email send error:', error.message);
     return { success: false, error: error.message };
@@ -313,5 +360,6 @@ async function sendPaymentReceipt(booking, user) {
 module.exports = {
   transporter,
   sendBookingConfirmation,
-  sendPaymentReceipt
+  sendPaymentReceipt,
+  sendEmailViaBrevo
 };

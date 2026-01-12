@@ -1,35 +1,35 @@
 const OTP = require('../models/otp');
-const { transporter } = require('./emailService');
+const { transporter, sendEmailViaBrevo } = require('./emailService');
 
 /**
  * Generate a random 6-digit OTP
  */
 function generateOTP() {
-    return Math.floor(100000 + Math.random() * 900000).toString();
+  return Math.floor(100000 + Math.random() * 900000).toString();
 }
 
 /**
  * Send OTP to an email address
  */
 async function sendOTP(email, purpose = 'booking-verification') {
-    try {
-        const otpCode = generateOTP();
+  try {
+    const otpCode = generateOTP();
 
-        // 1. Save OTP to database
-        const otpEntry = new OTP({
-            email,
-            otp: otpCode,
-            purpose,
-            expiresAt: new Date(Date.now() + 10 * 60 * 1000) // 10 minutes
-        });
-        await otpEntry.save();
+    // 1. Save OTP to database
+    const otpEntry = new OTP({
+      email,
+      otp: otpCode,
+      purpose,
+      expiresAt: new Date(Date.now() + 10 * 60 * 1000) // 10 minutes
+    });
+    await otpEntry.save();
 
-        // 2. Prepare Email
-        const mailOptions = {
-            from: process.env.EMAIL_FROM || process.env.EMAIL_USER,
-            to: email,
-            subject: `🔐 Your WanderLust Verification Code: ${otpCode}`,
-            html: `
+    // 2. Prepare Email
+    const mailOptions = {
+      from: process.env.EMAIL_FROM || process.env.EMAIL_USER,
+      to: email,
+      subject: `🔐 Your WanderLust Verification Code: ${otpCode}`,
+      html: `
         <!DOCTYPE html>
         <html>
         <head>
@@ -70,46 +70,51 @@ async function sendOTP(email, purpose = 'booking-verification') {
         </body>
         </html>
       `
-        };
+    };
 
-        const info = await transporter.sendMail(mailOptions);
-        console.log(`✅ OTP sent to ${email}. MessageId: ${info.messageId}`);
-        return { success: true, message: 'OTP sent successfully' };
-    } catch (error) {
-        console.error('❌ OTP Send Error:', error.message);
-        return { success: false, error: error.message };
+    let info;
+    if (process.env.BREVO_API_KEY) {
+      info = await sendEmailViaBrevo(mailOptions);
+    } else {
+      info = await transporter.sendMail(mailOptions);
     }
+    console.log(`✅ OTP sent to ${email}. MessageId: ${info.messageId}`);
+    return { success: true, message: 'OTP sent successfully' };
+  } catch (error) {
+    console.error('❌ OTP Send Error:', error.message);
+    return { success: false, error: error.message };
+  }
 }
 
 /**
  * Verify an OTP
  */
 async function verifyOTP(email, otpCode, purpose = 'booking-verification') {
-    try {
-        const otpRecord = await OTP.findOne({
-            email,
-            otp: otpCode,
-            purpose,
-            verified: false,
-            expiresAt: { $gt: new Date() }
-        });
+  try {
+    const otpRecord = await OTP.findOne({
+      email,
+      otp: otpCode,
+      purpose,
+      verified: false,
+      expiresAt: { $gt: new Date() }
+    });
 
-        if (!otpRecord) {
-            return { success: false, message: 'Invalid or expired OTP' };
-        }
-
-        // Mark as verified
-        otpRecord.verified = true;
-        await otpRecord.save();
-
-        return { success: true, message: 'OTP verified successfully' };
-    } catch (error) {
-        console.error('❌ OTP Verify Error:', error.message);
-        return { success: false, error: error.message };
+    if (!otpRecord) {
+      return { success: false, message: 'Invalid or expired OTP' };
     }
+
+    // Mark as verified
+    otpRecord.verified = true;
+    await otpRecord.save();
+
+    return { success: true, message: 'OTP verified successfully' };
+  } catch (error) {
+    console.error('❌ OTP Verify Error:', error.message);
+    return { success: false, error: error.message };
+  }
 }
 
 module.exports = {
-    sendOTP,
-    verifyOTP
+  sendOTP,
+  verifyOTP
 };
