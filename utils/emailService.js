@@ -24,7 +24,9 @@ const transporter = nodemailer.createTransport({
   }
 });
 
-// Verify connection on startup
+// Verify connection on startup - DISABLED to prevent startup delays/crashes
+// We will verify on-demand via the /debug/email route instead.
+/*
 transporter.verify((error, success) => {
   if (error) {
     console.error('❌ Email service error:', error.message);
@@ -32,6 +34,7 @@ transporter.verify((error, success) => {
     console.log('✅ Email service ready');
   }
 });
+*/
 
 // Helper function to get item title
 function getItemTitle(booking) {
