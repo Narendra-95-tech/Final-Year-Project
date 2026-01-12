@@ -59,6 +59,35 @@ router.delete('/:type/:id', isLoggedIn, async (req, res) => {
     }
 });
 
+// Bulk remove from wishlist
+router.delete('/bulk', isLoggedIn, async (req, res) => {
+    try {
+        const { items } = req.body; // Array of { id, type }
+        if (!items || !Array.isArray(items) || items.length === 0) {
+            return res.status(400).json({ success: false, error: 'No items provided' });
+        }
+
+        const user = await User.findById(req.user._id);
+        if (!user) {
+            return res.status(404).json({ success: false, error: 'User not found' });
+        }
+
+        for (const item of items) {
+            const { id, type } = item;
+            const targetField = getTargetField(type);
+
+            // Pull the ID from the corresponding wishlist array
+            user[targetField] = user[targetField].filter(itemId => itemId.toString() !== id);
+        }
+
+        await user.save();
+        res.json({ success: true, message: 'Wishlist updated successfully' });
+    } catch (error) {
+        console.error('Error bulk removing from wishlist:', error);
+        res.status(500).json({ success: false, error: 'Failed to update wishlist' });
+    }
+});
+
 // Get user's wishlist IDs for syncing
 router.get('/all', isLoggedIn, async (req, res) => {
     try {

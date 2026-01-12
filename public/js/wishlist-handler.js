@@ -55,14 +55,21 @@ class WishlistHandler {
             // Check if it's a wishlist button
             if (btn.classList.contains('card-wishlist') || btn.classList.contains('wishlist-btn') || btn.classList.contains('save-btn') || btn.classList.contains('remove-btn')) {
                 const id = btn.getAttribute('data-id');
+                const icon = btn.querySelector('i');
                 if (id && this.wishlistItems.has(id)) {
-                    const icon = btn.querySelector('i');
                     if (icon) {
                         icon.classList.remove('far');
                         icon.classList.add('fas');
                         icon.style.color = '#ff385c';
                     }
                     btn.classList.add('active');
+                } else {
+                    if (icon) {
+                        icon.classList.remove('fas');
+                        icon.classList.add('far');
+                        icon.style.color = '';
+                    }
+                    btn.classList.remove('active');
                 }
             }
         });
@@ -182,6 +189,30 @@ class WishlistHandler {
         this.wishlistItems.delete(listingId);
         this.saveWishlist();
         this.updateWishlistIcon(listingId);
+
+        return response.json();
+    }
+
+    async bulkRemoveFromWishlist(items) {
+        const response = await fetch('/api/wishlist/bulk', {
+            method: 'DELETE',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ items }),
+            credentials: 'same-origin'
+        });
+
+        if (!response.ok) {
+            throw new Error('Failed bulk removal from wishlist');
+        }
+
+        // Keep local state in sync
+        items.forEach(item => {
+            this.wishlistItems.delete(item.id);
+        });
+        this.saveWishlist();
+        this.updateAllIcons();
 
         return response.json();
     }

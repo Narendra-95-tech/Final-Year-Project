@@ -399,8 +399,6 @@ exports.deleteBooking = wrapAsync(async (req, res) => {
     return res.redirect("/bookings");
   }
 
-  // Allow users to delete any booking from their history
-
   const { type, listing, dhaba, vehicle } = booking;
 
   // Cleanup references in parent models
@@ -418,6 +416,41 @@ exports.deleteBooking = wrapAsync(async (req, res) => {
 
   req.flash("success", "Booking record removed from your history");
   res.redirect("/bookings");
+});
+
+exports.bulkDeleteBookings = wrapAsync(async (req, res) => {
+  const { bookingIds } = req.body;
+  if (!bookingIds || !Array.isArray(bookingIds) || bookingIds.length === 0) {
+    return res.status(400).json({ success: false, message: "No bookings selected for deletion" });
+  }
+
+  const bookings = await Booking.find({
+    _id: { $in: bookingIds },
+    user: req.user._id
+  });
+
+  if (bookings.length === 0) {
+    return res.status(404).json({ success: false, message: "No valid bookings found to delete" });
+  }
+
+  for (let booking of bookings) {
+    const { type, listing, dhaba, vehicle } = booking;
+    const bookingId = booking._id;
+
+    // Cleanup references in parent models
+    if (type === 'listing' && listing) {
+      await mongoose.model('Listing').findByIdAndUpdate(listing, { $pull: { bookings: bookingId } });
+    } else if (type === 'dhaba' && dhaba) {
+      await mongoose.model('Dhaba').findByIdAndUpdate(dhaba, { $pull: { bookings: bookingId } });
+    } else if (type === 'vehicle' && vehicle) {
+      await mongoose.model('Vehicle').findByIdAndUpdate(vehicle, {
+        $pull: { bookings: bookingId, bookedDates: { bookingId: bookingId } }
+      });
+    }
+    await Booking.findByIdAndDelete(bookingId);
+  }
+
+  res.json({ success: true, message: `${bookings.length} bookings removed from your history` });
 });
 
 exports.showBooking = wrapAsync(async (req, res) => {

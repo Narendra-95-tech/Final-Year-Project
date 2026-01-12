@@ -153,6 +153,115 @@
             border-radius: 20px;
             box-shadow: 0 10px 40px rgba(0, 0, 0, 0.05);
         }
+
+        /* Bulk Actions Bar Styles */
+        .bulk-actions-bar {
+            position: sticky;
+            top: 80px;
+            z-index: 100;
+            background: white;
+            padding: 15px 30px;
+            margin: -20px auto 30px;
+            max-width: 1200px;
+            width: calc(100% - 40px);
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+            display: none;
+            align-items: center;
+            justify-content: space-between;
+            border: 1px solid #f0f0f0;
+            transition: all 0.3s ease;
+        }
+
+        .bulk-actions-bar.active {
+            display: flex;
+            animation: slideDown 0.3s ease-out;
+        }
+
+        @keyframes slideDown {
+            from {
+                transform: translateY(-20px);
+                opacity: 0;
+            }
+
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+
+        .selection-info {
+            font-weight: 700;
+            color: #222;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .btn-bulk-delete {
+            background: #fef2f2;
+            color: #dc2626;
+            border: 1px solid #fee2e2;
+            padding: 10px 20px;
+            border-radius: 12px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn-bulk-delete:hover {
+            background: #fee2e2;
+            transform: translateY(-2px);
+        }
+
+        /* Checkbox Styles */
+        .wishlist-checkbox-wrapper {
+            position: absolute;
+            top: 15px;
+            left: 15px;
+            z-index: 20;
+        }
+
+        .custom-checkbox {
+            width: 24px;
+            height: 24px;
+            border: 2px solid rgba(255, 255, 255, 0.8);
+            border-radius: 8px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s;
+            background: rgba(0, 0, 0, 0.2);
+            backdrop-filter: blur(4px);
+        }
+
+        .custom-checkbox i {
+            color: white;
+            font-size: 12px;
+            display: none;
+        }
+
+        .wishlist-checkbox input:checked+.custom-checkbox {
+            background: #FF6B6B;
+            border-color: #FF6B6B;
+        }
+
+        .wishlist-checkbox input:checked+.custom-checkbox i {
+            display: block;
+        }
+
+        .wishlist-checkbox input {
+            display: none;
+        }
+
+        .listing-card.selected {
+            border: 2px solid #FF6B6B;
+            background: #fffafa;
+        }
     </style>
 
     <div class="wishlist-header">
@@ -260,6 +369,25 @@
                     }
                 </style>
                 <% } else { %>
+                    <!-- Bulk Actions Bar -->
+                    <div id="bulkActionsBar" class="bulk-actions-bar">
+                        <div class="selection-info">
+                            <label class="wishlist-checkbox"
+                                style="display: flex; align-items: center; cursor: pointer;">
+                                <input type="checkbox" id="selectAllWishlist">
+                                <div class="custom-checkbox me-3">
+                                    <i class="fas fa-check"></i>
+                                </div>
+                                Select All
+                            </label>
+                            <span id="selectedCount" class="badge rounded-pill bg-light text-dark border ms-3"
+                                style="font-size: 14px; padding: 8px 15px;">0 Selected</span>
+                        </div>
+                        <button id="deleteSelectedBtn" class="btn-bulk-delete">
+                            <i class="fas fa-trash-alt"></i> Remove Selected
+                        </button>
+                    </div>
+
                     <div class="wishlist-grid">
                         <% for(let item of allItems) { /* Normalize Item Data */ let title="Unknown" ; let price=0; let
                             image="" ; let location="" ; let linkUrl="#" ; let badgeText="" ; if(item.type==='listing' )
@@ -276,18 +404,21 @@
                             badgeText = "Eats";
                             }
                             %>
-                            <div class="listing-card" id="card-<%= item._id %>">
+                            <div class="listing-card" id="card-<%= item._id %>" data-id="<%= item._id %>"
+                                data-type="<%= item.type %>">
+                                <div class="wishlist-checkbox-wrapper">
+                                    <label class="wishlist-checkbox">
+                                        <input type="checkbox" class="wishlist-select" data-id="<%= item._id %>"
+                                            data-type="<%= item.type %>">
+                                        <div class="custom-checkbox">
+                                            <i class="fas fa-check"></i>
+                                        </div>
+                                    </label>
+                                </div>
                                 <button class="remove-btn active" data-id="<%= item._id %>"
                                     onclick="removeFromWishlistPage('<%= item._id %>', '<%= item.type %>')"
                                     title="Remove from Wishlist">
                                     <i class="fas fa-heart" style="color: #FF4D4D;"></i>
-                                </button>
-
-                                <button class="btn btn-sm btn-light border shadow-sm"
-                                    style="position: absolute; top: 15px; left: 15px; z-index: 10; border-radius: 50%; width: 35px; height: 35px; color: #dc3545;"
-                                    onclick="removeFromWishlistPage('<%= item._id %>', '<%= item.type %>')"
-                                    title="Delete from Wishlist">
-                                    <i class="fas fa-trash-alt"></i>
                                 </button>
 
                                 <a href="<%= linkUrl %>" class="card-img-container">
@@ -343,4 +474,101 @@
                 }
             }
         }
+
+        // Bulk Actions Logic
+        document.addEventListener('DOMContentLoaded', () => {
+            const bulkBar = document.getElementById('bulkActionsBar');
+            if (!bulkBar) return;
+
+            const selectAll = document.getElementById('selectAllWishlist');
+            const deleteBtn = document.getElementById('deleteSelectedBtn');
+            const countDisplay = document.getElementById('selectedCount');
+            const checkboxes = document.querySelectorAll('.wishlist-select');
+
+            function updateBulkBar() {
+                const selected = document.querySelectorAll('.wishlist-select:checked');
+                const count = selected.length;
+
+                if (count > 0) {
+                    bulkBar.classList.add('active');
+                    countDisplay.textContent = `${count} Selected`;
+                } else {
+                    bulkBar.classList.remove('active');
+                    if (selectAll) selectAll.checked = false;
+                }
+
+                checkboxes.forEach(cb => {
+                    const card = cb.closest('.listing-card');
+                    if (cb.checked) {
+                        card.classList.add('selected');
+                    } else {
+                        card.classList.remove('selected');
+                    }
+                });
+            }
+
+            checkboxes.forEach(cb => {
+                cb.addEventListener('change', updateBulkBar);
+                const wrapper = cb.closest('.wishlist-checkbox');
+                if (wrapper) {
+                    wrapper.addEventListener('click', (e) => e.stopPropagation());
+                }
+            });
+
+            if (selectAll) {
+                selectAll.addEventListener('change', (e) => {
+                    checkboxes.forEach(cb => cb.checked = e.target.checked);
+                    updateBulkBar();
+                });
+            }
+
+            if (deleteBtn) {
+                deleteBtn.addEventListener('click', async () => {
+                    const selected = Array.from(document.querySelectorAll('.wishlist-select:checked'))
+                        .map(cb => ({
+                            id: cb.getAttribute('data-id'),
+                            type: cb.getAttribute('data-type')
+                        }));
+
+                    if (selected.length === 0) return;
+
+                    const confirmed = await window.wanderConfirm(
+                        'Confirm Removal',
+                        `Are you sure you want to remove ${selected.length} items from your wishlist?`,
+                        'Remove All'
+                    );
+
+                    if (confirmed) {
+                        try {
+                            if (window.wishlistHandler) {
+                                const result = await window.wishlistHandler.bulkRemoveFromWishlist(selected);
+                                if (result.success) {
+                                    window.location.reload();
+                                } else {
+                                    alert(result.error || 'Failed to update wishlist');
+                                }
+                            } else {
+                                const response = await fetch('/api/wishlist/bulk', {
+                                    method: 'DELETE',
+                                    headers: {
+                                        'Content-Type': 'application/json'
+                                    },
+                                    body: JSON.stringify({ items: selected })
+                                });
+
+                                const result = await response.json();
+                                if (result.success) {
+                                    window.location.reload();
+                                } else {
+                                    alert(result.error || 'Failed to update wishlist');
+                                }
+                            }
+                        } catch (error) {
+                            console.error('Bulk delete error:', error);
+                            alert('Something went wrong. Please try again.');
+                        }
+                    }
+                });
+            }
+        });
     </script>

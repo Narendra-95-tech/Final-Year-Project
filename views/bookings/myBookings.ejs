@@ -412,6 +412,115 @@
     .pulse-pay {
       animation: pulse-orange 2s infinite;
     }
+
+    /* Multi-select Styles */
+    .bulk-actions-bar {
+      position: sticky;
+      top: 80px;
+      z-index: 100;
+      background: white;
+      padding: 15px 30px;
+      margin: -20px auto 30px;
+      max-width: 1200px;
+      width: calc(100% - 48px);
+      border-radius: 20px;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+      display: none;
+      /* Hidden by default */
+      align-items: center;
+      justify-content: space-between;
+      border: 1px solid #f0f0f0;
+      transition: all 0.3s ease;
+    }
+
+    .bulk-actions-bar.active {
+      display: flex;
+      animation: slideDown 0.3s ease-out;
+    }
+
+    @keyframes slideDown {
+      from {
+        transform: translateY(-20px);
+        opacity: 0;
+      }
+
+      to {
+        transform: translateY(0);
+        opacity: 1;
+      }
+    }
+
+    .selection-info {
+      font-weight: 700;
+      color: var(--primary-dark);
+      display: flex;
+      align-items: center;
+      gap: 15px;
+    }
+
+    .booking-checkbox-wrapper {
+      position: absolute;
+      top: 20px;
+      right: 20px;
+      z-index: 15;
+      pointer-events: auto;
+    }
+
+    .custom-checkbox {
+      width: 24px;
+      height: 24px;
+      border: 2px solid #ddd;
+      border-radius: 8px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.2s;
+      background: white;
+    }
+
+    .custom-checkbox i {
+      color: white;
+      font-size: 12px;
+      display: none;
+    }
+
+    .booking-checkbox input:checked+.custom-checkbox {
+      background: var(--primary-orange);
+      border-color: var(--primary-orange);
+    }
+
+    .booking-checkbox input:checked+.custom-checkbox i {
+      display: block;
+    }
+
+    .booking-checkbox input {
+      display: none;
+    }
+
+    .premium-booking-card.selected {
+      border-color: var(--primary-orange);
+      background: #fff9f5;
+    }
+
+    .btn-bulk-delete {
+      background: #fef2f2;
+      color: #dc2626;
+      border: 1px solid #fee2e2;
+      padding: 10px 20px;
+      border-radius: 12px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all 0.2s;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .btn-bulk-delete:hover {
+      background: #fee2e2;
+      transform: translateY(-2px);
+    }
   </style>
 
   <div class="bookings-page">
@@ -456,6 +565,24 @@
               0).toLocaleString('en-IN') %></div>
         </div>
       </div>
+    </div>
+
+    <!-- Bulk Actions Bar -->
+    <div id="bulkActionsBar" class="bulk-actions-bar">
+      <div class="selection-info">
+        <label class="booking-checkbox" style="display: flex; align-items: center; cursor: pointer;">
+          <input type="checkbox" id="selectAllBookings">
+          <div class="custom-checkbox me-3">
+            <i class="fas fa-check"></i>
+          </div>
+          Select All
+        </label>
+        <span id="selectedCount" class="badge rounded-pill bg-light text-dark border ms-3"
+          style="font-size: 14px; padding: 8px 15px;">0 Selected</span>
+      </div>
+      <button id="deleteSelectedBtn" class="btn-bulk-delete">
+        <i class="fas fa-trash-alt"></i> Delete Selected
+      </button>
     </div>
 
     <div class="bookings-grid">
@@ -604,7 +731,15 @@
             "https://images.unsplash.com/photo-1436491865332-7a61a109c0f3?auto=format&fit=crop&q=80&w=800";
             %>
 
-            <div class="premium-booking-card" data-link="<%= detailLink %>">
+            <div class="premium-booking-card" data-link="<%= detailLink %>" data-id="<%= booking._id %>">
+              <div class="booking-checkbox-wrapper">
+                <label class="booking-checkbox">
+                  <input type="checkbox" class="booking-select" data-id="<%= booking._id %>">
+                  <div class="custom-checkbox">
+                    <i class="fas fa-check"></i>
+                  </div>
+                </label>
+              </div>
               <div class="booking-type-tag">
                 <% if(booking.type==='listing' ) { %> <i class="fas fa-home me-1"></i>
                   <% } else if(booking.type==='dhaba' ) { %> <i class="fas fa-utensils me-1"></i>
@@ -770,6 +905,83 @@
     // Subtle entry animation
     document.addEventListener('DOMContentLoaded', () => {
       const cards = document.querySelectorAll('.premium-booking-card');
+      const bulkBar = document.getElementById('bulkActionsBar');
+      const selectAll = document.getElementById('selectAllBookings');
+      const deleteBtn = document.getElementById('deleteSelectedBtn');
+      const countDisplay = document.getElementById('selectedCount');
+      const checkboxes = document.querySelectorAll('.booking-select');
+
+      function updateBulkBar() {
+        const selected = document.querySelectorAll('.booking-select:checked');
+        const count = selected.length;
+
+        if (count > 0) {
+          bulkBar.classList.add('active');
+          countDisplay.textContent = `${count} Selected`;
+        } else {
+          bulkBar.classList.remove('active');
+          selectAll.checked = false;
+        }
+
+        // Update card styles
+        checkboxes.forEach(cb => {
+          const card = cb.closest('.premium-booking-card');
+          if (cb.checked) {
+            card.classList.add('selected');
+          } else {
+            card.classList.remove('selected');
+          }
+        });
+      }
+
+      // Checkbox click handler
+      checkboxes.forEach(cb => {
+        cb.addEventListener('change', updateBulkBar);
+        // Prevent card click when clicking checkbox
+        cb.parentElement.addEventListener('click', (e) => e.stopPropagation());
+      });
+
+      // Select All handler
+      selectAll.addEventListener('change', (e) => {
+        checkboxes.forEach(cb => cb.checked = e.target.checked);
+        updateBulkBar();
+      });
+
+      // Delete Selected handler
+      deleteBtn.addEventListener('click', async () => {
+        const selected = Array.from(document.querySelectorAll('.booking-select:checked'))
+          .map(cb => cb.getAttribute('data-id'));
+
+        if (selected.length === 0) return;
+
+        const confirmed = await window.wanderConfirm(
+          'Confirm Bulk Deletion',
+          `Are you sure you want to delete ${selected.length} selected bookings? This action cannot be undone.`,
+          'Delete All'
+        );
+
+        if (confirmed) {
+          try {
+            const response = await fetch('/bookings/bulk', {
+              method: 'DELETE',
+              headers: {
+                'Content-Type': 'application/json'
+              },
+              body: JSON.stringify({ bookingIds: selected })
+            });
+
+            const result = await response.json();
+            if (result.success) {
+              window.location.reload();
+            } else {
+              alert(result.message || 'Failed to delete bookings');
+            }
+          } catch (error) {
+            console.error('Bulk delete error:', error);
+            alert('Something went wrong. Please try again.');
+          }
+        }
+      });
 
       cards.forEach((card, index) => {
         // Entry Animation

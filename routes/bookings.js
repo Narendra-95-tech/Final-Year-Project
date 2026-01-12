@@ -29,6 +29,7 @@ const {
   updateBookingStatus,
   cancelBooking,
   deleteBooking,
+  bulkDeleteBookings,
   showBooking,
 } = require("../controllers/dhabaBookings");
 
@@ -253,6 +254,7 @@ router.post("/admin/:bookingId/status", isLoggedIn, isAdmin, updateBookingStatus
 // User's bookings list (must be before /:id route)
 router.get("/", isLoggedIn, getUserBookings);
 router.post("/:id/cancel", isLoggedIn, cancelBooking);
+router.delete("/bulk", isLoggedIn, bulkDeleteBookings);
 router.delete("/:id", isLoggedIn, deleteBooking);
 
 // Generic Show Route (Must be last)
