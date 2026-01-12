@@ -11,36 +11,37 @@ if (missingVars.length > 0) {
 
 // Create transporter
 // Robustly handle whitespace/newlines from copy-paste errors
-const emailService = (process.env.EMAIL_SERVICE || 'gmail').trim();
 let rawUser = (process.env.EMAIL_USER || '').trim();
-// If user put "Name <email@gmail.com>", extract just the email
-const emailMatch = rawUser.match(/<([^>]+)>/);
+
+// Extract email from "Name <email@gmail.com>" or "email@gmail.com"
+// Improved regex to be more forgiving
+const emailMatch = rawUser.match(/<?([a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,})>?/);
 if (emailMatch) {
   rawUser = emailMatch[1];
 }
 const emailUser = rawUser;
-// Remove all whitespace from password (app passwords often copied with spaces)
 const emailPass = (process.env.EMAIL_PASSWORD || '').replace(/\s+/g, '');
 
 const transporter = nodemailer.createTransport({
   host: 'smtp.gmail.com',
-  port: 587,
-  secure: false, // Port 587 uses StartTLS (secure: false)
+  port: 465,
+  secure: true,
   auth: {
     user: emailUser,
     pass: emailPass
   },
-  requireTLS: true,
-  connectionTimeout: 20000, // 20 seconds
+  authMethod: 'PLAIN',
+  connectionTimeout: 20000,
   greetingTimeout: 20000,
   socketTimeout: 30000,
-  family: 4
+  family: 4,
+  logger: true, // This will print details to Render Logs
+  debug: true
 });
 
 // Export the "Cleaned" values for debugging
 transporter.debugInfo = {
-  service: emailService,
-  user: emailUser ? 'Set (' + emailUser.slice(-4) + ')' : 'MISSING',
+  extractedEmail: emailUser ? emailUser.slice(0, 3) + '...' + emailUser.slice(-7) : 'MISSING',
   passLength: emailPass.length
 };
 
