@@ -25,12 +25,15 @@ const emailPass = (process.env.EMAIL_PASSWORD || '').replace(/\s+/g, '');
 const transporter = nodemailer.createTransport({
   host: 'smtp.gmail.com',
   port: 465,
-  secure: true, // Use SSL
+  secure: true, // Use SSL/TLS
   auth: {
     user: emailUser,
     pass: emailPass
   },
-  family: 4 // Force IPv4 to prevent IPv6 connection timeouts
+  connectionTimeout: 15000, // 15 seconds
+  greetingTimeout: 15000,
+  socketTimeout: 30000,
+  family: 4 // Force IPv4
 });
 
 // Export the "Cleaned" values for debugging
