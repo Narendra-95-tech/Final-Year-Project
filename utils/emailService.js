@@ -18,10 +18,17 @@ const emailPass = (process.env.EMAIL_PASSWORD || '').replace(/\s+/g, '');
 
 const transporter = nodemailer.createTransport({
   service: emailService,
+  host: 'smtp.gmail.com', // Explicit host
+  port: 587, // Try 587 for StartTLS
+  secure: false,
   auth: {
     user: emailUser,
     pass: emailPass
-  }
+  },
+  tls: {
+    rejectUnauthorized: false // Help with some certificate issues
+  },
+  family: 4 // Force IPv4 to prevent IPv6 connection timeouts (Critical for Render)
 });
 
 // Verify connection on startup - DISABLED to prevent startup delays/crashes
