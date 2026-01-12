@@ -103,12 +103,15 @@
         <div class="payment-card animate-fade-in">
           <div class="payment-summary text-center">
             <h3 class="mb-3">Booking Summary</h3>
-            <% if (booking.type==='listing' && booking.listing) { %>
+            <% if (booking.type==='listing' && booking.listing) { let imgUrl=booking.listing.image?.url; if(!imgUrl &&
+              booking.listing.images && booking.listing.images.length> 0) imgUrl = booking.listing.images[0].url;
+              if(!imgUrl) imgUrl =
+              "https://images.unsplash.com/photo-1469854523086-cc02fe5d8800?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80";
+              %>
               <div class="mb-4">
-                <img
-                  src="<%= booking.listing.image?.url || 'https://images.unsplash.com/photo-1502672260266-1c1ef2d93688?w=200&h=150&fit=crop&crop=center' %>"
-                  class="img-fluid rounded mb-3" alt="<%= booking.listing.title %>"
-                  style="max-height: 150px; object-fit: cover;">
+                <img src="<%= imgUrl %>" class="img-fluid rounded mb-3" alt="<%= booking.listing.title %>"
+                  style="width: 100%; height: 200px; object-fit: cover; background-color: #f1f5f9;"
+                  onerror="this.onerror=null;this.src='https://images.unsplash.com/photo-1469854523086-cc02fe5d8800?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80';">
                 <h4>
                   <%= booking.listing.title %>
                 </h4>
@@ -117,12 +120,17 @@
                   <%= booking.listing.location %>, <%= booking.listing.country %>
                 </p>
               </div>
-              <% } else if (booking.type==='vehicle' && booking.vehicle) { %>
+              <% } else if (booking.type==='vehicle' && booking.vehicle) { let imgUrl=booking.vehicle.image?.url;
+                if(!imgUrl && booking.vehicle.images && booking.vehicle.images.length> 0) imgUrl =
+                booking.vehicle.images[0].url;
+                if(!imgUrl) imgUrl =
+                "https://images.unsplash.com/photo-1469854523086-cc02fe5d8800?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80";
+                %>
                 <div class="mb-4">
-                  <img
-                    src="<%= booking.vehicle.image?.url || (booking.vehicle.images && booking.vehicle.images.length > 0 ? booking.vehicle.images[0].url : 'https://images.unsplash.com/photo-1503376785-2acd3d0a0821?w=200&h=150&fit=crop&crop=center') %>"
-                    class="img-fluid rounded mb-3" alt="<%= booking.vehicle.title || booking.vehicle.brand %>"
-                    style="max-height: 150px; object-fit: cover;">
+                  <img src="<%= imgUrl %>" class="img-fluid rounded mb-3"
+                    alt="<%= booking.vehicle.title || booking.vehicle.brand %>"
+                    style="width: 100%; height: 200px; object-fit: cover; background-color: #f1f5f9;"
+                    onerror="this.onerror=null;this.src='https://images.unsplash.com/photo-1469854523086-cc02fe5d8800?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80';">
                   <h4>
                     <%= booking.vehicle.title || (booking.vehicle.brand + ' ' + booking.vehicle.model) %>
                   </h4>
@@ -131,12 +139,17 @@
                     <%= booking.vehicle.location %>, <%= booking.vehicle.country %>
                   </p>
                 </div>
-                <% } else if (booking.type==='dhaba' && booking.dhaba) { %>
+                <% } else if (booking.type==='dhaba' && booking.dhaba) { let imgUrl="" ; if(booking.dhaba.images &&
+                  booking.dhaba.images.length> 0) imgUrl = booking.dhaba.images[0].url;
+                  else if(booking.dhaba.image && booking.dhaba.image.length > 0) imgUrl = booking.dhaba.image[0].url;
+
+                  if(!imgUrl) imgUrl =
+                  "https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?w=800&auto=format&fit=crop&q=80";
+                  %>
                   <div class="mb-4">
-                    <img
-                      src="<%= (booking.dhaba.image && booking.dhaba.image.length > 0) ? booking.dhaba.image[0].url : 'https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?w=200&h=150&fit=crop&crop=center' %>"
-                      class="img-fluid rounded mb-3" alt="<%= booking.dhaba.title %>"
-                      style="max-height: 150px; object-fit: cover;">
+                    <img src="<%= imgUrl %>" class="img-fluid rounded mb-3" alt="<%= booking.dhaba.title %>"
+                      style="width: 100%; height: 200px; object-fit: cover; background-color: #f1f5f9;"
+                      onerror="this.onerror=null;this.src='https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?w=800&auto=format&fit=crop&q=80';">
                     <h4>
                       <%= booking.dhaba.title %>
                     </h4>
@@ -533,13 +546,25 @@
       }
     }
 
-    // Legacy card payment function (kept for reference)
+    // Enhanced card payment function with better UX
     async function processPayment() {
-      try {
-        const btn = document.querySelector('button[onclick="processPayment()"]');
-        btn.disabled = true;
-        btn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Processing...';
+      const btn = document.querySelector('button[onclick="processPayment()"]');
+      const overlay = document.getElementById('paymentOverlay');
+      const overlayTitle = overlay.querySelector('h3');
+      const overlayText = overlay.querySelector('p');
 
+      // Show loading state on button
+      btn.disabled = true;
+      btn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Preparing secure checkout...';
+
+      // Show overlay after 500ms (if still processing)
+      const overlayTimeout = setTimeout(() => {
+        overlay.style.display = 'flex';
+        overlayTitle.textContent = 'Preparing Your Payment...';
+        overlayText.textContent = 'Please wait while we set up secure checkout';
+      }, 500);
+
+      try {
         const response = await fetch('/bookings/create-checkout-session', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
@@ -549,16 +574,70 @@
         const data = await response.json();
 
         if (data.success && data.url) {
+          // Update overlay message
+          clearTimeout(overlayTimeout);
+          overlay.style.display = 'flex';
+          overlayTitle.textContent = 'Redirecting to Stripe Checkout...';
+          overlayText.textContent = 'You will be redirected in a moment';
+
+          // Small delay for better UX
+          await new Promise(r => setTimeout(r, 800));
+
+          // Redirect to Stripe
           window.location.href = data.url;
         } else {
           throw new Error(data.message || 'Failed to initiate payment');
         }
       } catch (error) {
         console.error('Payment error:', error);
-        alert('Payment processing failed. Please try again.');
-        const btn = document.querySelector('button[onclick="processPayment()"]');
-        if (btn) btn.disabled = false;
+
+        // Hide overlay
+        clearTimeout(overlayTimeout);
+        overlay.style.display = 'none';
+
+        // Show user-friendly error
+        showPaymentError(error.message || 'Payment processing failed. Please try again.');
+
+        // Reset button
+        btn.disabled = false;
         btn.innerHTML = '<i class="fas fa-credit-card me-2"></i>Pay with Card';
       }
+    }
+
+    // New error display function
+    function showPaymentError(message) {
+      // Remove any existing error alerts
+      const existingAlerts = document.querySelectorAll('.payment-error-alert');
+      existingAlerts.forEach(alert => alert.remove());
+
+      // Create new error alert
+      const errorDiv = document.createElement('div');
+      errorDiv.className = 'alert alert-danger alert-dismissible fade show mt-3 payment-error-alert';
+      errorDiv.innerHTML = `
+        <div class="d-flex align-items-center">
+          <i class="fas fa-exclamation-triangle me-3 fa-2x"></i>
+          <div>
+            <strong>Payment Error</strong>
+            <p class="mb-0 mt-1">${message}</p>
+          </div>
+        </div>
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+      `;
+
+      // Insert error before payment options
+      const paymentOptions = document.querySelector('.payment-card .card-body');
+      if (paymentOptions) {
+        paymentOptions.insertBefore(errorDiv, paymentOptions.firstChild);
+
+        // Scroll to error
+        errorDiv.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      }
+    }
+
+    // Add retry functionality
+    function retryPayment() {
+      const errorAlerts = document.querySelectorAll('.payment-error-alert');
+      errorAlerts.forEach(alert => alert.remove());
+      processPayment();
     }
   </script>

@@ -203,7 +203,20 @@
               <i class="fas fa-check-circle fa-4x text-white"></i>
             </div>
             <h1 class="fw-bold mb-2">Payment Successful!</h1>
-            <p class="opacity-75 mb-0">Thank you for your booking.</p>
+            <p class="opacity-75 mb-3">Thank you for your booking.</p>
+
+            <!-- Confirmation Number -->
+            <div class="mt-3">
+              <small class="opacity-75 d-block mb-1">Confirmation Number</small>
+              <div class="d-inline-flex align-items-center bg-white bg-opacity-25 px-3 py-2 rounded-pill">
+                <span class="fw-bold me-2" id="confirmationNumber">#<%= booking._id.toString().slice(-8).toUpperCase()
+                    %></span>
+                <button onclick="copyConfirmation()" class="btn btn-sm btn-light rounded-pill px-2 py-1"
+                  title="Copy confirmation number">
+                  <i class="fas fa-copy"></i>
+                </button>
+              </div>
+            </div>
           </div>
         </div>
 
@@ -303,6 +316,10 @@
               <a href="/bookings" class="btn-action btn-secondary-action text-decoration-none">
                 <i class="fas fa-arrow-left"></i> My Bookings
               </a>
+              <a href="/bookings/<%= booking._id %>/invoice"
+                class="btn-action btn-primary-action text-decoration-none bg-success border-success">
+                <i class="fas fa-file-pdf"></i> Download Invoice
+              </a>
               <button onclick="window.print()" class="btn-action btn-primary-action">
                 <i class="fas fa-print"></i> Print Receipt
               </button>
@@ -323,4 +340,24 @@
         colors: ['#0FAA5B', '#22c55e']
       });
     });
+
+    // Copy confirmation number
+    function copyConfirmation() {
+      const confirmNum = document.getElementById('confirmationNumber').textContent;
+      navigator.clipboard.writeText(confirmNum).then(() => {
+        // Show success feedback
+        const btn = event.target.closest('button');
+        const originalHTML = btn.innerHTML;
+        btn.innerHTML = '<i class="fas fa-check"></i>';
+        btn.classList.add('btn-success');
+
+        setTimeout(() => {
+          btn.innerHTML = originalHTML;
+          btn.classList.remove('btn-success');
+        }, 2000);
+      }).catch(err => {
+        console.error('Failed to copy:', err);
+        alert('Confirmation number: ' + confirmNum);
+      });
+    }
   </script>

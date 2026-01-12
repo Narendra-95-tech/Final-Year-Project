@@ -179,7 +179,7 @@ exports.handleSuccess = wrapAsync(async (req, res) => {
       if (booking) {
         booking.paymentStatus = 'Paid';
         booking.isPaid = true;
-        booking.paymentId = session.payment_intent;
+        booking.paymentIntentId = session.payment_intent; // Store specific intent ID for refunds
         booking.paymentDate = new Date();
         booking.status = 'Confirmed';
         await booking.save();
@@ -238,13 +238,13 @@ exports.verifyPayment = wrapAsync(async (req, res) => {
 });
 
 exports.getUserBookings = wrapAsync(async (req, res) => {
-  const bookings = await Booking.find({ user: req.user._id })
-    .sort({ createdAt: -1 })
+  // Fetch all bookings (unsorted from DB)
+  let bookings = await Booking.find({ user: req.user._id })
     .populate("dhaba")
     .populate("listing")
     .populate("vehicle");
 
-  // Normalize data for legacy or inconsistent records
+  // Normalize data first
   for (let booking of bookings) {
     // Infer type if missing
     if (!booking.type) {
@@ -253,14 +253,21 @@ exports.getUserBookings = wrapAsync(async (req, res) => {
       else if (booking.vehicle) booking.type = 'vehicle';
     }
 
-    // Normalize status (e.g. 'confirmed' -> 'Confirmed')
+    // Normalize status
     if (booking.status && booking.status.toLowerCase() === 'confirmed') booking.status = 'Confirmed';
     if (booking.status && booking.status.toLowerCase() === 'cancelled') booking.status = 'Cancelled';
     if (booking.status && booking.status.toLowerCase() === 'pending') booking.status = 'Pending';
-
-    // Normalize paymentStatus
     if (booking.paymentStatus && booking.paymentStatus.toLowerCase() === 'paid') booking.paymentStatus = 'Paid';
   }
+
+  // Smart Sort: By Trip Date (Ascending)
+  // This puts the "Next Trip" at the top of the list (provided we filter out past ones in the view)
+  // For dashboard, having them chronologically 2024 -> 2025 makes most sense for the "Timeline"
+  bookings.sort((a, b) => {
+    const dateA = new Date(a.startDate || a.date);
+    const dateB = new Date(b.startDate || b.date);
+    return dateA - dateB;
+  });
 
   res.render("bookings/myBookings", { bookings });
 });
@@ -332,13 +339,14 @@ exports.cancelBooking = wrapAsync(async (req, res) => {
   let refundMsg = "";
 
   // 1. Handle Wallet Refund
-  if (booking.paidWithWallet && booking.isPaid) {
+  // Check for explicit flag OR legacy string check
+  if (booking.isPaid && (booking.paidWithWallet || booking.paymentMethod === 'Wallet')) {
     const user = await User.findById(booking.user);
     if (user) {
       user.walletBalance = (user.walletBalance || 0) + booking.totalPrice;
       await user.save();
       refundSuccess = true;
-      refundMsg = "Amount has been refunded to your Wander Wallet.";
+      refundMsg = `₹${booking.totalPrice} has been refunded to your Wander Wallet.`;
     }
   }
   // 2. Handle Stripe Refund (If Stripe is configured)
@@ -349,8 +357,12 @@ exports.cancelBooking = wrapAsync(async (req, res) => {
 
         // If we only have sessionId, retrieve the session to get the PaymentIntent
         if (!piId && booking.stripeSessionId) {
-          const session = await stripe.checkout.sessions.retrieve(booking.stripeSessionId);
-          piId = session.payment_intent;
+          try {
+            const session = await stripe.checkout.sessions.retrieve(booking.stripeSessionId);
+            piId = session.payment_intent;
+          } catch (err) {
+            console.log("Could not retrieve session for refund:", err.message);
+          }
         }
 
         if (piId) {
@@ -358,14 +370,17 @@ exports.cancelBooking = wrapAsync(async (req, res) => {
             payment_intent: piId,
           });
           refundSuccess = true;
-          refundMsg = "A refund has been initiated to your original payment method.";
+          refundMsg = `₹${booking.totalPrice} has been refunded to your original payment method.`;
+        } else {
+          console.log("No PaymentIntent found for booking:", booking._id);
+          refundMsg = "Could not locate payment details for auto-refund. Please contact support.";
         }
       } else {
         refundMsg = "Automated Stripe refund is unavailable (API keys missing). Please contact support.";
       }
     } catch (stripeError) {
       console.error("Stripe Refund Error:", stripeError);
-      refundMsg = "Stripe refund failed. Please contact support.";
+      refundMsg = "Stripe refund failed (it may have already been refunded). Please check your statement.";
     }
   }
 
@@ -379,8 +394,8 @@ exports.cancelBooking = wrapAsync(async (req, res) => {
 
   await booking.save();
 
-  const successHeader = `Booking #${id.slice(-6).toUpperCase()} cancelled.`;
-  req.flash("success", refundSuccess ? `${successHeader} ${refundMsg}` : successHeader);
+  const successHeader = `Booking cancelled.`; // Simplified header
+  req.flash("success", refundSuccess ? `${successHeader} ${refundMsg}` : `${successHeader} Refund status: ${booking.paymentStatus}.`);
   res.redirect("/bookings");
 });
 

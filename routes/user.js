@@ -21,6 +21,21 @@ router.route("/login")
   .get(userController.renderLoginForm)
   .post(saveRedirectUrl, passport.authenticate("local", { failureRedirect: '/login', failureFlash: true }), userController.login);
 
+// Email Verification Routes
+router.route("/verify-otp")
+  .get(userController.renderVerifyOTPForm)
+  .post(wrapAsync(userController.verifyOTP));
+
+router.post("/resend-otp", wrapAsync(userController.resendOTP));
+
+// Password Reset Routes
+router.route("/forgot-password")
+  .get(userController.renderForgotPasswordForm)
+  .post(wrapAsync(userController.forgotPassword));
+
+router.route("/reset-password")
+  .get(userController.renderResetPasswordForm)
+  .post(wrapAsync(userController.resetPassword));
 
 // Logout
 router.get("/logout", userController.logout);

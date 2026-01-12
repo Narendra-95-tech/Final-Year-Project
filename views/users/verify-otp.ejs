@@ -1,0 +1,164 @@
+<% layout("/layouts/boilerplate") %>
+
+    <div class="row mt-5 mb-5">
+        <div class="col-md-6 offset-md-3">
+            <div class="card shadow border-0 rounded-4 overflow-hidden">
+                <div class="card-header bg-success text-white py-4 text-center">
+                    <i class="fas fa-shield-alt fa-3x mb-3 pulse-animation"></i>
+                    <h2 class="fw-bold mb-0">Verify Your Email</h2>
+                    <p class="opacity-75 mb-0">We've sent a 6-digit code to your email</p>
+                </div>
+                <div class="card-body p-5">
+                    <form action="/verify-otp" method="POST" class="needs-validation" novalidate id="otpForm">
+                        <input type="hidden" name="email" value="<%= email %>">
+                        <input type="hidden" name="purpose" value="registration">
+
+                        <div class="mb-4">
+                            <label for="otp" class="form-label text-secondary fw-semibold">Enter 6-Digit Code</label>
+                            <div class="otp-input-container d-flex justify-content-between gap-2 mb-3">
+                                <% for(let i=0; i < 6; i++) { %>
+                                    <input type="text" class="form-control otp-digit text-center fw-bold fs-3 border-2"
+                                        maxlength="1" pattern="\d" required style="height: 60px; border-radius: 12px;">
+                                    <% } %>
+                            </div>
+                            <input type="hidden" name="otp" id="fullOtp">
+                            <div class="invalid-feedback text-center">Please enter the complete 6-digit code.</div>
+                        </div>
+
+                        <div class="d-grid gap-2">
+                            <button class="btn btn-success btn-lg py-3 rounded-pill fw-bold shadow-sm" type="submit">
+                                <i class="fas fa-check-circle me-2"></i>Verify Account
+                            </button>
+                        </div>
+                    </form>
+
+                    <hr class="my-4">
+
+                    <div class="text-center">
+                        <p class="text-muted mb-3">Didn't receive the code?</p>
+                        <form action="/resend-otp" method="POST" id="resendForm">
+                            <input type="hidden" name="email" value="<%= email %>">
+                            <input type="hidden" name="purpose" value="registration">
+                            <button type="submit" class="btn btn-outline-success rounded-pill px-4" id="resendBtn">
+                                <i class="fas fa-redo-alt me-2"></i>Resend Code
+                                <span id="countdown" class="d-none ms-2">(<span id="seconds">60</span>s)</span>
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+
+            <div class="text-center mt-4">
+                <a href="/login" class="text-decoration-none text-muted">
+                    <i class="fas fa-arrow-left me-2"></i>Back to Login
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <style>
+        .otp-digit:focus {
+            border-color: #198754;
+            box-shadow: 0 0 0 0.25rem rgba(25, 135, 84, 0.25);
+        }
+
+        .pulse-animation {
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0% {
+                transform: scale(1);
+            }
+
+            50% {
+                transform: scale(1.1);
+            }
+
+            100% {
+                transform: scale(1);
+            }
+        }
+    </style>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const digits = document.querySelectorAll('.otp-digit');
+            const fullOtpInput = document.getElementById('fullOtp');
+            const otpForm = document.getElementById('otpForm');
+
+            // Handle OTP input behavior
+            digits.forEach((digit, index) => {
+                // Next field on type
+                digit.addEventListener('input', function (e) {
+                    if (this.value.length === 1 && index < digits.length - 1) {
+                        digits[index + 1].focus();
+                    }
+                    updateFullOtp();
+                });
+
+                // Backspace behavior
+                digit.addEventListener('keydown', function (e) {
+                    if (e.key === 'Backspace' && this.value.length === 0 && index > 0) {
+                        digits[index - 1].focus();
+                    }
+                });
+
+                // Handle paste
+                digit.addEventListener('paste', function (e) {
+                    e.preventDefault();
+                    const pasteData = e.clipboardData.getData('text').slice(0, 6);
+                    if (/^\d+$/.test(pasteData)) {
+                        pasteData.split('').forEach((char, i) => {
+                            if (digits[index + i]) {
+                                digits[index + i].value = char;
+                            }
+                        });
+                        const nextIndex = Math.min(index + pasteData.length, digits.length - 1);
+                        digits[nextIndex].focus();
+                        updateFullOtp();
+                    }
+                });
+            });
+
+            function updateFullOtp() {
+                let otp = '';
+                digits.forEach(d => otp += d.value);
+                fullOtpInput.value = otp;
+            }
+
+            otpForm.addEventListener('submit', function (e) {
+                updateFullOtp();
+                if (fullOtpInput.value.length !== 6) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                }
+            });
+
+            // Resend Timer
+            const resendBtn = document.getElementById('resendBtn');
+            const countdown = document.getElementById('countdown');
+            const secondsSpan = document.getElementById('seconds');
+            let timer = 60;
+
+            function startTimer() {
+                resendBtn.disabled = true;
+                countdown.classList.remove('d-none');
+                const interval = setInterval(() => {
+                    timer--;
+                    secondsSpan.textContent = timer;
+                    if (timer <= 0) {
+                        clearInterval(interval);
+                        resendBtn.disabled = false;
+                        countdown.classList.add('d-none');
+                        timer = 60;
+                    }
+                }, 1000);
+            }
+
+            const resendForm = document.getElementById('resendForm');
+            resendForm.addEventListener('submit', function () {
+                startTimer();
+            });
+        });
+    </script>

@@ -51,6 +51,14 @@ module.exports.saveRedirectUrl = (req, res, next) => {
     next();
 };
 
+module.exports.isEmailVerified = (req, res, next) => {
+    if (req.user && !req.user.isVerified) {
+        req.flash("error", "Please verify your email to continue.");
+        return res.redirect("/verify-otp");
+    }
+    next();
+};
+
 
 module.exports.validateListing = (req, res, next) => {
 

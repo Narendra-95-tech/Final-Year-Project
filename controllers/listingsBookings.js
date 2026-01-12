@@ -187,12 +187,32 @@ exports.handleSuccess = wrapAsync(async (req, res) => {
     return res.redirect("/bookings");
   }
 
+  // Send confirmation emails if payment is successful
+  if (booking.isPaid && booking.user && booking.user.email) {
+    try {
+      const { sendBookingConfirmation, sendPaymentReceipt } = require('../utils/emailService');
+
+      // Send both emails (don't wait for them to complete)
+      sendBookingConfirmation(booking, booking.user).catch(err =>
+        console.error('Email send failed:', err.message)
+      );
+      sendPaymentReceipt(booking, booking.user).catch(err =>
+        console.error('Receipt send failed:', err.message)
+      );
+
+      console.log('📧 Sending confirmation emails to:', booking.user.email);
+    } catch (error) {
+      console.error('Email service error:', error.message);
+      // Don't fail the request if email fails
+    }
+  }
+
   let itemTitle = "WanderLust Experience";
   if (booking.listing) itemTitle = booking.listing.title;
   else if (booking.vehicle) itemTitle = booking.vehicle.title || `${booking.vehicle.brand} ${booking.vehicle.model}`;
   else if (booking.dhaba) itemTitle = booking.dhaba.title;
 
-  req.flash("success", `Your booking for ${itemTitle} is confirmed!`);
+  req.flash("success", `Your booking for ${itemTitle} is confirmed! Check your email for details.`);
   res.render("bookings/success", { booking, sessionId: sessionId || '' });
 });
 
@@ -283,7 +303,8 @@ exports.createCheckoutSession = wrapAsync(async (req, res) => {
   const booking = await Booking.findById(bookingId)
     .populate("listing")
     .populate("vehicle")
-    .populate("dhaba");
+    .populate("dhaba")
+    .populate("user");
 
   if (!booking) {
     return res.status(404).json({ success: false, message: "Booking not found" });
@@ -295,12 +316,17 @@ exports.createCheckoutSession = wrapAsync(async (req, res) => {
   }
 
   let itemTitle = "WanderLust Booking";
+  let itemDescription = "Reservation on WanderLust";
+
   if (booking.type === 'listing' && booking.listing) {
     itemTitle = booking.listing.title;
+    itemDescription = `Stay at ${booking.listing.title} in ${booking.listing.location}`;
   } else if (booking.type === 'vehicle' && booking.vehicle) {
     itemTitle = `${booking.vehicle.brand} ${booking.vehicle.model}`;
+    itemDescription = `Vehicle rental: ${booking.vehicle.brand} ${booking.vehicle.model}`;
   } else if (booking.type === 'dhaba' && booking.dhaba) {
     itemTitle = booking.dhaba.title;
+    itemDescription = `Dining reservation at ${booking.dhaba.title}`;
   }
 
   const session = await stripe.checkout.sessions.create({
@@ -311,7 +337,7 @@ exports.createCheckoutSession = wrapAsync(async (req, res) => {
           currency: "inr",
           product_data: {
             name: itemTitle,
-            description: `Reservation for ${itemTitle} on WanderLust`,
+            description: itemDescription,
           },
           unit_amount: Math.round(booking.totalPrice * 100),
         },
@@ -319,12 +345,28 @@ exports.createCheckoutSession = wrapAsync(async (req, res) => {
       },
     ],
     mode: "payment",
-    success_url: `${req.protocol}://${req.get("host")}/bookings/success?session_id={CHECKOUT_SESSION_ID}`,
-    cancel_url: `${req.protocol}://${req.get("host")}/bookings/cancel?session_id={CHECKOUT_SESSION_ID}`,
+
+    // Enhanced features
+    customer_email: booking.user?.email || req.user?.email,
+    billing_address_collection: 'auto',
+    phone_number_collection: {
+      enabled: true
+    },
+
+    // Improved URLs with booking context
+    success_url: `${req.protocol}://${req.get("host")}/bookings/success?session_id={CHECKOUT_SESSION_ID}&booking_id=${booking._id}`,
+    cancel_url: `${req.protocol}://${req.get("host")}/bookings/cancel?session_id={CHECKOUT_SESSION_ID}&booking_id=${booking._id}`,
+
+    // Enhanced metadata
     metadata: {
       bookingId: booking._id.toString(),
-      type: booking.type
+      type: booking.type,
+      userId: booking.user?._id.toString() || req.user._id.toString(),
+      amount: booking.totalPrice.toString()
     },
+
+    // Session expiration (30 minutes)
+    expires_at: Math.floor(Date.now() / 1000) + (30 * 60),
   });
 
   booking.stripeSessionId = session.id;
@@ -332,3 +374,4 @@ exports.createCheckoutSession = wrapAsync(async (req, res) => {
 
   res.json({ success: true, url: session.url });
 });
+

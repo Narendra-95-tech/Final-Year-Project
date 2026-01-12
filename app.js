@@ -38,6 +38,7 @@ const authRoutes = require("./routes/auth");
 const wishlistRoutes = require("./routes/wishlist");
 const aiMagicRouter = require("./routes/aiMagic");
 const trustRouter = require("./routes/trust");
+const otpRouter = require("./routes/otp");
 
 // --------------------  
 // Database Connection
@@ -282,6 +283,7 @@ app.use("/auth", authRoutes);
 app.use("/api/wishlist", wishlistRoutes);
 app.use("/ai/magic", aiMagicRouter);
 app.use("/trust", trustRouter);
+app.use("/api/otp", otpRouter);
 
 
 

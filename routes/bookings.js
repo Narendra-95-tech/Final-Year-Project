@@ -5,7 +5,7 @@ const Listing = require("../models/listing");
 const Dhaba = require("../models/dhaba");
 const Vehicle = require("../models/vehicle");
 const User = require("../models/user");
-const { isLoggedIn, isAdmin } = require("../middleware");
+const { isLoggedIn, isAdmin, isEmailVerified } = require("../middleware");
 
 // Import Controllers
 const {
@@ -39,7 +39,7 @@ const {
 // ==========================================
 
 // Centralized Initiate Route (Used by Listing/Vehicle/Dhaba Booking Widgets)
-router.post("/initiate", isLoggedIn, async (req, res) => {
+router.post("/initiate", isLoggedIn, isEmailVerified, async (req, res) => {
   try {
     const { type, listingId, vehicleId, dhabaId, startDate, endDate, date, time, guests, totalPrice, message } = req.body;
 
@@ -203,7 +203,11 @@ router.get("/cancel", isLoggedIn, handleCancel);
 router.post("/:id/pay-wallet", isLoggedIn, async (req, res) => {
   try {
     const { id } = req.params;
-    const booking = await Booking.findById(id).populate('listing').populate('vehicle').populate('dhaba');
+    const booking = await Booking.findById(id)
+      .populate('listing')
+      .populate('vehicle')
+      .populate('dhaba')
+      .populate('user');
     if (!booking) return res.status(404).json({ success: false, message: "Booking not found" });
 
     // Real Wallet Logic
@@ -220,8 +224,21 @@ router.post("/:id/pay-wallet", isLoggedIn, async (req, res) => {
     booking.isPaid = true;
     booking.status = 'Confirmed';
     booking.paymentMethod = 'Wallet';
+    booking.paidWithWallet = true; // Explicitly flag for refund logic
     booking.paymentDate = new Date();
     await booking.save();
+
+    // Send confirmation emails
+    if (booking.user && booking.user.email) {
+      try {
+        const { sendBookingConfirmation, sendPaymentReceipt } = require('../utils/emailService');
+        sendBookingConfirmation(booking, booking.user).catch(err => console.error('Email failed:', err.message));
+        sendPaymentReceipt(booking, booking.user).catch(err => console.error('Receipt failed:', err.message));
+        console.log('📧 Sending emails to:', booking.user.email);
+      } catch (error) {
+        console.error('Email service error:', error.message);
+      }
+    }
 
     res.json({ success: true, redirectUrl: `/bookings/success?bookingId=${booking._id}` });
 
@@ -274,5 +291,43 @@ router.delete("/:id", isLoggedIn, deleteBooking);
 
 // Generic Show Route (Must be last)
 router.get("/:id", isLoggedIn, showBooking);
+
+// Download Invoice Route
+router.get("/:id/invoice", isLoggedIn, async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { generateBookingInvoice } = require('../utils/pdfService');
+
+    const booking = await Booking.findById(id)
+      .populate('user')
+      .populate('listing')
+      .populate('vehicle')
+      .populate('dhaba');
+
+    if (!booking) {
+      req.flash("error", "Booking not found.");
+      return res.redirect("/bookings");
+    }
+
+    // Security: Only owner or admin can download
+    if (!booking.user || (booking.user._id.toString() !== req.user._id.toString() && !req.user.isAdmin)) {
+      req.flash("error", "You do not have permission to download this invoice.");
+      return res.redirect("/listings");
+    }
+
+    const pdfBuffer = await generateBookingInvoice(booking);
+
+    const fileName = `WanderLust-Invoice-${booking._id.toString().slice(-8).toUpperCase()}.pdf`;
+
+    res.setHeader('Content-Type', 'application/pdf');
+    res.setHeader('Content-Disposition', `attachment; filename="${fileName}"`);
+    res.send(pdfBuffer);
+
+  } catch (err) {
+    console.error("PDF Download Error:", err);
+    req.flash("error", "Failed to generate invoice.");
+    res.redirect("back");
+  }
+});
 
 module.exports = router;

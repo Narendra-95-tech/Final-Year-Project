@@ -6,7 +6,7 @@ const upload = multer({ storage });
 
 const wrapAsync = require("../utils/wrapAsync");
 const dhabaController = require("../controllers/dhabas_simple");
-const { isLoggedIn, isOwner, validateDhaba, normalizeDhabaForm } = require("../middleware");
+const { isLoggedIn, isOwner, validateDhaba, normalizeDhabaForm, isEmailVerified } = require("../middleware");
 
 // ============================
 // DHABA ROUTES
@@ -18,6 +18,7 @@ router
   .get(wrapAsync(dhabaController.index))
   .post(
     isLoggedIn,
+    isEmailVerified,
     upload.array("dhaba[image]", 5),
     normalizeDhabaForm,
     validateDhaba,
@@ -25,7 +26,7 @@ router
   );
 
 // New Dhaba Form
-router.get("/new", isLoggedIn, dhabaController.renderNewForm);
+router.get("/new", isLoggedIn, isEmailVerified, dhabaController.renderNewForm);
 
 // ============================
 // SINGLE DHABA ROUTES

@@ -7,7 +7,7 @@ const upload = multer({ storage });
 const wrapAsync = require("../utils/wrapAsync");
 const listingController = require("../controllers/listings");
 const Listing = require("../models/listing");
-const { isLoggedIn, isOwner, validateListing, normalizeListingForm } = require("../middleware");
+const { isLoggedIn, isOwner, validateListing, normalizeListingForm, isEmailVerified } = require("../middleware");
 const openai = require("../openai").default;
 
 // ============================
@@ -20,6 +20,7 @@ router
   .get(wrapAsync(listingController.index))
   .post(
     isLoggedIn,
+    isEmailVerified,
     upload.array("listing[image]"),
     normalizeListingForm,
     validateListing,
@@ -27,7 +28,7 @@ router
   );
 
 // New Listing Form
-router.get("/new", isLoggedIn, listingController.renderNewForm);
+router.get("/new", isLoggedIn, isEmailVerified, listingController.renderNewForm);
 
 // API: Get Map Data (Lazy Load)
 router.get("/api/map", wrapAsync(listingController.getMapData));

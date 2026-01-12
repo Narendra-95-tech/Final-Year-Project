@@ -7,7 +7,7 @@ const upload = multer({ storage });
 const wrapAsync = require("../utils/wrapAsync");
 const vehicleController = require("../controllers/vehicles");
 const Vehicle = require("../models/vehicle");
-const { isLoggedIn, isOwner, validateVehicle, normalizeVehicleForm } = require("../middleware");
+const { isLoggedIn, isOwner, validateVehicle, normalizeVehicleForm, isEmailVerified } = require("../middleware");
 
 // ============================
 // VEHICLE ROUTES
@@ -19,6 +19,7 @@ router
   .get(wrapAsync(vehicleController.index))
   .post(
     isLoggedIn,
+    isEmailVerified,
     upload.array("vehicle[images]", 5),
     normalizeVehicleForm,
     validateVehicle,
@@ -26,7 +27,7 @@ router
   );
 
 // New Vehicle Form
-router.get("/new", isLoggedIn, vehicleController.renderNewForm);
+router.get("/new", isLoggedIn, isEmailVerified, vehicleController.renderNewForm);
 
 // ============================
 // SINGLE VEHICLE ROUTES

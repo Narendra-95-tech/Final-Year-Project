@@ -66,7 +66,7 @@ module.exports.signup = async (req, res) => {
 
       if (existingUser) {
         if (existingUser.email === email) {
-          req.flash("error", "Email is already registered");
+          req.flash("error", "Email is already registered. Please login.");
         } else {
           req.flash("error", "Username is already taken");
         }
@@ -80,21 +80,18 @@ module.exports.signup = async (req, res) => {
 
     // Create new user
     const newUser = new User({ email, username });
+    newUser.isVerified = false; // Start as unverified
 
     try {
       const registeredUser = await User.register(newUser, password);
       console.log("User registered successfully:", registeredUser.username);
 
-      // Auto-login after registration
-      req.login(registeredUser, (err) => {
-        if (err) {
-          console.error("Login error after signup:", err);
-          req.flash("success", "Registration successful! Please login with your credentials.");
-          return res.redirect("/login");
-        }
-        req.flash("success", "Welcome to WanderLust!");
-        res.redirect("/listings");
-      });
+      // Send OTP for verification
+      const { sendOTP } = require('../utils/otpService');
+      await sendOTP(email, 'registration');
+
+      req.flash("success", "Registration successful! Please verify your email with the OTP sent.");
+      res.redirect(`/verify-otp?email=${encodeURIComponent(email)}`);
 
     } catch (registrationError) {
       console.error("Registration error:", registrationError);
@@ -108,7 +105,6 @@ module.exports.signup = async (req, res) => {
       return res.redirect("/signup");
     }
 
-
   } catch (e) {
     console.error("Unexpected signup error:", e);
     req.flash("error", "An unexpected error occurred. Please try again.");
@@ -116,17 +112,86 @@ module.exports.signup = async (req, res) => {
   }
 };
 
+module.exports.renderVerifyOTPForm = (req, res) => {
+  const { email } = req.query;
+  if (!email) {
+    req.flash("error", "Email is required for verification.");
+    return res.redirect("/signup");
+  }
+  res.render("users/verify-otp.ejs", { email });
+};
+
+module.exports.verifyOTP = async (req, res) => {
+  try {
+    const { email, otp } = req.body;
+    const { verifyOTP } = require('../utils/otpService');
+
+    const result = await verifyOTP(email, otp, 'registration');
+
+    if (result.success) {
+      const user = await User.findOne({ email });
+      if (user) {
+        user.isVerified = true;
+        await user.save();
+
+        // Auto-login after successful verification
+        req.login(user, (err) => {
+          if (err) {
+            req.flash("success", "Email verified! Please login.");
+            return res.redirect("/login");
+          }
+          req.flash("success", "Email verified! Welcome to WanderLust.");
+          res.redirect("/listings");
+        });
+      } else {
+        req.flash("error", "User not found.");
+        res.redirect("/signup");
+      }
+    } else {
+      req.flash("error", result.message || "Invalid or expired OTP");
+      res.redirect(`/verify-otp?email=${encodeURIComponent(email)}`);
+    }
+  } catch (err) {
+    console.error("OTP Verification Error:", err);
+    req.flash("error", "An error occurred during verification.");
+    res.redirect("/signup");
+  }
+};
+
+module.exports.resendOTP = async (req, res) => {
+  try {
+    const { email } = req.body;
+    const { sendOTP } = require('../utils/otpService');
+
+    await sendOTP(email, 'registration');
+    req.flash("success", "A new OTP has been sent to your email.");
+    res.redirect(`/verify-otp?email=${encodeURIComponent(email)}`);
+  } catch (err) {
+    console.error("Resend OTP Error:", err);
+    req.flash("error", "Failed to resend OTP.");
+    res.redirect("back");
+  }
+};
+
 module.exports.renderLoginForm = (req, res) => {
   res.render("users/login.ejs")
 };
 
-
 module.exports.login = async (req, res) => {
+  // Check if user is verified
+  if (!req.user.isVerified) {
+    const email = req.user.email;
+    req.logout((err) => {
+      if (err) console.error("Logout error:", err);
+      req.flash("error", "Please verify your email address first.");
+      return res.redirect(`/verify-otp?email=${encodeURIComponent(email)}`);
+    });
+    return;
+  }
+
   req.flash("success", "Welcome back to Wanderlust!");
   let redirectUrl = res.locals.redirectUrl || "/listings";
   res.redirect(redirectUrl);
-
-
 };
 
 module.exports.logout = (req, res, next) => {
@@ -137,6 +202,72 @@ module.exports.logout = (req, res, next) => {
     req.flash("success", "You are logged out!");
     res.redirect("/listings");
   });
+};
+
+module.exports.renderForgotPasswordForm = (req, res) => {
+  res.render("users/forgot-password.ejs");
+};
+
+module.exports.forgotPassword = async (req, res) => {
+  try {
+    const { email } = req.body;
+    const user = await User.findOne({ email });
+
+    if (!user) {
+      req.flash("error", "No account found with that email address.");
+      return res.redirect("/forgot-password");
+    }
+
+    const { sendOTP } = require('../utils/otpService');
+    await sendOTP(email, 'password-reset');
+
+    req.flash("success", "Password reset code sent to your email.");
+    res.redirect(`/reset-password?email=${encodeURIComponent(email)}`);
+  } catch (err) {
+    console.error("Forgot Password Error:", err);
+    req.flash("error", "Failed to send reset code.");
+    res.redirect("/forgot-password");
+  }
+};
+
+module.exports.renderResetPasswordForm = (req, res) => {
+  const { email } = req.query;
+  if (!email) {
+    req.flash("error", "Email is required to reset password.");
+    return res.redirect("/forgot-password");
+  }
+  res.render("users/reset-password.ejs", { email });
+};
+
+module.exports.resetPassword = async (req, res) => {
+  try {
+    const { email, otp, newPassword } = req.body;
+    const { verifyOTP } = require('../utils/otpService');
+
+    const result = await verifyOTP(email, otp, 'password-reset');
+
+    if (result.success) {
+      const user = await User.findOne({ email });
+      if (user) {
+        // Use passport-local-mongoose's setPassword method
+        await user.setPassword(newPassword);
+        await user.save();
+
+        req.flash("success", "Password reset successful! Please login with your new password.");
+        res.redirect("/login");
+      } else {
+        req.flash("error", "User not found.");
+        res.redirect("/forgot-password");
+      }
+    } else {
+      req.flash("error", result.message || "Invalid or expired OTP");
+      res.redirect(`/reset-password?email=${encodeURIComponent(email)}`);
+    }
+  } catch (err) {
+    console.error("Reset Password Error:", err);
+    req.flash("error", "An error occurred during password reset.");
+    res.redirect("/forgot-password");
+  }
 };
 
 module.exports.renderEditProfile = (req, res) => {
