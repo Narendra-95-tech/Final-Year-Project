@@ -24,16 +24,17 @@ const emailPass = (process.env.EMAIL_PASSWORD || '').replace(/\s+/g, '');
 
 const transporter = nodemailer.createTransport({
   host: 'smtp.gmail.com',
-  port: 465,
-  secure: true, // Use SSL/TLS
+  port: 587,
+  secure: false, // Port 587 uses StartTLS (secure: false)
   auth: {
     user: emailUser,
     pass: emailPass
   },
-  connectionTimeout: 15000, // 15 seconds
-  greetingTimeout: 15000,
+  requireTLS: true,
+  connectionTimeout: 20000, // 20 seconds
+  greetingTimeout: 20000,
   socketTimeout: 30000,
-  family: 4 // Force IPv4
+  family: 4
 });
 
 // Export the "Cleaned" values for debugging
