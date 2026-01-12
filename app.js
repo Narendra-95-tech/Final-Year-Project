@@ -330,6 +330,63 @@ app.get('/test', (req, res) => {
   res.send('Server is running!');
 });
 
+// TEMPORARY DEBUG ROUTE for Email
+app.get('/debug/email', async (req, res) => {
+  const { transporter } = require('./utils/emailService');
+
+  // 1. Check Env Vars (Masked)
+  const envStatus = {
+    EMAIL_SERVICE: process.env.EMAIL_SERVICE,
+    EMAIL_USER: process.env.EMAIL_USER ? 'Set (Ends with ' + process.env.EMAIL_USER.slice(-4) + ')' : 'MISSING',
+    EMAIL_PASSWORD: process.env.EMAIL_PASSWORD ? 'Set (Length: ' + process.env.EMAIL_PASSWORD.length + ')' : 'MISSING',
+    BASE_URL: process.env.BASE_URL,
+    NODE_ENV: process.env.NODE_ENV
+  };
+
+  try {
+    // 2. Verify Connection
+    await new Promise((resolve, reject) => {
+      transporter.verify((error, success) => {
+        if (error) reject(error);
+        else resolve(success);
+      });
+    });
+
+    // 3. Send Self-Test Email if user is logged in, otherwise to fixed test address or fail safely
+    const targetEmail = req.user ? req.user.email : process.env.EMAIL_USER;
+    if (!targetEmail) {
+      return res.json({
+        status: 'Half-Success',
+        message: 'Connection verified, but no email address to send to (not logged in & no EMAIL_USER).',
+        env: envStatus
+      });
+    }
+
+    const info = await transporter.sendMail({
+      from: process.env.EMAIL_FROM || process.env.EMAIL_USER,
+      to: targetEmail,
+      subject: 'Render Debug Test',
+      text: 'If you see this, email is working on Render!'
+    });
+
+    res.json({
+      status: 'Success',
+      message: 'Email sent successfully!',
+      messageId: info.messageId,
+      recipient: targetEmail,
+      env: envStatus
+    });
+
+  } catch (error) {
+    res.status(500).json({
+      status: 'Failed',
+      error: error.message,
+      stack: error.stack,
+      env: envStatus
+    });
+  }
+});
+
 // Home route - render homepage directly
 app.get("/", async (req, res) => {
   try {

@@ -1,5 +1,14 @@
 const nodemailer = require('nodemailer');
 
+// Check for required environment variables
+const requiredEnvVars = ['EMAIL_USER', 'EMAIL_PASSWORD'];
+const missingVars = requiredEnvVars.filter(key => !process.env[key]);
+
+if (missingVars.length > 0) {
+  console.warn(`⚠️  WARNING: Missing Email Environment Variables: ${missingVars.join(', ')}`);
+  console.warn('   Email features (OTP, Confirmations) will NOT work.');
+}
+
 // Create transporter
 const transporter = nodemailer.createTransport({
   service: process.env.EMAIL_SERVICE || 'gmail',
