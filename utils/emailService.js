@@ -41,10 +41,17 @@ async function sendEmailViaBrevo({ to, subject, html, text, attachments = [] }) 
     throw new Error('BREVO_API_KEY is not configured');
   }
 
+  // Cleanup Sender Email
+  let senderEmail = (process.env.EMAIL_FROM || emailUser).trim();
+  const senderMatch = senderEmail.match(/<?([a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,})>?/);
+  if (senderMatch) {
+    senderEmail = senderMatch[1];
+  }
+
   const data = {
     sender: {
       name: "WanderLust",
-      email: process.env.EMAIL_FROM || emailUser
+      email: senderEmail
     },
     to: [{ email: to }],
     subject: subject,
@@ -68,8 +75,12 @@ async function sendEmailViaBrevo({ to, subject, html, text, attachments = [] }) 
     });
     return { success: true, messageId: response.data.messageId };
   } catch (error) {
-    console.error('❌ Brevo API Error:', error.response ? error.response.data : error.message);
-    throw error;
+    const errorDetails = error.response ? error.response.data : error.message;
+    console.error('❌ Brevo API Error Details:', JSON.stringify(errorDetails));
+
+    // Create a cleaner error for the UI
+    const apiError = new Error(error.response ? `Brevo API Error: ${JSON.stringify(errorDetails)}` : error.message);
+    throw apiError;
   }
 }
 
