@@ -23,26 +23,18 @@ const emailUser = rawUser;
 const emailPass = (process.env.EMAIL_PASSWORD || '').replace(/\s+/g, '');
 
 const transporter = nodemailer.createTransport({
-  host: 'smtp.gmail.com',
-  port: 465,
-  secure: true,
+  service: 'gmail',
   auth: {
     user: emailUser,
     pass: emailPass
-  },
-  authMethod: 'PLAIN',
-  connectionTimeout: 20000,
-  greetingTimeout: 20000,
-  socketTimeout: 30000,
-  family: 4,
-  logger: true, // This will print details to Render Logs
-  debug: true
+  }
 });
 
 // Export the "Cleaned" values for debugging
 transporter.debugInfo = {
   extractedEmail: emailUser ? emailUser.slice(0, 3) + '...' + emailUser.slice(-7) : 'MISSING',
-  passLength: emailPass.length
+  passLength: emailPass.length,
+  logic: 'Simple Service'
 };
 
 // Verify connection on startup - DISABLED to prevent startup delays/crashes
