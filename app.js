@@ -49,8 +49,8 @@ const otpRouter = require("./routes/otp");
 const dbUrl = process.env.ATLASDB_URL;
 
 if (!dbUrl) {
-  console.error("❌ FATAL ERROR: ATLASDB_URL is not defined.");
-  process.exit(1);
+  console.error("⚠️ WARNING: ATLASDB_URL is not defined. Database features will fail.");
+  // process.exit(1); // Don't crash, let the app start so we can debug
 }
 
 console.log("🚀 Connecting to Database...");
@@ -340,7 +340,8 @@ app.get('/debug/email', async (req, res) => {
     EMAIL_USER: process.env.EMAIL_USER ? 'Set (Ends with ' + process.env.EMAIL_USER.slice(-4) + ')' : 'MISSING',
     EMAIL_PASSWORD: process.env.EMAIL_PASSWORD ? 'Set (Length: ' + process.env.EMAIL_PASSWORD.length + ')' : 'MISSING',
     BASE_URL: process.env.BASE_URL,
-    NODE_ENV: process.env.NODE_ENV
+    NODE_ENV: process.env.NODE_ENV,
+    ATLASDB_URL: process.env.ATLASDB_URL ? 'Set' : 'MISSING (App will crash/fail)'
   };
 
   try {
