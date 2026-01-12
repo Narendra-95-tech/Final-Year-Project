@@ -1,225 +1,414 @@
 <% layout("/layouts/boilerplate") -%>
 
-<style>
-  .payment-hero {
-    background: linear-gradient(135deg, var(--primary-orange), var(--primary-orange-hover));
-    color: var(--white);
-    padding: 3rem 0;
-    margin-bottom: 2rem;
-  }
+  <style>
+    .payment-hero {
+      background: linear-gradient(135deg, var(--primary-orange), var(--primary-orange-hover));
+      color: var(--white);
+      padding: 3rem 0;
+      margin-bottom: 2rem;
+    }
 
-  .payment-title {
-    font-size: 2.5rem;
-    font-weight: 700;
-    margin-bottom: 0.5rem;
-  }
+    .payment-title {
+      font-size: 2.5rem;
+      font-weight: 700;
+      margin-bottom: 0.5rem;
+    }
 
-  .payment-subtitle {
-    font-size: 1.1rem;
-    opacity: 0.9;
-  }
+    .payment-subtitle {
+      font-size: 1.1rem;
+      opacity: 0.9;
+    }
 
-  .payment-card {
-    background: var(--white);
-    border-radius: var(--radius-2xl);
-    overflow: hidden;
-    box-shadow: var(--shadow-lg);
-    border: 1px solid var(--gray-200);
-  }
+    .payment-card {
+      background: var(--white);
+      border-radius: var(--radius-2xl);
+      overflow: hidden;
+      box-shadow: var(--shadow-lg);
+      border: 1px solid var(--gray-200);
+    }
 
-  .payment-summary {
-    background: var(--gray-50);
-    padding: 2rem;
-    border-bottom: 1px solid var(--gray-200);
-  }
+    .payment-summary {
+      background: var(--gray-50);
+      padding: 2rem;
+      border-bottom: 1px solid var(--gray-200);
+    }
 
-  .payment-amount {
-    font-size: 2rem;
-    font-weight: 700;
-    color: var(--primary-orange);
-  }
+    .payment-amount {
+      font-size: 2rem;
+      font-weight: 700;
+      color: var(--primary-orange);
+    }
 
-  .booking-details {
-    padding: 2rem;
-  }
+    .booking-details {
+      padding: 2rem;
+    }
 
-  .detail-row {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 0.75rem 0;
-    border-bottom: 1px solid var(--gray-200);
-  }
+    .detail-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 0.75rem 0;
+      border-bottom: 1px solid var(--gray-200);
+    }
 
-  .detail-row:last-child {
-    border-bottom: none;
-  }
+    .detail-row:last-child {
+      border-bottom: none;
+    }
 
-  .detail-label {
-    font-weight: 600;
-    color: var(--gray-700);
-  }
+    .detail-label {
+      font-weight: 600;
+      color: var(--gray-700);
+    }
 
-  .detail-value {
-    color: var(--gray-900);
-    font-weight: 500;
-  }
-</style>
+    .detail-value {
+      color: var(--gray-900);
+      font-weight: 500;
+    }
 
-<section class="payment-hero">
-  <div class="container text-center">
-    <h1 class="payment-title">Complete Your Payment</h1>
-    <p class="payment-subtitle">Secure payment processing for your booking</p>
-  </div>
-</section>
+    .wallet-option {
+      border: 2px solid #eee;
+      border-radius: var(--radius-xl);
+      padding: 1.5rem;
+      transition: all 0.3s;
+      cursor: pointer;
+      background: #fafafa;
+    }
 
-<div class="container">
-  <div class="row justify-content-center">
-    <div class="col-lg-8">
-      <div class="payment-card animate-fade-in">
-        <div class="payment-summary text-center">
-          <h3 class="mb-3">Booking Summary</h3>
-          <% if (booking.type === 'listing' && booking.listing) { %>
-            <div class="mb-4">
-              <img src="<%= booking.listing.image?.url || 'https://images.unsplash.com/photo-1502672260266-1c1ef2d93688?w=200&h=150&fit=crop&crop=center' %>"
-                   class="img-fluid rounded mb-3" alt="<%= booking.listing.title %>" style="max-height: 150px; object-fit: cover;">
-              <h4><%= booking.listing.title %></h4>
-              <p class="text-muted">
-                <i class="fas fa-map-marker-alt me-1"></i>
-                <%= booking.listing.location %>, <%= booking.listing.country %>
-              </p>
-            </div>
-          <% } else if (booking.type === 'dhaba' && booking.dhaba) { %>
-            <div class="mb-4">
-              <img src="<%= booking.dhaba.image?.url || 'https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?w=200&h=150&fit=crop&crop=center' %>"
-                   class="img-fluid rounded mb-3" alt="<%= booking.dhaba.title %>" style="max-height: 150px; object-fit: cover;">
-              <h4><%= booking.dhaba.title %></h4>
-              <p class="text-muted">
-                <i class="fas fa-map-marker-alt me-1"></i>
-                <%= booking.dhaba.location %>, <%= booking.dhaba.country %>
-              </p>
-            </div>
-          <% } %>
+    .wallet-option:hover {
+      border-color: var(--primary-orange);
+      background: rgba(254, 107, 0, 0.05);
+    }
 
-          <div class="payment-amount">
-            ₹<%= booking.totalPrice.toLocaleString("en-IN") %>
-          </div>
-          <p class="text-muted">Total Amount Due</p>
-        </div>
+    .wallet-option.insufficient {
+      opacity: 0.6;
+      cursor: not-allowed;
+    }
 
-        <div class="booking-details">
-          <h4 class="mb-4">Booking Details</h4>
+    .wallet-option.insufficient:hover {
+      border-color: #eee;
+      background: #fafafa;
+    }
+  </style>
 
-          <div class="detail-row">
-            <span class="detail-label">Booking Type</span>
-            <span class="detail-value">
-              <% if (booking.type === 'listing') { %>
-                <span class="badge bg-primary">🏠 Stay</span>
-              <% } else { %>
-                <span class="badge bg-warning">🍽️ Dining</span>
-              <% } %>
-            </span>
-          </div>
+  <section class="payment-hero">
+    <div class="container text-center">
+      <h1 class="payment-title">Complete Your Payment</h1>
+      <p class="payment-subtitle">Secure payment processing for your booking</p>
+    </div>
+  </section>
 
-          <div class="detail-row">
-            <span class="detail-label">Check-in Date</span>
-            <span class="detail-value"><%= booking.startDate.toLocaleDateString() %></span>
-          </div>
-
-          <div class="detail-row">
-            <span class="detail-label">Check-out Date</span>
-            <span class="detail-value"><%= booking.endDate.toLocaleDateString() %></span>
-          </div>
-
-          <div class="detail-row">
-            <span class="detail-label">Number of Guests</span>
-            <span class="detail-value"><%= booking.guests %></span>
-          </div>
-
-          <div class="detail-row">
-            <span class="detail-label">Total Price</span>
-            <span class="detail-value">₹<%= booking.totalPrice.toLocaleString("en-IN") %></span>
-          </div>
-
-          <div class="detail-row">
-            <span class="detail-label">Payment Status</span>
-            <span class="detail-value">
-              <% if (booking.isPaid) { %>
-                <span class="badge bg-success">✓ Paid</span>
-              <% } else { %>
-                <span class="badge bg-warning">⏳ Pending</span>
-              <% } %>
-            </span>
-          </div>
-        </div>
-
-        <div class="card-body border-top">
-          <% if (!booking.isPaid) { %>
-            <div class="text-center">
-              <h5 class="mb-3">Payment Options</h5>
-              <p class="text-muted mb-4">Choose your preferred payment method to complete the booking</p>
-
-              <div class="row g-3">
-                <div class="col-md-6">
-                  <button class="btn btn-primary w-100 py-3" onclick="processPayment()">
-                    <i class="fas fa-credit-card me-2"></i>
-                    Pay with Card
-                  </button>
-                </div>
-                <div class="col-md-6">
-                  <button class="btn btn-outline-primary w-100 py-3" onclick="payWithUPI()">
-                    <i class="fas fa-mobile-alt me-2"></i>
-                    Pay with UPI
-                  </button>
-                </div>
-              </div>
-
-              <div class="mt-4 p-3 bg-light rounded">
-                <h6 class="mb-2">💳 Secure Payment</h6>
-                <p class="small text-muted mb-0">
-                  Your payment information is encrypted and secure. We accept all major credit cards and UPI payments.
+  <div class="container">
+    <div class="row justify-content-center">
+      <div class="col-lg-8">
+        <div class="payment-card animate-fade-in">
+          <div class="payment-summary text-center">
+            <h3 class="mb-3">Booking Summary</h3>
+            <% if (booking.type==='listing' && booking.listing) { %>
+              <div class="mb-4">
+                <img
+                  src="<%= booking.listing.image?.url || 'https://images.unsplash.com/photo-1502672260266-1c1ef2d93688?w=200&h=150&fit=crop&crop=center' %>"
+                  class="img-fluid rounded mb-3" alt="<%= booking.listing.title %>"
+                  style="max-height: 150px; object-fit: cover;">
+                <h4>
+                  <%= booking.listing.title %>
+                </h4>
+                <p class="text-muted">
+                  <i class="fas fa-map-marker-alt me-1"></i>
+                  <%= booking.listing.location %>, <%= booking.listing.country %>
                 </p>
               </div>
+              <% } else if (booking.type==='vehicle' && booking.vehicle) { %>
+                <div class="mb-4">
+                  <img
+                    src="<%= booking.vehicle.image?.url || (booking.vehicle.images && booking.vehicle.images.length > 0 ? booking.vehicle.images[0].url : 'https://images.unsplash.com/photo-1503376785-2acd3d0a0821?w=200&h=150&fit=crop&crop=center') %>"
+                    class="img-fluid rounded mb-3" alt="<%= booking.vehicle.title || booking.vehicle.brand %>"
+                    style="max-height: 150px; object-fit: cover;">
+                  <h4>
+                    <%= booking.vehicle.title || (booking.vehicle.brand + ' ' + booking.vehicle.model) %>
+                  </h4>
+                  <p class="text-muted">
+                    <i class="fas fa-map-marker-alt me-1"></i>
+                    <%= booking.vehicle.location %>, <%= booking.vehicle.country %>
+                  </p>
+                </div>
+                <% } else if (booking.type==='dhaba' && booking.dhaba) { %>
+                  <div class="mb-4">
+                    <img
+                      src="<%= (booking.dhaba.image && booking.dhaba.image.length > 0) ? booking.dhaba.image[0].url : 'https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?w=200&h=150&fit=crop&crop=center' %>"
+                      class="img-fluid rounded mb-3" alt="<%= booking.dhaba.title %>"
+                      style="max-height: 150px; object-fit: cover;">
+                    <h4>
+                      <%= booking.dhaba.title %>
+                    </h4>
+                    <p class="text-muted">
+                      <i class="fas fa-map-marker-alt me-1"></i>
+                      <%= booking.dhaba.location %>, <%= booking.dhaba.country %>
+                    </p>
+                  </div>
+                  <% } %>
+
+                    <div class="payment-amount">
+                      ₹<%= booking.totalPrice.toLocaleString("en-IN") %>
+                    </div>
+                    <p class="text-muted">Total Amount Due</p>
+          </div>
+
+          <div class="booking-details">
+            <h4 class="mb-4">Booking Details</h4>
+
+            <div class="detail-row">
+              <span class="detail-label">Booking Type</span>
+              <span class="detail-value">
+                <% if (booking.type==='listing' ) { %>
+                  <span class="badge bg-primary">🏠 Stay</span>
+                  <% } else if (booking.type==='vehicle' ) { %>
+                    <span class="badge bg-info">🚗 Rental</span>
+                    <% } else { %>
+                      <span class="badge bg-warning">🍽️ Dining</span>
+                      <% } %>
+              </span>
             </div>
-          <% } else { %>
-            <div class="text-center py-4">
-              <div class="mb-3">
-                <i class="fas fa-check-circle fa-4x text-success"></i>
+
+            <% if (booking.type==='dhaba' ) { %>
+              <div class="detail-row">
+                <span class="detail-label">Date</span>
+                <span class="detail-value">
+                  <%= booking.date ? booking.date.toLocaleDateString('en-IN') : 'N/A' %>
+                </span>
               </div>
-              <h4 class="text-success mb-3">Payment Successful!</h4>
-              <p class="text-muted mb-4">Your booking has been confirmed and payment has been processed successfully.</p>
-              <a href="/bookings" class="btn btn-primary">
-                <i class="fas fa-arrow-left me-2"></i>Back to My Bookings
-              </a>
-            </div>
-          <% } %>
+              <div class="detail-row">
+                <span class="detail-label">Time</span>
+                <span class="detail-value">
+                  <%= booking.time || 'N/A' %>
+                </span>
+              </div>
+              <% } else { %>
+                <div class="detail-row">
+                  <span class="detail-label">Start Date</span>
+                  <span class="detail-value">
+                    <%= booking.startDate ? booking.startDate.toLocaleDateString('en-IN') : 'N/A' %>
+                  </span>
+                </div>
+                <div class="detail-row">
+                  <span class="detail-label">End Date</span>
+                  <span class="detail-value">
+                    <%= booking.endDate ? booking.endDate.toLocaleDateString('en-IN') : 'N/A' %>
+                  </span>
+                </div>
+                <% } %>
+
+                  <div class="detail-row">
+                    <span class="detail-label">Number of Guests</span>
+                    <span class="detail-value">
+                      <%= booking.guests %>
+                    </span>
+                  </div>
+
+                  <div class="detail-row">
+                    <span class="detail-label">Total Price</span>
+                    <span class="detail-value">₹<%= booking.totalPrice.toLocaleString("en-IN") %></span>
+                  </div>
+
+                  <div class="detail-row">
+                    <span class="detail-label">Payment Status</span>
+                    <span class="detail-value">
+                      <% if (booking.isPaid) { %>
+                        <span class="badge bg-success">✓ Paid</span>
+                        <% } else { %>
+                          <span class="badge bg-warning">⏳ Pending</span>
+                          <% } %>
+                    </span>
+                  </div>
+          </div>
+
+          <div class="card-body border-top">
+            <% if (!booking.isPaid) { %>
+              <div class="text-center">
+                <h5 class="mb-3">Payment Options</h5>
+                <p class="text-muted mb-4">Choose your preferred payment method to complete the booking</p>
+
+                <div class="row g-3">
+                  <div class="col-md-12">
+                    <div
+                      class="wallet-option mb-3 <%= currUser.walletBalance < booking.totalPrice ? 'insufficient' : '' %>"
+                      id="walletOption">
+                      <div class="d-flex justify-content-between align-items-center mb-2">
+                        <span class="fw-bold"><i class="fas fa-wallet text-warning me-2"></i>WanderLust Wallet</span>
+                        <span class="badge bg-light text-dark border">Balance: ₹<%= (currUser.walletBalance ||
+                            0).toLocaleString() %></span>
+                      </div>
+                      <% if (currUser.walletBalance>= booking.totalPrice) { %>
+                        <p class="small text-muted mb-3">Instant confirmation using your wallet funds.</p>
+                        <form action="/bookings/<%= booking._id %>/pay-wallet" method="POST">
+                          <button type="submit" class="btn btn-warning w-100 py-3 fw-bold">
+                            Confirm with Wallet
+                          </button>
+                        </form>
+                        <% } else { %>
+                          <p class="small text-danger mb-0">Insufficient balance. Need ₹<%= (booking.totalPrice -
+                              currUser.walletBalance).toLocaleString() %> more.</p>
+                          <a href="/trust/wallet" class="btn btn-sm btn-outline-warning mt-2 rounded-pill">Top up
+                            Wallet</a>
+                          <% } %>
+                    </div>
+                  </div>
+
+                  <div class="col-md-6">
+                    <button class="btn btn-primary w-100 py-3" onclick="processPayment()">
+                      <i class="fas fa-credit-card me-2"></i>
+                      Pay with Card
+                    </button>
+                  </div>
+                  <div class="col-md-6">
+                    <button class="btn btn-outline-primary w-100 py-3" onclick="payWithUPI()">
+                      <i class="fas fa-mobile-alt me-2"></i>
+                      Pay with UPI
+                    </button>
+                  </div>
+                </div>
+
+                <div class="mt-4 p-3 bg-light rounded">
+                  <h6 class="mb-2">💳 Secure Payment</h6>
+                  <p class="small text-muted mb-0">
+                    Your payment information is encrypted and secure. We accept all major credit cards and UPI payments.
+                  </p>
+                </div>
+              </div>
+              <% } else { %>
+                <div class="text-center py-4">
+                  <div class="mb-3">
+                    <i class="fas fa-check-circle fa-4x text-success"></i>
+                  </div>
+                  <h4 class="text-success mb-3">Payment Successful!</h4>
+                  <p class="text-muted mb-4">Your booking has been confirmed and payment has been processed
+                    successfully.</p>
+                  <a href="/bookings" class="btn btn-primary">
+                    <i class="fas fa-arrow-left me-2"></i>Back to My Bookings
+                  </a>
+                </div>
+                <% } %>
+          </div>
         </div>
       </div>
     </div>
   </div>
-</div>
 
-<script>
-  async function processPayment() {
-    try {
-      // Here you would integrate with Stripe or other payment gateway
-      alert('Payment processing would be implemented here with Stripe integration');
-      // For now, just mark as paid and redirect
-      const response = await fetch(`/bookings/<%= booking._id %>/success`, {
-        method: 'GET',
-        credentials: 'same-origin'
-      });
-      if (response.ok) {
-        window.location.reload();
+  <!-- UPI Payment Modal -->
+  <div class="modal fade" id="upiModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content">
+        <div class="modal-header border-0 pb-0">
+          <h5 class="modal-title fw-bold">Scan to Pay via UPI</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body text-center py-4">
+          <div class="mb-3">
+            <img
+              src="https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=upi://pay?pa=mockmerchant@upi&pn=WanderLust&am=<%= booking.totalPrice %>&cu=INR"
+              alt="UPI QR Code" class="img-fluid border p-2 rounded">
+          </div>
+          <h4 class="mb-2">₹<%= booking.totalPrice.toLocaleString("en-IN") %>
+          </h4>
+          <p class="text-muted small mb-4">Scan using any UPI app (GPay, PhonePe, Paytm)</p>
+
+          <div id="upiProcessing" class="d-none">
+            <div class="spinner-border text-primary mb-2" role="status"></div>
+            <p class="small text-muted">Verifying payment status...</p>
+          </div>
+
+          <button id="verifyUpiBtn" class="btn btn-success w-100 py-3 fw-bold" onclick="verifyUPIPayment()">
+            <i class="fas fa-check-circle me-2"></i> I have Paid
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    let upiModal;
+    document.addEventListener('DOMContentLoaded', function () {
+      upiModal = new bootstrap.Modal(document.getElementById('upiModal'));
+    });
+
+    function payWithUPI() {
+      if (upiModal) {
+        upiModal.show();
+      } else {
+        console.error('UPI Modal not initialized');
+        // Fallback or retry initialization
+        const modalEl = document.getElementById('upiModal');
+        if (modalEl && window.bootstrap) {
+          upiModal = new bootstrap.Modal(modalEl);
+          upiModal.show();
+        }
       }
-    } catch (error) {
-      console.error('Payment error:', error);
-      alert('Payment processing failed. Please try again.');
     }
-  }
 
-  function payWithUPI() {
-    alert('UPI payment would be implemented here');
-    // Implementation would depend on the UPI provider chosen
-  }
-</script>
+    async function verifyUPIPayment() {
+      const btn = document.getElementById('verifyUpiBtn');
+      const processing = document.getElementById('upiProcessing');
+
+      btn.classList.add('d-none');
+      processing.classList.remove('d-none');
+
+      // Simulate network delay
+      await new Promise(r => setTimeout(r, 2000));
+
+      try {
+        const response = await fetch('/bookings/<%= booking._id %>/pay-upi', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' }
+        });
+
+        const data = await response.json();
+
+        if (data.success) {
+          window.location.href = data.redirectUrl;
+        } else {
+          alert(data.message || 'Payment verification failed');
+          btn.classList.remove('d-none');
+          processing.classList.add('d-none');
+        }
+      } catch (error) {
+        console.error('UPI Error:', error);
+        alert('Something went wrong. Please try again.');
+        btn.classList.remove('d-none');
+        processing.classList.add('d-none');
+      }
+    }
+
+    async function processPayment() {
+      try {
+        const btn = document.querySelector('button[onclick="processPayment()"]');
+        const originalText = btn.innerHTML;
+        btn.disabled = true;
+        btn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Processing...';
+
+        const response = await fetch('/bookings/create-checkout-session', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({
+            bookingId: '<%= booking._id %>'
+          })
+        });
+
+        const data = await response.json();
+
+        if (data.success && data.url) {
+          window.location.href = data.url;
+        } else {
+          throw new Error(data.message || 'Failed to initiate payment');
+        }
+      } catch (error) {
+        console.error('Payment error:', error);
+        alert('Payment processing failed. Please try again.');
+        const btn = document.querySelector('button[onclick="processPayment()"]');
+        if (btn) {
+          btn.disabled = false;
+          btn.innerHTML = btn.dataset.originalText || '<i class="fas fa-credit-card me-2"></i>Pay with Card';
+        }
+      }
+    }
+  </script>

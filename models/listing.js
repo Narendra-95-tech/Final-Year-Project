@@ -37,7 +37,7 @@ const listingSchema = new Schema({
   },
   guests: {
     type: Number,
-    default: 2,
+    default: 1,
     min: 1
   },
   bedrooms: {

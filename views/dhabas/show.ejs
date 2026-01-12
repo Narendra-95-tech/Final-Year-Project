@@ -94,8 +94,14 @@
                 class="host-avatar-large" alt="<%= dhaba.owner.username %>">
               <div class="host-text">
                 <div class="host-name">Hosted by <%= dhaba.owner.username %>
+                    <% if(dhaba.owner.isVerified) { %>
+                      <i class="fas fa-shield-check text-info ms-1" style="font-size: 16px;"></i>
+                      <% } %>
                 </div>
-                <div class="host-badge">Superhost · Joined in 2024</div>
+                <div class="host-badge">
+                  <%= dhaba.owner.isVerified ? 'Verified Explorer' : 'Superhost' %> · Joined in <%= new
+                      Date(dhaba.owner.createdAt).getFullYear() %>
+                </div>
               </div>
             </div>
 
@@ -486,8 +492,12 @@
                   <% for(review of dhaba.reviews) { %>
                     <div class="card col-5 mb-3 ms-3">
                       <div class="card-body">
-                        <h5 class="card-title">@<%= review.author.username %>
+                        <h5 class="card-title mb-1">@<%= review.author.username %>
                         </h5>
+                        <p class="text-muted small mb-2">
+                          <%= review.createdAt ? review.createdAt.toLocaleDateString('en-US', { month: 'short' ,
+                            year: 'numeric' }) : 'Recently' %>
+                        </p>
                         <p class="starability-result card-text" data-rating="<%= review.rating%>"></p>
                         <p class="card-text">
                           <%= review.comment %>
@@ -853,21 +863,9 @@
               return;
             }
 
-            const checkoutRes = await fetch('/bookings/create-checkout-session', {
-              method: 'POST',
-              headers: { 'Content-Type': 'application/json' },
-              credentials: 'same-origin',
-              body: JSON.stringify({ bookingId: bookingPayload.bookingId })
-            });
-
-            const checkoutPayload = await checkoutRes.json();
-            if (!checkoutRes.ok) {
-              setFeedback("error", checkoutPayload.error || "Payment setup failed. Try again.");
-              return;
-            }
-
-            setFeedback("success", "Redirecting to secure payment...");
-            window.location.href = checkoutPayload.url;
+            // Redirect to Confirm and Pay page
+            setFeedback("success", "Booking initiated. Redirecting to payment options...");
+            window.location.href = `/bookings/${bookingPayload.bookingId}/confirm`;
           } catch (err) {
             console.error(err);
             setFeedback("error", "Unexpected error while booking. Please retry.");

@@ -80,14 +80,24 @@
                         <div class="host-avatar-wrapper">
                             <img src="<%= listing.owner.avatar?.url || '/images/default-avatar.png' %>"
                                 alt="<%= listing.owner.username %>" class="host-avatar-xl" />
-                            <div class="host-verified-badge">
-                                <i class="fas fa-check"></i>
-                            </div>
+                            <% if(listing.owner.isVerified) { %>
+                                <div class="host-verified-badge" title="Verified Explorer">
+                                    <i class="fas fa-check"></i>
+                                </div>
+                                <% } %>
                         </div>
                         <div class="host-intro">
-                            <h2 class="host-name-large">Hosted by <%= listing.owner.username %>
+                            <h2 class="host-name-large">
+                                Hosted by <%= listing.owner.username %>
+                                    <% if(listing.owner.isVerified) { %>
+                                        <i class="fas fa-shield-check text-info ms-2" style="font-size: 18px;"
+                                            title="Verified Explorer"></i>
+                                        <% } %>
                             </h2>
-                            <p class="host-meta-text">Superhost · Joined in 2020</p>
+                            <p class="host-meta-text">
+                                <%= listing.owner.isVerified ? 'Verified Explorer' : 'Superhost' %> · Joined in <%= new
+                                        Date(listing.owner.createdAt).getFullYear() %>
+                            </p>
                         </div>
                     </div>
                     <div class="host-card-stats">
@@ -458,41 +468,42 @@
                                 </div>
                             </div>
 
-                            <div class="guests-selector" id="guests-selector">
-                                <div>
-                                    <div class="date-label">Guests</div>
-                                    <div id="guests-text">2 guests</div>
+                            <div class="guests-selector-wrapper position-relative">
+                                <div class="guests-selector" id="guests-selector">
+                                    <div>
+                                        <div class="date-label">Guests</div>
+                                        <div id="guests-text">1 guest</div>
+                                    </div>
+                                    <i class="fas fa-chevron-down"></i>
                                 </div>
-                                <i class="fas fa-chevron-down"></i>
-                            </div>
 
-                            <!-- Guests Dropdown -->
-                            <div class="guests-dropdown" id="guests-dropdown"
-                                style="display: none; border: 1px solid #ddd; border-radius: 8px; padding: 16px; margin-top: 8px;">
-                                <div class="d-flex justify-content-between align-items-center mb-3">
-                                    <div>
-                                        <div class="fw-600">Adults</div>
-                                        <div class="text-secondary" style="font-size: 14px;">Ages 13+</div>
+                                <!-- Guests Dropdown -->
+                                <div class="guests-dropdown" id="guests-dropdown">
+                                    <div class="d-flex justify-content-between align-items-center mb-3">
+                                        <div>
+                                            <div class="fw-600">Adults</div>
+                                            <div class="text-secondary" style="font-size: 14px;">Ages 13+</div>
+                                        </div>
+                                        <div class="d-flex align-items-center gap-3">
+                                            <button type="button" class="btn btn-sm btn-outline-secondary"
+                                                id="adults-minus">-</button>
+                                            <span id="adults-count">1</span>
+                                            <button type="button" class="btn btn-sm btn-outline-secondary"
+                                                id="adults-plus">+</button>
+                                        </div>
                                     </div>
-                                    <div class="d-flex align-items-center gap-3">
-                                        <button type="button" class="btn btn-sm btn-outline-secondary"
-                                            id="adults-minus">-</button>
-                                        <span id="adults-count">2</span>
-                                        <button type="button" class="btn btn-sm btn-outline-secondary"
-                                            id="adults-plus">+</button>
-                                    </div>
-                                </div>
-                                <div class="d-flex justify-content-between align-items-center">
-                                    <div>
-                                        <div class="fw-600">Children</div>
-                                        <div class="text-secondary" style="font-size: 14px;">Ages 0-12</div>
-                                    </div>
-                                    <div class="d-flex align-items-center gap-3">
-                                        <button type="button" class="btn btn-sm btn-outline-secondary"
-                                            id="children-minus">-</button>
-                                        <span id="children-count">0</span>
-                                        <button type="button" class="btn btn-sm btn-outline-secondary"
-                                            id="children-plus">+</button>
+                                    <div class="d-flex justify-content-between align-items-center">
+                                        <div>
+                                            <div class="fw-600">Children</div>
+                                            <div class="text-secondary" style="font-size: 14px;">Ages 0-12</div>
+                                        </div>
+                                        <div class="d-flex align-items-center gap-3">
+                                            <button type="button" class="btn btn-sm btn-outline-secondary"
+                                                id="children-minus">-</button>
+                                            <span id="children-count">0</span>
+                                            <button type="button" class="btn btn-sm btn-outline-secondary"
+                                                id="children-plus">+</button>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
@@ -745,7 +756,22 @@
                                 showWeekdays: true,
                                 showToday: true,
                                 minDate: today,
-                                maxDate: nextMonth
+                                maxDate: nextMonth,
+                                onDateSelect: (startDate, endDate) => {
+                                    if (startDate && endDate) {
+                                        const checkInInput = document.getElementById('check-in-date');
+                                        const checkOutInput = document.getElementById('check-out-date');
+
+                                        if (checkInInput && checkOutInput) {
+                                            checkInInput.value = startDate.toISOString().split('T')[0];
+                                            checkOutInput.value = endDate.toISOString().split('T')[0];
+
+                                            // Trigger change events for BookingWidget
+                                            checkInInput.dispatchEvent(new Event('change'));
+                                            checkOutInput.dispatchEvent(new Event('change'));
+                                        }
+                                    }
+                                }
                             });
                         }
 

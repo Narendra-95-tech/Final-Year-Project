@@ -1,11 +1,27 @@
 const User = require("../models/user");
+const Booking = require("../models/booking");
+const Review = require("../models/review");
 
 module.exports.renderSignupForm = (req, res) => {
   res.render("users/signup.ejs");
 };
 
-module.exports.renderProfile = (req, res) => {
-  res.render("users/profile.ejs");
+module.exports.renderProfile = async (req, res) => {
+  const user = await User.findById(req.user._id)
+    .populate("wishlist")
+    .populate("wishlistVehicles")
+    .populate("wishlistDhabas");
+
+  const bookingCount = await Booking.countDocuments({ user: req.user._id });
+  const reviewCount = await Review.countDocuments({ author: req.user._id });
+  const favoritesCount = (user.wishlist?.length || 0) + (user.wishlistVehicles?.length || 0) + (user.wishlistDhabas?.length || 0);
+
+  res.render("users/profile.ejs", {
+    user,
+    bookingCount,
+    reviewCount,
+    favoritesCount
+  });
 };
 
 
@@ -129,7 +145,17 @@ module.exports.renderEditProfile = (req, res) => {
 
 module.exports.updateProfile = async (req, res) => {
   try {
-    const { username, email } = req.body;
+    const {
+      username,
+      email,
+      firstName,
+      lastName,
+      bio,
+      location,
+      website,
+      social
+    } = req.body;
+
     const user = await User.findById(req.user._id);
 
     if (!user) {
@@ -140,6 +166,27 @@ module.exports.updateProfile = async (req, res) => {
     // Update fields
     if (username) user.username = username;
     if (email) user.email = email;
+    if (firstName) user.firstName = firstName.trim();
+    if (lastName) user.lastName = lastName.trim();
+    if (bio) user.bio = bio.trim();
+    if (location) user.location = location.trim();
+    if (website) user.website = website.trim();
+
+    if (social) {
+      user.social = {
+        facebook: social.facebook ? social.facebook.trim() : "",
+        twitter: social.twitter ? social.twitter.trim() : "",
+        instagram: social.instagram ? social.instagram.trim() : ""
+      };
+    }
+
+    if (req.body.removeAvatar === "true") {
+      user.avatar = undefined;
+    } else if (typeof req.file !== "undefined") {
+      let url = req.file.path;
+      let filename = req.file.filename;
+      user.avatar = { url, filename };
+    }
 
     await user.save();
     req.flash("success", "Profile updated successfully!");

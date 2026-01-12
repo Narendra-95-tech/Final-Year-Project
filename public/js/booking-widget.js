@@ -9,7 +9,7 @@ class BookingWidget {
         this.basePrice = basePrice;
         this.checkInDate = null;
         this.checkOutDate = null;
-        this.adults = options.defaultAdults || 2;
+        this.adults = options.defaultAdults || 1;
         this.children = options.defaultChildren || 0;
         this.maxGuests = options.maxGuests || 10;
         this.cleaningFeePercent = options.cleaningFeePercent || 0.10;
@@ -22,6 +22,7 @@ class BookingWidget {
     init() {
         this.attachEventListeners();
         this.updatePriceDisplay();
+        this.updateButtonStates();
         this.setupStickyBehavior();
     }
 
@@ -49,8 +50,8 @@ class BookingWidget {
         // Guest selector
         const guestsSelector = document.getElementById('guests-selector');
         if (guestsSelector) {
-            guestsSelector.addEventListener('click', () => {
-                this.toggleGuestsDropdown();
+            guestsSelector.addEventListener('click', (e) => {
+                this.toggleGuestsDropdown(e);
             });
         }
 
@@ -186,26 +187,49 @@ class BookingWidget {
     }
 
     changeGuests(type, delta) {
+        const currentTotal = this.adults + this.children;
+        const newTotal = currentTotal + delta;
+
         if (type === 'adults') {
             const newValue = this.adults + delta;
-            if (newValue >= 1 && newValue <= this.maxGuests) {
+            // Adults must be at least 1 and new total must be <= maxGuests
+            if (newValue >= 1 && newTotal <= this.maxGuests) {
                 this.adults = newValue;
+            } else if (newTotal > this.maxGuests) {
+                this.showError(`Maximum ${this.maxGuests} guests allowed`);
+                return;
             }
         } else if (type === 'children') {
             const newValue = this.children + delta;
-            if (newValue >= 0 && newValue <= this.maxGuests) {
+            // Children can be 0 and new total must be <= maxGuests
+            if (newValue >= 0 && newTotal <= this.maxGuests) {
                 this.children = newValue;
+            } else if (newTotal > this.maxGuests) {
+                this.showError(`Maximum ${this.maxGuests} guests allowed`);
+                return;
             }
-        }
-
-        // Check total guests
-        if (this.adults + this.children > this.maxGuests) {
-            this.showError(`Maximum ${this.maxGuests} guests allowed`);
-            return;
         }
 
         this.updateGuestsDisplay();
         this.updatePriceDisplay();
+        this.updateButtonStates();
+    }
+
+    updateButtonStates() {
+        const adultsPlus = document.getElementById('adults-plus');
+        const adultsMinus = document.getElementById('adults-minus');
+        const childrenPlus = document.getElementById('children-plus');
+        const childrenMinus = document.getElementById('children-minus');
+
+        const total = this.adults + this.children;
+
+        // Adults buttons
+        if (adultsMinus) adultsMinus.disabled = (this.adults <= 1);
+        if (adultsPlus) adultsPlus.disabled = (total >= this.maxGuests);
+
+        // Children buttons
+        if (childrenMinus) childrenMinus.disabled = (this.children <= 0);
+        if (childrenPlus) childrenPlus.disabled = (total >= this.maxGuests);
     }
 
     updateGuestsDisplay() {
@@ -222,10 +246,21 @@ class BookingWidget {
         }
     }
 
-    toggleGuestsDropdown() {
+    toggleGuestsDropdown(e) {
+        if (e) e.stopPropagation();
         const dropdown = document.getElementById('guests-dropdown');
         if (dropdown) {
             dropdown.classList.toggle('active');
+
+            if (dropdown.classList.contains('active')) {
+                const closeHandler = (event) => {
+                    if (!dropdown.contains(event.target) && !document.getElementById('guests-selector').contains(event.target)) {
+                        dropdown.classList.remove('active');
+                        document.removeEventListener('click', closeHandler);
+                    }
+                };
+                document.addEventListener('click', closeHandler);
+            }
         }
     }
 
@@ -298,8 +333,8 @@ class BookingWidget {
         }
 
         try {
-            // Create Stripe checkout session directly
-            const response = await fetch('/bookings/create-checkout-session', {
+            // Initiate booking first (Confirm and Pay flow)
+            const response = await fetch('/bookings/initiate', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -313,7 +348,8 @@ class BookingWidget {
                     endDate: this.checkOutDate,
                     guests: this.adults + this.children,
                     totalPrice: pricing.total,
-                    nights: pricing.nights
+                    nights: pricing.nights,
+                    message: '' // Optional message
                 })
             });
 
@@ -324,15 +360,15 @@ class BookingWidget {
                     window.location.href = '/login';
                     return;
                 }
-                throw new Error(data.error || data.details || 'Payment setup failed');
+                throw new Error(data.message || data.error || 'Failed to initiate booking');
             }
 
-            if (!data.url) {
-                throw new Error('No checkout URL received');
+            if (!data.redirectUrl) {
+                throw new Error('No confirmation URL received');
             }
 
-            // Redirect to Stripe Checkout
-            window.location.href = data.url;
+            // Redirect to Confirmation Page
+            window.location.href = data.redirectUrl;
 
         } catch (error) {
             console.error('Booking error:', error);

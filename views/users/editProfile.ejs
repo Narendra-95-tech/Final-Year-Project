@@ -1,107 +1,356 @@
 <% layout("layouts/boilerplate") %>
 
     <style>
-        .edit-profile-container {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            min-height: 80vh;
-            background-color: #fcece2;
-            /* Matching login/signup bg */
-            padding: 40px 20px;
+        .edit-profile-wrapper {
+            background-color: #f8f9fa;
+            min-height: 100vh;
+            padding: 60px 20px;
         }
 
-        .edit-profile-card {
+        .edit-card {
             background: white;
-            width: 100%;
-            max-width: 500px;
-            border-radius: 20px;
-            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1);
+            border-radius: 24px;
+            box-shadow: 0 15px 45px rgba(0, 0, 0, 0.05);
+            max-width: 800px;
+            margin: 0 auto;
+            overflow: hidden;
+            border: 1px solid #eee;
+        }
+
+        .edit-header {
+            background: linear-gradient(135deg, #1a1a1a 0%, #333 100%);
+            padding: 40px;
+            text-align: center;
+            color: white;
+        }
+
+        .edit-header h2 {
+            font-weight: 800;
+            margin: 0;
+            letter-spacing: -0.5px;
+        }
+
+        .edit-body {
             padding: 40px;
         }
 
-        .edit-profile-title {
-            font-weight: 800;
+        .avatar-upload-section {
             text-align: center;
-            margin-bottom: 30px;
-            color: #222;
-            font-size: 28px;
+            margin-bottom: 40px;
+            position: relative;
         }
 
-        .form-label-custom {
-            font-weight: 600;
-            color: #555;
-            margin-bottom: 8px;
+        .avatar-preview-container {
+            width: 140px;
+            height: 140px;
+            border-radius: 50%;
+            margin: 0 auto 20px;
+            position: relative;
+            border: 4px solid #fff;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
         }
 
-        .form-control-custom {
-            border-radius: 12px;
-            padding: 12px 15px;
-            border: 1px solid #e0e0e0;
-            background: #fdfdfd;
+        .avatar-preview {
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            object-fit: cover;
+        }
+
+        .upload-overlay {
+            position: absolute;
+            bottom: 0;
+            right: 0;
+            background: #fe6b00;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            cursor: pointer;
+            border: 3px solid white;
             transition: all 0.2s;
-            margin-bottom: 20px;
         }
 
-        .form-control-custom:focus {
-            border-color: #198754;
-            box-shadow: 0 0 0 4px rgba(25, 135, 84, 0.1);
-            background: white;
+        .remove-photo-btn {
+            position: absolute;
+            top: 0;
+            left: 0;
+            background: #dc3545;
+            width: 38px;
+            height: 38px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            cursor: pointer;
+            border: 3px solid white;
+            transition: all 0.2s;
+            box-shadow: 0 4px 10px rgba(220, 53, 69, 0.3);
+            z-index: 6;
         }
 
-        .btn-save {
-            background: #198754;
+        .remove-photo-btn:hover {
+            transform: scale(1.1);
+            background: #c82333;
+            box-shadow: 0 6px 15px rgba(220, 53, 69, 0.4);
+        }
+
+        .avatar-preview-container {
+            width: 140px;
+            height: 140px;
+            border-radius: 50%;
+            margin: 0 auto 20px;
+            position: relative;
+            border: 4px solid #fff;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .form-section-title {
+            font-size: 14px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: #fe6b00;
+            margin-bottom: 25px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .form-section-title::after {
+            content: '';
+            flex: 1;
+            height: 1px;
+            background: #eee;
+        }
+
+        .custom-input-group {
+            margin-bottom: 25px;
+        }
+
+        .custom-label {
+            font-weight: 600;
+            color: #444;
+            margin-bottom: 8px;
+            display: block;
+            font-size: 15px;
+        }
+
+        .custom-control {
+            border-radius: 12px;
+            padding: 12px 18px;
+            border: 1px solid #ddd;
+            transition: all 0.2s;
+            font-size: 15px;
+        }
+
+        .custom-control:focus {
+            border-color: #fe6b00;
+            box-shadow: 0 0 0 4px rgba(254, 107, 0, 0.1);
+        }
+
+        .btn-save-profile {
+            background: #fe6b00;
             color: white;
             border: none;
-            padding: 12px;
+            padding: 15px 30px;
             border-radius: 12px;
-            width: 100%;
             font-weight: 700;
-            font-size: 16px;
-            transition: all 0.2s;
-            box-shadow: 0 4px 15px rgba(25, 135, 84, 0.25);
+            width: 100%;
+            margin-top: 20px;
+            transition: all 0.3s;
+            box-shadow: 0 10px 20px rgba(254, 107, 0, 0.2);
         }
 
-        .btn-save:hover {
-            background: #157347;
+        .btn-save-profile:hover {
+            background: #e66000;
             transform: translateY(-2px);
-            box-shadow: 0 8px 20px rgba(25, 135, 84, 0.3);
+            box-shadow: 0 15px 30px rgba(254, 107, 0, 0.3);
         }
 
-        .cancel-link {
-            display: block;
-            text-align: center;
-            margin-top: 15px;
+        .social-input-wrapper {
+            position: relative;
+        }
+
+        .social-icon {
+            position: absolute;
+            left: 15px;
+            top: 50%;
+            transform: translateY(-50%);
             color: #888;
-            text-decoration: none;
-            font-weight: 500;
         }
 
-        .cancel-link:hover {
-            color: #555;
+        .social-control {
+            padding-left: 45px !important;
         }
     </style>
-    <div class="edit-profile-container">
-        <div class="edit-profile-card">
-            <h2 class="edit-profile-title">Edit Profile</h2>
 
-            <form method="POST" action="/profile/edit" class="needs-validation" novalidate>
-                <div>
-                    <label for="username" class="form-label-custom">Username</label>
-                    <input type="text" id="username" name="username" class="form-control form-control-custom"
-                        value="<%= user.username %>" required>
-                    <div class="invalid-feedback">Please enter a username.</div>
-                </div>
+    <div class="edit-profile-wrapper">
+        <div class="edit-card">
+            <div class="edit-header">
+                <h2>Complete Your Profile</h2>
+                <p class="opacity-75 mb-0">Help people get to know you better</p>
+            </div>
 
-                <div>
-                    <label for="email" class="form-label-custom">Email Address</label>
-                    <input type="email" id="email" name="email" class="form-control form-control-custom"
-                        value="<%= user.email %>" required>
-                    <div class="invalid-feedback">Please enter a valid email.</div>
-                </div>
+            <div class="edit-body">
+                <form action="/profile/edit" method="POST" enctype="multipart/form-data" class="needs-validation"
+                    novalidate>
+                    <!-- Avatar Upload -->
+                    <div class="avatar-upload-section">
+                        <div class="avatar-preview-container" id="avatarContainer">
+                            <% if (user.avatar && user.avatar.url) { %>
+                                <div id="initialPlaceholder"
+                                    class="avatar-preview d-flex align-items-center justify-content-center d-none"
+                                    style="background: #fff7ed; color: var(--primary-orange); font-size: 60px; font-weight: 800; border: 2px solid #fe6b00;">
+                                    <%= user.username.charAt(0).toUpperCase() %>
+                                </div>
+                                <img src="<%= user.avatar.url %>" id="preview" class="avatar-preview shadow-sm">
+                                <% } else { %>
+                                    <div id="initialPlaceholder"
+                                        class="avatar-preview d-flex align-items-center justify-content-center"
+                                        style="background: #fff7ed; color: var(--primary-orange); font-size: 60px; font-weight: 800; border: 2px solid #fe6b00;">
+                                        <%= user.username.charAt(0).toUpperCase() %>
+                                    </div>
+                                    <img src="" id="preview" class="avatar-preview shadow-sm d-none">
+                                    <% } %>
 
-                <button type="submit" class="btn-save">Save Changes</button>
-                <a href="/profile" class="cancel-link">Cancel</a>
-            </form>
+                                        <label for="avatar" class="upload-overlay">
+                                            <i class="fas fa-camera"></i>
+                                        </label>
+
+                                        <div class="remove-photo-btn <%= (user.avatar && user.avatar.url) ? '' : 'd-none' %>"
+                                            onclick="removePhoto()" id="removeBtn" title="Remove Photo">
+                                            <i class="fas fa-times"></i>
+                                        </div>
+
+                                        <input type="file" id="avatar" name="avatar" class="d-none" accept="image/*"
+                                            onchange="previewImage(event)">
+                        </div>
+                        <input type="hidden" name="removeAvatar" id="removeAvatar" value="false">
+                        <p class="text-muted small">Click the camera to upload a new photo</p>
+                    </div>
+
+                    <div class="form-section-title">Account Details</div>
+
+                    <div class="row">
+                        <div class="col-md-6 custom-input-group">
+                            <label class="custom-label">Username</label>
+                            <input type="text" name="username" value="<%= user.username || '' %>"
+                                class="form-control custom-control" required>
+                        </div>
+                        <div class="col-md-6 custom-input-group">
+                            <label class="custom-label">Email Address</label>
+                            <input type="email" name="email" value="<%= user.email || '' %>"
+                                class="form-control custom-control" required>
+                        </div>
+                    </div>
+
+                    <div class="form-section-title">Personal Information</div>
+
+                    <div class="row">
+                        <div class="col-md-6 custom-input-group">
+                            <label class="custom-label">First Name</label>
+                            <input type="text" name="firstName" value="<%= user.firstName || '' %>"
+                                class="form-control custom-control" placeholder="John">
+                        </div>
+                        <div class="col-md-6 custom-input-group">
+                            <label class="custom-label">Last Name</label>
+                            <input type="text" name="lastName" value="<%= user.lastName || '' %>"
+                                class="form-control custom-control" placeholder="Doe">
+                        </div>
+                    </div>
+
+                    <div class="custom-input-group">
+                        <label class="custom-label">Bio (Tell us about yourself)</label>
+                        <textarea name="bio" rows="4" class="form-control custom-control"
+                            placeholder="I love exploring new places and meeting new people..."><%= user.bio || '' %></textarea>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6 custom-input-group">
+                            <label class="custom-label">Location</label>
+                            <input type="text" name="location" value="<%= user.location || '' %>"
+                                class="form-control custom-control" placeholder="Mumbai, India">
+                        </div>
+                        <div class="col-md-6 custom-input-group">
+                            <label class="custom-label">Website</label>
+                            <input type="url" name="website" value="<%= user.website || '' %>"
+                                class="form-control custom-control" placeholder="https://yourwebsite.com">
+                        </div>
+                    </div>
+
+                    <div class="form-section-title">Social Presence</div>
+
+                    <div class="row">
+                        <div class="col-md-4 custom-input-group">
+                            <label class="custom-label">Facebook</label>
+                            <div class="social-input-wrapper">
+                                <i class="fab fa-facebook social-icon"></i>
+                                <input type="url" name="social[facebook]" value="<%= user.social?.facebook || '' %>"
+                                    class="form-control custom-control social-control" placeholder="Link">
+                            </div>
+                        </div>
+                        <div class="col-md-4 custom-input-group">
+                            <label class="custom-label">Twitter</label>
+                            <div class="social-input-wrapper">
+                                <i class="fab fa-twitter social-icon"></i>
+                                <input type="url" name="social[twitter]" value="<%= user.social?.twitter || '' %>"
+                                    class="form-control custom-control social-control" placeholder="Link">
+                            </div>
+                        </div>
+                        <div class="col-md-4 custom-input-group">
+                            <label class="custom-label">Instagram</label>
+                            <div class="social-input-wrapper">
+                                <i class="fab fa-instagram social-icon"></i>
+                                <input type="url" name="social[instagram]" value="<%= user.social?.instagram || '' %>"
+                                    class="form-control custom-control social-control" placeholder="Link">
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="d-flex gap-3">
+                        <a href="/profile" class="btn btn-light rounded-pill py-3 px-5 fw-bold flex-grow-1">Cancel</a>
+                        <button type="submit" class="btn-save-profile flex-grow-1">Save Changes</button>
+                    </div>
+                </form>
+            </div>
         </div>
     </div>
+
+    <script>
+        function previewImage(event) {
+            const reader = new FileReader();
+            reader.onload = function () {
+                const output = document.getElementById('preview');
+                const initialPlaceholder = document.getElementById('initialPlaceholder');
+                const removeBtn = document.getElementById('removeBtn');
+
+                output.src = reader.result;
+                output.classList.remove('d-none');
+                initialPlaceholder.classList.add('d-none');
+                removeBtn.classList.remove('d-none');
+
+                // Reset removeAvatar if a new file is chosen
+                document.getElementById('removeAvatar').value = "false";
+            };
+            reader.readAsDataURL(event.target.files[0]);
+        }
+
+        function removePhoto() {
+            const preview = document.getElementById('preview');
+            const initialPlaceholder = document.getElementById('initialPlaceholder');
+            const removeBtn = document.getElementById('removeBtn');
+
+            preview.src = "";
+            preview.classList.add('d-none');
+            initialPlaceholder.classList.remove('d-none');
+            removeBtn.classList.add('d-none');
+
+            document.getElementById('removeAvatar').value = "true";
+            document.getElementById('avatar').value = ""; // Clear file input
+        }
+    </script>

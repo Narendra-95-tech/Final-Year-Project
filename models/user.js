@@ -113,6 +113,28 @@ const userSchema = new Schema({
     wishlistDhabas: [{
         type: Schema.Types.ObjectId,
         ref: 'Dhaba'
+    }],
+
+    // Wallet & Trust System
+    walletBalance: {
+        type: Number,
+        default: 0,
+        min: 0
+    },
+    isVerified: {
+        type: Boolean,
+        default: false
+    },
+    verificationStatus: {
+        type: String,
+        enum: ['None', 'Pending', 'Verified', 'Rejected'],
+        default: 'None'
+    },
+    verificationDocuments: [{
+        url: String,
+        filename: String,
+        type: { type: String, enum: ['ID', 'Passport', 'License'] },
+        uploadedAt: { type: Date, default: Date.now }
     }]
 }, {
     timestamps: true,

@@ -4,8 +4,9 @@
     /* ===== PREMIUM HERO SECTION ===== */
     .hero-section {
       position: relative;
-      height: 85vh;
-      min-height: 600px;
+      height: 90vh;
+      /* Slightly taller for more impact */
+      min-height: 700px;
       display: flex;
       align-items: center;
       justify-content: center;
@@ -13,7 +14,6 @@
       text-align: center;
       background: url('/images/hero-bg.png') center/cover no-repeat;
       margin-top: -1.5rem;
-      /* Offset boilerplate padding if any */
       overflow: hidden;
     }
 
@@ -23,7 +23,10 @@
       left: 0;
       right: 0;
       bottom: 0;
-      background: linear-gradient(to bottom, rgba(0, 0, 0, 0.3) 0%, rgba(0, 0, 0, 0.5) 100%);
+      background: linear-gradient(to bottom,
+          rgba(0, 0, 0, 0.2) 0%,
+          rgba(0, 0, 0, 0.4) 50%,
+          rgba(0, 0, 0, 0.6) 100%);
       z-index: 1;
     }
 
@@ -31,32 +34,55 @@
       position: relative;
       z-index: 2;
       width: 100%;
-      max-width: 900px;
+      max-width: 1000px;
+      /* Wider for punchy title */
       padding: 0 1.5rem;
     }
 
     .hero-title {
-      font-size: 4rem;
-      font-weight: 800;
-      margin-bottom: 1rem;
-      text-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
-      letter-spacing: -1px;
+      font-size: 5rem;
+      /* Massive, punchy title */
+      font-weight: 900;
+      margin-bottom: 1.5rem;
+      letter-spacing: -2px;
+      line-height: 1.1;
+      background: linear-gradient(135deg, #fff 30%, #ffd0a8 100%);
+      -webkit-background-clip: text;
+      background-clip: text;
+      -webkit-text-fill-color: transparent;
+      filter: drop-shadow(0 4px 12px rgba(0, 0, 0, 0.3));
+      animation: fadeInUp 1s cubic-bezier(0.2, 0.8, 0.2, 1);
+    }
+
+    @keyframes fadeInUp {
+      from {
+        opacity: 0;
+        transform: translateY(30px);
+      }
+
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
     }
 
     .hero-subtitle {
-      font-size: 1.5rem;
+      font-size: 1.75rem;
       font-weight: 500;
-      margin-bottom: 3rem;
-      text-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+      margin-bottom: 3.5rem;
+      text-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
       opacity: 0.95;
+      max-width: 700px;
+      margin-left: auto;
+      margin-right: auto;
     }
 
-    /* Tabbed Search Bar */
+    /* Tabbed Search Bar - Glass Perfection */
     .search-tabs {
       display: flex;
       justify-content: center;
-      gap: 1.5rem;
-      margin-bottom: 1rem;
+      gap: 1rem;
+      margin-bottom: 0.75rem;
     }
 
     .search-tab {
@@ -87,12 +113,24 @@
     }
 
     .search-container {
-      max-width: 800px;
+      max-width: 950px;
       margin: 0 auto;
-      padding: 0.5rem;
+      padding: 0.75rem;
       border-radius: var(--radius-full);
       display: flex;
       gap: 0.5rem;
+      background: rgba(255, 255, 255, 0.1);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+      transition: all 0.3s ease;
+    }
+
+    .search-container:focus-within {
+      background: rgba(255, 255, 255, 0.95);
+      box-shadow: 0 30px 60px -12px rgba(0, 0, 0, 0.6);
+      border-color: var(--white);
     }
 
     .search-input-group {
@@ -100,8 +138,13 @@
       display: flex;
       align-items: center;
       gap: 1rem;
-      padding: 0 1rem;
-      border-right: 1px solid rgba(0, 0, 0, 0.1);
+      padding: 0 1.5rem;
+      border-right: 1px solid rgba(255, 255, 255, 0.2);
+      transition: all 0.2s ease;
+    }
+
+    .search-container:focus-within .search-input-group {
+      border-right-color: rgba(0, 0, 0, 0.1);
     }
 
     .search-input-group:last-child {
@@ -201,20 +244,23 @@
 
     /* Enhanced Card Styling */
     .premium-card {
-      border: none;
+      border: 1px solid rgba(0, 0, 0, 0.05);
+      /* Subtle border for definition */
       border-radius: var(--radius-2xl);
       overflow: hidden;
       background: var(--white);
-      box-shadow: var(--shadow-md);
-      transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+      box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.05);
+      transition: all 0.5s cubic-bezier(0.19, 1, 0.22, 1);
       height: 100%;
       display: flex;
       flex-direction: column;
+      position: relative;
     }
 
     .premium-card:hover {
-      transform: translateY(-12px);
-      box-shadow: var(--shadow-2xl);
+      transform: translateY(-15px) scale(1.02);
+      box-shadow: 0 30px 60px -15px rgba(0, 0, 0, 0.15);
+      border-color: rgba(254, 107, 0, 0.1);
     }
 
     .card-img-wrapper {
@@ -670,8 +716,7 @@
     <div class="hero-overlay"></div>
     <div class="hero-content" data-aos="fade-up">
       <h1 class="hero-title">
-        <i class="fas fa-paper-plane" style="color: #fe6b00; margin-right: 15px;"></i>
-        Experience <span style="color: #fe6b00;">WanderLust</span>
+        Experience WanderLust
       </h1>
       <p class="hero-subtitle">Book unique stays, rent local vehicles, and explore authentic food.</p>
 

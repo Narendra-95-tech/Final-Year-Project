@@ -42,9 +42,19 @@
                     </div>
 
                     <div class="row">
-                        <div class="mb-3 col-md-6">
-                            <label for="price" class="form-label">Price per day (₹)</label>
-                            <input name="vehicle[price]" placeholder="1500" class="form-control" required />
+                        <div class="mb-3 col-md-6 position-relative">
+                            <div class="d-flex justify-content-between align-items-center mb-2">
+                                <label for="price" class="form-label mb-0">Price per day (₹)</label>
+                                <button type="button" id="getAiPrice" class="btn btn-sm glass hover-lift"
+                                    style="font-size: 0.75rem; color: var(--primary-orange);">
+                                    <i class="fas fa-magic me-1"></i> Get AI Price
+                                </button>
+                            </div>
+                            <input name="vehicle[price]" id="price" placeholder="1500" class="form-control" required />
+                            <div id="ai-price-hint" class="input-hint"
+                                style="display: none; color: var(--primary-orange); font-size: 0.75rem; margin-top: 4px;">
+                                <i class="fas fa-sparkles"></i> AI suggested this based on your details.
+                            </div>
                             <div class="invalid-feedback">Price should be valid</div>
                         </div>
 
@@ -159,6 +169,78 @@
             </div>
         </div>
 
+        <script>
+            document.addEventListener('DOMContentLoaded', function () {
+                const aiBtn = document.getElementById('getAiPrice');
+                const priceInput = document.getElementById('price');
+                const aiHint = document.getElementById('ai-price-hint');
+
+                if (aiBtn) {
+                    aiBtn.addEventListener('click', async () => {
+                        const title = document.querySelector('input[name="vehicle[title]"]').value;
+                        const location = document.querySelector('input[name="vehicle[location]"]').value;
+                        const type = document.querySelector('select[name="vehicle[vehicleType]"]').value;
+                        const description = document.querySelector('textarea[name="vehicle[description]"]').value;
+
+                        if (!title || !location) {
+                            alert('Please enter a title and location first! ✨');
+                            return;
+                        }
+
+                        aiBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Analyzing...';
+                        aiBtn.disabled = true;
+
+                        try {
+                            const response = await fetch('/ai/magic/magic-price', {
+                                method: 'POST',
+                                headers: { 'Content-Type': 'application/json' },
+                                body: JSON.stringify({ title, location, type, description })
+                            });
+                            const data = await response.json();
+
+                            if (data.suggestedPrice) {
+                                priceInput.value = data.suggestedPrice;
+                                aiHint.style.display = 'block';
+                                aiHint.innerHTML = `<i class="fas fa-sparkles"></i> AI suggest ₹${data.suggestedPrice}: ${data.reasoning}`;
+                                priceInput.classList.add('ai-updated');
+                                setTimeout(() => priceInput.classList.remove('ai-updated'), 1000);
+                            }
+                        } catch (err) {
+                            console.error('AI Price Error:', err);
+                        } finally {
+                            aiBtn.innerHTML = '<i class="fas fa-magic me-1"></i> Get AI Price';
+                            aiBtn.disabled = false;
+                        }
+                    });
+                }
+            });
+        </script>
+
+        <style>
+            .ai-updated {
+                animation: pulse-price 1s ease-out;
+            }
+
+            @keyframes pulse-price {
+                0% {
+                    box-shadow: 0 0 0 0 rgba(254, 107, 0, 0.4);
+                }
+
+                70% {
+                    box-shadow: 0 0 0 10px rgba(254, 107, 0, 0);
+                }
+
+                100% {
+                    box-shadow: 0 0 0 0 rgba(254, 107, 0, 0);
+                }
+            }
+
+            .glass {
+                background: rgba(255, 255, 255, 0.1);
+                backdrop-filter: blur(10px);
+                border: 1px solid rgba(255, 255, 255, 0.2);
+            }
+        </style>
 </body>
 
 </html>

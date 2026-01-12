@@ -59,11 +59,16 @@ router.delete('/:type/:id', isLoggedIn, async (req, res) => {
     }
 });
 
-// Get user's wishlist
-router.get('/', isLoggedIn, async (req, res) => {
+// Get user's wishlist IDs for syncing
+router.get('/all', isLoggedIn, async (req, res) => {
     try {
-        const user = await User.findById(req.user._id).populate('wishlist');
-        res.json({ success: true, wishlist: user.wishlist || [] });
+        const user = await User.findById(req.user._id);
+        const wishlist = {
+            listing: user.wishlist || [],
+            vehicle: user.wishlistVehicles || [],
+            dhaba: user.wishlistDhabas || []
+        };
+        res.json({ success: true, wishlist });
     } catch (error) {
         console.error('Error getting wishlist:', error);
         res.status(500).json({ success: false, error: 'Failed to get wishlist' });

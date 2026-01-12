@@ -36,6 +36,8 @@ const adminRoutes = require("./routes/admin");
 const tripPlannerRoutes = require("./routes/tripPlanner");
 const authRoutes = require("./routes/auth");
 const wishlistRoutes = require("./routes/wishlist");
+const aiMagicRouter = require("./routes/aiMagic");
+const trustRouter = require("./routes/trust");
 
 // --------------------  
 // Database Connection
@@ -272,6 +274,8 @@ app.use("/api/social", socialInteractions);
 app.use("/api/trip", tripPlannerRoutes);
 app.use("/auth", authRoutes);
 app.use("/api/wishlist", wishlistRoutes);
+app.use("/ai/magic", aiMagicRouter);
+app.use("/trust", trustRouter);
 
 
 

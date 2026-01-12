@@ -12,11 +12,40 @@ class WishlistHandler {
     init() {
         this.loadWishlist();
         this.attachEventListeners();
+        // Sync with server if logged in
+        this.syncWithServer();
         // Wait for DOM to be ready for querySelectorAll
         if (document.readyState === 'loading') {
             document.addEventListener('DOMContentLoaded', () => this.updateAllIcons());
         } else {
             this.updateAllIcons();
+        }
+    }
+
+    async syncWithServer() {
+        // Check if user is logged in
+        const isLoggedIn = document.querySelector('meta[name="user-logged-in"]')?.content === 'true';
+        if (!isLoggedIn) return;
+
+        try {
+            const response = await fetch('/api/wishlist/all');
+            if (response.ok) {
+                const data = await response.json();
+                if (data.success && data.wishlist) {
+                    // Combine all IDs from different categories
+                    const allIds = [
+                        ...(data.wishlist.listing || []),
+                        ...(data.wishlist.vehicle || []),
+                        ...(data.wishlist.dhaba || [])
+                    ].map(id => typeof id === 'object' ? id._id : id);
+
+                    this.wishlistItems = new Set(allIds);
+                    this.saveWishlist();
+                    this.updateAllIcons();
+                }
+            }
+        } catch (error) {
+            console.error('Error syncing wishlist with server:', error);
         }
     }
 
@@ -101,14 +130,10 @@ class WishlistHandler {
             if (isInWishlist) {
                 // Remove from wishlist
                 await this.removeFromWishlist(listingId, type);
-                this.wishlistItems.delete(listingId);
-                this.updateWishlistIcon(listingId);
                 this.showNotification('Removed from wishlist');
             } else {
                 // Add to wishlist
                 await this.addToWishlist(listingId, type);
-                this.wishlistItems.add(listingId);
-                this.updateWishlistIcon(listingId);
                 this.showNotification('Added to wishlist');
             }
 
@@ -132,6 +157,11 @@ class WishlistHandler {
             throw new Error('Failed to add to wishlist');
         }
 
+        // Keep local state in sync
+        this.wishlistItems.add(listingId);
+        this.saveWishlist();
+        this.updateWishlistIcon(listingId);
+
         return response.json();
     }
 
@@ -147,6 +177,11 @@ class WishlistHandler {
         if (!response.ok) {
             throw new Error('Failed to remove from wishlist');
         }
+
+        // Keep local state in sync
+        this.wishlistItems.delete(listingId);
+        this.saveWishlist();
+        this.updateWishlistIcon(listingId);
 
         return response.json();
     }

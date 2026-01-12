@@ -1,5 +1,7 @@
+const mongoose = require("mongoose");
 const Booking = require("../models/booking");
 const Dhaba = require("../models/dhaba");
+const User = require("../models/user");
 const wrapAsync = require("../utils/wrapAsync");
 
 const STRIPE_SECRET = process.env.STRIPE_SECRET_KEY;
@@ -239,7 +241,26 @@ exports.getUserBookings = wrapAsync(async (req, res) => {
   const bookings = await Booking.find({ user: req.user._id })
     .sort({ createdAt: -1 })
     .populate("dhaba")
-    .populate("listing");
+    .populate("listing")
+    .populate("vehicle");
+
+  // Normalize data for legacy or inconsistent records
+  for (let booking of bookings) {
+    // Infer type if missing
+    if (!booking.type) {
+      if (booking.listing) booking.type = 'listing';
+      else if (booking.dhaba) booking.type = 'dhaba';
+      else if (booking.vehicle) booking.type = 'vehicle';
+    }
+
+    // Normalize status (e.g. 'confirmed' -> 'Confirmed')
+    if (booking.status && booking.status.toLowerCase() === 'confirmed') booking.status = 'Confirmed';
+    if (booking.status && booking.status.toLowerCase() === 'cancelled') booking.status = 'Cancelled';
+    if (booking.status && booking.status.toLowerCase() === 'pending') booking.status = 'Pending';
+
+    // Normalize paymentStatus
+    if (booking.paymentStatus && booking.paymentStatus.toLowerCase() === 'paid') booking.paymentStatus = 'Paid';
+  }
 
   res.render("bookings/myBookings", { bookings });
 });
@@ -254,6 +275,7 @@ exports.getAdminBookings = wrapAsync(async (req, res) => {
     .sort({ createdAt: -1 })
     .populate("dhaba")
     .populate("listing")
+    .populate("vehicle")
     .populate("user");
 
   res.render("bookings/admin", { bookings, filters: { status: status || "", paymentStatus: paymentStatus || "" } });
@@ -283,4 +305,141 @@ exports.updateBookingStatus = wrapAsync(async (req, res) => {
 
   req.flash("success", "Booking status updated.");
   res.redirect("/admin/bookings");
+});
+
+exports.cancelBooking = wrapAsync(async (req, res) => {
+  const { id } = req.params;
+  const booking = await Booking.findById(id);
+
+  if (!booking) {
+    req.flash("error", "Booking not found");
+    return res.redirect("/bookings");
+  }
+
+  // Verify ownership
+  if (!booking.user.equals(req.user._id)) {
+    req.flash("error", "You do not have permission to cancel this booking");
+    return res.redirect("/bookings");
+  }
+
+  // Check if already cancelled
+  if (booking.status === "Cancelled") {
+    req.flash("error", "This booking is already cancelled");
+    return res.redirect("/bookings");
+  }
+
+  let refundSuccess = false;
+  let refundMsg = "";
+
+  // 1. Handle Wallet Refund
+  if (booking.paidWithWallet && booking.isPaid) {
+    const user = await User.findById(booking.user);
+    if (user) {
+      user.walletBalance = (user.walletBalance || 0) + booking.totalPrice;
+      await user.save();
+      refundSuccess = true;
+      refundMsg = "Amount has been refunded to your Wander Wallet.";
+    }
+  }
+  // 2. Handle Stripe Refund (If Stripe is configured)
+  else if (booking.isPaid && (booking.paymentIntentId || booking.stripeSessionId)) {
+    try {
+      if (stripe) {
+        let piId = booking.paymentIntentId;
+
+        // If we only have sessionId, retrieve the session to get the PaymentIntent
+        if (!piId && booking.stripeSessionId) {
+          const session = await stripe.checkout.sessions.retrieve(booking.stripeSessionId);
+          piId = session.payment_intent;
+        }
+
+        if (piId) {
+          await stripe.refunds.create({
+            payment_intent: piId,
+          });
+          refundSuccess = true;
+          refundMsg = "A refund has been initiated to your original payment method.";
+        }
+      } else {
+        refundMsg = "Automated Stripe refund is unavailable (API keys missing). Please contact support.";
+      }
+    } catch (stripeError) {
+      console.error("Stripe Refund Error:", stripeError);
+      refundMsg = "Stripe refund failed. Please contact support.";
+    }
+  }
+
+  // Update status
+  booking.status = "Cancelled";
+  if (refundSuccess) {
+    booking.paymentStatus = "Refunded";
+  } else if (booking.isPaid) {
+    booking.paymentStatus = "Refund Pending";
+  }
+
+  await booking.save();
+
+  const successHeader = `Booking #${id.slice(-6).toUpperCase()} cancelled.`;
+  req.flash("success", refundSuccess ? `${successHeader} ${refundMsg}` : successHeader);
+  res.redirect("/bookings");
+});
+
+exports.deleteBooking = wrapAsync(async (req, res) => {
+  const { id } = req.params;
+  const booking = await Booking.findById(id);
+
+  if (!booking) {
+    req.flash("error", "Booking not found");
+    return res.redirect("/bookings");
+  }
+
+  // Verify ownership
+  if (!booking.user.equals(req.user._id)) {
+    req.flash("error", "You do not have permission to delete this booking");
+    return res.redirect("/bookings");
+  }
+
+  // Allow users to delete any booking from their history
+
+  const { type, listing, dhaba, vehicle } = booking;
+
+  // Cleanup references in parent models
+  if (type === 'listing' && listing) {
+    await mongoose.model('Listing').findByIdAndUpdate(listing, { $pull: { bookings: id } });
+  } else if (type === 'dhaba' && dhaba) {
+    await mongoose.model('Dhaba').findByIdAndUpdate(dhaba, { $pull: { bookings: id } });
+  } else if (type === 'vehicle' && vehicle) {
+    await mongoose.model('Vehicle').findByIdAndUpdate(vehicle, {
+      $pull: { bookings: id, bookedDates: { bookingId: id } }
+    });
+  }
+
+  await Booking.findByIdAndDelete(id);
+
+  req.flash("success", "Booking record removed from your history");
+  res.redirect("/bookings");
+});
+
+exports.showBooking = wrapAsync(async (req, res) => {
+  const { id } = req.params;
+  const booking = await Booking.findById(id)
+    .populate('listing')
+    .populate('vehicle')
+    .populate('dhaba');
+
+  if (!booking) {
+    req.flash("error", "Booking not found");
+    return res.redirect("/bookings");
+  }
+
+  // Verify ownership
+  if (!booking.user.equals(req.user._id)) {
+    req.flash("error", "You do not have permission to view this booking");
+    return res.redirect("/bookings");
+  }
+
+  // Render the payment page which handles both confirmed (paid) and unconfirmed states
+  // OR render a dedicated show page if available. 
+  // For now, reusing payment.ejs logic as it has the 'Success' view.
+  res.render("bookings/payment", { booking, currUser: req.user });
 });

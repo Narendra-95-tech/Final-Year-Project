@@ -13,7 +13,8 @@ const sampleListings = [
     geometry: {
       type: "Point",
       coordinates: [-118.7789, 34.0259]
-    }
+    },
+    guests: 4, bedrooms: 2, beds: 2, bathrooms: 1
   },
   {
     title: "Modern Loft in Downtown",
@@ -29,7 +30,8 @@ const sampleListings = [
     geometry: {
       type: "Point",
       coordinates: [-74.0060, 40.7128]
-    }
+    },
+    guests: 4, bedrooms: 1, beds: 2, bathrooms: 1
   },
   {
     title: "Mountain Retreat",
@@ -45,7 +47,8 @@ const sampleListings = [
     geometry: {
       type: "Point",
       coordinates: [-106.8175, 39.1911]
-    }
+    },
+    guests: 6, bedrooms: 3, beds: 4, bathrooms: 2
   },
   {
     title: "Historic Villa in Tuscany",

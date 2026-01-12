@@ -1035,6 +1035,62 @@
             }
           });
         </script>
+        <!-- Premium Confirmation Modal -->
+        <div class="modal fade" id="premiumConfirmModal" tabindex="-1" aria-hidden="true" style="z-index: 10001;">
+          <div class="modal-dialog modal-dialog-centered" style="max-width: 400px;">
+            <div class="modal-content border-0 shadow-lg" style="border-radius: 24px; overflow: hidden;">
+              <div class="modal-header border-0 pb-0 pt-4 px-4">
+                <div class="bg-danger-subtle rounded-circle d-flex align-items-center justify-content-center mb-3"
+                  style="width: 60px; height: 60px; margin: 0 auto; background: rgba(255, 77, 77, 0.1);">
+                  <i class="fas fa-exclamation-triangle text-danger fs-3"></i>
+                </div>
+              </div>
+              <div class="modal-body text-center px-4 pb-4">
+                <h4 class="fw-bold mb-2" id="confirmTitle">Confirm Action</h4>
+                <p class="text-muted mb-4" id="confirmMessage">Are you sure you want to proceed?</p>
+                <div class="d-grid gap-2">
+                  <button type="button" class="btn btn-danger py-3 fw-bold rounded-pill shadow-sm"
+                    id="confirmBtnPrimary"
+                    style="background: linear-gradient(135deg, #FF4D4D 0%, #FF2626 100%); border: none;">Yes,
+                    Delete</button>
+                  <button type="button" class="btn btn-light py-3 fw-bold rounded-pill"
+                    data-bs-dismiss="modal">Cancel</button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <script>
+          // Global Premium Confirmation Function
+          window.wanderConfirm = function (title, message, confirmText = 'Yes, Proceed') {
+            return new Promise((resolve) => {
+              const modalEl = document.getElementById('premiumConfirmModal');
+              const modal = new bootstrap.Modal(modalEl);
+
+              document.getElementById('confirmTitle').innerText = title;
+              document.getElementById('confirmMessage').innerText = message;
+              const primaryBtn = document.getElementById('confirmBtnPrimary');
+              primaryBtn.innerText = confirmText;
+
+              // Reset event listener
+              const newPrimaryBtn = primaryBtn.cloneNode(true);
+              primaryBtn.parentNode.replaceChild(newPrimaryBtn, primaryBtn);
+
+              newPrimaryBtn.addEventListener('click', () => {
+                modal.hide();
+                resolve(true);
+              });
+
+              modalEl.addEventListener('hidden.bs.modal', function handler() {
+                resolve(false);
+                modalEl.removeEventListener('hidden.bs.modal', handler);
+              }, { once: true });
+
+              modal.show();
+            });
+          };
+        </script>
         </body>
 
 </html>

@@ -117,6 +117,63 @@ class SmartChatbot {
         if (history.length > this.maxHistory) history.shift();
         this.contextMap.set(userId, history);
     }
+
+    // --- AI MAGIC: Smart Pricing ---
+    async calculatePrice(itemData) {
+        try {
+            const { title, location, type, currentPrice, description } = itemData;
+
+            const prompt = `As a real estate and travel pricing expert, suggest an optimal price for this listing on WanderLust:
+            Title: ${title}
+            Location: ${location}
+            Type: ${type}
+            Current Price: ${currentPrice || 'Not set'}
+            Description: ${description || 'N/A'}
+            
+            Consider local demand, seasonal trends in ${location}, and the premium nature of WanderLust.
+            Provide a JSON response with:
+            - suggestedPrice (number)
+            - confidence (0-1)
+            - reasoning (short string)
+            - seasonalTips (list of 2 strings)`;
+
+            const response = await openai.chat.completions.create({
+                model: "gpt-4o-mini",
+                messages: [{ role: "system", content: "You are a pricing expert. Return ONLY valid JSON." }, { role: "user", content: prompt }],
+                response_format: { type: "json_object" }
+            });
+
+            return JSON.parse(response.choices[0].message.content);
+        } catch (error) {
+            console.error("Smart Pricing error:", error);
+            return { suggestedPrice: itemData.currentPrice || 5000, confidence: 0.5, reasoning: "Based on historical average." };
+        }
+    }
+
+    // --- AI MAGIC: Visual Intelligence ---
+    async analyzeImage(imageUrl, context = {}) {
+        try {
+            const prompt = `Analyze this travel image: ${imageUrl} ${context.title ? `associated with "${context.title}"` : ''}
+            Suggest the most fitting category from these WanderLust options:
+            Categories: Iconic Cities, Amazing Pools, Mountains, Beachfront, Adventure Wheels, Luxury Cars, Spicy Food, Traditional.
+            
+            Return JSON:
+            - suggestedCategory (string)
+            - tags (array of 3 strings)
+            - description (short vibe description)`;
+
+            const response = await openai.chat.completions.create({
+                model: "gpt-4o-mini",
+                messages: [{ role: "system", content: "You are a visual travel analyst. Return ONLY valid JSON." }, { role: "user", content: prompt }],
+                response_format: { type: "json_object" }
+            });
+
+            return JSON.parse(response.choices[0].message.content);
+        } catch (error) {
+            console.error("Visual Intelligence error:", error);
+            return { suggestedCategory: "Iconic Cities", tags: ["travel", "explore"] };
+        }
+    }
 }
 
 module.exports = new SmartChatbot();

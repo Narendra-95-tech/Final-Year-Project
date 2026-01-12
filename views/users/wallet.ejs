@@ -1,0 +1,220 @@
+<% layout("/layouts/boilerplate") %>
+
+    <style>
+        .wallet-hero {
+            background: linear-gradient(135deg, #1a1a1a 0%, #333333 100%);
+            border-radius: 24px;
+            padding: 40px;
+            color: white;
+            margin-bottom: 30px;
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
+        }
+
+        .wallet-hero::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            right: -20%;
+            width: 300px;
+            height: 300px;
+            background: var(--primary-orange);
+            filter: blur(100px);
+            opacity: 0.2;
+            border-radius: 50%;
+        }
+
+        .balance-card {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(15px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 20px;
+            padding: 30px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+
+        .balance-amount {
+            font-size: 3rem;
+            font-weight: 800;
+            margin: 10px 0;
+            background: linear-gradient(to right, #ffffff, #cccccc);
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .add-funds-card {
+            background: white;
+            border-radius: 24px;
+            padding: 30px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
+            border: 1px solid #eee;
+        }
+
+        .amount-preset {
+            cursor: pointer;
+            padding: 12px 20px;
+            border: 1px solid #eee;
+            border-radius: 12px;
+            transition: all 0.3s;
+            font-weight: 600;
+            text-align: center;
+        }
+
+        .amount-preset:hover {
+            border-color: var(--primary-orange);
+            color: var(--primary-orange);
+            background: rgba(254, 107, 0, 0.05);
+        }
+
+        .amount-preset.active {
+            background: var(--primary-orange);
+            color: white;
+            border-color: var(--primary-orange);
+        }
+
+        .transaction-item {
+            padding: 20px;
+            border-bottom: 1px solid #f0f0f0;
+            transition: background 0.2s;
+        }
+
+        .transaction-item:last-child {
+            border-bottom: none;
+        }
+
+        .transaction-item:hover {
+            background: #fafafa;
+        }
+
+        .status-badge {
+            font-size: 0.75rem;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-weight: 600;
+        }
+
+        .status-success {
+            background: #e6fcf5;
+            color: #0ca678;
+        }
+
+        .status-pending {
+            background: #fff9db;
+            color: #f08c00;
+        }
+    </style>
+
+    <div class="container py-5">
+        <div class="row">
+            <div class="col-lg-8">
+                <div class="wallet-hero">
+                    <div class="row align-items-center">
+                        <div class="col-md-7">
+                            <h1 class="fw-bold mb-4">WanderLust Wallet</h1>
+                            <p class="text-white-50">Seamless payments, instant refunds, and exclusive travel perks.</p>
+                            <div class="d-flex gap-3 mt-4">
+                                <div class="verification-tag">
+                                    <i class="fas fa-shield-check me-2"></i>
+                                    <%= user.verificationStatus==='Verified' ? 'Fully Secured' : 'Action Required' %>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-5">
+                            <div class="balance-card">
+                                <span class="text-white-50 small text-uppercase fw-bold">Current Balance</span>
+                                <div class="balance-amount">₹<%= (user.walletBalance || 0).toLocaleString() %>
+                                </div>
+                                <div class="text-white-50"><i class="fas fa-sparkles me-1 text-warning"></i> Ready for
+                                    your next trip</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card add-funds-card mb-4">
+                    <h4 class="fw-bold mb-4">Add Funds</h4>
+                    <form action="/trust/wallet/add" method="POST" id="walletForm">
+                        <div class="row g-3 mb-4">
+                            <div class="col-4 col-md-2">
+                                <div class="amount-preset" onclick="setAmount(500)">₹500</div>
+                            </div>
+                            <div class="col-4 col-md-2">
+                                <div class="amount-preset" onclick="setAmount(1000)">₹1000</div>
+                            </div>
+                            <div class="col-4 col-md-2">
+                                <div class="amount-preset" onclick="setAmount(2000)">₹2000</div>
+                            </div>
+                            <div class="col-4 col-md-2">
+                                <div class="amount-preset" onclick="setAmount(5000)">₹5000</div>
+                            </div>
+                            <div class="col-4 col-md-2">
+                                <div class="amount-preset" onclick="setAmount(10000)">₹10k</div>
+                            </div>
+                        </div>
+
+                        <div class="input-group mb-4">
+                            <span class="input-group-text bg-transparent border-end-0">₹</span>
+                            <input type="number" name="amount" id="customAmount"
+                                class="form-control border-start-0 ps-0" placeholder="Enter custom amount" required>
+                        </div>
+
+                        <button type="submit" class="btn btn-auth-login w-100 py-3">
+                            <i class="fas fa-plus-circle me-2"></i> Add to Wallet
+                        </button>
+                    </form>
+                </div>
+            </div>
+
+            <div class="col-lg-4">
+                <div class="card add-funds-card h-100">
+                    <div class="d-flex justify-content-between align-items-center mb-4">
+                        <h5 class="fw-bold mb-0">Identity Trust</h5>
+                        <span
+                            class="status-badge <%= user.verificationStatus === 'Verified' ? 'status-success' : 'status-pending' %>">
+                            <%= user.verificationStatus %>
+                        </span>
+                    </div>
+
+                    <% if (user.verificationStatus !=='Verified' ) { %>
+                        <div class="text-center py-4 bg-light rounded-4 mb-4">
+                            <i class="fas fa-id-card fa-3x mb-3 text-muted"></i>
+                            <p class="small text-muted mb-4">Verify your identity to unlock higher wallet limits and
+                                earn the "Verified Explorer" badge.</p>
+                            <a href="/trust/verify" class="btn btn-outline-dark btn-sm rounded-pill px-4">Start
+                                Verification</a>
+                        </div>
+                        <% } else { %>
+                            <div class="text-center py-4 bg-light rounded-4 mb-4">
+                                <i class="fas fa-check-circle fa-3x mb-3 text-success"></i>
+                                <p class="small text-muted mb-0">Your identity is verified. You are a trusted member of
+                                    the WanderLust community.</p>
+                            </div>
+                            <% } %>
+
+                                <hr>
+                                <h6 class="fw-bold mb-3">Wallet Features</h6>
+                                <ul class="list-unstyled small text-muted">
+                                    <li class="mb-2"><i class="fas fa-check me-2 text-success"></i> Instant Booking
+                                        Confirmation</li>
+                                    <li class="mb-2"><i class="fas fa-check me-2 text-success"></i> 24/7 Priority
+                                        Support</li>
+                                    <li class="mb-2"><i class="fas fa-check me-2 text-success"></i> Hassle-free Refunds
+                                    </li>
+                                </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function setAmount(val) {
+            document.getElementById('customAmount').value = val;
+            // Optionally add active class to presets
+            document.querySelectorAll('.amount-preset').forEach(p => p.classList.remove('active'));
+            event.target.classList.add('active');
+        }
+    </script>

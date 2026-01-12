@@ -171,7 +171,7 @@ const seedDemo = async () => {
                 geometry: { type: "Point", coordinates: [73.7540, 20.0059] },
                 owner: ownerId,
                 amenities: ["Pool", "WiFi", "Bar", "Restaurant", "AC", "Gym"],
-                guests: 2, bedrooms: 1, beds: 1, bathrooms: 1
+                guests: 6, bedrooms: 2, beds: 3, bathrooms: 2
             },
             {
                 title: "South Mumbai Sea-Facing Penthouse",

@@ -21,9 +21,11 @@ const bookingSchema = new Schema({
   stripeSessionId: { type: String },
   paymentId: { type: String }, // Stripe payment ID
   paymentDate: { type: Date }, // Date when payment was successful
-  paymentStatus: { type: String, enum: ['Pending', 'Paid', 'Failed'], default: 'Pending' },
+  paymentStatus: { type: String, enum: ['Pending', 'Paid', 'Failed', 'Refunded', 'Refund Pending'], default: 'Pending' },
   status: { type: String, enum: ['Pending', 'Confirmed', 'Cancelled'], default: 'Pending' },
   isPaid: { type: Boolean, default: false },
+  paidWithWallet: { type: Boolean, default: false },
+  paidWithUPI: { type: Boolean, default: false },
   type: { type: String, enum: ['listing', 'vehicle', 'dhaba'], required: true },
   createdAt: { type: Date, default: Date.now }
 });

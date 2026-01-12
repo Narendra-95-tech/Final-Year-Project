@@ -76,15 +76,22 @@
                             <div class="host-avatar-wrapper">
                                 <img src="https://ui-avatars.com/api/?name=<%= vehicle.owner.username %>&background=ff7675&color=fff&size=80"
                                     class="rounded-circle" width="80">
-                                <div class="host-verified-badge">
-                                    <i class="fas fa-check"></i>
-                                </div>
+                                <% if(vehicle.owner.isVerified) { %>
+                                    <div class="host-verified-badge" title="Verified Explorer">
+                                        <i class="fas fa-check"></i>
+                                    </div>
+                                    <% } %>
                             </div>
                             <div class="flex-grow-1">
                                 <h5 class="fw-bold mb-1">Hosted by <%= vehicle.owner.username %>
+                                        <% if(vehicle.owner.isVerified) { %>
+                                            <i class="fas fa-shield-check text-info ms-1" style="font-size: 16px;"></i>
+                                            <% } %>
                                 </h5>
-                                <p class="text-muted small mb-0"><i class="fas fa-shield-check me-1"></i>Verified Host ·
-                                    Joined 2023</p>
+                                <p class="text-muted small mb-0"><i class="fas fa-shield-check me-1"></i>
+                                    <%= vehicle.owner.isVerified ? 'Verified Explorer' : 'Verified Host' %> ·
+                                        Joined <%= new Date(vehicle.owner.createdAt).getFullYear() %>
+                                </p>
                                 <div class="host-stats">
                                     <div class="host-stat-item">
                                         <span class="host-stat-value">
@@ -271,7 +278,12 @@
                                                             <div>
                                                                 <h6 class="fw-bold mb-0">@<%= review.author.username %>
                                                                 </h6>
-                                                                <p class="text-muted extra-small mb-0">Oct 2023</p>
+                                                                <p class="text-muted extra-small mb-0">
+                                                                    <%= review.createdAt ?
+                                                                        review.createdAt.toLocaleDateString('en-US', {
+                                                                        month: 'short' , year: 'numeric' }) : 'Recently'
+                                                                        %>
+                                                                </p>
                                                             </div>
                                                         </div>
                                                         <p class="starability-result mb-2"
@@ -463,24 +475,36 @@
                         const formData = new FormData(e.target);
                         const data = Object.fromEntries(formData.entries());
 
+                        // Calculate price for payload
+                        const pricePerDay = <%= (vehicle && vehicle.price) ? vehicle.price : 0 %>;
+                        const start = new Date(data.startDate);
+                        const end = new Date(data.endDate);
+                        const diff = Math.ceil((end - start) / (1000 * 60 * 60 * 24));
+                        const totalPrice = (diff > 0 ? (pricePerDay * diff) + 750 : 0); // Base + Cleaning + Service (approx)
+
+                        const payload = {
+                            type: 'vehicle',
+                            vehicleId: '<%= vehicle._id %>',
+                            startDate: data.startDate,
+                            endDate: data.endDate,
+                            message: data.message,
+                            totalPrice: totalPrice,
+                            guests: 1 // Default for now
+                        };
+
                         try {
-                            const res = await fetch(`/bookings/vehicles/<%= vehicle._id %>/book`, {
+                            const res = await fetch('/bookings/initiate', {
                                 method: 'POST',
                                 headers: { 'Content-Type': 'application/json' },
-                                body: JSON.stringify(data)
+                                body: JSON.stringify(payload)
                             });
 
                             const result = await res.json();
-                            if (res.ok) {
-                                const checkoutRes = await fetch('/bookings/create-checkout-session', {
-                                    method: 'POST',
-                                    headers: { 'Content-Type': 'application/json' },
-                                    body: JSON.stringify({ bookingId: result.bookingId })
-                                });
-                                const checkout = await checkoutRes.json();
-                                window.location.href = checkout.url;
+                            if (res.ok && result.success) {
+                                // Redirect to Confirm and Pay page
+                                window.location.href = result.redirectUrl;
                             } else {
-                                alert(result.error || 'Booking failed');
+                                alert(result.message || result.error || 'Booking failed');
                             }
                         } catch (err) {
                             console.error(err);

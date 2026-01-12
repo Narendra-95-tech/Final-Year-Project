@@ -627,12 +627,25 @@
               if (finalTranscript) {
                 navInput.value = finalTranscript;
                 previewText.textContent = finalTranscript;
-                statusText.textContent = 'Searching...';
+                statusText.textContent = 'Analyzing magic... 🔮';
+                micPulse.classList.remove('pulsing');
+
+                // VOICE 2.0: Let the AI decide the intent
                 setTimeout(() => {
                   overlay.classList.remove('active');
                   const form = document.getElementById('searchForm');
-                  if (form) form.submit();
-                }, 800);
+                  if (form) {
+                    // Pre-process for better search (simulated intent extraction)
+                    if (finalTranscript.toLowerCase().includes('stay') || finalTranscript.toLowerCase().includes('villa')) {
+                      form.action = '/listings';
+                    } else if (finalTranscript.toLowerCase().includes('vehicle') || finalTranscript.toLowerCase().includes('car')) {
+                      form.action = '/vehicles';
+                    } else if (finalTranscript.toLowerCase().includes('dhaba') || finalTranscript.toLowerCase().includes('food')) {
+                      form.action = '/dhabas';
+                    }
+                    form.submit();
+                  }
+                }, 1200);
               } else {
                 previewText.textContent = interimTranscript;
               }

@@ -7,6 +7,9 @@ const { render } = require("ejs");
 const passport = require("passport");
 const { saveRedirectUrl, isLoggedIn } = require("../middleware.js");
 const userController = require("../controllers/users.js");
+const multer = require("multer");
+const { storage } = require("../cloudConfig.js");
+const upload = multer({ storage });
 
 
 router.route("/signup")
@@ -82,6 +85,6 @@ router.get("/wishlist", isLoggedIn, wrapAsync(async (req, res) => {
 // Edit Profile
 router.route("/profile/edit")
   .get(isLoggedIn, userController.renderEditProfile)
-  .post(isLoggedIn, wrapAsync(userController.updateProfile));
+  .post(isLoggedIn, upload.single("avatar"), wrapAsync(userController.updateProfile));
 
 module.exports = router;

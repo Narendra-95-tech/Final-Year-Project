@@ -39,9 +39,19 @@
             <div class="invalid-feedback">Please enter a description</div>
           </div>
 
-          <div class="mb-3">
-            <label for="price" class="form-label">Price per night (₹)</label>
-            <input name="listing[price]" value="<%=listing.price %>" type="number" class="form-control" required />
+          <div class="mb-3 position-relative">
+            <div class="d-flex justify-content-between align-items-center mb-2">
+              <label for="price" class="form-label mb-0">Price per night (₹)</label>
+              <button type="button" id="getAiPrice" class="btn btn-sm glass hover-lift"
+                style="font-size: 0.75rem; color: var(--primary-orange);">
+                <i class="fas fa-magic me-1"></i> Get AI Price
+              </button>
+            </div>
+            <input name="listing[price]" id="price" value="<%=listing.price %>" type="number" class="form-control"
+              required />
+            <div id="ai-price-hint" class="input-hint" style="display: none; color: var(--primary-orange);">
+              <i class="fas fa-sparkles"></i> AI suggested this based on your details.
+            </div>
             <div class="invalid-feedback">Price should be valid</div>
           </div>
         </div>
@@ -172,8 +182,65 @@
           uploadZone.style.backgroundColor = '#fafafa';
           uploadZone.style.borderColor = '#b0b0b0';
         });
+
+        // AI MAGIC PRICE LOGIC
+        const aiBtn = document.getElementById('getAiPrice');
+        const priceInput = document.getElementById('price');
+        const aiHint = document.getElementById('ai-price-hint');
+
+        aiBtn.addEventListener('click', async () => {
+          const title = document.querySelector('input[name="listing[title]"]').value;
+          const location = document.querySelector('input[name="listing[location]"]').value;
+          const type = document.querySelector('select[name="listing[propertyType]"]').value;
+          const description = document.querySelector('textarea[name="listing[description]"]').value;
+
+          aiBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Analyzing...';
+          aiBtn.disabled = true;
+
+          try {
+            const response = await fetch('/ai/magic/magic-price', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ title, location, type, description, currentPrice: priceInput.value })
+            });
+            const data = await response.json();
+
+            if (data.suggestedPrice) {
+              priceInput.value = data.suggestedPrice;
+              aiHint.style.display = 'block';
+              aiHint.innerHTML = `<i class="fas fa-sparkles"></i> AI suggest ₹${data.suggestedPrice}: ${data.reasoning}`;
+
+              priceInput.classList.add('ai-updated');
+              setTimeout(() => priceInput.classList.remove('ai-updated'), 1000);
+            }
+          } catch (err) {
+            console.error('AI Price Error:', err);
+          } finally {
+            aiBtn.innerHTML = '<i class="fas fa-magic me-1"></i> Get AI Price';
+            aiBtn.disabled = false;
+          }
+        });
       });
     </script>
+    <style>
+      .ai-updated {
+        animation: pulse-price 1s ease-out;
+      }
+
+      @keyframes pulse-price {
+        0% {
+          box-shadow: 0 0 0 0 rgba(254, 107, 0, 0.4);
+        }
+
+        70% {
+          box-shadow: 0 0 0 10px rgba(254, 107, 0, 0);
+        }
+
+        100% {
+          box-shadow: 0 0 0 0 rgba(254, 107, 0, 0);
+        }
+      }
+    </style>
 </body>
 
 </html>

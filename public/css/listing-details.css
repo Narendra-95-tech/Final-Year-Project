@@ -1285,12 +1285,70 @@ body.dark-mode .map-container-premium {
 }
 
 .guests-dropdown {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  display: none;
+  background: white;
   border: 1px solid var(--border);
   border-radius: var(--radius-small);
   padding: var(--space-4);
   margin-top: var(--space-2);
-  background: white;
-  box-shadow: var(--shadow-2);
+  box-shadow: var(--shadow-3);
+  z-index: 100;
+}
+
+.guests-dropdown.active {
+  display: block !important;
+  animation: guestFadeIn 0.2s ease;
+}
+
+@keyframes guestFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.guests-dropdown .btn-outline-secondary {
+  width: 32px;
+  height: 32px;
+  border-radius: 50% !important;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  border-color: #b0b0b0;
+  color: #717171;
+  transition: all 0.2s ease;
+  font-size: 18px;
+  font-weight: 300;
+}
+
+.guests-dropdown .btn-outline-secondary:hover:not(:disabled) {
+  border-color: #222222;
+  color: #222222;
+  background: transparent;
+}
+
+.guests-dropdown .btn-outline-secondary:disabled {
+  opacity: 0.15;
+  cursor: not-allowed;
+  border-color: #ebebeb;
+}
+
+.guests-dropdown span {
+  width: 24px;
+  text-align: center;
+  font-weight: 400;
+  font-size: 16px;
+  color: var(--text-primary);
 }
 
 .price-breakdown {
