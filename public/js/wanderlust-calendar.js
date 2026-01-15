@@ -18,8 +18,8 @@ class WanderLustCalendar {
         lightText: '#767676',
         border: 'rgba(0, 0, 0, 0.08)'
       },
-      onDateSelect: () => {},
-      onMonthChange: () => {},
+      onDateSelect: () => { },
+      onMonthChange: () => { },
       ...options
     };
 
@@ -32,7 +32,7 @@ class WanderLustCalendar {
     this.currentDate = new Date(this.options.initialDate);
     this.today = new Date();
     this.today.setHours(0, 0, 0, 0);
-    
+
     this.unavailableDates = [];
     this.selectedStartDate = null;
     this.selectedEndDate = null;
@@ -184,9 +184,11 @@ class WanderLustCalendar {
       }
       
       .calendar-day.disabled {
-        color: ${this.options.theme.lightText};
+        color: #9ca3af;
         cursor: not-allowed;
-        opacity: 0.5;
+        background-color: #f3f4f6;
+        text-decoration: line-through;
+        opacity: 1;
       }
       
       .calendar-day.unavailable {
@@ -282,17 +284,17 @@ class WanderLustCalendar {
     const firstDay = new Date(year, month, 1).getDay();
     const daysInMonth = new Date(year, month + 1, 0).getDate();
     const daysInPrevMonth = new Date(year, month, 0).getDate();
-    
+
     // Calculate days from previous month to show
     const prevMonthDays = firstDay === 0 ? 6 : firstDay - 1;
-    
+
     // Calculate total cells needed (always show 6 weeks for consistent height)
     const totalCells = Math.ceil((daysInMonth + prevMonthDays) / 7) * 7;
     const nextMonthDays = totalCells - (daysInMonth + prevMonthDays);
-    
+
     // Generate days array
     const days = [];
-    
+
     // Previous month days
     for (let i = prevMonthDays; i > 0; i--) {
       const day = daysInPrevMonth - i + 1;
@@ -306,7 +308,7 @@ class WanderLustCalendar {
         isUnavailable: this.isDateUnavailable(date)
       });
     }
-    
+
     // Current month days
     for (let i = 1; i <= daysInMonth; i++) {
       const date = new Date(year, month, i);
@@ -319,7 +321,7 @@ class WanderLustCalendar {
         isUnavailable: this.isDateUnavailable(date)
       });
     }
-    
+
     // Next month days
     for (let i = 1; i <= nextMonthDays; i++) {
       const date = new Date(year, month + 1, i);
@@ -332,7 +334,7 @@ class WanderLustCalendar {
         isUnavailable: this.isDateUnavailable(date)
       });
     }
-    
+
     // Render the calendar
     this.container.innerHTML = `
       <div class="wanderlust-calendar">
@@ -365,8 +367,8 @@ class WanderLustCalendar {
         ${this.options.showWeekdays ? `
           <div class="calendar-weekdays">
             ${['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun']
-              .map(day => `<div class="weekday">${day}</div>`)
-              .join('')}
+          .map(day => `<div class="weekday">${day}</div>`)
+          .join('')}
           </div>
         ` : ''}
         
@@ -377,19 +379,19 @@ class WanderLustCalendar {
             const isEnd = this.selectedEndDate && this.isSameDay(day.date, this.selectedEndDate);
             const isRangeStart = isStart && this.selectedEndDate;
             const isRangeEnd = isEnd && this.selectedStartDate;
-            
+
             let className = 'calendar-day';
-            if (!day.isCurrentMonth) className += ' disabled';
+            if (!day.isCurrentMonth || day.isDisabled) className += ' disabled';
             if (day.isToday) className += ' today';
             if (day.isUnavailable) className += ' unavailable';
             if (isStart || isEnd) className += ' selected';
             if (isInRange) className += ' in-range';
             if (isRangeStart) className += ' range-start';
             if (isRangeEnd) className += ' range-end';
-            
+
             // Add highlight class to today's date
             if (day.isToday) className += ' highlight';
-            
+
             return `
               <div 
                 class="${className}" 
@@ -433,83 +435,83 @@ class WanderLustCalendar {
         </div>
       </div>
     `;
-    
+
     // Add event listeners
     this.setupEventListeners();
   }
-  
+
   getDaysUntilNextTrip() {
     const today = new Date();
     today.setHours(0, 0, 0, 0);
-    
+
     // Find the next available date (for demo purposes, using today + random 1-14 days)
     const nextAvailableDate = new Date(today);
     nextAvailableDate.setDate(today.getDate() + Math.floor(Math.random() * 14) + 1);
-    
+
     const diffTime = nextAvailableDate - today;
     const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-    
+
     return `${diffDays} ${diffDays === 1 ? 'day' : 'days'}`;
   }
-  
+
   isSameDay(date1, date2) {
     return date1.getDate() === date2.getDate() &&
-           date1.getMonth() === date2.getMonth() &&
-           date1.getFullYear() === date2.getFullYear();
+      date1.getMonth() === date2.getMonth() &&
+      date1.getFullYear() === date2.getFullYear();
   }
-  
+
   isDateDisabled(date) {
     const today = new Date();
     today.setHours(0, 0, 0, 0);
-    
+
     // Disable past dates
     if (date < today) return true;
-    
+
     // Check against min/max dates if provided
     if (this.options.minDate && date < this.options.minDate) return true;
     if (this.options.maxDate && date > this.options.maxDate) return true;
-    
+
     return false;
   }
-  
+
   isDateUnavailable(date) {
     return this.unavailableDates.some(d => this.isSameDay(d, date));
   }
-  
+
   isDateInRange(date) {
     if (!this.selectedStartDate || !this.selectedEndDate) return false;
-    
+
     const start = new Date(this.selectedStartDate);
     const end = new Date(this.selectedEndDate);
     start.setHours(0, 0, 0, 0);
     end.setHours(0, 0, 0, 0);
-    
+
     return date > start && date < end && !this.isSameDay(date, start) && !this.isSameDay(date, end);
   }
-  
+
   setupEventListeners() {
     // Navigation
     const prevBtn = this.container.querySelector('.prev-month');
     const nextBtn = this.container.querySelector('.next-month');
     const clearBtn = this.container.querySelector('.btn-clear');
-    
+
     if (prevBtn) {
       prevBtn.addEventListener('click', () => this.navigateMonth(-1));
     }
-    
+
     if (nextBtn) {
       nextBtn.addEventListener('click', () => this.navigateMonth(1));
     }
-    
+
     if (clearBtn) {
       clearBtn.addEventListener('click', () => this.clearSelection());
     }
-    
+
     // Date selection
     const dayElements = this.container.querySelectorAll('.calendar-day:not(.disabled):not(.unavailable)');
     dayElements.forEach(dayEl => {
       dayEl.addEventListener('click', () => this.handleDateClick(dayEl));
-      
+
       // Hover effect for range selection
       dayEl.addEventListener('mouseenter', () => {
         if (this.selectedStartDate && !this.selectedEndDate) {
@@ -519,11 +521,11 @@ class WanderLustCalendar {
       });
     });
   }
-  
+
   navigateMonth(offset) {
     this.currentDate.setMonth(this.currentDate.getMonth() + offset);
     this.render();
-    
+
     // Call the onMonthChange callback
     if (typeof this.options.onMonthChange === 'function') {
       this.options.onMonthChange(
@@ -532,10 +534,10 @@ class WanderLustCalendar {
       );
     }
   }
-  
+
   handleDateClick(dayEl) {
     const date = new Date(dayEl.dataset.date);
-    
+
     if (!this.selectedStartDate || (this.selectedStartDate && this.selectedEndDate)) {
       // First selection or new selection
       this.selectedStartDate = date;
@@ -549,7 +551,7 @@ class WanderLustCalendar {
         this.selectedStartDate = date;
       }
     }
-    
+
     // Call the onDateSelect callback
     if (typeof this.options.onDateSelect === 'function') {
       this.options.onDateSelect(date, {
@@ -557,22 +559,22 @@ class WanderLustCalendar {
         endDate: this.selectedEndDate
       });
     }
-    
+
     // Re-render to update the UI
     this.render();
   }
-  
+
   clearSelection() {
     this.selectedStartDate = null;
     this.selectedEndDate = null;
     this.render();
-    
+
     // Call the onDateSelect callback with null to indicate clearing
     if (typeof this.options.onDateSelect === 'function') {
       this.options.onDateSelect(null);
     }
   }
-  
+
   // Public methods
   markUnavailable(date) {
     if (!this.isDateInArray(date, this.unavailableDates)) {
@@ -580,50 +582,50 @@ class WanderLustCalendar {
       this.render();
     }
   }
-  
+
   markAvailable(date) {
     this.unavailableDates = this.unavailableDates.filter(d => !this.isSameDay(d, date));
     this.render();
   }
-  
+
   markToday() {
     const today = new Date();
     today.setHours(0, 0, 0, 0);
-    
+
     // Scroll to today's date
-    if (this.currentDate.getMonth() !== today.getMonth() || 
-        this.currentDate.getFullYear() !== today.getFullYear()) {
+    if (this.currentDate.getMonth() !== today.getMonth() ||
+      this.currentDate.getFullYear() !== today.getFullYear()) {
       this.currentDate = new Date(today);
       this.render();
     }
   }
-  
+
   setUnavailableDates(dates) {
     this.unavailableDates = dates.map(date => new Date(date));
     this.render();
   }
-  
+
   isDateInArray(date, dateArray) {
     return dateArray.some(d => this.isSameDay(d, date));
   }
-  
+
   // Getters
   getSelectedDates() {
     if (!this.selectedStartDate) return [];
     if (!this.selectedEndDate) return [this.selectedStartDate];
-    
+
     const dates = [];
     const current = new Date(this.selectedStartDate);
     const end = new Date(this.selectedEndDate);
-    
+
     while (current <= end) {
       dates.push(new Date(current));
       current.setDate(current.getDate() + 1);
     }
-    
+
     return dates;
   }
-  
+
   getSelectedRange() {
     return {
       start: this.selectedStartDate ? new Date(this.selectedStartDate) : null,

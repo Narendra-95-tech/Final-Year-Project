@@ -1,18 +1,20 @@
 class AIAssistant {
     constructor() {
-        this.isOpen = false;
+        // Load saved state or default to false
+        const savedState = localStorage.getItem('aiAssistantOpen');
+        this.isOpen = savedState === 'true';
         this.isListening = false;
         this.chatHistory = [];
         this.recognition = null;
         this.synth = window.speechSynthesis;
         this.mapboxAccessToken = 'pk.eyJ1IjoibmFyZW5kcmE5NSIsImV4cGlyZXMiOjE3MzU1Njg4MDB9.abcdefghijklmnopqrstuvwxyz';
-        
+
         // Create and append the container
         this.container = document.createElement('div');
         this.container.className = 'ai-assistant';
         this.container.style.display = 'flex';
         document.body.appendChild(this.container);
-        
+
         this.initialize();
         this.loadChatHistory();
     }
@@ -87,19 +89,23 @@ class AIAssistant {
         this.messagesContainer = this.container.querySelector('.ai-assistant-messages');
         this.messageInput = this.container.querySelector('#messageInput');
         this.typingIndicator = this.container.querySelector('#typingIndicator');
-        
+
         // Initialize event listeners
         this.initializeEventListeners();
-        
-        // Show the assistant by default
-        this.toggle(true);
+
+        // Set initial state based on persistence
+        if (this.isOpen) {
+            this.toggle(true);
+        } else {
+            this.toggle(false);
+        }
     }
 
     initializeEventListeners() {
         // Toggle buttons
         this.container.querySelector('#minimizeBtn').addEventListener('click', () => this.toggle(false));
         this.container.querySelector('#closeBtn').addEventListener('click', () => this.close());
-        
+
         // Message input
         this.messageInput.addEventListener('keydown', (e) => {
             if (e.key === 'Enter' && !e.shiftKey) {
@@ -107,18 +113,18 @@ class AIAssistant {
                 this.handleSendMessage();
             }
         });
-        
+
         // Send button
         this.container.querySelector('#sendBtn').addEventListener('click', () => this.handleSendMessage());
-        
+
         // Voice input
         this.container.querySelector('#voiceBtn').addEventListener('click', () => this.toggleVoiceRecognition());
-        
+
         // File upload
         const fileInput = this.container.querySelector('#fileUpload');
         this.container.querySelector('#attachBtn').addEventListener('click', () => fileInput.click());
         fileInput.addEventListener('change', (e) => this.handleFileUpload(e.target.files));
-        
+
         // Quick actions
         document.querySelectorAll('.quick-btn').forEach(btn => {
             btn.addEventListener('click', (e) => {
@@ -131,6 +137,7 @@ class AIAssistant {
     // Toggle chat visibility
     toggle(show = !this.isOpen) {
         this.isOpen = show;
+        localStorage.setItem('aiAssistantOpen', show);
         if (show) {
             this.container.classList.add('visible');
             this.messageInput.focus();
@@ -151,11 +158,11 @@ class AIAssistant {
     handleSendMessage() {
         const message = this.messageInput.textContent.trim();
         if (!message) return;
-        
+
         // Add user message to chat
         this.addMessage('user', message);
         this.messageInput.textContent = '';
-        
+
         // Process the message
         this.processMessage(message);
     }
@@ -164,7 +171,7 @@ class AIAssistant {
     async processMessage(message) {
         // Show typing indicator
         this.showTypingIndicator();
-        
+
         try {
             // Check for specific commands
             if (message.toLowerCase().includes('trip') || message.toLowerCase().includes('plan')) {
@@ -256,13 +263,13 @@ How can I assist you today?`);
     // Handle file uploads (images)
     handleFileUpload(files) {
         if (!files || files.length === 0) return;
-        
+
         const file = files[0];
         if (!file.type.startsWith('image/')) {
             this.addSystemMessage('Please upload an image file.');
             return;
         }
-        
+
         this.analyzeImage(file);
     }
 
@@ -270,31 +277,31 @@ How can I assist you today?`);
     async analyzeImage(file) {
         try {
             const reader = new FileReader();
-            
+
             reader.onload = (e) => {
                 const img = document.createElement('img');
                 img.src = e.target.result;
                 img.style.maxWidth = '100%';
                 img.style.borderRadius = '8px';
-                
+
                 this.addMessage('user', 'I found this image:');
                 const message = this.container.querySelector('.ai-assistant-messages .message:last-child .message-text');
                 if (message) {
                     message.appendChild(document.createElement('br'));
                     message.appendChild(img);
-                    
+
                     // Simulate image recognition
                     setTimeout(() => {
                         this.addMessage('assistant', 'I see this is an image of a travel destination. How can I assist you with it?');
                     }, 1000);
                 }
             };
-            
+
             reader.onerror = (error) => {
                 console.error('Error reading file:', error);
                 this.addSystemMessage('Sorry, I had trouble reading that image. Please try another one.');
             };
-            
+
             reader.readAsDataURL(file);
         } catch (error) {
             console.error('Error processing image:', error);
@@ -318,51 +325,53 @@ How can I assist you today?`);
             default:
                 message = 'How can I help you with your travel plans?';
         }
-        
+
         this.addMessage('user', message);
         this.processMessage(message);
     }
 
     // Add a message to the chat
-    addMessage(sender, content) {
+    addMessage(sender, content, saveToHistory = true) {
         const messageDiv = document.createElement('div');
         messageDiv.className = `message ${sender}-message`;
-        
+
         const messageContent = document.createElement('div');
         messageContent.className = 'message-content';
-        
+
         if (sender === 'assistant') {
             const avatar = document.createElement('div');
             avatar.className = 'ai-avatar small';
             avatar.innerHTML = '<i class="fas fa-plane-departure"></i>';
             messageContent.appendChild(avatar);
         }
-        
+
         const messageText = document.createElement('div');
         messageText.className = 'message-text';
-        
+
         // Check if content is HTML or plain text
         if (typeof content === 'string' && (content.startsWith('<') || content.includes('<'))) {
             messageText.innerHTML = content;
         } else {
             messageText.textContent = content;
         }
-        
+
         messageContent.appendChild(messageText);
-        
+
         if (sender === 'user') {
             const userAvatar = document.createElement('div');
             userAvatar.className = 'ai-avatar small user';
             userAvatar.innerHTML = '<i class="fas fa-user"></i>';
             messageContent.appendChild(userAvatar);
         }
-        
+
         messageDiv.appendChild(messageContent);
         this.messagesContainer.appendChild(messageDiv);
         this.scrollToBottom();
-        
+
         // Save to chat history
-        this.saveToHistory(sender, content);
+        if (saveToHistory) {
+            this.saveToHistory(sender, content);
+        }
     }
 
     // Add a system message
@@ -402,7 +411,10 @@ How can I assist you today?`);
             const savedHistory = localStorage.getItem('aiAssistantChatHistory');
             if (savedHistory) {
                 this.chatHistory = JSON.parse(savedHistory);
-                // Optionally, you could display the chat history here
+                // Render the chat history
+                this.chatHistory.forEach(msg => {
+                    this.addMessage(msg.sender, msg.content, false);
+                });
             }
         } catch (error) {
             console.error('Error loading chat history:', error);
@@ -425,7 +437,7 @@ How can I assist you today?`);
         try {
             // Show typing indicator
             this.showTypingIndicator();
-            
+
             // In a real implementation, this would call your backend API
             // For now, we'll simulate a response
             const response = {
@@ -447,10 +459,10 @@ How can I assist you today?`);
                     ]
                 }
             };
-            
+
             // Display the trip plan
             this.displayTripPlan(response.data);
-            
+
         } catch (error) {
             console.error('Error planning trip:', error);
             this.addSystemMessage('Sorry, I encountered an error while planning your trip. Please try again.');
@@ -482,7 +494,7 @@ How can I assist you today?`);
                 </div>
             </div>
         `;
-        
+
         this.addMessage('assistant', html);
     }
 
@@ -490,12 +502,12 @@ How can I assist you today?`);
     async searchNearbyPlaces(type, query) {
         try {
             this.showTypingIndicator();
-            
+
             // Simulate API call
             setTimeout(() => {
                 let results = [];
                 let title = '';
-                
+
                 if (type === 'hotels') {
                     title = 'Hotels in ' + (query.includes('in ') ? query.split('in ')[1] : 'your area');
                     results = [
@@ -508,7 +520,7 @@ How can I assist you today?`);
                 } else if (type === 'restaurants' || type === 'dhabas') {
                     title = type === 'restaurants' ? 'Restaurants' : 'Dhabas';
                     title += ' in ' + (query.includes('in ') ? query.split('in ')[1] : 'your area');
-                    
+
                     results = type === 'restaurants' ? [
                         { name: 'Indian Accent', cuisine: 'Indian', rating: 4.8, price: '₹2,500', distance: '1.5 km' },
                         { name: 'Bukhara', cuisine: 'North Indian', rating: 4.9, price: '₹3,000', distance: '2.1 km' },
@@ -532,7 +544,7 @@ How can I assist you today?`);
                         { type: 'Bike', name: 'KTM Duke 390', price: '₹2,000/day', rating: 4.7, available: true }
                     ];
                 }
-                
+
                 // Display results
                 let html = `
                     <div class="search-results">
@@ -543,7 +555,7 @@ How can I assist you today?`);
                                     <div class="item-name">${item.name}</div>
                                     ${item.cuisine ? `<div class="item-cuisine">${item.cuisine}</div>` : ''}
                                     <div class="item-rating">
-                                        <span class="stars">${'★'.repeat(Math.floor(item.rating))}${'☆'.repeat(5-Math.floor(item.rating))}</span>
+                                        <span class="stars">${'★'.repeat(Math.floor(item.rating))}${'☆'.repeat(5 - Math.floor(item.rating))}</span>
                                         <span class="rating">${item.rating}</span>
                                     </div>
                                     <div class="item-price">${item.price}${item.distance ? ` • ${item.distance}` : ''}</div>
@@ -553,11 +565,11 @@ How can I assist you today?`);
                         </div>
                     </div>
                 `;
-                
+
                 this.addMessage('assistant', html);
                 this.hideTypingIndicator();
             }, 1000);
-            
+
         } catch (error) {
             console.error('Error searching for places:', error);
             this.addSystemMessage('Sorry, I encountered an error while searching. Please try again.');
@@ -569,7 +581,7 @@ How can I assist you today?`);
     async getWeatherInfo(location) {
         try {
             this.showTypingIndicator();
-            
+
             // Simulate API call
             setTimeout(() => {
                 const weatherData = {
@@ -587,7 +599,7 @@ How can I assist you today?`);
                         { day: 'Day 5', high: '28°C', low: '20°C', condition: 'Sunny', icon: '☀️' }
                     ]
                 };
-                
+
                 let html = `
                     <div class="weather-widget">
                         <h4>Weather in ${weatherData.location}</h4>
@@ -619,11 +631,11 @@ How can I assist you today?`);
                         </div>
                     </div>
                 `;
-                
+
                 this.addMessage('assistant', html);
                 this.hideTypingIndicator();
             }, 1000);
-            
+
         } catch (error) {
             console.error('Error getting weather:', error);
             this.addSystemMessage('Sorry, I couldn\'t fetch the weather information. Please try again.');
@@ -636,33 +648,33 @@ How can I assist you today?`);
 document.addEventListener('DOMContentLoaded', () => {
     // Check if the AI Assistant is enabled for this page
     const aiAssistantEnabled = !document.body.hasAttribute('data-disable-ai-assistant');
-    
+
     if (aiAssistantEnabled) {
         // Add the AI Assistant styles
         const styleLink = document.createElement('link');
         styleLink.rel = 'stylesheet';
         styleLink.href = '/css/ai-assistant.css';
-        
+
         // Create the floating assistant button
         const floatingButton = document.createElement('div');
         floatingButton.className = 'ai-assistant-float';
         floatingButton.innerHTML = '<i class="fas fa-comment-dots"></i>';
         floatingButton.onclick = () => window.wanderAI.toggle();
-        
+
         // Add the floating button to the page
         document.body.appendChild(floatingButton);
-        
+
         // Load the AI Assistant
         styleLink.onload = () => {
             // Initialize the AI Assistant
             window.wanderAI = new AIAssistant();
-            
-            // Auto-open after a short delay (optional)
-            setTimeout(() => window.wanderAI.toggle(true), 1000);
+
+            // Auto-open logic removed to respect persistence
+            // if (window.wanderAI.isOpen) window.wanderAI.toggle(true);
         };
-        
+
         document.head.appendChild(styleLink);
-        
+
         // Add Font Awesome if not already loaded
         if (!document.querySelector('link[href*="font-awesome"]') && !document.querySelector('link[href*="fontawesome"]')) {
             const fontAwesome = document.createElement('link');

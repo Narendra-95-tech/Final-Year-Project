@@ -2,6 +2,40 @@
 
   <!-- Link Premium CSS -->
   <link rel="stylesheet" href="/css/vehicle-premium.css">
+  <!-- Flatpickr CSS -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+  <style>
+    /* Custom Flatpickr Styling */
+    .flatpickr-day.flatpickr-disabled,
+    .flatpickr-day.flatpickr-disabled:hover {
+      text-decoration: line-through !important;
+      color: #9ca3af !important;
+      background-color: #f3f4f6 !important;
+      border-color: #f3f4f6 !important;
+      opacity: 1 !important;
+      cursor: not-allowed;
+    }
+
+    .flatpickr-calendar {
+      border-radius: 16px;
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+      border: none;
+      padding: 10px;
+    }
+
+    .flatpickr-day.selected {
+      background: #fe6b00 !important;
+      border-color: #fe6b00 !important;
+    }
+
+    /* Premium Date Input Styling */
+    /* Overriding search-input for date fields specifically if needed, 
+         but keeping base class for layout compatibility */
+    input.search-input[readonly] {
+      background-color: #fff;
+      cursor: pointer;
+    }
+  </style>
 
   <!-- Premium Hero Section -->
   <section class="vehicle-premium-hero">
@@ -13,20 +47,37 @@
 
   <!-- Fast Search Overlap -->
   <div class="container position-relative">
-    <div class="vehicle-fast-search" data-aos="zoom-in" data-aos-delay="200">
-      <div class="search-field flex-grow-1" style="position: relative;">
+    <div class="vehicle-fast-search">
+      <!-- Location Field -->
+      <div class="search-field" style="flex: 2;">
         <span class="search-label">Where</span>
-        <input type="text" class="search-input" placeholder="City or airport" id="search-location"
-          value="<%= query || '' %>" style="padding-right: 35px;">
-        <button type="button" id="vehicleVoiceBtn" title="Search by Voice"
-          style="background: none; border: none; position: absolute; right: 40px; top: 50%; transform: translateY(-10%); color: #ff385c; cursor: pointer;">
-          <i class="fas fa-microphone"></i>
-        </button>
-        <button type="button" id="vehicleClearSearch"
-          style="display: none; background: none; border: none; position: absolute; right: 10px; top: 50%; transform: translateY(-10%); color: #999; cursor: pointer;">
-          <i class="fas fa-times-circle"></i>
-        </button>
+        <div class="d-flex align-items-center position-relative w-100">
+          <input type="text" class="search-input pe-5" placeholder="City or airport" id="search-location"
+            value="<%= query || '' %>">
+          <div class="search-actions">
+            <button type="button" id="vehicleVoiceBtn" title="Search by Voice">
+              <i class="fas fa-microphone"></i>
+            </button>
+            <button type="button" id="vehicleClearSearch" style="display: none;">
+              <i class="fas fa-times-circle"></i>
+            </button>
+          </div>
+        </div>
       </div>
+
+      <!-- Date Range -->
+      <div class="search-field d-none d-lg-block">
+        <span class="search-label">Start Date</span>
+        <input type="text" class="search-input" id="search-start-date" placeholder="Select Date"
+          value="<%= startDate || '' %>" readonly>
+      </div>
+      <div class="search-field d-none d-lg-block">
+        <span class="search-label">End Date</span>
+        <input type="text" class="search-input" id="search-end-date" placeholder="Select Date"
+          value="<%= endDate || '' %>" readonly>
+      </div>
+
+      <!-- Vehicle Type -->
       <div class="search-field">
         <span class="search-label">Type</span>
         <select class="search-input bg-transparent" id="search-type">
@@ -38,12 +89,16 @@
           <option value="Luxury" <%=vehicleType==='Luxury' ? 'selected' : '' %>>Luxury</option>
         </select>
       </div>
+
+      <!-- Seats -->
       <div class="search-field d-none d-md-block">
         <span class="search-label">Seats</span>
-        <input type="number" class="search-input" placeholder="Min seats" id="search-seats" value="<%= seats || '' %>"
+        <input type="number" class="search-input" placeholder="Min" id="search-seats" value="<%= seats || '' %>"
           min="1">
       </div>
-      <button class="search-btn" onclick="executeFastSearch()">
+
+      <!-- Submit Button -->
+      <button type="button" class="search-btn" id="executeSearchBtn" title="Search">
         <i class="fas fa-search"></i>
       </button>
     </div>
@@ -181,19 +236,48 @@
         <% } %>
   </div>
 
+  <!-- Voice Search Overlay -->
+  <div class="voice-overlay">
+    <div class="voice-modal">
+      <button class="voice-close" onclick="document.querySelector('.voice-overlay').classList.remove('active')">
+        <i class="fas fa-times"></i>
+      </button>
+      <div class="voice-mic-pulse">
+        <i class="fas fa-microphone"></i>
+      </div>
+      <h3 id="voice-status">Listening...</h3>
+      <p id="voice-preview">Speak now...</p>
+    </div>
+  </div>
+
   <script>
-    function executeFastSearch() {
-      const loc = document.getElementById('search-location').value;
-      const type = document.getElementById('search-type').value;
-      const seats = document.getElementById('search-seats').value;
+    window.executeFastSearch = function () {
+      const btn = document.getElementById('executeSearchBtn');
+      try {
+        if (btn) btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
 
-      const url = new URL(window.location);
-      if (loc) url.searchParams.set('q', loc); else url.searchParams.delete('q');
-      if (type && type !== 'all') url.searchParams.set('vehicleType', type); else url.searchParams.delete('vehicleType');
-      if (seats) url.searchParams.set('seats', seats); else url.searchParams.delete('seats');
+        const loc = document.getElementById('search-location').value.trim();
+        const type = document.getElementById('search-type').value;
+        const seats = document.getElementById('search-seats').value;
+        const start = document.getElementById('search-start-date')?.value;
+        const end = document.getElementById('search-end-date')?.value;
 
-      window.location.href = url.toString();
-    }
+        const url = new URL(window.location.origin + window.location.pathname);
+        if (loc) url.searchParams.set('q', loc);
+        if (type && type !== 'all') url.searchParams.set('vehicleType', type);
+        if (seats) url.searchParams.set('seats', seats);
+        if (start) url.searchParams.set('startDate', start);
+        if (end) url.searchParams.set('endDate', end);
+
+        window.location.href = url.toString();
+      } catch (err) {
+        console.error("Search failed:", err);
+        if (btn) btn.innerHTML = '<i class="fas fa-search"></i>';
+      }
+    };
+
+    // Bind event listener properly
+    document.getElementById('executeSearchBtn')?.addEventListener('click', executeFastSearch);
 
     function setFilter(type, value) {
       const url = new URL(window.location);
@@ -227,31 +311,25 @@
       const vehicleClearBtn = document.getElementById('vehicleClearSearch');
       if (vehicleInput && vehicleClearBtn) {
         const toggleVehicleClear = () => {
-          vehicleClearBtn.style.display = vehicleInput.value.trim().length > 0 ? 'block' : 'none';
+          vehicleClearBtn.style.display = vehicleInput.value.trim().length > 0 ? 'inline-block' : 'none';
         };
         vehicleInput.addEventListener('input', toggleVehicleClear);
         toggleVehicleClear();
-        vehicleClearBtn.addEventListener('click', () => {
+        vehicleClearBtn.addEventListener('click', (e) => {
+          e.stopPropagation();
           vehicleInput.value = '';
           toggleVehicleClear();
-          vehicleInput.focus();
-          if (window.location.search.includes('q=')) {
-            executeFastSearch();
-          }
-        });
-      }
-
-      // Vehicle Voice Search Logic
-      const vehicleVoiceBtn = document.getElementById('vehicleVoiceBtn');
-      if (vehicleVoiceBtn && vehicleInput) {
-        vehicleVoiceBtn.addEventListener('click', () => {
-          startVehicleVoiceSearch(vehicleInput);
+          // Trigger search immediately to show all vehicles (or remove query filter)
+          window.executeFastSearch();
         });
       }
 
       function startVehicleVoiceSearch(targetInput) {
         const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-        if (!SpeechRecognition) return;
+        if (!SpeechRecognition) {
+          alert("Your browser does not support speech recognition.");
+          return;
+        }
 
         const recognition = new SpeechRecognition();
         recognition.continuous = false;
@@ -283,16 +361,84 @@
             statusText.textContent = 'Searching...';
             setTimeout(() => {
               overlay.classList.remove('active');
-              executeFastSearch();
+              window.executeFastSearch();
             }, 800);
           } else {
             previewText.textContent = interimTranscript;
           }
         };
 
-        recognition.onerror = () => overlay.classList.remove('active');
+        recognition.onerror = (event) => {
+          console.error("Speech Recognition Error:", event.error);
+          statusText.textContent = 'Error';
+          previewText.textContent = 'Could not hear you. Please try again.';
+          setTimeout(() => overlay.classList.remove('active'), 1500);
+        };
+
+        recognition.onend = () => {
+          micPulse.classList.remove('pulsing');
+        };
+
         recognition.start();
       }
+
+      // Voice Button Event
+      if (vehicleVoiceBtn && vehicleInput) {
+        vehicleVoiceBtn.addEventListener('click', (e) => {
+          e.stopPropagation(); // Prevent focusing the entire field
+          startVehicleVoiceSearch(vehicleInput);
+        });
+      }
+
+      // Add Click-to-Focus for Search Fields
+      const searchFields = document.querySelectorAll('.vehicle-fast-search .search-field');
+      searchFields.forEach(field => {
+        field.addEventListener('click', (e) => {
+          if (e.target.closest('button') || e.target.closest('.search-actions')) return;
+          const input = field.querySelector('input, select');
+          if (input) input.focus();
+        });
+      });
+
+      // Handle Date Input Focus (Show picker if possible)
+      const dateInputs = document.querySelectorAll('.search-input[type="date"]');
+      dateInputs.forEach(input => {
+        input.addEventListener('click', function () {
+          if (this.showPicker) this.showPicker();
+        });
+      });
     });
   </script>
   <script src="/js/wishlist-handler.js"></script>
+  <!-- Flatpickr JS -->
+  <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', function () {
+      const startDateInput = document.getElementById('search-start-date');
+      const endDateInput = document.getElementById('search-end-date');
+
+      if (startDateInput && endDateInput) {
+        const fpStart = flatpickr(startDateInput, {
+          minDate: "today",
+          dateFormat: "Y-m-d",
+          altInput: true,
+          altFormat: "D, d M",
+          disableMobile: "true",
+          onChange: function (selectedDates, dateStr, instance) {
+            if (selectedDates.length > 0) {
+              fpEnd.set('minDate', selectedDates[0]);
+              setTimeout(() => fpEnd.open(), 100);
+            }
+          }
+        });
+
+        const fpEnd = flatpickr(endDateInput, {
+          minDate: "today",
+          dateFormat: "Y-m-d",
+          altInput: true,
+          altFormat: "D, d M",
+          disableMobile: "true"
+        });
+      }
+    });
+  </script>

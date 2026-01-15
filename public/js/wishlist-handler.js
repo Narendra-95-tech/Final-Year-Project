@@ -330,8 +330,9 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 // Add CSS for animations
-const style = document.createElement('style');
-style.textContent = `
+{
+    const style = document.createElement('style');
+    style.textContent = `
   @keyframes slideIn {
     from {
       transform: translateX(400px);
@@ -354,7 +355,8 @@ style.textContent = `
     }
   }
 `;
-document.head.appendChild(style);
+    document.head.appendChild(style);
+}
 
 // Export for use in other files
 if (typeof module !== 'undefined' && module.exports) {

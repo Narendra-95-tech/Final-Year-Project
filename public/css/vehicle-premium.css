@@ -119,22 +119,45 @@ body {
 /* Premium Search Bar */
 .vehicle-fast-search {
     background: var(--vp-white);
-    padding: 12px;
+    padding: 10px 10px 10px 24px;
     border-radius: 100px;
-    box-shadow: 0 15px 45px rgba(0, 0, 0, 0.2);
+    box-shadow: 0 16px 32px rgba(0, 0, 0, 0.1), 0 3px 8px rgba(0, 0, 0, 0.05);
     display: flex;
     align-items: center;
     margin: 0 auto;
-    width: fit-content;
-    max-width: 90%;
-    transform: translateY(-50PX);
-    /* Post-hero overlap */
-    border: 1px solid rgba(0, 0, 0, 0.05);
+    width: 100%;
+    max-width: 1000px;
+    /* Slightly wider */
+    transform: translateY(-50%);
+    border: 1px solid rgba(0, 0, 0, 0.08);
+    z-index: 1000;
+    position: relative;
+    box-sizing: border-box;
+    min-height: 66px;
 }
 
 .search-field {
-    padding: 10px 25px;
-    border-right: 1px solid var(--vp-gray-light);
+    padding: 10px 16px;
+    border-right: 1px solid #ebebeb;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    flex: 1;
+    min-width: 0;
+    cursor: pointer;
+    transition: background 0.2s ease;
+}
+
+.search-field:hover {
+    background: #f7f7f7;
+    border-radius: 50px;
+    /* Softer hover shape */
+}
+
+/* Fix for fields neighboring a rounded-pill shape */
+.search-field:first-child:hover {
+    border-top-left-radius: 100px;
+    border-bottom-left-radius: 100px;
 }
 
 .search-field:last-of-type {
@@ -143,39 +166,114 @@ body {
 
 .search-label {
     display: block;
-    font-size: 0.75rem;
-    font-weight: 700;
+    font-size: 0.7rem;
+    font-weight: 800;
     text-transform: uppercase;
-    color: var(--vp-gray-dark);
-    margin-bottom: 4px;
+    color: var(--vp-black);
+    margin-bottom: 2px;
+    letter-spacing: 0.5px;
 }
 
 .search-input {
     border: none;
-    font-weight: 600;
-    color: var(--vp-charcoal);
+    background: transparent;
+    font-family: inherit;
+    font-weight: 500;
+    font-size: 0.9rem;
+    color: #222;
     width: 100%;
     outline: none;
+    padding: 2px 0;
+    margin: 0;
+    cursor: pointer;
+}
+
+.search-input:focus {
+    background: transparent;
+}
+
+.search-input::placeholder {
+    color: #b0b0b0;
+    font-weight: 400;
+}
+
+.search-actions {
+    position: absolute;
+    right: 0;
+    top: 50%;
+    transform: translateY(-50%);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    z-index: 10;
+}
+
+#vehicleVoiceBtn {
+    background: transparent !important;
+    border: none !important;
+    outline: none !important;
+    color: var(--vp-orange);
+    cursor: pointer;
+    font-size: 1rem;
+    transition: all 0.2s ease;
+    padding: 2px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: none !important;
+}
+
+#vehicleVoiceBtn:hover {
+    transform: scale(1.1);
+    color: var(--vp-orange-dark);
+}
+
+#vehicleClearSearch {
+    background: transparent !important;
+    border: none !important;
+    outline: none !important;
+    color: #bbb;
+    cursor: pointer;
+    font-size: 0.9rem;
+    padding: 2px;
+    box-shadow: none !important;
+}
+
+#vehicleClearSearch:hover {
+    color: #888;
 }
 
 .search-btn {
     background: var(--vp-orange);
     color: white;
-    width: 50px;
-    height: 50px;
+    width: 48px;
+    height: 48px;
     border-radius: 50%;
     display: flex;
     align-items: center;
     justify-content: center;
     border: none;
-    transition: all 0.3s ease;
+    transition: all 0.2s cubic-bezier(0.2, 0, 0.1, 1);
     cursor: pointer;
-    margin-left: 10px;
+    margin-left: 8px;
+    flex-shrink: 0;
 }
 
 .search-btn:hover {
     background: var(--vp-orange-dark);
-    transform: scale(1.1);
+    transform: scale(1.05);
+}
+
+.search-btn i {
+    font-size: 1.1rem;
+    margin: 0;
+}
+
+.search-actions {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-left: 5px;
 }
 
 /* Category Hub Icons */
@@ -730,9 +828,9 @@ body {
 
     .search-field {
         border-right: none;
-        border-bottom: 1px solid var(--vp-gray-light);
+        border-bottom: 1px solid #eee;
         width: 100%;
-        padding: 15px 0;
+        padding: 12px 5px;
     }
 
     .search-field:last-of-type {
@@ -742,8 +840,8 @@ body {
     .search-btn {
         width: 100%;
         height: 50px;
-        border-radius: 12px;
-        margin-top: 15px;
+        border-radius: 25px;
+        margin-top: 10px;
         margin-left: 0;
     }
 
@@ -1175,4 +1273,96 @@ body {
     .spec-pill {
         font-size: 0.65rem;
     }
+}
+
+/* Voice Search Overlay */
+.voice-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.85);
+    backdrop-filter: blur(10px);
+    z-index: 9999;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    visibility: hidden;
+    transition: all 0.4s cubic-bezier(0.165, 0.84, 0.44, 1);
+}
+
+.voice-overlay.active {
+    opacity: 1;
+    visibility: visible;
+}
+
+.voice-modal {
+    text-align: center;
+    color: white;
+    width: 90%;
+    max-width: 400px;
+    position: relative;
+    padding: 40px;
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 30px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.voice-close {
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    background: none;
+    border: none;
+    color: rgba(255, 255, 255, 0.5);
+    font-size: 1.5rem;
+    cursor: pointer;
+    transition: color 0.3s;
+}
+
+.voice-close:hover {
+    color: white;
+}
+
+.voice-mic-pulse {
+    width: 100px;
+    height: 100px;
+    background: var(--vp-orange);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 30px;
+    font-size: 2.5rem;
+    color: white;
+    position: relative;
+    box-shadow: 0 0 0 0 rgba(255, 56, 92, 0.4);
+}
+
+.voice-mic-pulse.pulsing {
+    animation: voice-pulse 1.5s infinite linear;
+}
+
+@keyframes voice-pulse {
+    0% {
+        box-shadow: 0 0 0 0 rgba(255, 56, 92, 0.7);
+    }
+
+    100% {
+        box-shadow: 0 0 0 40px rgba(255, 56, 92, 0);
+    }
+}
+
+#voice-status {
+    font-size: 1.8rem;
+    font-weight: 700;
+    margin-bottom: 10px;
+}
+
+#voice-preview {
+    font-size: 1.1rem;
+    opacity: 0.7;
+    min-height: 1.5em;
 }

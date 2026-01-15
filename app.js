@@ -18,10 +18,19 @@ const LocalStrategy = require("passport-local");
 const http = require('http');
 const socketIo = require('socket.io');
 const multer = require('multer');
+const helmet = require('helmet');
+const mongoSanitize = require('express-mongo-sanitize');
+const xss = require('xss-clean');
+const rateLimit = require('express-rate-limit');
+const hpp = require('hpp');
+const cors = require('cors');
 
 const ExpressError = require("./utils/ExpressError");
 const User = require("./models/user");
-const cors = require('cors');
+const logger = require("./config/logger");
+const { initSentry, Sentry } = require("./config/sentry");
+const requestLogger = require("./middleware/requestLogger");
+
 
 const listingRouter = require("./routes/listing");
 const vehicleRouter = require("./routes/vehicles");
@@ -82,6 +91,12 @@ db.once("open", () => {
 // Express Setup
 // --------------------
 const app = express();
+
+// Initialize Sentry (must be before other middleware)
+initSentry(app);
+app.use(Sentry.Handlers.requestHandler());
+app.use(Sentry.Handlers.tracingHandler());
+
 const server = http.createServer(app);
 const io = socketIo(server, {
   cors: {
@@ -160,6 +175,123 @@ const compression = require('compression');
 // Compress all HTTP responses
 app.use(compression());
 
+// --------------------
+// Security Middleware
+// --------------------
+
+// Helmet - Security headers
+app.use(helmet({
+  contentSecurityPolicy: {
+    directives: {
+      defaultSrc: ["'self'"],
+      scriptSrc: [
+        "'self'",
+        "'unsafe-inline'",
+        "https://cdn.jsdelivr.net",
+        "https://unpkg.com",
+        "https://js.stripe.com",
+        "https://api.mapbox.com",
+        "https://cdn.socket.io",
+        "https://maps.googleapis.com",
+        "blob:" // Required for Mapbox workers
+      ],
+      styleSrc: [
+        "'self'",
+        "'unsafe-inline'",
+        "https://cdn.jsdelivr.net",
+        "https://unpkg.com",
+        "https://cdnjs.cloudflare.com",
+        "https://api.mapbox.com",
+        "https://fonts.googleapis.com"
+      ],
+      imgSrc: [
+        "'self'",
+        "data:",
+        "https:",
+        "http:",
+        "blob:",
+        "*.cloudinary.com",
+        "images.unsplash.com",
+        "via.placeholder.com",
+        "https://*.mapbox.com",
+        "https://images.unsplash.com"
+      ],
+      connectSrc: [
+        "'self'",
+        "https://cdn.jsdelivr.net",
+        "https://*.mapbox.com",
+        "https://maps.googleapis.com",
+        "http:",
+        "wss:",
+        "ws:",
+        "*.stripe.com"
+      ],
+      fontSrc: [
+        "'self'",
+        "https:",
+        "http:",
+        "data:",
+        "https://fonts.gstatic.com",
+        "https://cdnjs.cloudflare.com"
+      ],
+      workerSrc: ["'self'", "blob:"], // Explicitly allow Mapbox workers
+      childSrc: ["'self'", "blob:"],
+      scriptSrcAttr: ["'unsafe-inline'"],
+      objectSrc: ["'none'"],
+      mediaSrc: ["'self'"],
+      frameSrc: ["'self'", "https://js.stripe.com"],
+      upgradeInsecureRequests: null, // Don't force HTTPS on localhost
+    },
+  },
+  crossOriginEmbedderPolicy: false,
+  crossOriginResourcePolicy: { policy: "cross-origin" },
+  hsts: {
+    maxAge: 0, // Explicitly tell the browser to clear HSTS for localhost
+    includeSubDomains: true
+  },
+}));
+
+// MongoDB sanitization - Prevent NoSQL injection
+app.use(mongoSanitize({
+  replaceWith: '_',
+  onSanitize: ({ req, key }) => {
+    logger.warn(`Sanitized potentially malicious input: ${key} from IP: ${req.ip}`);
+  },
+}));
+
+// XSS protection - Sanitize user input
+app.use(xss());
+
+// HTTP Parameter Pollution protection
+app.use(hpp({
+  whitelist: ['price', 'guests', 'bedrooms', 'rating', 'propertyType'] // Allow duplicate params for filters
+}));
+
+// Rate limiting configurations
+const apiLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  max: 100, // 100 requests per window
+  message: 'Too many requests from this IP, please try again later.',
+  standardHeaders: true,
+  legacyHeaders: false,
+});
+
+const authLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  max: 5, // 5 login attempts per 15 minutes
+  skipSuccessfulRequests: true,
+  message: 'Too many login attempts, please try again later.',
+});
+
+const bookingLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  max: 100, // 100 requests per window
+  message: 'Too many booking attempts, please try again later.',
+});
+
+// Request logging
+app.use(requestLogger);
+
 // Serve static files from public directory with caching
 app.use(express.static(path.join(__dirname, 'public'), {
   maxAge: '1d', // Cache static assets for 1 day
@@ -174,6 +306,9 @@ app.use(express.static(path.join(__dirname, 'public'), {
     }
   }
 }));
+
+// Handle favicon.ico requests - redirect to favicon.png
+app.get('/favicon.ico', (req, res) => res.redirect('/favicon.png'));
 
 // Configure CORS
 app.use(cors({
@@ -270,6 +405,9 @@ app.use((req, res, next) => {
 // --------------------
 // Routes
 // --------------------
+const healthRouter = require("./routes/health");
+
+app.use("/", healthRouter); // Health check endpoints
 app.use("/", userRouter);
 app.use("/listings", listingRouter);
 app.use("/vehicles", vehicleRouter);
@@ -278,16 +416,16 @@ app.use("/listings/:id/reviews", reviewRouter);
 app.use("/vehicles/:id/reviews", reviewRouter);
 app.use("/dhabas/:id/reviews", reviewRouter);
 app.use("/admin", adminRoutes);
-app.use("/bookings", bookingRoutes);
-app.use("/ai", aiRoutes);
+app.use("/bookings", bookingLimiter, bookingRoutes); // Apply booking rate limiter
+app.use("/ai", apiLimiter, aiRoutes); // Apply API rate limiter
 app.use("/social", socialRoutes);
-app.use("/api/social", socialInteractions);
-app.use("/api/trip", tripPlannerRoutes);
-app.use("/auth", authRoutes);
-app.use("/api/wishlist", wishlistRoutes);
-app.use("/ai/magic", aiMagicRouter);
+app.use("/api/social", apiLimiter, socialInteractions);
+app.use("/api/trip", apiLimiter, tripPlannerRoutes);
+app.use("/auth", authLimiter, authRoutes); // Apply auth rate limiter
+app.use("/api/wishlist", apiLimiter, wishlistRoutes);
+app.use("/ai/magic", apiLimiter, aiMagicRouter);
 app.use("/trust", trustRouter);
-app.use("/api/otp", otpRouter);
+app.use("/api/otp", authLimiter, otpRouter); // Apply auth rate limiter to OTP
 
 
 
@@ -612,8 +750,21 @@ app.all('*', (req, res, next) => {
   next(new ExpressError(404, "Page Not Found"));
 });
 
+// Sentry Error Handler - Must be before other error handlers
+app.use(Sentry.Handlers.errorHandler());
+
 // Error Handler
 app.use((err, req, res, next) => {
+  // Log error
+  logger.error('Application error', {
+    error: err.message,
+    stack: err.stack,
+    url: req.originalUrl,
+    method: req.method,
+    ip: req.ip,
+    userId: req.user?._id,
+  });
+
   console.error(`Error [${req.method} ${req.originalUrl}]:`, err.message);
 
   // Handle ExpressError specifically

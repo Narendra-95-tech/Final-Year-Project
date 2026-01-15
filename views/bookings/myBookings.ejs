@@ -421,6 +421,52 @@
     .booking-card.cancelled-card:hover {
       transform: translateY(-5px);
     }
+
+    /* Bulk Delete Toolbar */
+    .bulk-toolbar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background: white;
+      padding: 15px 20px;
+      border-radius: 12px;
+      margin-bottom: 20px;
+      box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+      border: 1px solid #f1f5f9;
+    }
+
+    .form-check-input.select-all-check {
+      width: 20px;
+      height: 20px;
+      cursor: pointer;
+      border-color: #cbd5e1;
+    }
+
+    .form-check-input.select-all-check:checked {
+      background-color: var(--primary-orange);
+      border-color: var(--primary-orange);
+    }
+
+    /* Card Checkbox overlay */
+    .card-select-overlay {
+      position: absolute;
+      top: 10px;
+      left: 10px;
+      z-index: 20;
+    }
+
+    .card-checkbox {
+      width: 24px;
+      height: 24px;
+      cursor: pointer;
+      border: 2px solid white;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+    }
+
+    .card-checkbox:checked {
+      background-color: var(--primary-orange);
+      border-color: var(--primary-orange);
+    }
   </style>
 
   <% /* 1. Separate Bookings */ const now=new Date(); now.setHours(0,0,0,0); let upcoming=[]; let history=[]; let
@@ -435,7 +481,7 @@
     /* Image fallback logic */
     b.img = "";
     if (b.item) {
-    if (b.type === 'dhaba' && b.item.images && b.item.images.length > 0) b.img = b.item.images[0].url;
+    if (b.type === 'dhaba' && b.item.image && b.item.image.length > 0) b.img = b.item.image[0].url;
     else if (b.item.image && b.item.image.url) b.img = b.item.image.url;
     else if (b.item.images && b.item.images.length > 0) b.img = b.item.images[0].url;
     }
@@ -629,92 +675,130 @@
 
         <!-- HISTORY -->
         <div class="tab-pane fade" id="pills-history">
-          <div class="cards-grid">
-            <% history.forEach(b=> {
-              let d = new Date(b.startDate || b.date);
-              %>
-              <div class="booking-card searchable-item" data-search="<%= b.title %>">
-                <div class="card-img-wrap">
-                  <img src="<%= b.img %>" class="card-img">
-                </div>
-                <div class="card-body">
-                  <div class="card-title text-truncate">
-                    <%= b.title %>
-                  </div>
-                  <div class="card-meta">
-                    <i class="fas fa-check-circle text-success"></i>
-                    Completed on <%= d.toLocaleDateString() %>
-                  </div>
-                  <div class="card-footer d-flex justify-content-between">
-                    <div class="d-flex gap-1">
-                      <a href="/bookings/<%= b._id %>" class="btn btn-sm btn-light rounded-pill">View Memory</a>
-                      <% if(b.type==='listing' ) { %>
-                        <a href="/listings/<%= b.item._id %>"
-                          class="btn btn-sm btn-outline-primary rounded-pill border-0">Book Again</a>
-                        <% } %>
-                    </div>
-                    <form action="/bookings/<%= b._id %>?_method=DELETE" method="POST" class="d-inline">
-                      <button type="button" onclick="confirmDelete(this.form)"
-                        class="btn btn-sm text-danger rounded-pill border-0 p-0 fs-5" title="Delete from History">
-                        <i class="fas fa-trash-alt"></i>
-                      </button>
-                    </form>
-                  </div>
-                </div>
+          <% if(history.length> 0) { %>
+            <div class="bulk-toolbar">
+              <div class="d-flex align-items-center gap-2">
+                <input type="checkbox" class="form-check-input select-all-check" id="selectAllHistory"
+                  onclick="toggleSelectAll(this, 'history')">
+                <label class="form-check-label fw-bold text-muted small" for="selectAllHistory"
+                  style="cursor: pointer;">SELECT ALL</label>
               </div>
-              <% }); %>
-          </div>
-          <% if(history.length===0) { %>
-            <div class="empty-state">
-              <i class="fas fa-history empty-icon"></i>
-              <h5>No travel history yet</h5>
-              <p>Your past adventures will appear here.</p>
+              <button id="bulkDeleteBtnHistory" class="btn btn-sm btn-danger rounded-pill px-3 fw-bold shadow-none"
+                style="display: none;" onclick="confirmBulkDelete('history')">
+                <i class="fas fa-trash-alt me-1"></i> Delete Selected (<span id="selectedCountHistory">0</span>)
+              </button>
             </div>
             <% } %>
+              <div class="cards-grid">
+                <% history.forEach(b=> {
+                  let d = new Date(b.startDate || b.date);
+                  %>
+                  <div class="booking-card searchable-item" data-search="<%= b.title %>">
+                    <div class="card-img-wrap">
+                      <div class="card-select-overlay">
+                        <input type="checkbox" class="form-check-input card-checkbox history-checkbox"
+                          value="<%= b._id %>" onchange="updateBulkState('history')">
+                      </div>
+                      <img src="<%= b.img %>" class="card-img">
+                    </div>
+                    <div class="card-body">
+                      <div class="card-title text-truncate">
+                        <%= b.title %>
+                      </div>
+                      <div class="card-meta">
+                        <i class="fas fa-check-circle text-success"></i>
+                        Completed on <%= d.toLocaleDateString() %>
+                      </div>
+                      <div class="card-footer d-flex justify-content-between">
+                        <div class="d-flex gap-1">
+                          <a href="/bookings/<%= b._id %>" class="btn btn-sm btn-light rounded-pill">View Memory</a>
+                          <% if(b.type==='listing' ) { %>
+                            <a href="/listings/<%= b.item._id %>"
+                              class="btn btn-sm btn-outline-primary rounded-pill border-0">Book Again</a>
+                            <% } %>
+                        </div>
+                        <form action="/bookings/<%= b._id %>?_method=DELETE" method="POST" class="d-inline">
+                          <button type="button" onclick="confirmDelete(this.form)"
+                            class="btn btn-sm text-danger rounded-pill border-0 p-0 fs-5" title="Delete from History">
+                            <i class="fas fa-trash-alt"></i>
+                          </button>
+                        </form>
+                      </div>
+                    </div>
+                  </div>
+                  <% }); %>
+              </div>
+              <% if(history.length===0) { %>
+                <div class="empty-state">
+                  <i class="fas fa-history empty-icon"></i>
+                  <h5>No travel history yet</h5>
+                  <p>Your past adventures will appear here.</p>
+                </div>
+                <% } %>
         </div>
 
         <!-- CANCELLED -->
         <div class="tab-pane fade" id="pills-cancelled">
-          <div class="cards-grid">
-            <% cancelled.forEach(b=> {
-              let d = new Date(b.startDate || b.date);
-              %>
-              <div class="booking-card cancelled-card searchable-item" data-search="<%= b.title %>">
-                <div class="card-img-wrap">
-                  <img src="<%= b.img %>" class="card-img"
-                    onerror="this.onerror=null;this.src='https://images.unsplash.com/photo-1488646953014-85cb44e25828?auto=format&fit=crop&q=80&w=800';">
-                  <div class="cancelled-badge-overlay">
-                    <i class="fas fa-ban me-1"></i> Cancelled
-                  </div>
-                </div>
-                <div class="card-body">
-                  <div class="card-title text-truncate text-muted">
-                    <%= b.title %>
-                  </div>
-                  <div class="card-meta">
-                    <i class="far fa-calendar-times"></i> Was: <%= d.toLocaleDateString() %>
-                  </div>
-                  <div class="card-footer d-flex justify-content-between align-items-center">
-                    <a href="/bookings/<%= b._id %>" class="btn btn-sm btn-light rounded-pill">Details</a>
-                    <form action="/bookings/<%= b._id %>?_method=DELETE" method="POST" class="d-inline">
-                      <button type="button" onclick="confirmDelete(this.form)"
-                        class="btn btn-sm btn-danger rounded-pill px-3 shadow-none border-0"
-                        style="background-color: #ef4444; color: white;">
-                        <i class="fas fa-trash-alt me-1"></i> Delete
-                      </button>
-                    </form>
-                  </div>
-                </div>
+
+          <% if(cancelled.length> 0) { %>
+            <div class="bulk-toolbar">
+              <div class="d-flex align-items-center gap-2">
+                <input type="checkbox" class="form-check-input select-all-check" id="selectAllCancelled"
+                  onclick="toggleSelectAll(this, 'cancelled')">
+                <label class="form-check-label fw-bold text-muted small" for="selectAllCancelled"
+                  style="cursor: pointer;">SELECT ALL</label>
               </div>
-              <% }); %>
-          </div>
-          <% if(cancelled.length===0) { %>
-            <div class="empty-state">
-              <i class="fas fa-check empty-icon text-success"></i>
-              <h5>No cancellation history</h5>
-              <p>Your record is clean!</p>
+              <button id="bulkDeleteBtnCancelled" class="btn btn-sm btn-danger rounded-pill px-3 fw-bold shadow-none"
+                style="display: none;" onclick="confirmBulkDelete('cancelled')">
+                <i class="fas fa-trash-alt me-1"></i> Delete Selected (<span id="selectedCountCancelled">0</span>)
+              </button>
             </div>
             <% } %>
+
+              <div class="cards-grid">
+                <% cancelled.forEach(b=> {
+                  let d = new Date(b.startDate || b.date);
+                  %>
+                  <div class="booking-card cancelled-card searchable-item" data-search="<%= b.title %>">
+                    <div class="card-img-wrap">
+                      <div class="card-select-overlay">
+                        <input type="checkbox" class="form-check-input card-checkbox cancelled-checkbox"
+                          value="<%= b._id %>" onchange="updateBulkState('cancelled')">
+                      </div>
+                      <img src="<%= b.img %>" class="card-img"
+                        onerror="this.onerror=null;this.src='https://images.unsplash.com/photo-1488646953014-85cb44e25828?auto=format&fit=crop&q=80&w=800';">
+                      <div class="cancelled-badge-overlay">
+                        <i class="fas fa-ban me-1"></i> Cancelled
+                      </div>
+                    </div>
+                    <div class="card-body">
+                      <div class="card-title text-truncate text-muted">
+                        <%= b.title %>
+                      </div>
+                      <div class="card-meta">
+                        <i class="far fa-calendar-times"></i> Was: <%= d.toLocaleDateString() %>
+                      </div>
+                      <div class="card-footer d-flex justify-content-between align-items-center">
+                        <a href="/bookings/<%= b._id %>" class="btn btn-sm btn-light rounded-pill">Details</a>
+                        <form action="/bookings/<%= b._id %>?_method=DELETE" method="POST" class="d-inline">
+                          <button type="button" onclick="confirmDelete(this.form)"
+                            class="btn btn-sm btn-danger rounded-pill px-3 shadow-none border-0"
+                            style="background-color: #ef4444; color: white;">
+                            <i class="fas fa-trash-alt me-1"></i> Delete
+                          </button>
+                        </form>
+                      </div>
+                    </div>
+                  </div>
+                  <% }); %>
+              </div>
+              <% if(cancelled.length===0) { %>
+                <div class="empty-state">
+                  <i class="fas fa-check empty-icon text-success"></i>
+                  <h5>No cancellation history</h5>
+                  <p>Your record is clean!</p>
+                </div>
+                <% } %>
         </div>
 
       </div>
@@ -739,6 +823,70 @@
       async function confirmDelete(form) {
         const confirmed = await window.wanderConfirm('Delete History', 'Are you sure you want to remove this cancelled booking from your history?', 'Delete Forever');
         if (confirmed) form.submit();
+      }
+
+      // Bulk Delete Logic
+      function toggleSelectAll(source, scope) {
+        const className = scope === 'history' ? '.history-checkbox' : '.cancelled-checkbox';
+        const checkboxes = document.querySelectorAll(className);
+        checkboxes.forEach(cb => cb.checked = source.checked);
+        updateBulkState(scope);
+      }
+
+      function updateBulkState(scope) {
+        const className = scope === 'history' ? '.history-checkbox' : '.cancelled-checkbox';
+        const btnId = scope === 'history' ? 'bulkDeleteBtnHistory' : 'bulkDeleteBtnCancelled';
+        const countId = scope === 'history' ? 'selectedCountHistory' : 'selectedCountCancelled';
+        const selectAllId = scope === 'history' ? 'selectAllHistory' : 'selectAllCancelled';
+
+        const checkboxes = document.querySelectorAll(`${className}:checked`);
+        const count = checkboxes.length;
+        const btn = document.getElementById(btnId);
+        const countSpan = document.getElementById(countId);
+
+        if (btn && countSpan) {
+          countSpan.innerText = count;
+          btn.style.display = count > 0 ? 'inline-block' : 'none';
+        }
+
+        // Update Select All Checkbox state
+        const allCheckboxes = document.querySelectorAll(className);
+        const selectAll = document.getElementById(selectAllId);
+        if (selectAll && allCheckboxes.length > 0) {
+          selectAll.checked = allCheckboxes.length === count && count > 0;
+        }
+      }
+
+      async function confirmBulkDelete(scope) {
+        const className = scope === 'history' ? '.history-checkbox' : '.cancelled-checkbox';
+        const selected = Array.from(document.querySelectorAll(`${className}:checked`)).map(cb => cb.value);
+        if (selected.length === 0) return;
+
+        const confirmed = await window.wanderConfirm(
+          'Bulk Delete',
+          `Are you sure you want to delete ${selected.length} bookings permanently?`,
+          'Delete Forever'
+        );
+
+        if (confirmed) {
+          try {
+            const response = await fetch('/bookings/bulk', {
+              method: 'DELETE',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ bookingIds: selected })
+            });
+
+            const result = await response.json();
+            if (result.success) {
+              window.location.reload();
+            } else {
+              alert(result.message || 'Failed to delete bookings');
+            }
+          } catch (err) {
+            console.error(err);
+            alert('An error occurred');
+          }
+        }
       }
     </script>
 

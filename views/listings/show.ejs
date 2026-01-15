@@ -3,7 +3,51 @@
     <!-- Link CSS Files -->
     <link rel="stylesheet" href="/css/listing-details.css">
     <link rel="stylesheet" href="/css/calendar.css">
+    <!-- Flatpickr CSS -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+    <style>
+        /* Custom Flatpickr Styling for "Perfect" Past Dates */
+        .flatpickr-day.flatpickr-disabled,
+        .flatpickr-day.flatpickr-disabled:hover {
+            text-decoration: line-through !important;
+            color: #9ca3af !important;
+            background-color: #f3f4f6 !important;
+            border-color: #f3f4f6 !important;
+            opacity: 1 !important;
+            cursor: not-allowed;
+        }
+
+        .flatpickr-calendar {
+            border-radius: 16px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+            border: none;
+            padding: 10px;
+        }
+
+        .flatpickr-day.selected {
+            background: #fe6b00 !important;
+            border-color: #fe6b00 !important;
+        }
+
+        /* Premium Date Input Styling */
+        .date-input {
+            border: none;
+            background: transparent;
+            font-size: 1rem;
+            font-weight: 600;
+            color: #222;
+            padding: 0;
+            width: 100%;
+            cursor: pointer;
+        }
+
+        .date-input:focus {
+            outline: none;
+        }
+    </style>
     <script src="/js/wishlist-handler.js"></script>
+    <!-- Flatpickr JS -->
+    <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
 
     <body class="listing-details-page">
 
@@ -460,11 +504,13 @@
                             <div class="booking-dates">
                                 <div class="date-input-group">
                                     <label class="date-label">Check-in</label>
-                                    <input type="date" class="date-input" id="check-in-date" />
+                                    <input type="text" class="date-input" id="check-in-date" placeholder="Add date"
+                                        readonly />
                                 </div>
                                 <div class="date-input-group">
                                     <label class="date-label">Checkout</label>
-                                    <input type="date" class="date-input" id="check-out-date" />
+                                    <input type="text" class="date-input" id="check-out-date" placeholder="Add date"
+                                        readonly />
                                 </div>
                             </div>
 
@@ -745,34 +791,63 @@
                         window.reviewsComponent = new ReviewsComponent(reviews, overallRating, listing._id, currUserId, 'listings');
                         reviewsComponent.render('reviews-display-container');
 
-                        // Initialize Calendar
-                        if (typeof WanderLustCalendar === 'function') {
+                        // Initialize Flatpickr for Booking Inputs
+                        const checkInInput = document.getElementById('check-in-date');
+                        const checkOutInput = document.getElementById('check-out-date');
+
+                        if (checkInInput && checkOutInput) {
                             const today = new Date();
-                            const nextMonth = new Date(today);
-                            nextMonth.setMonth(today.getMonth() + 3);
 
-                            const calendar = new WanderLustCalendar('availabilityCalendar', {
-                                showHeader: true,
-                                showWeekdays: true,
-                                showToday: true,
-                                minDate: today,
-                                maxDate: nextMonth,
-                                onDateSelect: (startDate, endDate) => {
-                                    if (startDate && endDate) {
-                                        const checkInInput = document.getElementById('check-in-date');
-                                        const checkOutInput = document.getElementById('check-out-date');
+                            const fpStart = flatpickr(checkInInput, {
+                                minDate: "today",
+                                dateFormat: "Y-m-d",
+                                altInput: true,
+                                altFormat: "D, d M",
+                                showMonths: 1,
+                                onChange: function (selectedDates, dateStr, instance) {
+                                    if (selectedDates.length > 0) {
+                                        // Update minDate for checkout
+                                        // We can use the dateStr directly since it matches dateFormat (Y-m-d)
+                                        fpEnd.set('minDate', dateStr);
 
-                                        if (checkInInput && checkOutInput) {
-                                            checkInInput.value = startDate.toISOString().split('T')[0];
-                                            checkOutInput.value = endDate.toISOString().split('T')[0];
-
-                                            // Trigger change events for BookingWidget
-                                            checkInInput.dispatchEvent(new Event('change'));
-                                            checkOutInput.dispatchEvent(new Event('change'));
-                                        }
+                                        // Auto-open checkout if check-in is selected
+                                        setTimeout(() => fpEnd.open(), 100);
                                     }
+                                    // Trigger change for existing logic
+                                    checkInInput.dispatchEvent(new Event('change'));
                                 }
                             });
+
+                            const fpEnd = flatpickr(checkOutInput, {
+                                minDate: "today",
+                                dateFormat: "Y-m-d",
+                                altInput: true,
+                                altFormat: "D, d M",
+                                showMonths: 1,
+                                onChange: function (selectedDates, dateStr, instance) {
+                                    // Trigger change for existing logic
+                                    checkOutInput.dispatchEvent(new Event('change'));
+                                }
+                            });
+
+                            // Sync with main calendar if it exists
+                            if (typeof WanderLustCalendar === 'function') {
+                                const nextMonth = new Date(today);
+                                nextMonth.setMonth(today.getMonth() + 3);
+
+                                // Keep the main availability calendar as visual reference
+                                const calendar = new WanderLustCalendar('availabilityCalendar', {
+                                    showHeader: true,
+                                    showWeekdays: true,
+                                    showToday: true,
+                                    minDate: today,
+                                    maxDate: nextMonth,
+                                    onDateSelect: (startDate, endDate) => {
+                                        if (startDate) fpStart.setDate(startDate, true);
+                                        if (endDate) fpEnd.setDate(endDate, true);
+                                    }
+                                });
+                            }
                         }
 
                         // Initialize Map

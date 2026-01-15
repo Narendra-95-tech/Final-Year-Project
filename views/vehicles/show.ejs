@@ -5,7 +5,43 @@
     <link rel="stylesheet" href="/css/vehicle-premium.css">
     <link rel="stylesheet" href="/css/share-premium.css">
     <link rel="stylesheet" href="/css/vehicle-management.css">
+    <!-- Flatpickr CSS -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+    <style>
+        /* Custom Flatpickr Styling */
+        .flatpickr-day.flatpickr-disabled,
+        .flatpickr-day.flatpickr-disabled:hover {
+            text-decoration: line-through !important;
+            color: #9ca3af !important;
+            background-color: #f3f4f6 !important;
+            border-color: #f3f4f6 !important;
+            opacity: 1 !important;
+            cursor: not-allowed;
+        }
 
+        .flatpickr-calendar {
+            border-radius: 16px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+            border: none;
+            padding: 10px;
+        }
+
+        .flatpickr-day.selected {
+            background: #fe6b00 !important;
+            border-color: #fe6b00 !important;
+        }
+
+        /* Premium Date Input Styling */
+        .date-input-premium {
+            border: 1px solid #dee2e6;
+            border-radius: 8px;
+            padding: 10px;
+            width: 100%;
+            font-weight: 500;
+            cursor: pointer;
+            background-color: #fff;
+        }
+    </style>
     <!-- Mapbox Geocoder CSS -->
     <link rel="stylesheet"
         href="https://api.mapbox.com/mapbox-gl-js/plugins/mapbox-gl-geocoder/v5.0.0/mapbox-gl-geocoder.css"
@@ -16,6 +52,8 @@
         src="https://api.mapbox.com/mapbox-gl-js/plugins/mapbox-gl-geocoder/v5.0.0/mapbox-gl-geocoder.min.js"></script>
 
     <script src="/js/wishlist-handler.js"></script>
+    <!-- Flatpickr JS -->
+    <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
 
     <body class="listing-details-page">
 
@@ -331,13 +369,13 @@
                                     <div class="row g-2 mb-3">
                                         <div class="col-6">
                                             <label class="extra-small fw-bold text-uppercase text-muted">Pick-up</label>
-                                            <input type="date" id="booking-start-date" name="startDate"
-                                                class="form-control" required>
+                                            <input type="text" id="booking-start-date" name="startDate"
+                                                class="date-input-premium" placeholder="Select Date" required readonly>
                                         </div>
                                         <div class="col-6">
                                             <label class="extra-small fw-bold text-uppercase text-muted">Return</label>
-                                            <input type="date" id="booking-end-date" name="endDate" class="form-control"
-                                                required>
+                                            <input type="text" id="booking-end-date" name="endDate"
+                                                class="date-input-premium" placeholder="Select Date" required readonly>
                                         </div>
                                     </div>
 
@@ -459,6 +497,32 @@
                 };
 
                 if (startDateInput && endDateInput) {
+                    const fpStart = flatpickr(startDateInput, {
+                        minDate: "today",
+                        dateFormat: "Y-m-d",
+                        altInput: true,
+                        altFormat: "D, d M",
+                        disableMobile: "true",
+                        onChange: function (selectedDates, dateStr, instance) {
+                            if (selectedDates.length > 0) {
+                                fpEnd.set('minDate', selectedDates[0]);
+                                setTimeout(() => fpEnd.open(), 100);
+                            }
+                            startDateInput.dispatchEvent(new Event('change'));
+                        }
+                    });
+
+                    const fpEnd = flatpickr(endDateInput, {
+                        minDate: "today",
+                        dateFormat: "Y-m-d",
+                        altInput: true,
+                        altFormat: "D, d M",
+                        disableMobile: "true",
+                        onChange: function (selectedDates, dateStr, instance) {
+                            endDateInput.dispatchEvent(new Event('change'));
+                        }
+                    });
+
                     startDateInput.addEventListener("change", updatePrice);
                     endDateInput.addEventListener("change", updatePrice);
                 }

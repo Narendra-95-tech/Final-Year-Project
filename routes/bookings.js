@@ -34,6 +34,9 @@ const {
   showBooking,
 } = require("../controllers/dhabaBookings");
 
+const MERCHANT_VPA = "wanderlust@upi"; // Replace with real VPA
+const MERCHANT_NAME = "WanderLust Booking";
+
 // ==========================================
 // 1. INITIATION & CREATION ROUTES
 // ==========================================
@@ -154,7 +157,12 @@ router.get("/:id/confirm", isLoggedIn, async (req, res) => {
       return res.redirect(`/bookings/${booking._id}`);
     }
 
-    res.render("bookings/payment", { booking, currUser: req.user });
+    res.render("bookings/payment", {
+      booking,
+      currUser: req.user,
+      merchantVpa: MERCHANT_VPA,
+      merchantName: MERCHANT_NAME
+    });
   } catch (error) {
     console.error("Error rendering confirm page:", error);
     req.flash("error", "Something went wrong");
@@ -252,16 +260,25 @@ router.post("/:id/pay-wallet", isLoggedIn, async (req, res) => {
 router.post("/:id/pay-upi", isLoggedIn, async (req, res) => {
   try {
     const { id } = req.params;
+    const { paymentReference } = req.body;
     const booking = await Booking.findById(id).populate('listing').populate('vehicle').populate('dhaba');
     if (!booking) return res.status(404).json({ success: false, message: "Booking not found" });
 
-    // Mock UPI verification
-    // In real world, verify VPA or wait for webhook
+    // In valid manual flow, we record the UTR
+    if (!paymentReference) {
+      return res.status(400).json({ success: false, message: "Payment Reference (UTR) is required" });
+    }
 
     booking.paymentStatus = 'Paid';
     booking.isPaid = true;
     booking.status = 'Confirmed';
     booking.paymentMethod = 'UPI';
+    booking.paymentDetails = {
+      ...booking.paymentDetails,
+      utr: paymentReference,
+      mode: 'UPI_MANUAL',
+      timestamp: new Date()
+    }; // Assuming schema supports this, otherwise just added properties
     await booking.save();
 
     res.json({ success: true, redirectUrl: `/bookings/${booking._id}` });

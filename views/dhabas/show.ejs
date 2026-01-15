@@ -4,7 +4,46 @@
   <link rel="stylesheet" href="/css/listing-details.css">
   <link rel="stylesheet" href="/css/dhabas.css">
   <link rel="stylesheet" href="/css/map-premium.css">
+  <!-- Flatpickr CSS -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+  <style>
+    /* Custom Flatpickr Styling */
+    .flatpickr-day.flatpickr-disabled,
+    .flatpickr-day.flatpickr-disabled:hover {
+      text-decoration: line-through !important;
+      color: #9ca3af !important;
+      background-color: #f3f4f6 !important;
+      border-color: #f3f4f6 !important;
+      opacity: 1 !important;
+      cursor: not-allowed;
+    }
+
+    .flatpickr-calendar {
+      border-radius: 16px;
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+      border: none;
+      padding: 10px;
+    }
+
+    .flatpickr-day.selected {
+      background: #fe6b00 !important;
+      border-color: #fe6b00 !important;
+    }
+
+    /* Premium Date Input Styling */
+    .date-input-premium {
+      border: 1px solid #dee2e6;
+      border-radius: 8px;
+      padding: 10px;
+      width: 100%;
+      font-weight: 500;
+      cursor: pointer;
+      background-color: #fff;
+    }
+  </style>
   <script src="/js/wishlist-handler.js"></script>
+  <!-- Flatpickr JS -->
+  <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
 
   <body class="listing-details-page">
 
@@ -553,7 +592,8 @@
                   <div class="row g-3">
                     <div class="col-12">
                       <label for="booking-date" class="form-label">Date</label>
-                      <input type="date" id="booking-date" name="date" class="form-control" required>
+                      <input type="text" id="booking-date" name="date" class="date-input-premium"
+                        placeholder="Select Date" required readonly>
                     </div>
                     <div class="col-12">
                       <label for="booking-time" class="form-label">Preferred Time</label>
@@ -786,11 +826,16 @@
         const perGuestPrice = parseFloat('<%= dhaba.price || 0 %>') || 0;
 
         if (dateInput) {
-          const today = new Date();
-          const yyyy = today.getFullYear();
-          const mm = String(today.getMonth() + 1).padStart(2, "0");
-          const dd = String(today.getDate()).padStart(2, "0");
-          dateInput.min = `${yyyy}-${mm}-${dd}`;
+          flatpickr(dateInput, {
+            minDate: "today",
+            dateFormat: "Y-m-d",
+            altInput: true,
+            altFormat: "D, d M",
+            disableMobile: "true",
+            onChange: function (selectedDates, dateStr, instance) {
+              dateInput.dispatchEvent(new Event('change'));
+            }
+          });
         }
 
         const updateAmount = () => {

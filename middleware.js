@@ -53,6 +53,16 @@ module.exports.saveRedirectUrl = (req, res, next) => {
 
 module.exports.isEmailVerified = (req, res, next) => {
     if (req.user && !req.user.isVerified) {
+        // Handle AJAX/JSON requests
+        if (req.xhr || req.headers.accept?.includes('application/json') || req.originalUrl.startsWith('/api/') || req.headers['content-type'] === 'application/json') {
+            return res.status(403).json({
+                success: false,
+                message: "Please verify your email to continue.",
+                redirectUrl: "/verify-otp",
+                error: "EMAIL_NOT_VERIFIED"
+            });
+        }
+
         req.flash("error", "Please verify your email to continue.");
         return res.redirect("/verify-otp");
     }

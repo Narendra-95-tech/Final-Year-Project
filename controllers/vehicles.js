@@ -150,6 +150,8 @@ module.exports.index = async (req, res) => {
         fuelType: fuelType || "",
         transmission: transmission || "",
         seats: seats || "",
+        startDate: startDate || "",
+        endDate: endDate || "",
         queryString
     });
 };

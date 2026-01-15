@@ -1,4 +1,4 @@
-document.addEventListener('DOMContentLoaded', function() {
+document.addEventListener('DOMContentLoaded', function () {
   // Initialize elements
   const loadingOverlay = document.getElementById('loadingOverlay');
   const floatingButtons = document.querySelector('.floating-buttons');
@@ -16,7 +16,7 @@ document.addEventListener('DOMContentLoaded', function() {
     window.addEventListener('load', () => {
       setTimeout(() => {
         loadingOverlay.classList.add('hidden');
-        
+
         // Show floating buttons after loading is complete
         setTimeout(() => {
           floatingButtons.classList.add('visible');
@@ -82,20 +82,20 @@ document.addEventListener('DOMContentLoaded', function() {
     const circle = document.createElement('span');
     const diameter = Math.max(button.clientWidth, button.clientHeight);
     const radius = diameter / 2;
-    
+
     circle.style.width = circle.style.height = `${diameter}px`;
     circle.style.left = `${event.clientX - button.getBoundingClientRect().left - radius}px`;
     circle.style.top = `${event.clientY - button.getBoundingClientRect().top - radius}px`;
     circle.classList.add('ripple');
-    
+
     const ripple = button.getElementsByClassName('ripple')[0];
     if (ripple) {
       ripple.remove();
     }
-    
+
     button.appendChild(circle);
   }
-  
+
   // Help Button
   if (helpBtn) {
     helpBtn.addEventListener('click', (e) => {
@@ -105,12 +105,12 @@ document.addEventListener('DOMContentLoaded', function() {
         window.location.href = '/help';
       }, 200);
     });
-    
+
     // Add hover effect
     helpBtn.addEventListener('mouseenter', () => {
       helpBtn.querySelector('i').style.transform = 'rotate(15deg)';
     });
-    
+
     helpBtn.addEventListener('mouseleave', () => {
       helpBtn.querySelector('i').style.transform = 'rotate(0)';
     });
@@ -129,17 +129,17 @@ document.addEventListener('DOMContentLoaded', function() {
         alert('Chat with our support team is coming soon!');
       }
     });
-    
+
     // Pulsing animation for new messages
     let pulseInterval;
-    
+
     // Simulate new message notification
     setTimeout(() => {
       if (chatBtn && !document.querySelector('.chat-notification')) {
         const notification = document.createElement('span');
         notification.className = 'chat-notification';
         chatBtn.appendChild(notification);
-        
+
         // Pulsing effect
         pulseInterval = setInterval(() => {
           notification.style.transform = 'scale(1.2)';
@@ -149,7 +149,7 @@ document.addEventListener('DOMContentLoaded', function() {
         }, 1000);
       }
     }, 5000);
-    
+
     // Clean up interval when leaving the page
     window.addEventListener('beforeunload', () => {
       if (pulseInterval) clearInterval(pulseInterval);
@@ -165,14 +165,14 @@ document.addEventListener('DOMContentLoaded', function() {
         window.location.href = '/listings/new';
       }, 200);
     });
-    
+
     // Add subtle animation on hover
     addListingBtn.addEventListener('mouseenter', () => {
       const icon = addListingBtn.querySelector('i');
       icon.style.transition = 'transform 0.3s ease';
       icon.style.transform = 'rotate(90deg)';
     });
-    
+
     addListingBtn.addEventListener('mouseleave', () => {
       const icon = addListingBtn.querySelector('i');
       icon.style.transform = 'rotate(0)';
@@ -182,11 +182,11 @@ document.addEventListener('DOMContentLoaded', function() {
   // Scroll-triggered animations
   function checkIfInView() {
     const elements = document.querySelectorAll('.reveal');
-    
+
     elements.forEach(element => {
       const elementTop = element.getBoundingClientRect().top;
       const elementVisible = 150;
-      
+
       if (elementTop < window.innerHeight - elementVisible) {
         element.classList.add('visible');
       }
@@ -220,19 +220,19 @@ document.addEventListener('DOMContentLoaded', function() {
 
   // Add animation to buttons on click
   document.querySelectorAll('button, a.btn').forEach(button => {
-    button.addEventListener('click', function(e) {
+    button.addEventListener('click', function (e) {
       // Ripple effect
       const rect = this.getBoundingClientRect();
       const x = e.clientX - rect.left;
       const y = e.clientY - rect.top;
-      
+
       const ripple = document.createElement('span');
       ripple.classList.add('ripple');
       ripple.style.left = `${x}px`;
       ripple.style.top = `${y}px`;
-      
+
       this.appendChild(ripple);
-      
+
       // Remove ripple after animation completes
       setTimeout(() => {
         ripple.remove();
@@ -242,8 +242,9 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 
 // Add ripple effect styles dynamically
-const style = document.createElement('style');
-style.textContent = `
+{
+  const style = document.createElement('style');
+  style.textContent = `
   .ripple {
     position: absolute;
     border-radius: 50%;
@@ -265,4 +266,5 @@ style.textContent = `
     overflow: hidden;
   }
 `;
-document.head.appendChild(style);
+  document.head.appendChild(style);
+}
