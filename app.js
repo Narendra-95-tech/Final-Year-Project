@@ -12,6 +12,14 @@ const methodOverride = require("method-override");
 const ejsMate = require("ejs-mate");
 const session = require("express-session");
 const MongoStore = require("connect-mongo");
+const { storage } = require("./cloudConfig.js");
+// DEBUG: Log Cloudinary Config on Startup
+console.log("--- CLOUDINARY CONFIG DEBUG ---");
+console.log(`Cloud Name: ${process.env.CLOUD_NAME || "MISSING"}`);
+console.log(`API Key: ${process.env.CLOUD_API_KEY ? "Present" : "MISSING"}`);
+const s = process.env.CLOUD_API_SECRET;
+console.log(`API Secret: ${s ? `Length ${s.length}, Starts '${s.charAt(0)}', Ends '${s.charAt(s.length - 1)}'` : "MISSING"}`);
+console.log("-------------------------------");
 const flash = require("connect-flash");
 const passport = require("passport");
 const LocalStrategy = require("passport-local");
