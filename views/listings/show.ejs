@@ -445,7 +445,8 @@
                                                         guests</p>
 
                                                     <form action="/listings/<%= listing._id %>/reviews" method="POST"
-                                                        class="needs-validation" novalidate>
+                                                        class="needs-validation" novalidate
+                                                        enctype="multipart/form-data">
                                                         <div class="mb-4">
                                                             <label for="rating" class="form-label fw-600">Your
                                                                 Rating</label>
@@ -481,6 +482,12 @@
                                                                 required></textarea>
                                                             <div class="invalid-feedback">Please share some feedback
                                                                 about your stay.</div>
+                                                        </div>
+                                                        <div class="mb-4">
+                                                            <label for="images" class="form-label fw-600">Add
+                                                                Photos</label>
+                                                            <input type="file" name="review[images]" id="images"
+                                                                class="form-control" multiple>
                                                         </div>
                                                         <button class="btn-submit-review">
                                                             <span>Submit Review</span>

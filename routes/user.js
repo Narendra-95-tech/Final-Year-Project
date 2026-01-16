@@ -42,6 +42,7 @@ router.get("/logout", userController.logout);
 
 // User Profile
 router.get("/profile", isLoggedIn, userController.renderProfile);
+router.get("/profile/reviews", isLoggedIn, userController.renderMyReviews);
 
 // Wishlist (Favorites) - Universal Route
 router.post("/wishlist/:type/:id", isLoggedIn, wrapAsync(async (req, res) => {

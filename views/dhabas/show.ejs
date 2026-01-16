@@ -489,7 +489,8 @@
           <% if(currUser) { %>
             <div class="review-form-card">
               <h4 class="review-form-title">Leave a Review</h4>
-              <form action="/dhabas/<%= dhaba._id %>/reviews" method="POST" novalidate class="needs-validation">
+              <form action="/dhabas/<%= dhaba._id %>/reviews" method="POST" novalidate class="needs-validation"
+                enctype="multipart/form-data">
 
                 <div class="mb-4">
                   <label class="form-label-premium">Rate your experience</label>
@@ -517,6 +518,12 @@
                   <div class="invalid-feedback">Please add some comments for review</div>
                 </div>
 
+                <div class="mb-4">
+                  <label for="images" class="form-label-premium">Add Photos</label>
+                  <input type="file" name="review[images]" id="images" class="form-control form-control-premium"
+                    multiple>
+                </div>
+
                 <button class="btn-submit-review">
                   Submit Review <i class="fas fa-paper-plane"></i>
                 </button>
@@ -531,7 +538,12 @@
                   <% for(review of dhaba.reviews) { %>
                     <div class="card col-5 mb-3 ms-3">
                       <div class="card-body">
-                        <h5 class="card-title mb-1">@<%= review.author.username %>
+                        <h5 class="card-title mb-1">
+                          @<%= review.author.username %>
+                            <% if(review.isVerified) { %>
+                              <i class="fas fa-shield-check text-success ms-1" title="Verified Diner"></i>
+                              <span class="text-success small ms-1" style="font-weight: 600;">Verified</span>
+                              <% } %>
                         </h5>
                         <p class="text-muted small mb-2">
                           <%= review.createdAt ? review.createdAt.toLocaleDateString('en-US', { month: 'short' ,
@@ -541,6 +553,15 @@
                         <p class="card-text">
                           <%= review.comment %>
                         </p>
+                        <% if(review.images && review.images.length> 0) { %>
+                          <div class="review-images mt-2 d-flex flex-wrap gap-2">
+                            <% review.images.forEach(img=> { %>
+                              <img src="<%= img.url %>" class="rounded"
+                                style="width: 80px; height: 80px; object-fit: cover;"
+                                onclick="window.open('<%= img.url %>', '_blank')">
+                              <% }) %>
+                          </div>
+                          <% } %>
                       </div>
                       <% if(currUser && review.author._id.equals(currUser._id)) { %>
                         <form class="mb-3" method="POST"

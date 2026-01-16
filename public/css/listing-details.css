@@ -234,33 +234,6 @@
   grid-row: 1 / 3;
 }
 
-@media (max-width: 768px) {
-  .image-gallery-container {
-    padding: 0;
-    margin-bottom: var(--space-4);
-  }
-
-  .gallery-grid {
-    display: block;
-    height: 300px;
-    border-radius: 0;
-  }
-
-  .gallery-grid-item:not(:first-child) {
-    display: none;
-  }
-
-  .gallery-grid-item:first-child {
-    height: 100%;
-  }
-
-  .view-all-photos-btn {
-    bottom: 20px;
-    right: 20px;
-    left: auto;
-  }
-}
-
 /* View All Photos Button */
 .view-all-photos-btn {
   position: absolute;

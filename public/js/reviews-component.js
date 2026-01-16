@@ -136,7 +136,10 @@ class ReviewsComponent {
                   onerror="this.src='${defaultAvatar}'"
                 />
                 <div class="reviewer-info">
-                  <div class="reviewer-name">${review.author?.username || 'Anonymous'}</div>
+                  <div class="reviewer-name">
+                    ${review.author?.username || 'Anonymous'}
+                    ${review.isVerified ? `<i class="fas fa-shield-check text-success ms-1" title="Verified Stay"></i><span class="text-success small ms-1" style="font-weight: 600;">Verified Stay</span>` : ''}
+                  </div>
                   <div class="review-date">${this.formatDate(review.createdAt)}</div>
                 </div>
               </div>
@@ -154,6 +157,15 @@ class ReviewsComponent {
               ${this.renderStars(review.rating)}
             </div>
             <p class="review-text">${review.comment}</p>
+            ${review.images && review.images.length > 0 ? `
+              <div class="review-images mt-3 d-flex flex-wrap gap-2">
+                ${review.images.map(img => `
+                  <div class="review-img-wrapper" style="width: 100px; height: 70px; border-radius: 8px; overflow: hidden; cursor: pointer; border: 1px solid #eee;">
+                    <img src="${img.url}" style="width: 100%; height: 100%; object-fit: cover;" onclick="window.open('${img.url}', '_blank')">
+                  </div>
+                `).join('')}
+              </div>
+            ` : ''}
           </div>
         `}).join('')}
       </div>

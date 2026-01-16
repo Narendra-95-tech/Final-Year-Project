@@ -54,13 +54,38 @@ const reviewSchema = new Schema({
             default: function () { return this.rating; }
         }
     },
+    images: [{
+        url: String,
+        filename: String
+    }],
+    isVerified: {
+        type: Boolean,
+        default: false
+    },
     createdAt: {
         type: Date,
-        default: Date.now
+        default: Date.now()
     },
     author: {
         type: Schema.Types.ObjectId,
         ref: "User"
+    },
+    // Parent References for My Reviews Dashboard
+    listing: {
+        type: Schema.Types.ObjectId,
+        ref: "Listing"
+    },
+    vehicle: {
+        type: Schema.Types.ObjectId,
+        ref: "Vehicle"
+    },
+    dhaba: {
+        type: Schema.Types.ObjectId,
+        ref: "Dhaba"
+    },
+    modelType: {
+        type: String,
+        enum: ['Listing', 'Vehicle', 'Dhaba']
     }
 }, {
     timestamps: true

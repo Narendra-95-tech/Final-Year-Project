@@ -1,0 +1,320 @@
+<% layout("layouts/boilerplate") %>
+
+    <style>
+        /* Gradient Hero */
+        .reviews-hero {
+            background: linear-gradient(135deg, #FF9966 0%, #FF5E62 100%);
+            padding: 60px 0;
+            margin-bottom: 40px;
+            color: white;
+            border-radius: 0 0 24px 24px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .hero-pattern {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            opacity: 0.15;
+            background-image: radial-gradient(circle at 20% 30%, white 0%, transparent 50%),
+                radial-gradient(circle at 80% 70%, white 0%, transparent 50%);
+        }
+
+        .hero-content {
+            position: relative;
+            z-index: 2;
+            max-width: 1100px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        /* Filters Bar */
+        .filter-bar {
+            background: white;
+            border-radius: 100px;
+            padding: 5px 10px;
+            display: inline-flex;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.06);
+            margin-top: 25px;
+        }
+
+        .filter-btn {
+            background: transparent;
+            border: none;
+            padding: 8px 20px;
+            border-radius: 100px;
+            font-weight: 600;
+            color: #555;
+            font-size: 14px;
+            transition: all 0.2s;
+            text-decoration: none;
+        }
+
+        .filter-btn:hover {
+            color: #FF5E62;
+            background: #fff5f5;
+        }
+
+        .filter-btn.active {
+            background: #FF5E62;
+            color: white;
+            box-shadow: 0 2px 8px rgba(255, 94, 98, 0.4);
+        }
+
+        /* Reviews Grid */
+        .reviews-container {
+            max-width: 1100px;
+            margin: 0 auto 60px;
+            padding: 0 20px;
+        }
+
+        .review-card-premium {
+            background: white;
+            border: 1px solid rgba(0, 0, 0, 0.06);
+            border-radius: 16px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.02);
+            padding: 24px;
+            margin-bottom: 24px;
+            transition: all 0.3s cubic-bezier(0.165, 0.84, 0.44, 1);
+            display: grid;
+            grid-template-columns: 100px 1fr auto;
+            gap: 24px;
+            position: relative;
+        }
+
+        .review-card-premium:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+            border-color: rgba(255, 94, 98, 0.3);
+        }
+
+        .item-thumbnail {
+            width: 100px;
+            height: 100px;
+            border-radius: 12px;
+            object-fit: cover;
+        }
+
+        .review-content {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .item-title {
+            font-size: 18px;
+            font-weight: 700;
+            color: #222;
+            margin-bottom: 4px;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .reviews-type-badge {
+            font-size: 11px;
+            text-transform: uppercase;
+            font-weight: 700;
+            padding: 4px 8px;
+            border-radius: 6px;
+            background: #f0f0f0;
+            color: #555;
+            letter-spacing: 0.5px;
+        }
+
+        .review-date {
+            font-size: 13px;
+            color: #888;
+            margin-bottom: 12px;
+        }
+
+        .review-text {
+            font-size: 15px;
+            line-height: 1.6;
+            color: #444;
+            background: #f9f9f9;
+            padding: 16px;
+            border-radius: 12px;
+            position: relative;
+        }
+
+        .review-text::after {
+            content: '"';
+            position: absolute;
+            top: 0px;
+            right: 15px;
+            font-size: 40px;
+            color: #e0e0e0;
+            font-family: serif;
+            line-height: 1;
+        }
+
+        .actions-col {
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            align-items: flex-end;
+        }
+
+        .rating-badge {
+            background: #fff8f0;
+            color: #fe6b00;
+            font-weight: 700;
+            padding: 6px 12px;
+            border-radius: 8px;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            border: 1px solid #ffead1;
+        }
+
+        .delete-btn-premium {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: white;
+            border: 1px solid #ddd;
+            color: #dc3545;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .delete-btn-premium:hover {
+            background: #dc3545;
+            border-color: #dc3545;
+            color: white;
+            transform: rotate(10deg);
+        }
+
+        @media (max-width: 768px) {
+            .review-card-premium {
+                grid-template-columns: 1fr;
+                gap: 16px;
+            }
+
+            .item-thumbnail {
+                width: 100%;
+                height: 180px;
+            }
+
+            .actions-col {
+                flex-direction: row;
+                align-items: center;
+                margin-top: 10px;
+            }
+        }
+    </style>
+
+    <div class="reviews-hero">
+        <div class="hero-pattern"></div>
+        <div class="hero-content text-center">
+            <h1 class="display-4 fw-bold">My Reviews</h1>
+            <p class="lead opacity-75">Your contributions to the WanderLust community</p>
+
+            <div class="filter-bar">
+                <button class="filter-btn active" onclick="filterReviews('all')">All</button>
+                <button class="filter-btn" onclick="filterReviews('Listing')">Stays</button>
+                <button class="filter-btn" onclick="filterReviews('Vehicle')">Vehicles</button>
+                <button class="filter-btn" onclick="filterReviews('Dhaba')">Dining</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="reviews-container">
+        <% if (!reviews || reviews.length===0) { %>
+            <div class="text-center py-5">
+                <img src="https://cdn-icons-png.flaticon.com/512/2366/2366063.png" width="120"
+                    style="opacity: 0.3; margin-bottom: 20px;">
+                <h3 class="text-secondary">No reviews yet</h3>
+                <p class="text-muted">Book a stay, ride, or meal to start sharing your experiences!</p>
+                <a href="/listings" class="btn btn-outline-dark rounded-pill px-4 mt-3">Explore Now</a>
+            </div>
+            <% } else { %>
+                <% for(let review of reviews) { %>
+                    <% let item=review.listing || review.vehicle || review.dhaba; let type=review.listing ? 'listings' :
+                        review.vehicle ? 'vehicles' : review.dhaba ? 'dhabas' : null; let typeName=review.listing
+                        ? 'Listing' : review.vehicle ? 'Vehicle' : review.dhaba ? 'Dhaba' : 'Item' ; let
+                        dataFilter=review.listing ? 'Listing' : review.vehicle ? 'Vehicle' : review.dhaba ? 'Dhaba'
+                        : 'Other' ; // Image fallback logic let
+                        imageUrl='https://images.unsplash.com/photo-1518780664697-55e3ad937233' ; // default fallback if
+                        (item) { if (item.image && item.image.url) { imageUrl=item.image.url; } else if (item.images &&
+                        item.images.length> 0 && item.images[0].url) {
+                        imageUrl = item.images[0].url;
+                        }
+                        }
+                        %>
+
+                        <% if(item && type) { %>
+                            <div class="review-card-premium" data-type="<%= dataFilter %>">
+                                <img src="<%= imageUrl %>" class="item-thumbnail" alt="<%= item.title || 'Item' %>">
+
+                                <div class="review-content">
+                                    <a href="/<%= type %>/<%= item._id %>" class="item-title">
+                                        <%= item.title || item.name || item.brand + ' ' + item.model %>
+                                            <span class="reviews-type-badge">
+                                                <%= typeName %>
+                                            </span>
+                                    </a>
+
+                                    <div class="review-date">
+                                        <i class="far fa-calendar-alt me-1"></i>
+                                        <%= review.createdAt ? review.createdAt.toLocaleDateString('en-US', {
+                                            day: 'numeric' , month: 'long' , year: 'numeric' }) : 'Recently' %>
+                                    </div>
+
+                                    <p class="review-text">
+                                        <%= review.comment %>
+                                    </p>
+
+                                    <!-- Review Images if any -->
+                                    <% if(review.images && review.images.length> 0) { %>
+                                        <div class="mt-2 d-flex gap-2">
+                                            <% review.images.forEach(img=> { %>
+                                                <img src="<%= img.url %>"
+                                                    style="width: 50px; height: 50px; border-radius: 8px; object-fit: cover; border: 1px solid #eee;">
+                                                <% }) %>
+                                        </div>
+                                        <% } %>
+                                </div>
+
+                                <div class="actions-col">
+                                    <div class="rating-badge">
+                                        <%= review.rating %> <i class="fas fa-star" style="font-size: 12px;"></i>
+                                    </div>
+
+                                    <form method="POST"
+                                        action="/<%= type %>/<%= item._id %>/reviews/<%= review._id %>?_method=DELETE&origin=reviews_page">
+                                        <button type="submit" class="delete-btn-premium" title="Delete Review">
+                                            <i class="fas fa-trash-alt"></i>
+                                        </button>
+                                    </form>
+                                </div>
+                            </div>
+                            <% } %>
+                                <% } %>
+                                    <% } %>
+    </div>
+
+    <script>
+        function filterReviews(type) {
+            // Update active button
+            document.querySelectorAll('.filter-btn').forEach(btn => btn.classList.remove('active'));
+            event.target.classList.add('active');
+
+            // Filter Items
+            const cards = document.querySelectorAll('.review-card-premium');
+            cards.forEach(card => {
+                if (type === 'all' || card.dataset.type === type) {
+                    card.style.display = 'grid';
+                } else {
+                    card.style.display = 'none';
+                }
+            });
+        }
+    </script>

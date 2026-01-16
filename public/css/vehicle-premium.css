@@ -1366,3 +1366,73 @@ body {
     opacity: 0.7;
     min-height: 1.5em;
 }
+
+/* Premium Review Card Styling */
+.review-item {
+    background: var(--vp-white);
+    border: 1px solid rgba(0, 0, 0, 0.06) !important;
+    border-radius: 16px !important;
+    padding: 24px !important;
+    transition: all 0.3s cubic-bezier(0.165, 0.84, 0.44, 1);
+    height: 100%;
+    position: relative;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.02);
+}
+
+.review-item:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.08);
+    border-color: rgba(0, 0, 0, 0.1) !important;
+}
+
+.review-item .rounded-circle {
+    border: 2px solid white;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+.review-item h6 {
+    font-size: 1rem;
+    font-weight: 700;
+    color: var(--vp-black);
+}
+
+.review-item .text-muted.extra-small {
+    font-size: 0.75rem;
+    font-weight: 500;
+}
+
+.starability-result {
+    transform: scale(0.8);
+    transform-origin: left center;
+    margin-bottom: 8px !important;
+}
+
+.review-images img {
+    border-radius: 8px !important;
+    transition: transform 0.2s ease;
+    border: 1px solid rgba(0, 0, 0, 0.05);
+}
+
+.review-images img:hover {
+    transform: scale(1.05);
+    z-index: 2;
+    cursor: zoom-in;
+}
+
+/* Delete Button Styling */
+.review-item button.btn-outline-danger {
+    font-size: 0.75rem;
+    font-weight: 600;
+    padding: 6px 14px !important;
+    border-width: 1.5px;
+    opacity: 0.7;
+    transition: all 0.2s ease;
+}
+
+.review-item button.btn-outline-danger:hover {
+    opacity: 1;
+    background-color: #ffe5e5;
+    border-color: #dc3545;
+    color: #dc3545;
+    transform: translateY(-1px);
+}

@@ -15,13 +15,22 @@ module.exports.renderProfile = async (req, res) => {
   const bookingCount = await Booking.countDocuments({ user: req.user._id });
   const reviewCount = await Review.countDocuments({ author: req.user._id });
   const favoritesCount = (user.wishlist?.length || 0) + (user.wishlistVehicles?.length || 0) + (user.wishlistDhabas?.length || 0);
-
   res.render("users/profile.ejs", {
     user,
     bookingCount,
     reviewCount,
     favoritesCount
   });
+};
+
+module.exports.renderMyReviews = async (req, res) => {
+  const reviews = await Review.find({ author: req.user._id })
+    .populate('listing')
+    .populate('vehicle')
+    .populate('dhaba')
+    .sort({ createdAt: -1 });
+
+  res.render("users/reviews.ejs", { reviews });
 };
 
 

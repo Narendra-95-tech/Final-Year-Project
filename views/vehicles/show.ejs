@@ -273,7 +273,7 @@
                                     <div class="card bg-light border-0 rounded-4 p-4 mb-4">
                                         <h5 class="fw-bold mb-3">Write a review</h5>
                                         <form action="/vehicles/<%= vehicle._id %>/reviews" method="POST" novalidate
-                                            class="needs-validation">
+                                            class="needs-validation" enctype="multipart/form-data">
                                             <div class="mb-3">
                                                 <fieldset class="starability-slot">
                                                     <input type="radio" id="no-rate" class="input-no-rate"
@@ -301,6 +301,12 @@
                                                     class="form-control rounded-3"
                                                     placeholder="Describe your experience..." required></textarea>
                                             </div>
+                                            <div class="mb-3">
+                                                <label for="images" class="form-label small fw-bold text-muted">Add
+                                                    Photos</label>
+                                                <input type="file" name="review[images]" id="images"
+                                                    class="form-control" multiple>
+                                            </div>
                                             <button class="btn btn-dark rounded-pill px-4">Submit Review</button>
                                         </form>
                                     </div>
@@ -314,7 +320,12 @@
                                                             <img src="https://ui-avatars.com/api/?name=<%= review.author.username %>"
                                                                 class="rounded-circle me-2" width="40">
                                                             <div>
-                                                                <h6 class="fw-bold mb-0">@<%= review.author.username %>
+                                                                <h6 class="fw-bold mb-0">
+                                                                    @<%= review.author.username %>
+                                                                        <% if(review.isVerified) { %>
+                                                                            <i class="fas fa-shield-check text-success ms-1"
+                                                                                title="Verified Renter"></i>
+                                                                            <% } %>
                                                                 </h6>
                                                                 <p class="text-muted extra-small mb-0">
                                                                     <%= review.createdAt ?
@@ -329,13 +340,25 @@
                                                         <p class="text-muted small mb-0">
                                                             <%= review.comment %>
                                                         </p>
-                                                        <% if(currUser && review.author._id.equals(currUser._id)) { %>
-                                                            <form class="mt-2" method="POST"
-                                                                action="/vehicles/<%=vehicle._id %>/reviews/<%= review._id %>?_method=DELETE">
-                                                                <button
-                                                                    class="btn btn-link btn-sm text-danger p-0">Delete</button>
-                                                            </form>
+                                                        <% if(review.images && review.images.length> 0) { %>
+                                                            <div class="review-images mt-3 d-flex flex-wrap gap-2">
+                                                                <% review.images.forEach(img=> { %>
+                                                                    <img src="<%= img.url %>" class="rounded"
+                                                                        style="width: 70px; height: 50px; object-fit: cover; cursor: pointer;"
+                                                                        onclick="window.open('<%= img.url %>', '_blank')">
+                                                                    <% }) %>
+                                                            </div>
                                                             <% } %>
+                                                                <% if(currUser &&
+                                                                    review.author._id.equals(currUser._id)) { %>
+                                                                    <form class="mt-3" method="POST"
+                                                                        action="/vehicles/<%=vehicle._id %>/reviews/<%= review._id %>?_method=DELETE">
+                                                                        <button
+                                                                            class="btn btn-sm btn-outline-danger rounded-pill px-3">
+                                                                            <i class="fas fa-trash-alt me-1"></i> Delete
+                                                                        </button>
+                                                                    </form>
+                                                                    <% } %>
                                                     </div>
                                                 </div>
                                                 <% } %>
