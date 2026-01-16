@@ -472,6 +472,29 @@ app.get('/test', (req, res) => {
   res.send('Server is running!');
 });
 
+// DEBUG: Check Cloudinary Config (Safe View)
+app.get('/debug/cloudinary', (req, res) => {
+  const secret = process.env.CLOUD_API_SECRET || "";
+  const key = process.env.CLOUD_API_KEY || "";
+
+  res.json({
+    cloud_name: process.env.CLOUD_NAME || "MISSING",
+    api_key: {
+      length: key.length,
+      first_char: key.charAt(0),
+      last_char: key.charAt(key.length - 1),
+      is_set: !!process.env.CLOUD_API_KEY
+    },
+    api_secret: {
+      length: secret.length,
+      first_char: secret.charAt(0),
+      last_char: secret.charAt(secret.length - 1),
+      is_set: !!process.env.CLOUD_API_SECRET
+    },
+    timestamp_on_server: Math.floor(Date.now() / 1000)
+  });
+});
+
 // TEMPORARY DEBUG ROUTE for Email
 app.get('/debug/email', async (req, res) => {
   const { transporter } = require('./utils/emailService');
