@@ -1,6 +1,7 @@
 const User = require("../models/user");
 const Booking = require("../models/booking");
 const Review = require("../models/review");
+const logger = require("../config/logger");
 
 module.exports.renderSignupForm = (req, res) => {
   res.render("users/signup.ejs");
@@ -82,7 +83,7 @@ module.exports.signup = async (req, res) => {
         return res.redirect("/signup");
       }
     } catch (dbError) {
-      console.error("Database error checking existing user:", dbError);
+      logger.error("Database error checking existing user: %O", dbError);
       req.flash("error", "An error occurred. Please try again.");
       return res.redirect("/signup");
     }
@@ -93,7 +94,7 @@ module.exports.signup = async (req, res) => {
 
     try {
       const registeredUser = await User.register(newUser, password);
-      console.log("User registered successfully:", registeredUser.username);
+      logger.info("User registered successfully: %s", registeredUser.username);
 
       // Send OTP for verification
       const { sendOTP } = require('../utils/otpService');
@@ -103,7 +104,7 @@ module.exports.signup = async (req, res) => {
       res.redirect(`/verify-otp?email=${encodeURIComponent(email)}`);
 
     } catch (registrationError) {
-      console.error("Registration error:", registrationError);
+      logger.error("Registration error: %O", registrationError);
       if (registrationError.name === 'UserExistsError') {
         req.flash("error", "This email or username is already registered");
       } else if (registrationError.name === 'ValidationError') {
@@ -115,7 +116,7 @@ module.exports.signup = async (req, res) => {
     }
 
   } catch (e) {
-    console.error("Unexpected signup error:", e);
+    logger.error("Unexpected signup error: %O", e);
     req.flash("error", "An unexpected error occurred. Please try again.");
     res.redirect("/signup");
   }
@@ -161,7 +162,7 @@ module.exports.verifyOTP = async (req, res) => {
       res.redirect(`/verify-otp?email=${encodeURIComponent(email)}`);
     }
   } catch (err) {
-    console.error("OTP Verification Error:", err);
+    logger.error("OTP Verification Error: %O", err);
     req.flash("error", "An error occurred during verification.");
     res.redirect("/signup");
   }
@@ -176,7 +177,7 @@ module.exports.resendOTP = async (req, res) => {
     req.flash("success", "A new OTP has been sent to your email.");
     res.redirect(`/verify-otp?email=${encodeURIComponent(email)}`);
   } catch (err) {
-    console.error("Resend OTP Error:", err);
+    logger.error("Resend OTP Error: %O", err);
     req.flash("error", "Failed to resend OTP.");
     res.redirect("back");
   }
@@ -233,7 +234,7 @@ module.exports.forgotPassword = async (req, res) => {
     req.flash("success", "Password reset code sent to your email.");
     res.redirect(`/reset-password?email=${encodeURIComponent(email)}`);
   } catch (err) {
-    console.error("Forgot Password Error:", err);
+    logger.error("Forgot Password Error: %O", err);
     req.flash("error", "Failed to send reset code.");
     res.redirect("/forgot-password");
   }
@@ -273,7 +274,7 @@ module.exports.resetPassword = async (req, res) => {
       res.redirect(`/reset-password?email=${encodeURIComponent(email)}`);
     }
   } catch (err) {
-    console.error("Reset Password Error:", err);
+    logger.error("Reset Password Error: %O", err);
     req.flash("error", "An error occurred during password reset.");
     res.redirect("/forgot-password");
   }
