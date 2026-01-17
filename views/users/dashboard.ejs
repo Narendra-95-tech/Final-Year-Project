@@ -1,0 +1,485 @@
+<% layout("layouts/boilerplate") %>
+
+    <link rel="stylesheet" href="/css/dashboard.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <div class="dashboard-wrapper">
+        <!-- Sidebar Navigation -->
+        <aside class="dashboard-sidebar">
+            <div class="sidebar-brand">
+                Wander<span style="color: white;">Host</span>
+            </div>
+            <nav class="sidebar-nav">
+                <a href="/dashboard" class="nav-link active">
+                    <i class="fas fa-th-large"></i>
+                    <span class="link-text">Overview</span>
+                </a>
+                <a href="/listings" class="nav-link">
+                    <i class="fas fa-home"></i>
+                    <span class="link-text">My Stays</span>
+                </a>
+                <a href="/vehicles" class="nav-link">
+                    <i class="fas fa-car"></i>
+                    <span class="link-text">My Vehicles</span>
+                </a>
+                <a href="/dhabas" class="nav-link">
+                    <i class="fas fa-utensils"></i>
+                    <span class="link-text">My Dhabas</span>
+                </a>
+                <a href="/profile" class="nav-link">
+                    <i class="fas fa-user-circle"></i>
+                    <span class="link-text">Profile</span>
+                </a>
+                <div style="margin-top: auto; padding-top: 20px;">
+                    <a href="/listings/new" class="btn btn-primary w-100 py-3 rounded-pill" style="font-size: 13px;">
+                        <i class="fas fa-plus"></i> <span class="link-text">Add Listing</span>
+                    </a>
+                </div>
+            </nav>
+        </aside>
+
+        <!-- Main Content Area -->
+        <main class="dashboard-main">
+            <header class="dashboard-header" data-aos="fade-down">
+                <div class="header-title">
+                    <div class="d-flex align-items-center mb-1">
+                        <h1>Host Dashboard</h1>
+                        <% if (currUser.verifiedHost) { %>
+                            <span class="ms-2 badge bg-primary-subtle text-primary border-0 rounded-pill px-3"
+                                style="font-size: 11px;">
+                                <i class="fas fa-check-circle me-1"></i> Verified Host
+                            </span>
+                            <% } %>
+                    </div>
+                    <p class="text-muted mb-0">Welcome back, <%= currUser.username %>. Hosting since <%= new
+                                Date(currUser.hostingSince || currUser.createdAt).getFullYear() %>.</p>
+                </div>
+                <div class="header-actions">
+                    <button class="btn btn-outline-secondary rounded-pill me-2">
+                        <i class="fas fa-download"></i> Export Report
+                    </button>
+                    <div class="dropdown d-inline-block">
+                        <button class="btn btn-primary rounded-pill dropdown-toggle" type="button"
+                            data-bs-toggle="dropdown">
+                            Quick Create
+                        </button>
+                        <ul class="dropdown-menu">
+                            <li><a class="dropdown-item" href="/listings/new">New Stay</a></li>
+                            <li><a class="dropdown-item" href="/vehicles/new">New Vehicle</a></li>
+                            <li><a class="dropdown-item" href="/dhabas/new">New Dhaba</a></li>
+                        </ul>
+                    </div>
+                </div>
+            </header>
+
+            <!-- Stats Overview -->
+            <div class="stats-grid">
+                <div class="stat-card" data-aos="zoom-in" data-aos-delay="100">
+                    <div class="stat-icon icon-earnings">
+                        <i class="fas fa-wallet"></i>
+                    </div>
+                    <div class="stat-info">
+                        <h3>Net Earnings</h3>
+                        <div class="value">₹<%= totalEarnings.toLocaleString('en-IN') %>
+                        </div>
+                    </div>
+                </div>
+                <div class="stat-card" data-aos="zoom-in" data-aos-delay="200">
+                    <div class="stat-icon icon-bookings">
+                        <i class="fas fa-calendar-check"></i>
+                    </div>
+                    <div class="stat-info">
+                        <h3>Total Bookings</h3>
+                        <div class="value">
+                            <%= totalBookings %>
+                        </div>
+                    </div>
+                </div>
+                <div class="stat-card" data-aos="zoom-in" data-aos-delay="300">
+                    <div class="stat-icon icon-items">
+                        <i class="fas fa-boxes"></i>
+                    </div>
+                    <div class="stat-info">
+                        <h3>Active Inventory</h3>
+                        <div class="value">
+                            <%= listingsCount + vehiclesCount + dhabasCount %>
+                        </div>
+                    </div>
+                </div>
+                <div class="stat-card" data-aos="zoom-in" data-aos-delay="400">
+                    <div class="stat-icon icon-refunds">
+                        <i class="fas fa-star text-warning"></i>
+                    </div>
+                    <div class="stat-info">
+                        <h3>Avg. Rating</h3>
+                        <div class="value">
+                            <%= averageRating %> <span class="text-muted small" style="font-size: 12px;">/ 5</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="stat-card" data-aos="zoom-in" data-aos-delay="500">
+                    <div class="stat-icon" style="background: rgba(107, 70, 193, 0.1); color: #6b46c1;">
+                        <i class="fas fa-chart-line"></i>
+                    </div>
+                    <div class="stat-info">
+                        <h3>Occupancy</h3>
+                        <div class="value">
+                            <%= Math.min((totalBookedDays / (30 * (listingsCount + vehiclesCount || 1)) * 100),
+                                100).toFixed(0) %>%
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Charts & Analytics -->
+            <div class="charts-grid">
+                <div class="chart-card" data-aos="fade-up">
+                    <div class="card-title">
+                        <span><i class="fas fa-chart-line text-primary me-2"></i> Revenue Trend</span>
+                        <select class="form-select w-auto form-select-sm border-0 bg-light">
+                            <option>Last 6 Months</option>
+                            <option>Last Year</option>
+                        </select>
+                    </div>
+                    <canvas id="earningsChart" height="280"></canvas>
+                </div>
+                <div class="chart-card" data-aos="fade-up" data-aos-delay="100">
+                    <div class="card-title">
+                        <span><i class="fas fa-chart-pie text-success me-2"></i> Earnings Split</span>
+                    </div>
+                    <canvas id="typeDistributionChart" height="280"></canvas>
+                </div>
+            </div>
+
+            <div class="row g-4">
+                <!-- Recent Activity -->
+                <div class="col-lg-7">
+                    <div class="activity-card" data-aos="fade-right">
+                        <div class="card-title">
+                            <span><i class="fas fa-history text-info me-2"></i> Recent Activity</span>
+                            <a href="#" class="text-primary small" style="text-decoration: none;">View All</a>
+                        </div>
+                        <div class="activity-list">
+                            <% if (recentBookings.length> 0) { %>
+                                <% for(let booking of recentBookings) { %>
+                                    <div class="activity-item">
+                                        <% if (booking.user && booking.user.avatar && booking.user.avatar.url) { %>
+                                            <img src="<%= booking.user.avatar.url %>" class="user-avatar" alt="User">
+                                            <% } else { %>
+                                                <div
+                                                    class="user-avatar d-flex align-items-center justify-content-center bg-light text-primary fw-bold">
+                                                    <%= (booking.user ? booking.user.username : 'G'
+                                                        ).charAt(0).toUpperCase() %>
+                                                </div>
+                                                <% } %>
+                                                    <div class="activity-details">
+                                                        <div class="user-name">
+                                                            <%= booking.user ? booking.user.username : 'Guest' %>
+                                                        </div>
+                                                        <div class="booking-info">
+                                                            <span>
+                                                                <%= new
+                                                                    Date(booking.createdAt).toLocaleDateString('en-IN',
+                                                                    { day: 'numeric' , month: 'short' }) %>
+                                                            </span>
+                                                            • <span class="text-capitalize">
+                                                                <%= booking.type %>
+                                                            </span>
+                                                        </div>
+                                                    </div>
+                                                    <div class="activity-amount">
+                                                        <div
+                                                            class="amount <%= booking.status === 'Cancelled' ? 'text-danger' : 'text-success' %>">
+                                                            <%= booking.status==='Cancelled' ? '-' : '+' %>₹<%=
+                                                                    (booking.totalPrice || booking.amount ||
+                                                                    0).toLocaleString('en-IN') %>
+                                                        </div>
+                                                        <div class="small text-muted">
+                                                            <%= booking.status %>
+                                                        </div>
+                                                    </div>
+                                    </div>
+                                    <% } %>
+                                        <% } else { %>
+                                            <div class="text-center py-5">
+                                                <i class="fas fa-inbox fa-3x text-light mb-3"></i>
+                                                <p class="text-muted">No recent activity to show.</p>
+                                            </div>
+                                            <% } %>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Host Trust Section -->
+                <div class="col-lg-5">
+                    <div class="trust-card" data-aos="fade-left">
+                        <div class="d-flex justify-content-between align-items-start mb-4">
+                            <div>
+                                <h4 class="mb-1 text-white">Trust Score</h4>
+                                <p class="small text-light text-opacity-75">Based on performance</p>
+                            </div>
+                            <div class="score-badge <%= hostScore >= 80 ? 'score-high' : 'score-mid' %>">
+                                RANK #12
+                            </div>
+                        </div>
+                        <div class="d-flex align-items-center gap-4">
+                            <div class="position-relative">
+                                <svg width="80" height="80" viewBox="0 0 80 80">
+                                    <circle cx="40" cy="40" r="35" fill="none" stroke="rgba(255,255,255,0.1)"
+                                        stroke-width="8" />
+                                    <% let dashValue=(hostScore / 100) * 220; %>
+                                        <circle cx="40" cy="40" r="35" fill="none" stroke="#fe6b00" stroke-width="8"
+                                            stroke-dasharray="<%= dashValue %>, 220" stroke-linecap="round"
+                                            transform="rotate(-90 40 40)" />
+                                </svg>
+                                <div class="position-absolute top-50 start-50 translate-middle fw-bold text-white"
+                                    style="font-size: 20px;">
+                                    <%= hostScore %>
+                                </div>
+                            </div>
+                            <div>
+                                <div class="mb-2 text-white" style="font-size: 13px;"><i
+                                        class="fas fa-check text-success me-2"></i> Excellent Quality</div>
+                                <div class="mb-2 text-white" style="font-size: 13px;"><i
+                                        class="fas fa-check text-success me-2"></i> Quick Responses</div>
+                                <div class="small text-light text-opacity-50">Score updated daily</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Recent Reviews -->
+                    <div class="activity-card mt-4" data-aos="fade-left" data-aos-delay="100">
+                        <div class="card-title">
+                            <span><i class="fas fa-comment-alt text-warning me-2"></i> Guest Feedback</span>
+                        </div>
+                        <div class="reviews-stack">
+                            <% if (recentReviews.length> 0) { %>
+                                <% for(let review of recentReviews) { %>
+                                    <div class="review-mini-card">
+                                        <div class="d-flex justify-content-between align-items-center mb-1">
+                                            <div class="small fw-bold">
+                                                <%= review.author ? review.author.username : 'Guest' %>
+                                            </div>
+                                            <div class="rating-stars">
+                                                <% for(let i=1; i<=5; i++) { %>
+                                                    <i class="<%= i <= review.rating ? 'fas' : 'far' %> fa-star"></i>
+                                                    <% } %>
+                                            </div>
+                                        </div>
+                                        <p class="small text-muted mb-0 text-truncate">
+                                            <%= review.comment %>
+                                        </p>
+                                    </div>
+                                    <% } %>
+                                        <% } else { %>
+                                            <p class="text-center text-muted py-4 small">No reviews yet.</p>
+                                            <% } %>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- My Portfolio Section -->
+            <div class="mt-4" data-aos="fade-up">
+                <div class="activity-card">
+                    <div class="card-title">
+                        <span><i class="fas fa-briefcase text-primary me-2"></i> Your Portfolio</span>
+                        <div class="d-flex gap-2">
+                            <span class="badge bg-light text-dark border">
+                                <%= listingsCount %> Stays
+                            </span>
+                            <span class="badge bg-light text-dark border">
+                                <%= vehiclesCount %> Vehicles
+                            </span>
+                            <span class="badge bg-light text-dark border">
+                                <%= dhabasCount %> Dhabas
+                            </span>
+                        </div>
+                    </div>
+                    <div class="table-responsive">
+                        <table class="table table-hover align-middle mb-0">
+                            <thead>
+                                <tr class="text-muted" style="font-size: 13px;">
+                                    <th>Item Details</th>
+                                    <th>Category</th>
+                                    <th>Rating</th>
+                                    <th>Bookings</th>
+                                    <th>Total Earnings</th>
+                                    <th>Action</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <% if (myItems.length> 0) { %>
+                                    <% for(let item of myItems) { %>
+                                        <tr>
+                                            <td>
+                                                <div class="d-flex align-items-center">
+                                                    <% if (item.image && item.image.url) { %>
+                                                        <img src="<%= item.image.url %>" class="rounded-3 me-3"
+                                                            style="width: 45px; height: 45px; object-fit: cover;">
+                                                        <% } else if (item.image && Array.isArray(item.image) &&
+                                                            item.image.length> 0) { %>
+                                                            <img src="<%= item.image[0].url %>" class="rounded-3 me-3"
+                                                                style="width: 45px; height: 45px; object-fit: cover;">
+                                                            <% } else { %>
+                                                                <div class="bg-light rounded-3 d-flex align-items-center justify-content-center me-3"
+                                                                    style="width: 45px; height: 45px;">
+                                                                    <i class="fas fa-image text-muted"></i>
+                                                                </div>
+                                                                <% } %>
+                                                                    <div class="fw-bold text-dark text-truncate"
+                                                                        style="max-width: 200px;">
+                                                                        <%= item.title %>
+                                                                    </div>
+                                                </div>
+                                            </td>
+                                            <td class="text-capitalize"><span class="badge bg-light text-dark border-0">
+                                                    <%= item.type %>
+                                                </span></td>
+                                            <td>
+                                                <div class="d-flex align-items-center gap-1">
+                                                    <i class="fas fa-star text-warning small"></i>
+                                                    <span class="fw-bold">
+                                                        <%= item.rating %>
+                                                    </span>
+                                                </div>
+                                            </td>
+                                            <td>
+                                                <%= item.bookingCount %>
+                                            </td>
+                                            <td class="text-success fw-bold">₹<%= item.earnings.toLocaleString('en-IN')
+                                                    %>
+                                            </td>
+                                            <td>
+                                                <div class="dropdown">
+                                                    <button class="btn btn-light btn-sm rounded-circle border-0"
+                                                        data-bs-toggle="dropdown">
+                                                        <i class="fas fa-ellipsis-v"></i>
+                                                    </button>
+                                                    <ul class="dropdown-menu shadow border-0">
+                                                        <li><a class="dropdown-item py-2"
+                                                                href="/<%= item.type %>s/<%= item._id %>/edit"><i
+                                                                    class="fas fa-edit me-2"></i> Edit</a></li>
+                                                        <li><a class="dropdown-item py-2"
+                                                                href="/<%= item.type %>s/<%= item._id %>"><i
+                                                                    class="fas fa-eye me-2"></i> View</a></li>
+                                                        <li>
+                                                            <hr class="dropdown-divider">
+                                                        </li>
+                                                        <li><a class="dropdown-item py-2 text-danger" href="#"><i
+                                                                    class="fas fa-pause me-2"></i> Deactivate</a></li>
+                                                    </ul>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                        <% } %>
+                                            <% } else { %>
+                                                <tr>
+                                                    <td colspan="6" class="text-center py-4 text-muted">You haven't
+                                                        added any items yet.</td>
+                                                </tr>
+                                                <% } %>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        // 1. Revenue Trend Chart
+        const earningsByMonth = <% - JSON.stringify(earningsByMonth) %>;
+        const labels = Object.keys(earningsByMonth);
+        const revenueData = Object.values(earningsByMonth);
+
+        const ctxEarnings = document.getElementById('earningsChart').getContext('2d');
+        const gradient = ctxEarnings.createLinearGradient(0, 0, 0, 300);
+        gradient.addColorStop(0, 'rgba(254, 107, 0, 0.4)');
+        gradient.addColorStop(1, 'rgba(254, 107, 0, 0)');
+
+        new Chart(ctxEarnings, {
+            type: 'line',
+            data: {
+                labels: labels,
+                datasets: [{
+                    label: 'Revenue (₹)',
+                    data: revenueData,
+                    borderColor: '#fe6b00',
+                    backgroundColor: gradient,
+                    borderWidth: 4,
+                    fill: true,
+                    tension: 0.4,
+                    pointBackgroundColor: '#fe6b00',
+                    pointBorderColor: '#fff',
+                    pointBorderWidth: 2,
+                    pointRadius: 6,
+                    pointHoverRadius: 8
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { display: false },
+                    tooltip: {
+                        padding: 12,
+                        backgroundColor: '#1a1c23',
+                        titleFont: { size: 14, weight: 'bold' },
+                        bodyFont: { size: 13 },
+                        cornerRadius: 8
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        grid: { color: 'rgba(0,0,0,0.05)', drawBorder: false },
+                        ticks: { color: '#718096', font: { size: 11 } }
+                    },
+                    x: {
+                        grid: { display: false },
+                        ticks: { color: '#718096', font: { size: 11 } }
+                    }
+                }
+            }
+        });
+
+        // 2. Earnings Distribution Chart
+        const stats = <% - JSON.stringify(itemsStats) %>;
+        const typeData = { 'listing': 0, 'vehicle': 0, 'dhaba': 0 };
+        Object.values(stats).forEach(s => {
+            if (typeData.hasOwnProperty(s.type)) {
+                typeData[s.type] += s.earnings;
+            }
+        });
+
+        const ctxType = document.getElementById('typeDistributionChart').getContext('2d');
+        new Chart(ctxType, {
+            type: 'doughnut',
+            data: {
+                labels: ['Stays', 'Vehicles', 'Dhabas'],
+                datasets: [{
+                    data: [typeData.listing, typeData.vehicle, typeData.dhaba],
+                    backgroundColor: ['#fe6b00', '#4299e1', '#48bb78'],
+                    hoverOffset: 15,
+                    borderWidth: 0
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                cutout: '75%',
+                plugins: {
+                    legend: {
+                        position: 'bottom',
+                        labels: {
+                            boxWidth: 12,
+                            padding: 25,
+                            font: { size: 12, weight: '600' },
+                            color: '#4a5568'
+                        }
+                    }
+                }
+            }
+        });
+    </script>

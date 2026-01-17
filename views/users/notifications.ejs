@@ -1,0 +1,194 @@
+<% layout("layouts/boilerplate") %>
+
+    <style>
+        .notifications-container {
+            max-width: 800px;
+            margin: 40px auto 80px;
+            padding: 0 20px;
+        }
+
+        .notifications-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+        }
+
+        .notifications-header h1 {
+            font-size: 28px;
+            font-weight: 800;
+            color: #1a1a1a;
+            margin: 0;
+        }
+
+        .notification-card {
+            background: white;
+            border-radius: 16px;
+            padding: 20px;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 20px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+            border: 1px solid #f0f0f0;
+            transition: all 0.2s;
+            text-decoration: none;
+            color: inherit;
+            position: relative;
+        }
+
+        .notification-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.08);
+            border-color: #fe6b00;
+        }
+
+        .notification-card.unread {
+            border-left: 4px solid #fe6b00;
+            background: #fffaf7;
+        }
+
+        .sender-avatar {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            object-fit: cover;
+        }
+
+        .sender-initial {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            background: #fe6b00;
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 20px;
+        }
+
+        .notification-content {
+            flex: 1;
+        }
+
+        .notification-text {
+            font-weight: 500;
+            color: #333;
+            margin-bottom: 4px;
+            line-height: 1.4;
+        }
+
+        .notification-text strong {
+            color: #000;
+        }
+
+        .notification-time {
+            font-size: 13px;
+            color: #888;
+        }
+
+        .notification-type-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+        }
+
+        .type-booking {
+            background: #e6f7ef;
+            color: #198754;
+        }
+
+        .type-like {
+            background: #fff1f1;
+            color: #dc3545;
+        }
+
+        .type-comment {
+            background: #f0f4ff;
+            color: #0d6efd;
+        }
+
+        .type-follow {
+            background: #f7f0ff;
+            color: #6f42c1;
+        }
+
+        .empty-notifications {
+            text-align: center;
+            padding: 60px 20px;
+            background: white;
+            border-radius: 20px;
+            border: 2px dashed #ddd;
+        }
+
+        .empty-notifications i {
+            font-size: 60px;
+            color: #ccc;
+            margin-bottom: 20px;
+        }
+    </style>
+
+    <div class="notifications-container">
+        <div class="notifications-header">
+            <h1>Notifications</h1>
+            <span class="badge bg-light text-dark border">
+                <%= notifications.length %> Total
+            </span>
+        </div>
+
+        <% if (notifications.length> 0) { %>
+            <% for(let notification of notifications) { %>
+                <a href="<%= notification.link || '#' %>"
+                    class="notification-card <%= !notification.read ? 'unread' : '' %>">
+                    <% if (notification.sender && notification.sender.avatar && notification.sender.avatar.url) { %>
+                        <img src="<%= notification.sender.avatar.url %>" class="sender-avatar" alt="User">
+                        <% } else { %>
+                            <div class="sender-initial">
+                                <%= (notification.sender ? notification.sender.username : 'W' ).charAt(0).toUpperCase()
+                                    %>
+                            </div>
+                            <% } %>
+
+                                <div class="notification-content">
+                                    <div class="notification-text">
+                                        <strong>
+                                            <%= notification.sender ? notification.sender.username : 'Someone' %>
+                                        </strong>
+                                        <%= notification.content %>
+                                    </div>
+                                    <div class="notification-time">
+                                        <i class="far fa-clock me-1"></i>
+                                        <%= new Date(notification.createdAt).toLocaleString('en-IN', { day: 'numeric' ,
+                                            month: 'short' , hour: '2-digit' , minute: '2-digit' }) %>
+                                    </div>
+                                </div>
+
+                                <div class="notification-type-icon type-<%= notification.type %>">
+                                    <% if (notification.type==='booking' ) { %>
+                                        <i class="fas fa-calendar-check"></i>
+                                        <% } else if (notification.type==='like' ) { %>
+                                            <i class="fas fa-heart"></i>
+                                            <% } else if (notification.type==='comment' ) { %>
+                                                <i class="fas fa-comment"></i>
+                                                <% } else if (notification.type==='follow' ) { %>
+                                                    <i class="fas fa-user-plus"></i>
+                                                    <% } else { %>
+                                                        <i class="fas fa-bell"></i>
+                                                        <% } %>
+                                </div>
+                </a>
+                <% } %>
+                    <% } else { %>
+                        <div class="empty-notifications">
+                            <i class="fas fa-bell-slash"></i>
+                            <h3>No notifications yet</h3>
+                            <p class="text-muted">When you get bookings or interactions, they will appear here.</p>
+                            <a href="/listings" class="btn btn-primary mt-3 rounded-pill">Explore Listings</a>
+                        </div>
+                        <% } %>
+    </div>

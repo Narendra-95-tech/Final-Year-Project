@@ -429,6 +429,18 @@ exports.cancelBooking = wrapAsync(async (req, res) => {
 
   await booking.save();
 
+  // Send cancellation email notification
+  try {
+    const { sendCancellationEmail } = require('../utils/emailService');
+    const user = await User.findById(booking.user);
+    if (user && user.email) {
+      sendCancellationEmail(booking, user, booking.totalPrice).catch(e => console.error('Cancellation email failed:', e.message));
+      console.log('📧 Triggering cancellation email for booking:', booking._id);
+    }
+  } catch (emailErr) {
+    console.error('Email service trigger error:', emailErr.message);
+  }
+
   const successHeader = `Booking cancelled.`; // Simplified header
   req.flash("success", refundSuccess ? `${successHeader} ${refundMsg}` : `${successHeader} Refund status: ${booking.paymentStatus}.`);
   res.redirect("/bookings");

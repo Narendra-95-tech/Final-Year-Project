@@ -7,15 +7,31 @@
   <!-- Flatpickr CSS -->
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
   <style>
-    /* Custom Flatpickr Styling */
+    /* Custom Flatpickr Visibility Improvements */
+    .flatpickr-day {
+      color: #222 !important;
+      font-weight: 600 !important;
+      font-size: 15px !important;
+    }
+
     .flatpickr-day.flatpickr-disabled,
     .flatpickr-day.flatpickr-disabled:hover {
-      text-decoration: line-through !important;
-      color: #9ca3af !important;
-      background-color: #f3f4f6 !important;
-      border-color: #f3f4f6 !important;
+      color: #d1d5db !important;
+      background-color: transparent !important;
+      border-color: transparent !important;
       opacity: 1 !important;
       cursor: not-allowed;
+      text-decoration: none !important;
+    }
+
+    .flatpickr-day.prevMonthDay,
+    .flatpickr-day.nextMonthDay {
+      color: #e5e7eb !important;
+    }
+
+    .flatpickr-weekday {
+      color: #1a1a1a !important;
+      font-weight: 700 !important;
     }
 
     .flatpickr-calendar {

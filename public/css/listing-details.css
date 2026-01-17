@@ -1184,7 +1184,8 @@ body.dark-mode .map-container-premium {
   border: 1px solid var(--border);
   border-radius: var(--radius-small);
   margin-bottom: var(--space-3);
-  overflow: hidden;
+  overflow: visible;
+  /* Changed from hidden to prevent calendar clipping */
   transition: border-color var(--transition-fast);
 }
 
@@ -1202,8 +1203,15 @@ body.dark-mode .map-container-premium {
   /* Prevent grid overflow */
 }
 
+.date-input-group:first-child {
+  border-top-left-radius: var(--radius-small);
+  border-bottom-left-radius: var(--radius-small);
+}
+
 .date-input-group:last-child {
   border-right: none;
+  border-top-right-radius: var(--radius-small);
+  border-bottom-right-radius: var(--radius-small);
 }
 
 .date-label {

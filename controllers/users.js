@@ -1,6 +1,10 @@
 const User = require("../models/user");
 const Booking = require("../models/booking");
 const Review = require("../models/review");
+const Listing = require("../models/listing");
+const Vehicle = require("../models/vehicle");
+const Dhaba = require("../models/dhaba");
+const Notification = require("../models/notification");
 const logger = require("../config/logger");
 
 module.exports.renderSignupForm = (req, res) => {
@@ -34,6 +38,199 @@ module.exports.renderMyReviews = async (req, res) => {
   res.render("users/reviews.ejs", { reviews });
 };
 
+module.exports.renderNotifications = async (req, res) => {
+  const notifications = await Notification.find({ user: req.user._id })
+    .populate("sender", "username avatar")
+    .sort({ createdAt: -1 })
+    .limit(50);
+
+  // Mark all unread notifications as read
+  await Notification.updateMany(
+    { user: req.user._id, read: false },
+    { $set: { read: true } }
+  );
+
+  res.render("users/notifications.ejs", { notifications });
+};
+
+
+module.exports.renderHostDashboard = async (req, res) => {
+  try {
+    const userId = req.user._id;
+
+    // 1. Fetch all items owned by the user
+    const [listings, vehicles, dhabas] = await Promise.all([
+      Listing.find({ owner: userId }).select('_id title price image').lean(),
+      Vehicle.find({ owner: userId }).select('_id title price image').lean(),
+      Dhaba.find({ owner: userId }).select('_id title price image').lean()
+    ]);
+
+    const itemIds = [
+      ...listings.map(l => l._id),
+      ...vehicles.map(v => v._id),
+      ...dhabas.map(d => d._id)
+    ];
+
+    // 2. Fetch all relevant bookings for these items using a robust $and/$or grouping
+    const bookings = await Booking.find({
+      $and: [
+        {
+          $or: [
+            { listing: { $in: listings.map(l => l._id) } },
+            { vehicle: { $in: vehicles.map(v => v._id) } },
+            { dhaba: { $in: dhabas.map(d => d._id) } }
+          ]
+        },
+        {
+          $or: [{ isPaid: true }, { status: 'Cancelled' }, { status: 'Pending' }]
+        }
+      ]
+    }).populate('user', 'username email avatar').sort({ createdAt: -1 }).lean();
+
+    // 3. Aggregate statistics
+    let totalGrossEarnings = 0;
+    let totalRefunds = 0;
+    let cancelledCount = 0;
+    let pendingCount = 0;
+    const itemsStats = {};
+    const earningsByMonth = {};
+    let totalBookedDays = 0;
+
+    bookings.forEach(booking => {
+      const amount = booking.totalPrice || booking.amount || 0;
+
+      if (booking.isPaid) {
+        totalGrossEarnings += amount;
+        if (booking.status === 'Cancelled' || booking.paymentStatus === 'Refunded') {
+          totalRefunds += amount;
+        }
+      }
+
+      if (booking.status === 'Cancelled' || booking.paymentStatus === 'Refunded') {
+        cancelledCount++;
+      } else if (booking.status === 'Pending' && !booking.isPaid) {
+        pendingCount++;
+      }
+
+      // Simple occupancy approximation
+      if (booking.startDate && booking.endDate && booking.status !== 'Cancelled') {
+        const diffTime = Math.abs(new Date(booking.endDate) - new Date(booking.startDate));
+        const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24)) || 1;
+        totalBookedDays += diffDays;
+      }
+
+      // Per item stats
+      const itemKey = booking.listing || booking.vehicle || booking.dhaba;
+      if (!itemKey) return;
+
+      const itemId = itemKey.toString();
+      if (!itemsStats[itemId]) {
+        let title = "Unknown Item";
+        let itemImage = null;
+        const foundItem = listings.find(l => l._id.toString() === itemId) ||
+          vehicles.find(v => v._id.toString() === itemId) ||
+          dhabas.find(d => d._id.toString() === itemId);
+        if (foundItem) {
+          title = foundItem.title;
+          itemImage = foundItem.image;
+        }
+
+        itemsStats[itemId] = { title, itemImage, earnings: 0, count: 0, type: booking.type, refunds: 0, bookings: [], rating: 0 };
+      }
+
+      if (booking.status !== 'Cancelled' && booking.paymentStatus !== 'Refunded') {
+        if (booking.isPaid) {
+          itemsStats[itemId].earnings += amount;
+        }
+        itemsStats[itemId].count += 1;
+        itemsStats[itemId].bookings.push(booking);
+      } else if (booking.isPaid) {
+        itemsStats[itemId].refunds += amount;
+      }
+
+      // Group by month
+      if (booking.isPaid && booking.status !== 'Cancelled') {
+        const month = new Date(booking.createdAt).toLocaleString('default', { month: 'short', year: 'numeric' });
+        earningsByMonth[month] = (earningsByMonth[month] || 0) + amount;
+      }
+    });
+
+    // 4. Fetch Reviews for Host Items
+    const reviews = await Review.find({
+      $or: [
+        { listing: { $in: listings.map(l => l._id) } },
+        { vehicle: { $in: vehicles.map(v => v._id) } },
+        { dhaba: { $in: dhabas.map(d => d._id) } }
+      ]
+    }).populate('author', 'username avatar').sort({ createdAt: -1 }).limit(10).lean();
+
+    // Calculate rating averages per item
+    reviews.forEach(review => {
+      const itemKey = review.listing || review.vehicle || review.dhaba;
+      if (itemKey) {
+        const itemId = itemKey.toString();
+        if (itemsStats[itemId]) {
+          itemsStats[itemId].totalRating = (itemsStats[itemId].totalRating || 0) + review.rating;
+          itemsStats[itemId].ratingCount = (itemsStats[itemId].ratingCount || 0) + 1;
+          itemsStats[itemId].rating = (itemsStats[itemId].totalRating / itemsStats[itemId].ratingCount).toFixed(1);
+        }
+      }
+    });
+
+    const averageRating = reviews.length > 0 ? (reviews.reduce((acc, r) => acc + r.rating, 0) / reviews.length).toFixed(1) : "N/A";
+
+    // 5. Host Performance Score calculation
+    let hostScore = 70;
+    if (listings.length + vehicles.length + dhabas.length > 0) {
+      const earningsWeight = Math.min(totalGrossEarnings / 500, 15);
+      const ratingWeight = averageRating !== "N/A" ? (Number(averageRating) * 2) : 0;
+      hostScore = Math.min(65 + earningsWeight + ratingWeight, 100).toFixed(0);
+    }
+
+    const topItems = Object.values(itemsStats).sort((a, b) => b.earnings - a.earnings).slice(0, 5);
+
+    // 6. Detailed item list with rating
+    const myItems = [
+      ...listings.map(l => ({ ...l, type: 'listing' })),
+      ...vehicles.map(v => ({ ...v, type: 'vehicle' })),
+      ...dhabas.map(d => ({ ...d, type: 'dhaba' }))
+    ].map(item => {
+      const stats = itemsStats[item._id.toString()] || { earnings: 0, count: 0, refunds: 0, rating: "N/A" };
+      return {
+        ...item,
+        earnings: stats.earnings,
+        bookingCount: stats.count,
+        refunds: stats.refunds,
+        rating: stats.rating || "N/A"
+      };
+    });
+
+    res.render("users/dashboard.ejs", {
+      totalEarnings: totalGrossEarnings - totalRefunds,
+      grossEarnings: totalGrossEarnings,
+      totalRefunds,
+      cancelledCount,
+      pendingCount,
+      totalBookings: bookings.filter(b => b.status !== 'Cancelled').length,
+      listingsCount: listings.length,
+      vehiclesCount: vehicles.length,
+      dhabasCount: dhabas.length,
+      recentBookings: bookings.slice(0, 10),
+      topItems,
+      myItems,
+      earningsByMonth,
+      itemsStats,
+      recentReviews: reviews.slice(0, 5),
+      averageRating,
+      hostScore,
+      totalBookedDays
+    });
+  } catch (error) {
+    logger.error("Host Dashboard Error: %O", error);
+    req.flash("error", "Failed to load dashboard data");
+    res.redirect("/profile");
+  }
+};
 
 module.exports.signup = async (req, res) => {
   try {

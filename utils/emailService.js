@@ -368,7 +368,81 @@ async function sendPaymentReceipt(booking, user) {
   }
 }
 
-// Send notification to owner about new booking
+// Send cancellation & refund notification
+async function sendCancellationEmail(booking, user, refundAmount) {
+  const itemTitle = getItemTitle(booking);
+  const confirmationNumber = booking._id.toString().slice(-8).toUpperCase();
+
+  const mailOptions = {
+    from: process.env.EMAIL_FROM || process.env.EMAIL_USER,
+    to: user.email,
+    subject: `⚠️ Booking Cancelled - ${itemTitle}`,
+    html: `
+      <!DOCTYPE html>
+      <html>
+      <head>
+        <style>
+          body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; margin: 0; padding: 0; }
+          .container { max-width: 600px; margin: 0 auto; border: 1px solid #eee; }
+          .header { background: #dc2626; color: white; padding: 30px 20px; text-align: center; }
+          .content { padding: 30px; background: #fff; }
+          .refund-card { background: #fef2f2; border-left: 5px solid #dc2626; padding: 20px; border-radius: 8px; margin: 20px 0; }
+          .amount { font-size: 28px; font-weight: bold; color: #dc2626; margin: 10px 0; }
+          .footer { text-align: center; color: #666; font-size: 12px; padding: 20px; background: #f9f9f9; }
+        </style>
+      </head>
+      <body>
+        <div class="container">
+          <div class="header">
+            <h1 style="margin:0;">Booking Cancelled</h1>
+            <p style="margin:10px 0 0 0; opacity:0.9;">WanderLust Cancellation Notice</p>
+          </div>
+          <div class="content">
+            <p>Hi <strong>${user.fullName || user.username}</strong>,</p>
+            <p>Your booking for <strong>${itemTitle}</strong> (ID: #${confirmationNumber}) has been successfully cancelled.</p>
+            
+            <div class="refund-card">
+              <h3 style="margin-top:0; color: #dc2626;">Refund Details</h3>
+              <p style="margin: 5px 0;">The following amount has been processed for refund:</p>
+              <div class="amount">₹${refundAmount.toLocaleString('en-IN')}</div>
+              <p style="font-size: 13px; color: #666; margin-bottom: 0;">
+                ${booking.paymentMethod === 'Wallet'
+        ? 'The amount has been credited back to your **Wander Wallet** and is available immediately.'
+        : 'The amount has been refunded to your original payment method. Please allow 5-7 business days for it to appear in your account.'}
+              </p>
+            </div>
+
+            <p>We hope to see you again soon! If you have any questions regarding this cancellation, please contact our support team.</p>
+            
+            <center>
+              <a href="${process.env.BASE_URL || 'http://localhost:8080'}/listings" style="display:inline-block; background:#333; color:#fff; padding:12px 25px; text-decoration:none; border-radius:6px; margin-top:20px;">Explore Other Stays</a>
+            </center>
+          </div>
+          <div class="footer">
+            <p><strong>WanderLust</strong> - Your Travel Companion</p>
+            <p>📧 help@wanderlust.com | 📱 +91 98765 43210</p>
+          </div>
+        </div>
+      </body>
+      </html>
+    `
+  };
+
+  try {
+    let result;
+    if (process.env.BREVO_API_KEY) {
+      result = await sendEmailViaBrevo(mailOptions);
+    } else {
+      result = await transporter.sendMail(mailOptions);
+    }
+    console.log(`✅ Cancellation email sent to: ${user.email} for booking: ${booking._id}`);
+    return { success: true, messageId: result.messageId };
+  } catch (error) {
+    console.error('❌ Cancellation email failed:', error.message);
+    return { success: false, error: error.message };
+  }
+}
+
 async function sendOwnerBookingAlert(booking, owner, guest) {
   const itemTitle = getItemTitle(booking);
   const confirmationNumber = booking._id.toString().slice(-8).toUpperCase();
@@ -470,5 +544,6 @@ module.exports = {
   sendBookingConfirmation,
   sendPaymentReceipt,
   sendOwnerBookingAlert,
+  sendCancellationEmail,
   sendEmailViaBrevo
 };
