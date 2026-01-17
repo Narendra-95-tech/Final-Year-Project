@@ -57,9 +57,9 @@ module.exports.index = async (req, res) => {
       // If it does, I need to $lookup or manually populate.
       // Let's use $lookup to be safe.
     } else {
-      allDhabas = await Dhaba.find(filter).sort(sortOption).populate("owner");
+      allDhabas = await Dhaba.find(filter).sort(sortOption).populate("owner").lean();
     }
-    const trendingDhabas = await Dhaba.find({}).sort({ rating: -1 }).limit(6);
+    const trendingDhabas = await Dhaba.find({}).sort({ rating: -1 }).limit(6).lean();
 
     if (Object.keys(req.query).length === 0 && (!res.locals.success || res.locals.success.length === 0)) {
       res.locals.success = "Welcome to Dhabas!";

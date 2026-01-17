@@ -109,7 +109,7 @@ module.exports.index = async (req, res) => {
             { $sort: { relevance: -1, _id: -1 } }
         ]);
     } else {
-        allVehicles = await Vehicle.find(filter).sort(sortOption);
+        allVehicles = await Vehicle.find(filter).sort(sortOption).lean();
     }
 
     // Get unique values for filters
@@ -121,7 +121,8 @@ module.exports.index = async (req, res) => {
     // Compute trending vehicles: highest rated or newest
     const trendingVehicles = await Vehicle.find({})
         .sort({ _id: -1 })
-        .limit(6);
+        .limit(6)
+        .lean();
 
     const queryParams = { ...req.query };
     const queryString = new URLSearchParams(queryParams).toString();
@@ -224,7 +225,6 @@ module.exports.createVehicle = async (req, res, next) => {
     newVehicle.geometry = response.body.features[0].geometry;
 
     let savedVehicle = await newVehicle.save();
-    console.log(savedVehicle);
 
     req.flash("success", "New Vehicle Created!");
     res.redirect("/vehicles");
@@ -288,7 +288,6 @@ module.exports.updateVehicle = async (req, res) => {
 module.exports.destroyVehicle = async (req, res) => {
     let { id } = req.params;
     let deletedVehicle = await Vehicle.findByIdAndDelete(id);
-    console.log(deletedVehicle);
     req.flash("success", "Vehicle Deleted!");
     res.redirect("/vehicles");
 };
@@ -301,7 +300,7 @@ module.exports.getVehicleBookings = async (req, res) => {
             status: { $ne: 'Cancelled' },
             startDate: { $exists: true },
             endDate: { $exists: true }
-        }).select('startDate endDate status startTime endTime');
+        }).select('startDate endDate status startTime endTime').lean();
 
         const events = bookings.map(booking => {
             const start = new Date(booking.startDate);

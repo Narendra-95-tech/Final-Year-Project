@@ -93,13 +93,14 @@ module.exports.index = async (req, res) => {
             { $sort: { relevance: -1, _id: -1 } }
         ]);
     } else {
-        allListings = await Listing.find(filter).sort(sortOption);
+        allListings = await Listing.find(filter).sort(sortOption).lean();
     }
 
     // Compute a simple trending list: highest price items today
     const trendingListings = await Listing.find({})
         .sort({ price: -1 })
-        .limit(6);
+        .limit(6)
+        .lean();
 
     // Check for real visual messages
     const existingSuccess = res.locals.success;
@@ -158,7 +159,6 @@ module.exports.showListing = async (req, res) => {
         req.flash("error", "Listing you requested for does not exist!");
         return res.redirect("/listings");
     }
-    console.log(listing);
     res.render("listings/show", { listing, mapToken: process.env.MAP_TOKEN });
 };
 
@@ -188,7 +188,6 @@ module.exports.createListing = async (req, res, next) => {
     newListing.geometry = response.body.features[0].geometry;
 
     let savedListing = await newListing.save();
-    console.log(savedListing);
 
     req.flash("success", "New Listing Created!");
     res.redirect("/listings");
@@ -234,7 +233,6 @@ module.exports.updateListing = async (req, res) => {
 module.exports.destroyListing = async (req, res) => {
     let { id } = req.params;
     let deletedListing = await Listing.findByIdAndDelete(id);
-    console.log(deletedListing);
     req.flash("success", "Listing Deleted!");
     res.redirect("/listings")
 };
@@ -247,7 +245,7 @@ module.exports.getListingBookings = async (req, res) => {
             status: { $ne: 'Cancelled' },
             startDate: { $exists: true },
             endDate: { $exists: true }
-        }).select('startDate endDate status');
+        }).select('startDate endDate status').lean();
 
         const events = bookings.map(booking => ({
             title: 'Booked',
