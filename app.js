@@ -116,13 +116,13 @@ const io = socketIo(server, {
 const connectedUsers = new Map();
 
 io.on('connection', (socket) => {
-  console.log('New client connected');
+  logger.info('New client connected: %s', socket.id);
 
   // Handle user authentication and store socket with user ID
   socket.on('authenticate', (userId) => {
     if (userId) {
       connectedUsers.set(userId.toString(), socket.id);
-      console.log(`User ${userId} connected with socket ${socket.id}`);
+      logger.info(`User ${userId} authenticated on socket ${socket.id}`);
     }
   });
 
@@ -132,7 +132,7 @@ io.on('connection', (socket) => {
     for (const [userId, socketId] of connectedUsers.entries()) {
       if (socketId === socket.id) {
         connectedUsers.delete(userId);
-        console.log(`User ${userId} disconnected`);
+        logger.info(`User ${userId} disconnected from socket ${socket.id}`);
         break;
       }
     }
@@ -141,8 +141,7 @@ io.on('connection', (socket) => {
   // Handle real-time AI Assistant chat
   socket.on('ai_message', async ({ message, userId, context }) => {
     try {
-      console.log("⚡ SOCKET HIT for ai_message:", message);
-      require('fs').writeFileSync('socket_hit.txt', `Hit at ${new Date().toISOString()} with: ${message}\n`);
+      logger.debug("⚡ SOCKET HIT for ai_message: %s", message);
       const smartChatbot = require("./utils/smartChatbot");
       const response = await smartChatbot.handleMessage(message, userId, context);
 
@@ -854,14 +853,14 @@ const PORT = process.env.PORT || 8080;
 // Only start server if this file is run directly
 if (require.main === module) {
   server.listen(PORT, '0.0.0.0', () => {
-    console.log(`Server is running on port ${PORT}`);
-    console.log(`WebSocket server is running on port ${PORT}`);
+    logger.info(`Server is running on port ${PORT}`);
+    logger.info(`WebSocket server is running on port ${PORT}`);
   }).on('error', (error) => {
     if (error.code === 'EADDRINUSE') {
-      console.error(`Port ${PORT} is already in use. Please stop the other process or use a different port.`);
+      logger.error(`Port ${PORT} is already in use. Please stop the other process or use a different port.`);
       process.exit(1);
     } else {
-      console.error('Server error:', error);
+      logger.error('Server error: %O', error);
       process.exit(1);
     }
   });
