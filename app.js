@@ -320,6 +320,11 @@ app.use(express.static(path.join(__dirname, 'public'), {
 // Handle favicon.ico requests - redirect to favicon.png
 app.get('/favicon.ico', (req, res) => res.redirect('/favicon.png'));
 
+// Health check endpoint for Render/Monitoring
+app.get('/health', (req, res) => {
+  res.status(200).json({ status: 'OK', timestamp: new Date().toISOString() });
+});
+
 // Configure CORS
 app.use(cors({
   origin: process.env.CLIENT_URL || 'http://localhost:3000',
