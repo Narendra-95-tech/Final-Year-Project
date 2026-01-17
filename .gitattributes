@@ -1,4 +1,5 @@
-* text=auto
+# Force LF for all text files
+* text=auto eol=lf
 *.js text
 *.css text
 *.html text
