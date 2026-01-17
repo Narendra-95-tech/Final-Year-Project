@@ -59,33 +59,33 @@ const otpRouter = require("./routes/otp");
 const dbUrl = process.env.ATLASDB_URL;
 
 if (!dbUrl) {
-  console.error("⚠️ WARNING: ATLASDB_URL is not defined. Database features will fail.");
+  logger.error("⚠️ WARNING: ATLASDB_URL is not defined. Database features will fail.");
   // process.exit(1); // Don't crash, let the app start so we can debug
 }
 
-console.log("🚀 Connecting to Database...");
-console.log(`Target: ${dbUrl.includes("mongodb+srv") ? "MongoDB Atlas (Cloud)" : "Local MongoDB"}`);
+logger.info("🚀 Connecting to Database...");
+logger.info("Target: %s", dbUrl.includes("mongodb+srv") ? "MongoDB Atlas (Cloud)" : "Local MongoDB");
 
 if (dbUrl) {
   mongoose.connect(dbUrl)
     .then(() => {
-      console.log("✅ Database Connected Successfully!");
+      logger.info("✅ Database Connected Successfully!");
     })
     .catch((err) => {
-      console.error("❌ Database Connection Failed:", err);
-      console.log("Retrying in 5 seconds...");
+      logger.error("❌ Database Connection Failed: %O", err);
+      logger.info("Retrying in 5 seconds...");
       setTimeout(() => {
-        if (dbUrl) mongoose.connect(dbUrl).catch(e => console.error("Retry failed:", e));
+        if (dbUrl) mongoose.connect(dbUrl).catch(e => logger.error("Retry failed: %O", e));
       }, 5000);
     });
 } else {
-  console.log("⚠️ Skipping Database Connection (ATLASDB_URL missing)");
+  logger.info("⚠️ Skipping Database Connection (ATLASDB_URL missing)");
 }
 
 const db = mongoose.connection;
 db.on("error", console.error.bind(console, "connection error:"));
 db.once("open", () => {
-  console.log("Database connection established.");
+  logger.info("Database connection established.");
 });
 
 // --------------------
