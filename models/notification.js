@@ -14,7 +14,7 @@ const notificationSchema = new Schema({
     },
     type: {
         type: String,
-        enum: ['like', 'comment', 'follow', 'mention', 'message'],
+        enum: ['like', 'comment', 'follow', 'mention', 'message', 'booking'],
         required: true
     },
     read: {
@@ -27,6 +27,7 @@ const notificationSchema = new Schema({
         // Store any additional data specific to the notification type
         postId: Schema.Types.ObjectId,
         commentId: Schema.Types.ObjectId,
+        bookingId: Schema.Types.ObjectId,
         message: String
     }
 }, {
@@ -39,7 +40,7 @@ const notificationSchema = new Schema({
 notificationSchema.index({ user: 1, read: 1, createdAt: -1 });
 
 // Pre-save hook to ensure content is set based on type
-notificationSchema.pre('save', function(next) {
+notificationSchema.pre('save', function (next) {
     if (!this.content) {
         switch (this.type) {
             case 'like':
@@ -57,13 +58,16 @@ notificationSchema.pre('save', function(next) {
             case 'message':
                 this.content = 'sent you a message';
                 break;
+            case 'booking':
+                this.content = 'received a new booking';
+                break;
         }
     }
     next();
 });
 
 // Static method to create a new notification
-notificationSchema.statics.createNotification = async function(userId, senderId, type, options = {}) {
+notificationSchema.statics.createNotification = async function (userId, senderId, type, options = {}) {
     const notification = new this({
         user: userId,
         sender: senderId,
@@ -72,13 +76,13 @@ notificationSchema.statics.createNotification = async function(userId, senderId,
         content: options.content,
         metadata: options.metadata
     });
-    
+
     await notification.save();
     return notification;
 };
 
 // Method to mark notification as read
-notificationSchema.methods.markAsRead = async function() {
+notificationSchema.methods.markAsRead = async function () {
     if (!this.read) {
         this.read = true;
         await this.save();

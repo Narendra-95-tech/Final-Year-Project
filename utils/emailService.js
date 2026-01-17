@@ -368,9 +368,107 @@ async function sendPaymentReceipt(booking, user) {
   }
 }
 
+// Send notification to owner about new booking
+async function sendOwnerBookingAlert(booking, owner, guest) {
+  const itemTitle = getItemTitle(booking);
+  const confirmationNumber = booking._id.toString().slice(-8).toUpperCase();
+
+  const mailOptions = {
+    from: process.env.EMAIL_FROM || process.env.EMAIL_USER,
+    to: owner.email,
+    subject: `🔔 New Booking Alert: ${itemTitle}`,
+    html: `
+      <!DOCTYPE html>
+      <html>
+      <head>
+        <style>
+          body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; margin: 0; padding: 0; }
+          .container { max-width: 600px; margin: 0 auto; border: 1px solid #eee; }
+          .header { background: #fe6b00; color: white; padding: 25px; text-align: center; }
+          .content { padding: 30px; }
+          .booking-info { background: #fdf7f2; border-radius: 12px; padding: 20px; margin: 20px 0; border-left: 5px solid #fe6b00; }
+          .detail-row { display: flex; justify-content: space-between; padding: 10px 0; border-bottom: 1px dotted #ddd; }
+          .label { font-weight: bold; color: #555; }
+          .value { color: #000; }
+          .button { display: inline-block; background: #fe6b00; color: white !important; padding: 12px 25px; text-decoration: none; border-radius: 8px; font-weight: bold; margin-top: 20px; }
+          .footer { background: #f9f9f9; padding: 20px; text-align: center; font-size: 12px; color: #777; }
+        </style>
+      </head>
+      <body>
+        <div class="container">
+          <div class="header">
+            <h1 style="margin:0;">🎉 You've Got a New Booking!</h1>
+          </div>
+          <div class="content">
+            <p>Hi <strong>${owner.username}</strong>,</p>
+            <p>Great news! Someone just booked your <strong>${itemTitle}</strong>. Here are the guest and booking details:</p>
+            
+            <div class="booking-info">
+              <div class="detail-row">
+                <span class="label">Guest Name:</span>
+                <span class="value">${guest.fullName || guest.username}</span>
+              </div>
+              <div class="detail-row">
+                <span class="label">Booking ID:</span>
+                <span class="value">#${confirmationNumber}</span>
+              </div>
+              <div class="detail-row">
+                <span class="label">Total Earnings:</span>
+                <span class="value" style="color: #0FAA5B; font-weight: bold;">₹${booking.totalPrice.toLocaleString('en-IN')}</span>
+              </div>
+              
+              ${booking.startDate ? `
+              <div class="detail-row">
+                <span class="label">Check-in:</span>
+                <span class="value">${new Date(booking.startDate).toLocaleDateString('en-IN')}</span>
+              </div>
+              <div class="detail-row">
+                <span class="label">Check-out:</span>
+                <span class="value">${new Date(booking.endDate).toLocaleDateString('en-IN')}</span>
+              </div>
+              ` : booking.date ? `
+              <div class="detail-row">
+                <span class="label">Date:</span>
+                <span class="value">${new Date(booking.date).toLocaleDateString('en-IN')}</span>
+              </div>
+              ` : ''}
+            </div>
+
+            <p>Please log in to your dashboard to manage this booking and communicate with your guest.</p>
+            
+            <center>
+              <a href="${process.env.BASE_URL || 'http://localhost:8080'}/profile" class="button">Go to Dashboard</a>
+            </center>
+          </div>
+          <div class="footer">
+            <p>© ${new Date().getFullYear()} WanderLust Inc. All rights reserved.</p>
+            <p>You received this email because you are a registered owner on WanderLust.</p>
+          </div>
+        </div>
+      </body>
+      </html>
+    `
+  };
+
+  try {
+    let result;
+    if (process.env.BREVO_API_KEY) {
+      result = await sendEmailViaBrevo(mailOptions);
+    } else {
+      result = await transporter.sendMail(mailOptions);
+    }
+    console.log(`✅ Owner alert email sent to: ${owner.email} for item: ${itemTitle}`);
+    return { success: true, messageId: result.messageId };
+  } catch (error) {
+    console.error('❌ Owner alert email failed:', error.message);
+    return { success: false, error: error.message };
+  }
+}
+
 module.exports = {
   transporter,
   sendBookingConfirmation,
   sendPaymentReceipt,
+  sendOwnerBookingAlert,
   sendEmailViaBrevo
 };

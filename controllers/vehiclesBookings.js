@@ -43,16 +43,16 @@ async function getBookingFromSession(sessionId) {
   let booking = null;
   if (bookingId) {
     booking = await Booking.findById(bookingId)
-      .populate("listing")
-      .populate("dhaba")
-      .populate("vehicle")
+      .populate({ path: "listing", populate: { path: "owner" } })
+      .populate({ path: "dhaba", populate: { path: "owner" } })
+      .populate({ path: "vehicle", populate: { path: "owner" } })
       .populate("user");
   }
   if (!booking) {
     booking = await Booking.findOne({ stripeSessionId: session.id })
-      .populate("listing")
-      .populate("dhaba")
-      .populate("vehicle")
+      .populate({ path: "listing", populate: { path: "owner" } })
+      .populate({ path: "dhaba", populate: { path: "owner" } })
+      .populate({ path: "vehicle", populate: { path: "owner" } })
       .populate("user");
   }
 
@@ -176,6 +176,52 @@ exports.handleSuccess = wrapAsync(async (req, res) => {
   }
 
   const { booking } = await getBookingFromSession(sessionId);
+
+  // Send confirmation emails and notifications if payment is successful
+  if (booking.isPaid && booking.user) {
+    try {
+      const { sendBookingConfirmation, sendPaymentReceipt, sendOwnerBookingAlert } = require('../utils/emailService');
+      const Notification = require('../models/notification');
+
+      // 1. Notify Guest (Email)
+      if (booking.user.email) {
+        sendBookingConfirmation(booking, booking.user).catch(err =>
+          console.error('Guest Email failed:', err.message)
+        );
+        sendPaymentReceipt(booking, booking.user).catch(err =>
+          console.error('Guest Receipt failed:', err.message)
+        );
+      }
+
+      // 2. Notify Owner (Email + In-App)
+      const item = booking.listing || booking.dhaba || booking.vehicle;
+      if (item && item.owner) {
+        // Email Alert
+        if (item.owner.email) {
+          sendOwnerBookingAlert(booking, item.owner, booking.user).catch(err =>
+            console.error('Owner Alert Email failed:', err.message)
+          );
+        }
+
+        // In-App Notification
+        Notification.createNotification(
+          item.owner._id,
+          booking.user._id,
+          'booking',
+          {
+            content: `received a new rental booking for ${item.title || (item.brand + ' ' + item.model)}`,
+            link: `/bookings/${booking._id}`,
+            metadata: { bookingId: booking._id }
+          }
+        ).catch(err => console.error('In-App Notification failed:', err.message));
+      }
+
+      console.log('📧 Notifications triggered for vehicle booking:', booking._id);
+    } catch (error) {
+      console.error('Notification service error:', error.message);
+    }
+  }
+
   req.flash("success", `Your rental of ${booking.vehicle.title} is confirmed!`);
   res.render("bookings/success", { booking, sessionId });
 });

@@ -42,16 +42,16 @@ async function getBookingFromSession(sessionId) {
   let booking = null;
   if (bookingId) {
     booking = await Booking.findById(bookingId)
-      .populate("listing")
-      .populate("dhaba")
-      .populate("vehicle")
+      .populate({ path: "listing", populate: { path: "owner" } })
+      .populate({ path: "dhaba", populate: { path: "owner" } })
+      .populate({ path: "vehicle", populate: { path: "owner" } })
       .populate("user");
   }
   if (!booking) {
     booking = await Booking.findOne({ stripeSessionId: session.id })
-      .populate("listing")
-      .populate("dhaba")
-      .populate("vehicle")
+      .populate({ path: "listing", populate: { path: "owner" } })
+      .populate({ path: "dhaba", populate: { path: "owner" } })
+      .populate({ path: "vehicle", populate: { path: "owner" } })
       .populate("user");
   }
 
@@ -187,23 +187,48 @@ exports.handleSuccess = wrapAsync(async (req, res) => {
     return res.redirect("/bookings");
   }
 
-  // Send confirmation emails if payment is successful
-  if (booking.isPaid && booking.user && booking.user.email) {
+  // Send confirmation emails and notifications if payment is successful
+  if (booking.isPaid && booking.user) {
     try {
-      const { sendBookingConfirmation, sendPaymentReceipt } = require('../utils/emailService');
+      const { sendBookingConfirmation, sendPaymentReceipt, sendOwnerBookingAlert } = require('../utils/emailService');
+      const Notification = require('../models/notification');
 
-      // Send both emails (don't wait for them to complete)
-      sendBookingConfirmation(booking, booking.user).catch(err =>
-        console.error('Email send failed:', err.message)
-      );
-      sendPaymentReceipt(booking, booking.user).catch(err =>
-        console.error('Receipt send failed:', err.message)
-      );
+      // 1. Notify Guest (Email)
+      if (booking.user.email) {
+        sendBookingConfirmation(booking, booking.user).catch(err =>
+          console.error('Email send failed:', err.message)
+        );
+        sendPaymentReceipt(booking, booking.user).catch(err =>
+          console.error('Receipt send failed:', err.message)
+        );
+      }
 
-      console.log('📧 Sending confirmation emails to:', booking.user.email);
+      // 2. Notify Owner (Email + In-App)
+      const item = booking.listing || booking.dhaba || booking.vehicle;
+      if (item && item.owner) {
+        // Email Alert
+        if (item.owner.email) {
+          sendOwnerBookingAlert(booking, item.owner, booking.user).catch(err =>
+            console.error('Owner Alert Email failed:', err.message)
+          );
+        }
+
+        // In-App Notification
+        Notification.createNotification(
+          item.owner._id,
+          booking.user._id,
+          'booking',
+          {
+            content: `received a new booking for ${item.title || (item.brand + ' ' + item.model)}`,
+            link: `/bookings/${booking._id}`,
+            metadata: { bookingId: booking._id }
+          }
+        ).catch(err => console.error('In-App Notification failed:', err.message));
+      }
+
+      console.log('📧 Notifications triggered for booking:', booking._id);
     } catch (error) {
-      console.error('Email service error:', error.message);
-      // Don't fail the request if email fails
+      console.error('Notification service error:', error.message);
     }
   }
 

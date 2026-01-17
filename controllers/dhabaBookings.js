@@ -44,15 +44,17 @@ async function getBookingFromSession(sessionId) {
   let booking = null;
   if (bookingId) {
     booking = await Booking.findById(bookingId)
-      .populate("dhaba")
-      .populate("listing")
+      .populate({ path: "listing", populate: { path: "owner" } })
+      .populate({ path: "dhaba", populate: { path: "owner" } })
+      .populate({ path: "vehicle", populate: { path: "owner" } })
       .populate("user");
   }
 
   if (!booking) {
     booking = await Booking.findOne({ stripeSessionId: session.id })
-      .populate("dhaba")
-      .populate("listing")
+      .populate({ path: "listing", populate: { path: "owner" } })
+      .populate({ path: "dhaba", populate: { path: "owner" } })
+      .populate({ path: "vehicle", populate: { path: "owner" } })
       .populate("user");
   }
 
@@ -191,6 +193,39 @@ exports.handleSuccess = wrapAsync(async (req, res) => {
           itemTitle = booking.vehicle.title;
         } else if (booking.type === 'dhaba') {
           itemTitle = booking.dhaba.title;
+        }
+
+        // Trigger notifications
+        try {
+          const { sendBookingConfirmation, sendPaymentReceipt, sendOwnerBookingAlert } = require('../utils/emailService');
+          const Notification = require('../models/notification');
+
+          // Notify Guest
+          if (booking.user && booking.user.email) {
+            sendBookingConfirmation(booking, booking.user).catch(e => console.error('Guest confirmation email failed:', e.message));
+            sendPaymentReceipt(booking, booking.user).catch(e => console.error('Guest receipt email failed:', e.message));
+          }
+
+          // Notify Owner
+          const item = booking.listing || booking.dhaba || booking.vehicle;
+          if (item && item.owner) {
+            if (item.owner.email) {
+              sendOwnerBookingAlert(booking, item.owner, booking.user).catch(e => console.error('Owner alert email failed:', e.message));
+            }
+            Notification.createNotification(
+              item.owner._id,
+              booking.user ? booking.user._id : req.user._id,
+              'booking',
+              {
+                content: `received a new dining reservation for ${item.title}`,
+                link: `/bookings/${booking._id}`,
+                metadata: { bookingId: booking._id }
+              }
+            ).catch(e => console.error('Owner in-app notification failed:', e.message));
+          }
+          console.log('📧 Notifications triggered for dining booking:', booking._id);
+        } catch (notifierErr) {
+          console.error('Notification service error:', notifierErr.message);
         }
 
         req.flash("success", `Payment successful! Your booking for ${itemTitle} is confirmed.`);
