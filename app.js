@@ -143,6 +143,8 @@ io.on('connection', (socket) => {
   // Handle real-time AI Assistant chat
   socket.on('ai_message', async ({ message, userId, context }) => {
     try {
+      console.log("⚡ SOCKET HIT for ai_message:", message);
+      require('fs').writeFileSync('socket_hit.txt', `Hit at ${new Date().toISOString()} with: ${message}\n`);
       const smartChatbot = require("./utils/smartChatbot");
       const response = await smartChatbot.handleMessage(message, userId, context);
 

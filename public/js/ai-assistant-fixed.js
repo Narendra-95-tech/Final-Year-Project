@@ -93,6 +93,9 @@ class AIAssistant {
         // Initialize event listeners
         this.initializeEventListeners();
 
+        // Initialize socket listeners
+        this.initializeSocketListeners();
+
         // Set initial state based on persistence
         if (this.isOpen) {
             this.toggle(true);
@@ -173,36 +176,147 @@ class AIAssistant {
         this.showTypingIndicator();
 
         try {
-            // Check for specific commands
-            if (message.toLowerCase().includes('trip') || message.toLowerCase().includes('plan')) {
-                await this.handleTripPlanningQuery(message);
-            } else if (message.toLowerCase().includes('weather') || message.toLowerCase().includes('temperature')) {
-                await this.getWeatherInfo(message);
-            } else if (message.toLowerCase().includes('hotel') || message.toLowerCase().includes('stay')) {
-                await this.searchNearbyPlaces('hotels', message);
-            } else if (message.toLowerCase().includes('restaurant') || message.toLowerCase().includes('food') || message.toLowerCase().includes('eat')) {
-                await this.searchNearbyPlaces('restaurants', message);
-            } else if (message.toLowerCase().includes('dhaba')) {
-                await this.searchNearbyPlaces('dhabas', message);
-            } else if (message.toLowerCase().includes('vehicle') || message.toLowerCase().includes('car') || message.toLowerCase().includes('bike')) {
-                await this.searchNearbyPlaces('vehicles', message);
-            } else {
-                // Default response for general queries
-                this.addMessage('assistant', `I'm your travel assistant. I can help you with:
-- Planning trips
-- Finding hotels and accommodations
-- Local restaurant and dhaba recommendations
-- Vehicle rentals
-- Weather information
+            // Get User ID from meta tag
+            const userId = document.querySelector('meta[name="user-id"]')?.content;
 
-How can I assist you today?`);
+            // Check context from current page (e.g., if viewing a listing)
+            const context = {};
+            // You can add more context extraction here if needed
+
+            if (window.socket && window.socket.connected) {
+                console.log("🔌 Sending message via Socket:", message);
+                window.socket.emit('ai_message', {
+                    message,
+                    userId,
+                    context
+                });
+            } else {
+                console.warn("⚠️ Socket not connected, falling back to REST/Mock (or wait for connect)");
+                // Fallback or wait - for now let's try to reconnect or show error
+                this.addSystemMessage('Connection lost. Please refresh the page.');
+                this.hideTypingIndicator();
             }
         } catch (error) {
             console.error('Error processing message:', error);
             this.addSystemMessage('Sorry, I encountered an error. Please try again.');
-        } finally {
             this.hideTypingIndicator();
         }
+        // Note: hideTypingIndicator is now handled by the response listener
+    }
+
+    // Initialize Socket Listeners (Call this in initialize or constructor)
+    initializeSocketListeners() {
+        if (!window.socket) return;
+
+        window.socket.off('ai_response'); // Remove old listeners to avoid duplicates
+        window.socket.on('ai_response', (response) => {
+            console.log("🤖 Received AI Response:", response);
+            this.hideTypingIndicator();
+
+            if (response.reply) {
+                this.addMessage('assistant', response.reply);
+            }
+
+            // Handle function results or structured data if needed
+            if (response.type === 'function_result') {
+                // For now, the text reply usually covers it, but we can enhance this 
+                // to render cards using response.functionResult
+                if (response.functionCalled === 'search_listings' && response.functionResult.results) {
+                    this.displayListings(response.functionResult.results);
+                }
+                else if (response.functionCalled === 'search_vehicles' && response.functionResult.results) {
+                    this.displayVehicles(response.functionResult.results);
+                }
+                else if (response.functionCalled === 'search_dhabas' && response.functionResult.results) {
+                    this.displayDhabas(response.functionResult.results);
+                }
+            }
+
+            // Display suggestions if available
+            if (response.suggestions && response.suggestions.length > 0) {
+                this.displaySuggestions(response.suggestions);
+            }
+        });
+    }
+
+    displaySuggestions(suggestions) {
+        const optionsDiv = document.createElement('div');
+        optionsDiv.className = 'ai-assistant-options';
+        optionsDiv.style.marginLeft = '40px'; // Align with assistant message
+        optionsDiv.style.marginBottom = '10px';
+
+        suggestions.forEach(suggestion => {
+            const btn = document.createElement('button');
+            btn.className = 'ai-option-btn';
+            btn.textContent = suggestion.text;
+            btn.onclick = () => {
+                this.messageInput.textContent = suggestion.text; // Or slightly different text if needed
+                this.handleSendMessage();
+                optionsDiv.remove(); // Remove options after selection to keep chat clean
+            };
+            optionsDiv.appendChild(btn);
+        });
+
+        this.messagesContainer.appendChild(optionsDiv);
+        this.scrollToBottom();
+    }
+
+    displayListings(listings) {
+        if (!listings || listings.length === 0) return;
+        let html = `
+            <div class="search-results">
+                <h4>Found Stays</h4>
+                <div class="results-grid">
+                    ${listings.map(item => `
+                        <div class="result-item" onclick="window.location.href='/listings/${item.id}'" style="cursor:pointer;">
+                            <div class="item-name">${item.title}</div>
+                            <div class="item-rating">
+                                <span class="stars">★</span>
+                                <span class="rating">${item.rating}</span>
+                            </div>
+                            <div class="item-price">₹${item.price.toLocaleString()}</div>
+                            ${item.image ? `<img src="${item.image}" style="width:100%; height:100px; object-fit:cover; border-radius:4px; margin-top:5px;">` : ''}
+                        </div>
+                    `).join('')}
+                </div>
+            </div>`;
+        this.addMessage('assistant', html);
+    }
+
+    displayVehicles(vehicles) {
+        if (!vehicles || vehicles.length === 0) return;
+        let html = `
+            <div class="search-results">
+                <h4>Found Wheels</h4>
+                <div class="results-grid">
+                    ${vehicles.map(item => `
+                        <div class="result-item" onclick="window.location.href='/vehicles/${item.id}'" style="cursor:pointer;">
+                            <div class="item-name">${item.name}</div>
+                            <div class="item-price">₹${item.price.toLocaleString()}/day</div>
+                            ${item.image ? `<img src="${item.image}" style="width:100%; height:100px; object-fit:cover; border-radius:4px; margin-top:5px;">` : ''}
+                        </div>
+                    `).join('')}
+                </div>
+            </div>`;
+        this.addMessage('assistant', html);
+    }
+
+    displayDhabas(dhabas) {
+        if (!dhabas || dhabas.length === 0) return;
+        let html = `
+            <div class="search-results">
+                <h4>Found Dhabas</h4>
+                <div class="results-grid">
+                    ${dhabas.map(item => `
+                        <div class="result-item" onclick="window.location.href='/dhabas/${item.id}'" style="cursor:pointer;">
+                            <div class="item-name">${item.name}</div>
+                            <div class="item-cuisine">${item.cuisine}</div>
+                             ${item.image ? `<img src="${item.image}" style="width:100%; height:100px; object-fit:cover; border-radius:4px; margin-top:5px;">` : ''}
+                        </div>
+                    `).join('')}
+                </div>
+            </div>`;
+        this.addMessage('assistant', html);
     }
 
     // Toggle voice recognition
@@ -349,8 +463,21 @@ How can I assist you today?`);
         messageText.className = 'message-text';
 
         // Check if content is HTML or plain text
-        if (typeof content === 'string' && (content.startsWith('<') || content.includes('<'))) {
-            messageText.innerHTML = content;
+        if (typeof content === 'string') {
+            if (content.startsWith('<') || content.includes('<div') || content.includes('<span')) {
+                messageText.innerHTML = content;
+            } else {
+                // Simple Markdown Parsing
+                let formatted = content
+                    // Bold: **text** -> <strong>text</strong>
+                    .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+                    // Lists: - item -> <br>• item
+                    .replace(/\n- /g, '<br>• ')
+                    // Newlines to <br>
+                    .replace(/\n/g, '<br>');
+
+                messageText.innerHTML = formatted;
+            }
         } else {
             messageText.textContent = content;
         }

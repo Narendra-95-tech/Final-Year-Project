@@ -21,6 +21,7 @@ const MAPBOX_ACCESS_TOKEN = process.env.MAPBOX_ACCESS_TOKEN;
 router.post("/assistant/message", isLoggedIn, async (req, res) => {
     try {
         const { message, location, context = [] } = req.body;
+        console.log("🔥 HIT /ai/assistant/message route with message:", message);
         const userId = req.user._id;
 
         // Use the smartChatbot utility with user context
