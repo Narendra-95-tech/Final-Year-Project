@@ -93,6 +93,11 @@ db.once("open", () => {
 // --------------------
 const app = express();
 
+// Enable view caching in production for performance
+if (process.env.NODE_ENV === "production") {
+  app.set("view cache", true);
+}
+
 // Initialize Sentry (must be before other middleware)
 initSentry(app);
 app.use(Sentry.Handlers.requestHandler());
