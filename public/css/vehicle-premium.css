@@ -485,6 +485,7 @@ body {
 .sticky-booking-sidebar {
     position: sticky;
     top: 100px;
+    overflow: visible !important;
 }
 
 .booking-card {
@@ -493,6 +494,7 @@ body {
     border-radius: 24px;
     padding: 30px;
     box-shadow: var(--vp-shadow-lg);
+    overflow: visible !important;
 }
 
 .booking-price-row {

@@ -41,6 +41,16 @@
       padding: 10px;
     }
 
+    .flatpickr-calendar.static {
+      top: 100% !important;
+      margin-top: 8px;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+    }
+
+    .date-input-group {
+      position: relative;
+    }
+
     .flatpickr-day.selected {
       background: #fe6b00 !important;
       border-color: #fe6b00 !important;
@@ -629,8 +639,10 @@
                   <div class="row g-3">
                     <div class="col-12">
                       <label for="booking-date" class="form-label">Date</label>
-                      <input type="text" id="booking-date" name="date" class="date-input-premium"
-                        placeholder="Select Date" required readonly>
+                      <div class="date-input-group">
+                        <input type="text" id="booking-date" name="date" class="date-input-premium"
+                          placeholder="Select Date" required readonly>
+                      </div>
                     </div>
                     <div class="col-12">
                       <label for="booking-time" class="form-label">Preferred Time</label>
@@ -869,6 +881,8 @@
             altInput: true,
             altFormat: "D, d M",
             disableMobile: "true",
+            static: true,
+            monthSelectorType: "static",
             onChange: function (selectedDates, dateStr, instance) {
               dateInput.dispatchEvent(new Event('change'));
             }

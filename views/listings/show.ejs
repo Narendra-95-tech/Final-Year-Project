@@ -43,11 +43,36 @@
             box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
             border: none;
             padding: 10px;
+            z-index: 9999 !important;
+        }
+
+        .flatpickr-calendar.static {
+            top: 100% !important;
+            margin-top: 8px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+        }
+
+        .date-input-group {
+            position: relative;
         }
 
         .flatpickr-day.selected {
             background: #fe6b00 !important;
             border-color: #fe6b00 !important;
+        }
+
+        /* Fix Saturday column clipping issue */
+        .flatpickr-innerContainer {
+            overflow: visible !important;
+            width: 100% !important;
+        }
+
+        .flatpickr-days {
+            overflow: visible !important;
+        }
+
+        .flatpickr-rContainer {
+            overflow: visible !important;
         }
 
         /* Premium Date Input Styling */
@@ -832,6 +857,8 @@
                                 altInput: true,
                                 altFormat: "D, d M",
                                 showMonths: 1,
+                                static: true,
+                                monthSelectorType: "static",
                                 onChange: function (selectedDates, dateStr, instance) {
                                     if (selectedDates.length > 0) {
                                         // Update minDate for checkout
@@ -852,6 +879,8 @@
                                 altInput: true,
                                 altFormat: "D, d M",
                                 showMonths: 1,
+                                static: true,
+                                monthSelectorType: "static",
                                 onChange: function (selectedDates, dateStr, instance) {
                                     // Trigger change for existing logic
                                     checkOutInput.dispatchEvent(new Event('change'));

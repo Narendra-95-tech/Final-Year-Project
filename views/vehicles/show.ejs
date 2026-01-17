@@ -35,11 +35,14 @@
             font-weight: 700 !important;
         }
 
-        .flatpickr-calendar {
-            border-radius: 16px;
-            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
-            border: none;
-            padding: 10px;
+        .flatpickr-calendar.static {
+            top: 100% !important;
+            margin-top: 8px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+        }
+
+        .date-input-group {
+            position: relative;
         }
 
         .flatpickr-day.selected {
@@ -408,13 +411,19 @@
                                     <div class="row g-2 mb-3">
                                         <div class="col-6">
                                             <label class="extra-small fw-bold text-uppercase text-muted">Pick-up</label>
-                                            <input type="text" id="booking-start-date" name="startDate"
-                                                class="date-input-premium" placeholder="Select Date" required readonly>
+                                            <div class="date-input-group">
+                                                <input type="text" id="booking-start-date" name="startDate"
+                                                    class="date-input-premium" placeholder="Select Date" required
+                                                    readonly>
+                                            </div>
                                         </div>
                                         <div class="col-6">
                                             <label class="extra-small fw-bold text-uppercase text-muted">Return</label>
-                                            <input type="text" id="booking-end-date" name="endDate"
-                                                class="date-input-premium" placeholder="Select Date" required readonly>
+                                            <div class="date-input-group">
+                                                <input type="text" id="booking-end-date" name="endDate"
+                                                    class="date-input-premium" placeholder="Select Date" required
+                                                    readonly>
+                                            </div>
                                         </div>
                                     </div>
 
@@ -542,6 +551,8 @@
                         altInput: true,
                         altFormat: "D, d M",
                         disableMobile: "true",
+                        static: true,
+                        monthSelectorType: "static",
                         onChange: function (selectedDates, dateStr, instance) {
                             if (selectedDates.length > 0) {
                                 fpEnd.set('minDate', selectedDates[0]);
@@ -557,6 +568,8 @@
                         altInput: true,
                         altFormat: "D, d M",
                         disableMobile: "true",
+                        static: true,
+                        monthSelectorType: "static",
                         onChange: function (selectedDates, dateStr, instance) {
                             endDateInput.dispatchEvent(new Event('change'));
                         }
