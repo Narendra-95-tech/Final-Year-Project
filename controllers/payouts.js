@@ -10,7 +10,7 @@ module.exports.createConnectAccount = wrapAsync(async (req, res) => {
     if (!user.stripeAccountId) {
         const account = await stripe.accounts.create({
             type: 'express',
-            country: 'IN', // Defaulting to India for this project
+            country: 'US', // Reverted to US for testing compatibility
             email: user.email,
             capabilities: {
                 transfers: { requested: true },

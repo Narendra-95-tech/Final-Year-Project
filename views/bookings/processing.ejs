@@ -52,4 +52,31 @@
         setTimeout(() => {
             document.getElementById('manual-check').style.display = 'block';
         }, 5000);
+
+        // Auto-Verify Polling (Crucial for Localhost without local webhooks)
+        // This ensures the DB gets updated even if the webhook fails or is missing.
+        const verifyPayment = async () => {
+            try {
+                const response = await fetch('/bookings/verify', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ sessionId: sessionId })
+                });
+                const result = await response.json();
+
+                if (result.booking && (result.booking.paymentStatus === 'Paid' || result.booking.status === 'Confirmed')) {
+                    document.querySelector('h2').innerText = "Payment Verified!";
+                    document.querySelector('.spinner-border').classList.remove('text-primary');
+                    document.querySelector('.spinner-border').classList.add('text-success');
+                    window.location.href = `/bookings/success?session_id=${sessionId}`;
+                }
+            } catch (err) {
+                console.log("Verification poll failed, retrying...", err);
+            }
+        };
+
+        // Poll every 2 seconds
+        setInterval(verifyPayment, 2000);
+        // Run once immediately
+        verifyPayment();
     </script>
