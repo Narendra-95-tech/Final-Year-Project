@@ -467,6 +467,16 @@
             </button>
           </div>
 
+          <!-- UTR Input -->
+          <div class="mb-4">
+            <label for="utrInput" class="form-label small fw-bold text-muted">ENTER PAYMENT REFERENCE (UTR)</label>
+            <input type="text" class="form-control form-control-lg text-center fw-bold bg-light border-0" id="utrInput"
+              placeholder="e.g. 321456789012" maxlength="12" style="letter-spacing: 2px;">
+            <div id="utrError" class="text-danger small mt-2 d-none">
+              <i class="fas fa-exclamation-circle me-1"></i> Please enter a valid reference number
+            </div>
+          </div>
+
           <!-- Confirmation -->
           <button id="verifyUpiBtn" onclick="verifyUPIPayment()"
             class="btn btn-dark w-100 py-3 rounded-pill fw-bold shadow-sm" style="background: #2b2b2b;">

@@ -1,19 +1,29 @@
 # Environment variables
 .env
+.env.local
 .env.*
 
 # Dependencies
 node_modules/
 package-lock.json
+jspm_packages/
+
+# Project Specific
+scripts/tools/logs/
+docs/dhaba_final_fix.png
+docs/vehicle_final_fix.png
 
 # OS specific files
 **/.DS_Store
+**/*.log
 Thumbs.db
+desktop.ini
 
 # Testing and coverage
 coverage/
 *.lcov
 test_output.txt
+scripts/tools/logs/
 
 # Logs
 logs/
@@ -34,10 +44,7 @@ tmp/
 
 # Local development files
 check_output.txt
-verify_backend_minimal.js
 debug_env_output.txt
-test_output.txt
 socket_hit.txt
-check_output.txt
-debug_env_output.txt
+verify_backend_minimal.js
 *.txt

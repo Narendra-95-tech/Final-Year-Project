@@ -256,6 +256,10 @@ module.exports.normalizeDhabaForm = (req, res, next) => {
 module.exports.isReviewAuthor = async (req, res, next) => {
     let { id, reviewId } = req.params;
     let review = await Review.findById(reviewId);
+    if (!review) {
+        req.flash("error", "Review not found");
+        return res.redirect(`/listings/${id}`);
+    }
     if (!res.locals.currUser._id.equals(review.author) && req.user.role !== 'admin') {
         req.flash("error", "You are not the author of this review");
         // Redirect to the appropriate path based on route
@@ -288,6 +292,10 @@ module.exports.isOwner = async (req, res, next) => {
     }
 
     let item = await model.findById(id);
+    if (!item) {
+        req.flash("error", "The item you are looking for does not exist");
+        return res.redirect("/");
+    }
     if (!item.owner.equals(res.locals.currUser._id)) {
         req.flash("error", "You are not the owner of this item");
         return res.redirect(req.originalUrl);

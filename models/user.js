@@ -121,6 +121,14 @@ const userSchema = new Schema({
         default: 0,
         min: 0
     },
+    stripeAccountId: {
+        type: String,
+        sparse: true
+    },
+    payoutsEnabled: {
+        type: Boolean,
+        default: false
+    },
     isVerified: {
         type: Boolean,
         default: false

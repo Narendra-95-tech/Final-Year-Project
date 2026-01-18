@@ -1,8 +1,8 @@
 require('dotenv').config();
 const mongoose = require('mongoose');
-const User = require('./models/user');
-const OTP = require('./models/otp');
-const { sendOTP, verifyOTP } = require('./utils/otpService');
+const User = require('../../models/user');
+const OTP = require('../../models/otp');
+const { sendOTP, verifyOTP } = require('../../utils/otpService');
 
 console.log('🧪 Testing Auth OTP Verification Flow...\n');
 

@@ -331,6 +331,13 @@ app.use(cors({
   optionsSuccessStatus: 200 // Some legacy browsers choke on 204
 }));
 
+// ==========================================
+// STRIPE WEBHOOK ROUTE (Must be before body parsers)
+// ==========================================
+const webhookRouter = require("./routes/webhook");
+// Use raw body parser for webhook route to verify signature
+app.use("/webhook", express.raw({ type: "application/json" }), webhookRouter);
+
 // Parse JSON and urlencoded request bodies
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true, limit: '10mb' }));
@@ -421,6 +428,7 @@ const healthRouter = require("./routes/health");
 
 app.use("/", healthRouter); // Health check endpoints
 app.use("/", userRouter);
+app.use("/payouts", require("./routes/payouts.js")); // Payouts Route
 app.use("/listings", listingRouter);
 app.use("/vehicles", vehicleRouter);
 app.use("/dhabas", dhabaRouter);

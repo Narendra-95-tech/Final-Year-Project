@@ -1,0 +1,58 @@
+<% layout("/layouts/boilerplate") %>
+
+    <div class="row mt-5">
+        <div class="col-8 offset-2">
+            <h3 class="fw-bold mb-4">Payout Settings</h3>
+
+            <div class="card shadow-sm border-0 rounded-4 p-4">
+                <div class="d-flex align-items-center justify-content-between mb-4">
+                    <div>
+                        <h5 class="fw-bold"><i class="fab fa-stripe text-primary fa-lg me-2"></i>Stripe Connect</h5>
+                        <p class="text-muted mb-0 small">Get paid directly to your bank account securely.</p>
+                    </div>
+                    <% if(user.payoutsEnabled) { %>
+                        <span class="badge bg-success rounded-pill px-3 py-2">Active</span>
+                        <% } else { %>
+                            <span class="badge bg-warning text-dark rounded-pill px-3 py-2">Action Required</span>
+                            <% } %>
+                </div>
+
+                <hr>
+
+                <% if(!user.payoutsEnabled) { %>
+                    <div class="text-center py-4">
+                        <img src="https://images.unsplash.com/photo-1563013544-824ae1b704d3?auto=format&fit=crop&q=80&w=200"
+                            class="rounded-circle mb-3 shadow-sm"
+                            style="width: 100px; height: 100px; object-fit: cover;">
+                        <h5 class="mb-2">Setup Payouts to Receive Money</h5>
+                        <p class="text-muted w-75 mx-auto mb-4">To receive payments from your listings, you need to
+                            connect your bank account via Stripe. It allows for secure transfers and automated payouts.
+                        </p>
+
+                        <form action="/payouts/onboarding" method="POST">
+                            <button class="btn btn-primary btn-lg rounded-pill px-5 fw-bold hover-elevate">
+                                <i class="fas fa-university me-2"></i> Connect Bank Account
+                            </button>
+                        </form>
+                        <p class="small text-muted mt-3"><i class="fas fa-lock me-1"></i> Secured by Stripe</p>
+                    </div>
+                    <% } else { %>
+                        <div class="text-center py-4">
+                            <div class="mb-3">
+                                <i class="fas fa-check-circle text-success fa-4x"></i>
+                            </div>
+                            <h5 class="mb-3 fw-bold">You are all set!</h5>
+                            <p class="text-muted mb-4">Your bank account is connected. You will receive payouts
+                                automatically according to Stripe's schedule.</p>
+
+                            <% if(loginLink) { %>
+                                <a href="<%= loginLink.url %>" target="_blank"
+                                    class="btn btn-outline-dark rounded-pill px-4 fw-bold">
+                                    <i class="fas fa-external-link-alt me-2"></i> View Earnings Dashboard
+                                </a>
+                                <% } %>
+                        </div>
+                        <% } %>
+            </div>
+        </div>
+    </div>

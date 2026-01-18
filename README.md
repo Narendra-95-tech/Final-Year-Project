@@ -110,27 +110,18 @@ npm run test:integration
 ```
 Final-Year-Project/
 ├── config/              # Configuration files
-│   ├── logger.js        # Winston logging setup
-│   ├── passport.js      # Passport authentication
-│   └── sentry.js        # Sentry error tracking
 ├── controllers/         # Route controllers
+├── docs/                # [NEW] Project documentation (walkthroughs, plans)
 ├── middleware/          # Custom middleware
-│   ├── auth.js          # Authentication middleware
-│   ├── security.js      # Security middleware
-│   └── requestLogger.js # Request logging
 ├── models/              # Mongoose models
 ├── public/              # Static assets
-│   ├── css/
-│   ├── js/
-│   └── images/
 ├── routes/              # Express routes
+├── scripts/             # Utility and seed scripts
+│   └── tools/           # [NEW] Internal dev tools and debug scripts
 ├── tests/               # Test files
-│   ├── unit/
-│   └── integration/
 ├── utils/               # Utility functions
 ├── views/               # EJS templates
-├── app.js               # Main application file
-└── package.json
+└── app.js               # Main application file
 ```
 
 ## 🔒 Security Features

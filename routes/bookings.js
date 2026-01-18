@@ -207,6 +207,13 @@ router.post("/create-checkout-session", isLoggedIn, createCheckoutSession);
 router.get("/success", isLoggedIn, handleSuccess);
 router.get("/cancel", isLoggedIn, handleCancel);
 
+// Processing Route (Intermediate from Stripe)
+router.get("/processing", isLoggedIn, (req, res) => {
+  const { session_id, booking_id } = req.query;
+  if (!booking_id) return res.redirect('/bookings');
+  res.render("bookings/processing", { booking: { _id: booking_id }, sessionId: session_id });
+});
+
 // Pay with Wallet
 router.post("/:id/pay-wallet", isLoggedIn, async (req, res) => {
   try {
@@ -280,6 +287,31 @@ router.post("/:id/pay-upi", isLoggedIn, async (req, res) => {
       timestamp: new Date()
     }; // Assuming schema supports this, otherwise just added properties
     await booking.save();
+
+    // Trigger notifications (Email)
+    try {
+      const { sendBookingConfirmation, sendPaymentReceipt, sendOwnerBookingAlert } = require('../utils/emailService');
+      const Notification = require('../models/notification');
+
+      if (booking.user && booking.user.email) {
+        sendBookingConfirmation(booking, booking.user).catch(console.error);
+        sendPaymentReceipt(booking, booking.user).catch(console.error);
+      }
+
+      // Notify Owner
+      const item = booking.listing || booking.dhaba || booking.vehicle;
+      if (item && item.owner) {
+        if (item.owner.email) sendOwnerBookingAlert(booking, item.owner, booking.user).catch(console.error);
+        Notification.createNotification(
+          item.owner._id,
+          booking.user._id,
+          'booking',
+          { content: `New UPI confirmed booking for ${item.title || item.brand}`, link: `/bookings/${booking._id}` }
+        ).catch(console.error);
+      }
+    } catch (e) {
+      console.error("UPI Notification Error:", e.message);
+    }
 
     res.json({ success: true, redirectUrl: `/bookings/${booking._id}` });
 

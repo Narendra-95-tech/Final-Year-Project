@@ -1,8 +1,0 @@
-Error at 2026-01-17T06:50:16.682Z: 429 You exceeded your current quota, please check your plan and billing details. For more information on this error, read the docs: https://platform.openai.com/docs/guides/error-codes/api-errors.
-Stack: Error: 429 You exceeded your current quota, please check your plan and billing details. For more information on this error, read the docs: https://platform.openai.com/docs/guides/error-codes/api-errors.
-    at APIError.generate (C:\Users\Asus\Desktop\Final-Year-Project\node_modules\openai\error.js:63:20)
-    at OpenAI.makeStatusError (C:\Users\Asus\Desktop\Final-Year-Project\node_modules\openai\core.js:302:33)
-    at OpenAI.makeRequest (C:\Users\Asus\Desktop\Final-Year-Project\node_modules\openai\core.js:346:30)
-    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
-    at async SmartChatbot.handleMessage (C:\Users\Asus\Desktop\Final-Year-Project\utils\smartChatbot.js:76:30)
-    at async Socket.<anonymous> (C:\Users\Asus\Desktop\Final-Year-Project\app.js:149:24)

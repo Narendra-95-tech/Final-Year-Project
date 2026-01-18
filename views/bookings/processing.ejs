@@ -1,0 +1,55 @@
+<% layout("/layouts/boilerplate") %>
+
+    <div class="row mt-5 justify-content-center">
+        <div class="col-8 col-md-6 col-lg-5 text-center">
+            <div class="card shadow-lg border-0 rounded-4 p-5">
+                <div class="mb-4">
+                    <div class="spinner-border text-primary" style="width: 4rem; height: 4rem;" role="status">
+                        <span class="visually-hidden">Loading...</span>
+                    </div>
+                </div>
+
+                <h2 class="mb-3 fw-bold text-dark">Verifying Payment</h2>
+                <p class="text-muted mb-4 lead">Please wait while we confirm your transaction securely with the bank...
+                </p>
+
+                <div id="status-message" class="alert alert-light border-0">
+                    <small class="text-muted">Do not close this window or press back.</small>
+                </div>
+
+                <!-- Fallback for long waits -->
+                <div id="manual-check" class="mt-4" style="display: none;">
+                    <p class="small text-muted mb-2">Taking longer than expected?</p>
+                    <a href="/bookings/success?session_id=<%= sessionId %>"
+                        class="btn btn-outline-primary btn-sm rounded-pill px-4">
+                        Check Status Manually
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="/socket.io/socket.io.js"></script>
+    <script>
+        const socket = io();
+        const bookingId = "<%= booking._id %>";
+        const sessionId = "<%= sessionId %>";
+
+        // Listen for specific booking confirmation
+        socket.on(`payment_confirmed_${bookingId}`, (data) => {
+            if (data.status === 'Confirmed') {
+                document.querySelector('h2').innerText = "Payment Successful!";
+                document.querySelector('.spinner-border').classList.remove('text-primary');
+                document.querySelector('.spinner-border').classList.add('text-success');
+
+                setTimeout(() => {
+                    window.location.href = `/bookings/success?session_id=${sessionId}`;
+                }, 1000);
+            }
+        });
+
+        // Show manual button after 5 seconds just in case
+        setTimeout(() => {
+            document.getElementById('manual-check').style.display = 'block';
+        }, 5000);
+    </script>

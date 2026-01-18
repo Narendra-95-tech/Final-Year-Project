@@ -2,7 +2,7 @@ if (process.env.NODE_ENV !== "production") {
     require("dotenv").config();
 }
 const mongoose = require('mongoose');
-const Listing = require('./models/listing');
+const Listing = require('../../models/listing');
 
 const ATLAS_URL = process.env.ATLASDB_URL;
 
