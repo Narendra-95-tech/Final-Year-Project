@@ -220,6 +220,9 @@ dhabaSchema.index({ title: 'text', location: 'text', cuisine: 'text' });
 dhabaSchema.index({ category: 1 });
 dhabaSchema.index({ cuisine: 1 });
 dhabaSchema.index({ rating: -1 }); // Optimize for top-rated
+dhabaSchema.index({ price: 1 }); // Optimize price filters
+dhabaSchema.index({ owner: 1 }); // Optimize owner lookups
+dhabaSchema.index({ cuisine: 1, category: 1, rating: -1 }); // Compound index for common filters
 dhabaSchema.index({ geometry: '2dsphere' });
 
 dhabaSchema.post("findOneAndDelete", async (dhaba) => {

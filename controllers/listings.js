@@ -12,16 +12,9 @@ module.exports.index = async (req, res) => {
     const filter = {};
 
     if (q && q.trim().length > 0) {
-        const terms = q.trim().split(/\s+/);
-        filter.$and = terms.map(term => ({
-            $or: [
-                { title: new RegExp(term, "i") },
-                { location: new RegExp(term, "i") },
-                { country: new RegExp(term, "i") },
-                { description: new RegExp(term, "i") },
-                { propertyType: new RegExp(term, "i") }
-            ]
-        }));
+        // Use Text Index for fast full-text search if available
+        // Fallback to simpler regex for broad match if text score is low or for specific fields
+        filter.$text = { $search: q.trim() };
     }
 
     if (minPrice || maxPrice) {
@@ -75,32 +68,21 @@ module.exports.index = async (req, res) => {
 
     let allListings;
     if (q && q.trim().length > 0 && !sort) {
-        // Advanced Relevance Scoring using Aggregation
-        allListings = await Listing.aggregate([
-            { $match: filter },
-            {
-                $addFields: {
-                    relevance: {
-                        $add: [
-                            { $cond: [{ $regexMatch: { input: "$title", regex: q.trim(), options: "i" } }, 20, 0] },
-                            { $cond: [{ $regexMatch: { input: "$location", regex: q.trim(), options: "i" } }, 10, 0] },
-                            { $cond: [{ $regexMatch: { input: "$country", regex: q.trim(), options: "i" } }, 5, 0] },
-                            { $cond: [{ $regexMatch: { input: "$description", regex: q.trim(), options: "i" } }, 2, 0] }
-                        ]
-                    }
-                }
-            },
-            { $sort: { relevance: -1, _id: -1 } }
-        ]);
+        // Advanced Relevance Scoring using Text Score
+        allListings = await Listing.find(filter, { score: { $meta: "textScore" } })
+            .select('title description image price location country propertyType guests bedrooms rating owner')
+            .sort({ score: { $meta: "textScore" } });
     } else {
-        allListings = await Listing.find(filter).sort(sortOption).lean();
+        allListings = await Listing.find(filter)
+            .select('title description image price location country propertyType guests bedrooms rating owner')
+            .sort(sortOption);
     }
 
     // Compute a simple trending list: highest price items today
     const trendingListings = await Listing.find({})
+        .select('title image price location rating owner')
         .sort({ price: -1 })
-        .limit(6)
-        .lean();
+        .limit(6);
 
     // Check for real visual messages
     const existingSuccess = res.locals.success;
@@ -240,12 +222,17 @@ module.exports.destroyListing = async (req, res) => {
 module.exports.getListingBookings = async (req, res) => {
     try {
         const { id } = req.params;
+
+        // Fetch bookings
         const bookings = await Booking.find({
             listing: id,
-            status: { $ne: 'Cancelled' },
+            status: 'Confirmed',
             startDate: { $exists: true },
             endDate: { $exists: true }
         }).select('startDate endDate status').lean();
+
+        // Fetch listing for unavailable dates
+        const listing = await Listing.findById(id).select('unavailableDates');
 
         const events = bookings.map(booking => ({
             title: 'Booked',
@@ -253,12 +240,85 @@ module.exports.getListingBookings = async (req, res) => {
             end: booking.endDate,
             backgroundColor: booking.status === 'Confirmed' ? '#dc3545' : '#ffc107',
             borderColor: booking.status === 'Confirmed' ? '#dc3545' : '#ffc107',
-            display: 'block'
+            display: 'block',
+            extendedProps: {
+                status: booking.status
+            }
         }));
+
+        // Add unavailable dates
+        if (listing && listing.unavailableDates && listing.unavailableDates.length > 0) {
+            listing.unavailableDates.forEach(date => {
+                events.push({
+                    title: 'Unavailable',
+                    start: date,
+                    allDay: true,
+                    backgroundColor: '#6c757d', // Grey
+                    borderColor: '#6c757d',
+                    display: 'background',
+                    extendedProps: {
+                        status: 'Unavailable'
+                    }
+                });
+            });
+        }
 
         res.json(events);
     } catch (err) {
         console.error('Error fetching bookings:', err);
         res.status(500).json({ error: 'Failed to fetch bookings' });
     }
+};
+
+module.exports.renderAvailability = async (req, res) => {
+    const { id } = req.params;
+
+    // Fetch listing and bookings
+    const listing = await Listing.findById(id);
+    if (!listing) {
+        req.flash("error", "Listing not found");
+        return res.redirect("/listings");
+    }
+
+    const bookings = await Booking.find({
+        listing: id,
+        status: 'Confirmed',
+        startDate: { $exists: true },
+        endDate: { $exists: true }
+    }).select('startDate endDate status');
+
+    // Serialize to JSON strings for safer EJS injection
+    const listingJSON = JSON.stringify(listing);
+    const bookingsJSON = JSON.stringify(bookings);
+
+    res.render("listings/availability", {
+        listing,
+        bookings,
+        listingJSON,
+        bookingsJSON
+    });
+};
+
+module.exports.updateAvailability = async (req, res) => {
+    const { id } = req.params;
+    const { unavailableDates } = req.body;
+
+    const listing = await Listing.findById(id);
+    if (!listing) {
+        req.flash("error", "Listing not found");
+        return res.redirect("/listings");
+    }
+
+    // Convert string dates to Date objects if necessary, or just rely on Mongoose
+    // Expecting array of date strings from frontend
+
+    listing.unavailableDates = unavailableDates ? unavailableDates.map(d => new Date(d)) : [];
+    await listing.save();
+
+    if (req.xhr || req.headers.accept.indexOf('json') > -1) {
+        return res.json({ success: true, message: "Availability updated successfully" });
+    }
+
+    req.flash("success", "Availability updated!");
+    res.redirect(`/listings/${id}/availability`);
 };

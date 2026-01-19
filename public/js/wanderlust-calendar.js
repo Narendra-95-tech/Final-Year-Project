@@ -34,6 +34,7 @@ class WanderLustCalendar {
     this.today.setHours(0, 0, 0, 0);
 
     this.unavailableDates = [];
+    this.bookedDates = []; // New separate array for booked dates
     this.selectedStartDate = null;
     this.selectedEndDate = null;
     this.hoveredDate = null;
@@ -139,7 +140,7 @@ class WanderLustCalendar {
         color: ${this.options.theme.text};
       }
       
-      .calendar-day:hover:not(.disabled, .unavailable) {
+      .calendar-day:hover:not(.disabled, .unavailable, .booked) {
         background: ${this.addAlpha(this.options.theme.primary, 0.1)};
         transform: translateY(-2px);
       }
@@ -148,17 +149,7 @@ class WanderLustCalendar {
         font-weight: 700;
         color: ${this.options.theme.primary};
         position: relative;
-      }
-      
-      .calendar-day.today::after {
-        content: '';
-        position: absolute;
-        top: 4px;
-        right: 4px;
-        width: 6px;
-        height: 6px;
-        background: ${this.options.theme.primary};
-        border-radius: 50%;
+        border: 1px solid ${this.options.theme.primary};
       }
       
       .calendar-day.selected {
@@ -191,22 +182,20 @@ class WanderLustCalendar {
         opacity: 1;
       }
       
+      /* Unknown/Blocked by Host - Redish */
       .calendar-day.unavailable {
-        position: relative;
-        color: ${this.options.theme.lightText};
+        background: #fee2e2;
+        color: #991b1b;
         cursor: not-allowed;
+        border: 1px solid #ef4444;
       }
       
-      .calendar-day.unavailable::after {
-        content: '';
-        position: absolute;
-        left: 50%;
-        top: 50%;
-        width: 60%;
-        height: 2px;
-        background: #ff4d4f;
-        transform: translate(-50%, -50%) rotate(-5deg);
-        opacity: 0.7;
+      /* Booked by Guest - Amber/Yellowish */
+      .calendar-day.booked {
+        background: #fef3c7;
+        color: #92400e;
+        cursor: not-allowed;
+        border: 1px solid #f59e0b;
       }
       
       .calendar-day.highlight {
@@ -240,15 +229,16 @@ class WanderLustCalendar {
         gap: 4px;
       }
       
-      .status-dot {
+      .calendar-status-dot {
         width: 10px;
         height: 10px;
         border-radius: 50%;
+        box-sizing: border-box; 
       }
       
-      .status-available { background: #52c41a; }
-      .status-booked { background: #ff4d4f; }
-      .status-today { background: ${this.options.theme.primary}; }
+      .status-available { background: #fff; border: 1px solid #ccc; }
+      .status-booked { background: #f59e0b; }
+      .status-blocked { background: #ef4444; }
       .status-selected { background: ${this.options.theme.accent}; }
       
       .trip-countdown {
@@ -305,7 +295,8 @@ class WanderLustCalendar {
         isCurrentMonth: false,
         isToday: this.isSameDay(date, this.today),
         isDisabled: this.isDateDisabled(date),
-        isUnavailable: this.isDateUnavailable(date)
+        isUnavailable: this.isDateUnavailable(date),
+        isBooked: this.isDateBooked(date)
       });
     }
 
@@ -318,7 +309,8 @@ class WanderLustCalendar {
         isCurrentMonth: true,
         isToday: this.isSameDay(date, this.today),
         isDisabled: this.isDateDisabled(date),
-        isUnavailable: this.isDateUnavailable(date)
+        isUnavailable: this.isDateUnavailable(date),
+        isBooked: this.isDateBooked(date)
       });
     }
 
@@ -331,7 +323,8 @@ class WanderLustCalendar {
         isCurrentMonth: false,
         isToday: this.isSameDay(date, this.today),
         isDisabled: this.isDateDisabled(date),
-        isUnavailable: this.isDateUnavailable(date)
+        isUnavailable: this.isDateUnavailable(date),
+        isBooked: this.isDateBooked(date)
       });
     }
 
@@ -384,6 +377,7 @@ class WanderLustCalendar {
             if (!day.isCurrentMonth || day.isDisabled) className += ' disabled';
             if (day.isToday) className += ' today';
             if (day.isUnavailable) className += ' unavailable';
+            if (day.isBooked) className += ' booked'; // Apply booked class
             if (isStart || isEnd) className += ' selected';
             if (isInRange) className += ' in-range';
             if (isRangeStart) className += ' range-start';
@@ -399,7 +393,7 @@ class WanderLustCalendar {
                 data-day="${day.day}"
                 data-month="${day.date.getMonth()}"
                 data-year="${day.date.getFullYear()}"
-                ${day.isDisabled || day.isUnavailable ? 'disabled' : ''}
+                ${day.isDisabled || day.isUnavailable || day.isBooked ? 'disabled' : ''}
               >
                 ${day.day}
               </div>
@@ -410,20 +404,16 @@ class WanderLustCalendar {
         <div class="calendar-footer">
           <div class="status-legend">
             <div class="status-item">
-              <span class="status-dot status-available"></span>
+              <span class="calendar-status-dot status-available"></span>
               <span>Available</span>
             </div>
             <div class="status-item">
-              <span class="status-dot status-booked"></span>
+              <span class="calendar-status-dot status-booked"></span>
               <span>Booked</span>
             </div>
             <div class="status-item">
-              <span class="status-dot status-today"></span>
-              <span>Today</span>
-            </div>
-            <div class="status-item">
-              <span class="status-dot status-selected"></span>
-              <span>Selected</span>
+              <span class="calendar-status-dot status-blocked"></span>
+              <span>Blocked</span>
             </div>
           </div>
           
@@ -478,6 +468,10 @@ class WanderLustCalendar {
     return this.unavailableDates.some(d => this.isSameDay(d, date));
   }
 
+  isDateBooked(date) {
+    return this.bookedDates.some(d => this.isSameDay(d, date));
+  }
+
   isDateInRange(date) {
     if (!this.selectedStartDate || !this.selectedEndDate) return false;
 
@@ -508,7 +502,8 @@ class WanderLustCalendar {
     }
 
     // Date selection
-    const dayElements = this.container.querySelectorAll('.calendar-day:not(.disabled):not(.unavailable)');
+    // Note: Exclude .booked as well so users can't click booked dates
+    const dayElements = this.container.querySelectorAll('.calendar-day:not(.disabled):not(.unavailable):not(.booked)');
     dayElements.forEach(dayEl => {
       dayEl.addEventListener('click', () => this.handleDateClick(dayEl));
 
@@ -602,6 +597,11 @@ class WanderLustCalendar {
 
   setUnavailableDates(dates) {
     this.unavailableDates = dates.map(date => new Date(date));
+    this.render();
+  }
+
+  setBookedDates(dates) {
+    this.bookedDates = dates.map(date => new Date(date));
     this.render();
   }
 

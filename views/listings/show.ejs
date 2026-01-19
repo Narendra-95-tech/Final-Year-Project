@@ -618,6 +618,10 @@
                                             class="btn btn-primary d-flex align-items-center justify-content-center gap-2">
                                             <i class="fas fa-edit"></i> Edit Listing
                                         </a>
+                                        <a href="/listings/<%= listing._id %>/availability"
+                                            class="btn btn-outline-dark d-flex align-items-center justify-content-center gap-2">
+                                            <i class="fas fa-calendar-alt"></i> Manage Availability
+                                        </a>
                                         <form action="/listings/<%= listing._id %>?_method=DELETE" method="POST"
                                             class="d-grid">
                                             <button type="submit"
@@ -786,7 +790,7 @@
                 <script src="/js/booking-widget.js"></script>
                 <script src="/js/wishlist-handler.js"></script>
                 <script src="/js/reviews-component.js"></script>
-                <script src="/js/wanderlust-calendar.js"></script>
+                <script src="/js/wanderlust-calendar.js?v=<%= Date.now() + 2 %>"></script>
 
 
                 <script>
@@ -844,14 +848,96 @@
                         window.reviewsComponent = new ReviewsComponent(reviews, overallRating, listing._id, currUserId, 'listings');
                         reviewsComponent.render('reviews-display-container');
 
+                        // Create a function to fetch and process availability
+                        const updateAvailability = async () => {
+                            try {
+                                const response = await fetch(`/listings/${listing._id}/bookings`);
+                                const events = await response.json();
+
+                                const disabledDates = [];
+                                const blockedDates = [];
+                                const bookedDates = [];
+
+                                events.forEach(event => {
+                                    // Flatten ranges into individual dates for Flatpickr
+                                    let current = new Date(event.start);
+                                    // If event.end is missing (single day blocked), default to event.start
+                                    const end = event.end ? new Date(event.end) : new Date(event.start);
+
+                                    // Check if this is a host-blocked event
+                                    const isBlocked = event.extendedProps && event.extendedProps.status === 'Unavailable';
+
+                                    while (current <= end) {
+                                        const dateObj = new Date(current);
+                                        disabledDates.push(dateObj);
+
+                                        if (isBlocked) {
+                                            blockedDates.push(dateObj);
+                                        } else {
+                                            bookedDates.push(dateObj);
+                                        }
+                                        current.setDate(current.getDate() + 1);
+                                    }
+                                });
+
+                                // Update Flatpickr instances
+                                if (fpStart) fpStart.set('disable', disabledDates);
+                                if (fpEnd) fpEnd.set('disable', disabledDates);
+
+                                // Update WanderLustCalendar if exists
+                                if (window.calendarInstance) {
+                                    window.calendarInstance.setUnavailableDates(blockedDates);
+                                    window.calendarInstance.setBookedDates(bookedDates);
+                                } else {
+                                    // Fallback: If not initialized yet, we can't update it. 
+                                    // It will be initialized with no data first, then updated if we call this again.
+                                    // OR, we depend on the initial load behavior.
+                                    // Actually, we should initialize it HERE if it's not done, OR make sure init happens before this.
+                                    // But simpler: just save the events to a global var if needed?
+                                    // Better: The initialization code below (lines 901+) shouldn't be inside the update function's if-block
+                                    // Wait, the previous code block I replaced had initialization code *inside* the try-catch block of updateAvailability?
+                                    // Looking at the original file reading, updateAvailability was fetching data.
+                                    // Let's clean up: updateAvailability should just FETCH and UPDATE.
+                                    // Initialization should happen once.
+                                }
+
+                            } catch (err) {
+                                console.error("Failed to fetch availability:", err);
+                            }
+                        };
+
+                        // Initialize Calendar Instance
+                        const initShowPageCalendar = () => {
+                            const today = new Date();
+                            const nextMonth = new Date(today);
+                            nextMonth.setMonth(today.getMonth() + 3);
+
+                            const calendarElement = document.getElementById('availabilityCalendar');
+                            if (calendarElement && typeof WanderLustCalendar === 'function') {
+                                window.calendarInstance = new WanderLustCalendar('availabilityCalendar', {
+                                    showHeader: true,
+                                    showWeekdays: true,
+                                    showToday: true,
+                                    minDate: today,
+                                    maxDate: null, // Allow infinite scroll or restricted?
+                                    onDateSelect: (date, range) => {
+                                        // Sync with flatpickr if needed
+                                    }
+                                });
+                                // Fetch data immediately after init
+                                updateAvailability();
+                            }
+                        };
+
                         // Initialize Flatpickr for Booking Inputs
                         const checkInInput = document.getElementById('check-in-date');
                         const checkOutInput = document.getElementById('check-out-date');
+                        let fpStart, fpEnd;
 
                         if (checkInInput && checkOutInput) {
                             const today = new Date();
 
-                            const fpStart = flatpickr(checkInInput, {
+                            fpStart = flatpickr(checkInInput, {
                                 minDate: "today",
                                 dateFormat: "Y-m-d",
                                 altInput: true,
@@ -861,19 +947,14 @@
                                 monthSelectorType: "static",
                                 onChange: function (selectedDates, dateStr, instance) {
                                     if (selectedDates.length > 0) {
-                                        // Update minDate for checkout
-                                        // We can use the dateStr directly since it matches dateFormat (Y-m-d)
                                         fpEnd.set('minDate', dateStr);
-
-                                        // Auto-open checkout if check-in is selected
                                         setTimeout(() => fpEnd.open(), 100);
                                     }
-                                    // Trigger change for existing logic
                                     checkInInput.dispatchEvent(new Event('change'));
                                 }
                             });
 
-                            const fpEnd = flatpickr(checkOutInput, {
+                            fpEnd = flatpickr(checkOutInput, {
                                 minDate: "today",
                                 dateFormat: "Y-m-d",
                                 altInput: true,
@@ -882,30 +963,14 @@
                                 static: true,
                                 monthSelectorType: "static",
                                 onChange: function (selectedDates, dateStr, instance) {
-                                    // Trigger change for existing logic
+                                    // Sync logic
                                     checkOutInput.dispatchEvent(new Event('change'));
                                 }
                             });
-
-                            // Sync with main calendar if it exists
-                            if (typeof WanderLustCalendar === 'function') {
-                                const nextMonth = new Date(today);
-                                nextMonth.setMonth(today.getMonth() + 3);
-
-                                // Keep the main availability calendar as visual reference
-                                const calendar = new WanderLustCalendar('availabilityCalendar', {
-                                    showHeader: true,
-                                    showWeekdays: true,
-                                    showToday: true,
-                                    minDate: today,
-                                    maxDate: nextMonth,
-                                    onDateSelect: (startDate, endDate) => {
-                                        if (startDate) fpStart.setDate(startDate, true);
-                                        if (endDate) fpEnd.setDate(endDate, true);
-                                    }
-                                });
-                            }
                         }
+
+                        // Call Init
+                        initShowPageCalendar();
 
                         // Initialize Map
                         const listingCoords = listing.geometry.coordinates;

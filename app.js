@@ -301,15 +301,34 @@ app.use(requestLogger);
 
 // Serve static files from public directory with caching
 app.use(express.static(path.join(__dirname, 'public'), {
-  maxAge: '1d', // Cache static assets for 1 day
-  setHeaders: (res, path) => {
-    // Set proper MIME types for specific file types if needed
-    if (path.endsWith('.css')) {
+  maxAge: process.env.NODE_ENV === 'production' ? '365d' : '1d', // 1 year in production, 1 day in dev
+  etag: true, // Enable ETags for cache validation
+  lastModified: true,
+  setHeaders: (res, filePath) => {
+    // Set proper MIME types and cache headers for specific file types
+    if (filePath.endsWith('.css')) {
       res.setHeader('Content-Type', 'text/css');
-    } else if (path.endsWith('.js')) {
+      if (process.env.NODE_ENV === 'production') {
+        res.setHeader('Cache-Control', 'public, max-age=31536000, immutable'); // 1 year for CSS
+      }
+    } else if (filePath.endsWith('.js')) {
       res.setHeader('Content-Type', 'application/javascript');
-    } else if (path.endsWith('.ico')) {
+      if (process.env.NODE_ENV === 'production') {
+        res.setHeader('Cache-Control', 'public, max-age=31536000, immutable'); // 1 year for JS
+      }
+    } else if (filePath.endsWith('.ico')) {
       res.setHeader('Content-Type', 'image/x-icon');
+      if (process.env.NODE_ENV === 'production') {
+        res.setHeader('Cache-Control', 'public, max-age=31536000, immutable'); // 1 year for icons
+      }
+    } else if (filePath.match(/\.(jpg|jpeg|png|gif|svg|webp)$/)) {
+      if (process.env.NODE_ENV === 'production') {
+        res.setHeader('Cache-Control', 'public, max-age=31536000, immutable'); // 1 year for images
+      }
+    } else if (filePath.match(/\.(woff|woff2|ttf|eot)$/)) {
+      if (process.env.NODE_ENV === 'production') {
+        res.setHeader('Cache-Control', 'public, max-age=31536000, immutable'); // 1 year for fonts
+      }
     }
   }
 }));
@@ -608,19 +627,20 @@ app.get("/", async (req, res) => {
     const Vehicle = require("./models/vehicle");
     const Dhaba = require("./models/dhaba");
 
-    // Get featured items from each section
-    const featuredListings = await Listing.find({}).sort({ _id: -1 }).limit(3);
-    const featuredVehicles = await Vehicle.find({}).sort({ _id: -1 }).limit(3);
-    const featuredDhabas = await Dhaba.find({}).sort({ _id: -1 }).limit(3);
+    // Get featured items from each section (Parallel Execution)
+    const [featuredListings, featuredVehicles, featuredDhabas, localLegendsRaw] = await Promise.all([
+      Listing.find({}).select('title description image price location country propertyType rating').sort({ _id: -1 }).limit(3).lean(),
+      Vehicle.find({}).select('title description image price location vehicleType brand model rating').sort({ _id: -1 }).limit(3).lean(),
+      Dhaba.find({}).select('title description image price location cuisine category rating').sort({ _id: -1 }).limit(3).lean(),
+      require("./models/user").find({}).select('firstName lastName email avatar').limit(4).lean()
+    ]);
 
-    // Get "Local Legends" (Simulated for Demo)
-    const User = require("./models/user");
-    let localLegends = await User.find({}).limit(4);
+    let localLegends = localLegendsRaw;
 
     // Augment with legend metadata
     const legendTitles = ["Superhost Elite", "Safe Traveler", "Flavor Master", "Road King"];
     localLegends = localLegends.map((user, i) => {
-      const u = user.toObject();
+      const u = { ...user }; // Lean documents are already plain objects, just spread to copy
 
       // Fixed Personas for "Local Legends" Hall of Fame
       const personas = [
@@ -731,18 +751,19 @@ app.get("/home", async (req, res) => {
     const Dhaba = require("./models/dhaba");
 
     // Get featured items from each section
-    const featuredListings = await Listing.find({}).sort({ _id: -1 }).limit(3);
-    const featuredVehicles = await Vehicle.find({}).sort({ _id: -1 }).limit(3);
-    const featuredDhabas = await Dhaba.find({}).sort({ _id: -1 }).limit(3);
+    const [featuredListings, featuredVehicles, featuredDhabas, localLegendsRaw] = await Promise.all([
+      Listing.find({}).select('title description image price location country propertyType rating').sort({ _id: -1 }).limit(3).lean(),
+      Vehicle.find({}).select('title description image price location vehicleType brand model rating').sort({ _id: -1 }).limit(3).lean(),
+      Dhaba.find({}).select('title description image price location cuisine category rating').sort({ _id: -1 }).limit(3).lean(),
+      require("./models/user").find({}).select('firstName lastName email avatar').limit(4).lean()
+    ]);
 
-    // Get "Local Legends" (Simulated for Demo)
-    const User = require("./models/user");
-    let localLegends = await User.find({}).limit(4);
+    let localLegends = localLegendsRaw;
 
     // Augment with legend metadata
     const legendTitles = ["Superhost Elite", "Safe Traveler", "Flavor Master", "Road King"];
     localLegends = localLegends.map((user, i) => {
-      const u = user.toObject();
+      const u = { ...user }; // Lean documents are already plain objects, just spread to copy
 
       // Fixed Personas for "Local Legends" Hall of Fame
       const personas = [

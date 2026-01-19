@@ -1,0 +1,465 @@
+/* Advanced Availability Calendar - Premium Styling */
+
+:root {
+    --brand-red: #FF385C;
+    --brand-dark: #222222;
+    --glass-bg: rgba(255, 255, 255, 0.9);
+    --bg-color: #f8f9fa;
+    --success-color: #10b981;
+    --warning-color: #f59e0b;
+    --danger-color: #ef4444;
+    --info-color: #3b82f6;
+}
+
+/* Multi-Month Calendar */
+.multi-month-calendar {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 30px;
+    padding: 20px 0;
+}
+
+@media (min-width: 992px) {
+    .multi-month-calendar {
+        grid-template-columns: repeat(3, 1fr);
+    }
+}
+
+@media (max-width: 768px) {
+    .multi-month-calendar {
+        grid-template-columns: 1fr;
+    }
+}
+
+.calendar-month {
+    background: white;
+    border-radius: 16px;
+    padding: 20px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+    transition: all 0.3s ease;
+}
+
+.calendar-month:hover {
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+    transform: translateY(-2px);
+}
+
+.month-header {
+    margin-bottom: 16px;
+    padding-bottom: 12px;
+    border-bottom: 2px solid #f0f0f0;
+}
+
+.month-title {
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: var(--brand-dark);
+    margin: 0;
+}
+
+.weekdays-grid {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 4px;
+    margin-bottom: 8px;
+}
+
+.weekday {
+    text-align: center;
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: #717171;
+    padding: 8px 0;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.days-grid {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 4px;
+}
+
+.day-cell {
+    aspect-ratio: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    border-radius: 8px;
+    font-size: 0.875rem;
+    cursor: default;
+    transition: all 0.2s ease;
+    background: #f9fafb;
+    border: 2px solid transparent;
+    user-select: none;
+}
+
+.day-cell.empty {
+    background: transparent;
+    cursor: default;
+}
+
+.day-cell.selectable {
+    cursor: pointer;
+    background: white;
+}
+
+.day-cell.selectable:hover {
+    background: #f0f9ff;
+    border-color: var(--info-color);
+    transform: scale(1.05);
+}
+
+.day-cell.today {
+    border-color: var(--info-color);
+    font-weight: 700;
+}
+
+.day-cell.past {
+    opacity: 0.4;
+    cursor: not-allowed;
+}
+
+.day-cell.blocked {
+    background: #ef4444 !important;
+    color: white !important;
+    border-color: #ef4444 !important;
+}
+
+.day-cell.booked {
+    background: #f59e0b !important;
+    color: white !important;
+    cursor: not-allowed;
+    border-color: #f59e0b !important;
+}
+
+.day-cell.selected {
+    background: var(--brand-red);
+    color: white;
+    font-weight: 600;
+    border-color: var(--brand-red);
+}
+
+.day-cell.has-pricing {
+    background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+    color: white;
+}
+
+.day-number {
+    font-size: 0.875rem;
+    z-index: 1;
+}
+
+.price-badge {
+    position: absolute;
+    bottom: 2px;
+    font-size: 0.65rem;
+    font-weight: 600;
+    background: rgba(255, 255, 255, 0.9);
+    color: #059669;
+    padding: 1px 4px;
+    border-radius: 4px;
+    z-index: 2;
+}
+
+.status-icon {
+    position: absolute;
+    top: 2px;
+    right: 2px;
+    font-size: 0.7rem;
+}
+
+/* Quick Actions Panel */
+.quick-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    margin-bottom: 24px;
+}
+
+.quick-action-btn {
+    padding: 10px 20px;
+    border-radius: 10px;
+    font-weight: 600;
+    font-size: 0.875rem;
+    border: 2px solid #e5e7eb;
+    background: white;
+    color: #374151;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.quick-action-btn:hover {
+    background: #f9fafb;
+    border-color: var(--brand-red);
+    color: var(--brand-red);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(255, 56, 92, 0.15);
+}
+
+.quick-action-btn i {
+    font-size: 1rem;
+}
+
+/* Navigation Controls */
+.calendar-nav {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+}
+
+.nav-btn {
+    background: white;
+    border: 2px solid #e5e7eb;
+    border-radius: 10px;
+    width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    color: #374151;
+}
+
+.nav-btn:hover {
+    background: var(--brand-red);
+    border-color: var(--brand-red);
+    color: white;
+    transform: scale(1.1);
+}
+
+/* Enhanced Analytics Card */
+.analytics-card {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    border-radius: 24px;
+    padding: 30px;
+    box-shadow: 0 20px 60px rgba(102, 126, 234, 0.3);
+}
+
+.analytics-card h5 {
+    color: white;
+    margin-bottom: 24px;
+    font-weight: 700;
+}
+
+.stat-item {
+    margin-bottom: 24px;
+    padding-bottom: 20px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.stat-item:last-of-type {
+    border-bottom: none;
+}
+
+.stat-label {
+    font-size: 0.75rem;
+    color: rgba(255, 255, 255, 0.8);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-bottom: 8px;
+    display: block;
+}
+
+.stat-value {
+    font-size: 2rem;
+    font-weight: 800;
+    color: white;
+    display: block;
+}
+
+/* Loading Skeleton */
+.skeleton {
+    background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+    background-size: 200% 100%;
+    animation: loading 1.5s infinite;
+    border-radius: 8px;
+}
+
+@keyframes loading {
+    0% {
+        background-position: 200% 0;
+    }
+
+    100% {
+        background-position: -200% 0;
+    }
+}
+
+/* Tooltips */
+.tooltip-wrapper {
+    position: relative;
+    display: inline-block;
+}
+
+.tooltip-content {
+    visibility: hidden;
+    background-color: #1f2937;
+    color: white;
+    text-align: center;
+    border-radius: 8px;
+    padding: 8px 12px;
+    position: absolute;
+    z-index: 1000;
+    bottom: 125%;
+    left: 50%;
+    transform: translateX(-50%);
+    opacity: 0;
+    transition: opacity 0.3s;
+    font-size: 0.75rem;
+    white-space: nowrap;
+}
+
+.tooltip-wrapper:hover .tooltip-content {
+    visibility: visible;
+    opacity: 1;
+}
+
+/* Drag Selection Visual Feedback */
+.day-cell.drag-selecting {
+    background: rgba(255, 56, 92, 0.2);
+    border-color: var(--brand-red);
+}
+
+/* Responsive Adjustments */
+@media (max-width: 768px) {
+    .quick-actions {
+        flex-direction: column;
+    }
+
+    .quick-action-btn {
+        width: 100%;
+        justify-content: center;
+    }
+
+    .analytics-card {
+        position: relative !important;
+        top: 0 !important;
+        margin-top: 30px;
+    }
+
+    .stat-value {
+        font-size: 1.5rem;
+    }
+}
+
+/* Premium Button Styles */
+.btn-premium {
+    background: linear-gradient(135deg, var(--brand-red) 0%, #e31c5f 100%);
+    color: white;
+    border: none;
+    padding: 14px 28px;
+    border-radius: 12px;
+    font-weight: 600;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 15px rgba(255, 56, 92, 0.3);
+}
+
+.btn-premium:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(255, 56, 92, 0.4);
+}
+
+.btn-premium:active {
+    transform: translateY(0);
+}
+
+/* Info Box */
+.info-box {
+    background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%);
+    border-left: 4px solid var(--info-color);
+    padding: 16px;
+    border-radius: 8px;
+    margin-top: 20px;
+}
+
+.info-box p {
+    margin: 0;
+    color: #1e40af;
+    font-size: 0.875rem;
+    line-height: 1.6;
+}
+
+/* Keyboard Shortcuts Hint */
+.keyboard-hint {
+    position: fixed;
+    bottom: 20px;
+    left: 20px;
+    background: rgba(0, 0, 0, 0.8);
+    color: white;
+    padding: 12px 16px;
+    border-radius: 8px;
+    font-size: 0.75rem;
+    z-index: 1000;
+    opacity: 0;
+    transition: opacity 0.3s;
+}
+
+.keyboard-hint.show {
+    opacity: 1;
+}
+
+.kbd {
+    background: #374151;
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-family: monospace;
+    font-size: 0.7rem;
+    margin: 0 2px;
+}
+
+/* Control Buttons (Mode & Action) */
+.btn-mode,
+.btn-action {
+    border: none;
+    padding: 0.6rem 1.2rem;
+    font-weight: 600;
+    font-size: 0.85rem;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    color: #666;
+    border-radius: 10px;
+    background: transparent;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    white-space: nowrap;
+}
+
+.btn-mode:hover,
+.btn-action:hover {
+    color: var(--brand-red);
+    background: rgba(255, 56, 92, 0.05);
+}
+
+.btn-mode.active,
+.btn-action.active {
+    background: white;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+    color: var(--brand-red);
+    transform: translateY(-1px);
+}
+
+/* Specific color for 'Available' action when active */
+.btn-action.active[data-action="available"] {
+    color: #10b981;
+}
+
+.btn-action.active[data-action="available"]:hover {
+    background: rgba(16, 185, 129, 0.05);
+}
+
+.vr {
+    width: 1px;
+    background-color: #e5e7eb;
+    margin: 0 10px;
+}

@@ -1,0 +1,460 @@
+<% layout("layouts/boilerplate") -%>
+    <!-- SERVER_UPDATE_CHECK_MARKER_V1 -->
+
+
+    <!-- Toast Notifications -->
+    <script src="/js/toast-notifications.js"></script>
+
+    <!-- Advanced Availability CSS -->
+    <link rel="stylesheet" href="/css/advanced-availability.css?v=<%= Date.now() + 1 %>">
+
+    <style>
+        :root {
+            --brand-red: #FF385C;
+            --brand-dark: #222222;
+            --glass-bg: rgba(255, 255, 255, 0.9);
+            --bg-color: #f8f9fa;
+        }
+
+        .availability-page {
+            background: var(--bg-color);
+            min-height: 100vh;
+            padding-bottom: 50px;
+            font-family: 'Poppins', sans-serif;
+        }
+
+        .hero-section {
+            background: linear-gradient(135deg, #222 0%, #333 100%);
+            color: white;
+            padding: 60px 0 100px;
+            margin-bottom: -60px;
+        }
+
+        .availability-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 0 20px;
+            position: relative;
+        }
+
+        .main-grid {
+            display: grid;
+            grid-template-columns: 1fr 350px;
+            gap: 30px;
+        }
+
+        @media (max-width: 1100px) {
+            .main-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .analytics-card {
+                position: relative !important;
+                top: 0 !important;
+            }
+        }
+
+        .calendar-card {
+            background: white;
+            border-radius: 24px;
+            padding: 30px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.05);
+            border: 1px solid rgba(0, 0, 0, 0.05);
+        }
+
+        .analytics-card {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border-radius: 24px;
+            padding: 25px;
+            box-shadow: 0 20px 60px rgba(102, 126, 234, 0.3);
+            position: sticky;
+            top: 100px;
+            height: min-content;
+        }
+
+        .legend-box {
+            background: #f8f9fa;
+            border-radius: 16px;
+            padding: 20px;
+            margin-top: 30px;
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 0.9rem;
+            color: #484848;
+            margin-bottom: 8px;
+        }
+
+        .legend-item:last-child {
+            margin-bottom: 0;
+        }
+
+        .dot {
+            width: 16px;
+            height: 16px;
+            border-radius: 50%;
+            flex-shrink: 0;
+        }
+
+        .btn-mode,
+        .btn-action {
+            padding: 8px 16px;
+            border-radius: 10px;
+            font-weight: 600;
+            font-size: 0.85rem;
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+            border: 1px solid #ddd;
+            background: white;
+            color: #4b5563;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .btn-mode.active,
+        .btn-action.active {
+            background: var(--brand-dark);
+            color: white;
+            border-color: var(--brand-dark);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+            transform: translateY(-1px);
+        }
+
+        /* Special green for Available toggle when active */
+        .btn-action.active#action-available {
+            background: #10b981;
+            border-color: #10b981;
+        }
+
+        .feature-badge {
+            display: inline-block;
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+            color: white;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            margin-left: 8px;
+        }
+    </style>
+
+    <div class="availability-page">
+        <div class="hero-section">
+            <div class="availability-container">
+                <div class="d-flex justify-content-between align-items-center flex-wrap gap-3">
+                    <div>
+                        <h1 class="fw-bold mb-1">
+                            Advanced Calendar Manager
+                            <span class="feature-badge">✨ Premium</span>
+                        </h1>
+                        <p class="opacity-75 mb-0">
+                            Manage availability for <span class="fw-bold text-decoration-underline">
+                                <%= listing.title %>
+                            </span>
+                        </p>
+                    </div>
+                    <div class="d-flex gap-2">
+                        <a href="/listings/<%= listing._id %>" class="btn btn-light rounded-pill px-4 fw-bold">
+                            <i class="fas fa-eye me-2"></i> View Listing
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="availability-container">
+            <div class="main-grid">
+                <div class="calendar-card" data-aos="fade-up">
+                    <!-- Header with Mode Toggle -->
+                    <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-3">
+                        <h4 class="fw-bold mb-0">Select Blocked Dates</h4>
+                        <div class="d-flex gap-3 align-items-center flex-wrap">
+                            <div class="d-flex align-items-center gap-2">
+                                <small class="text-muted fw-bold text-uppercase"
+                                    style="font-size: 0.7rem; letter-spacing: 0.5px;">Selection Mode</small>
+                                <div class="d-flex gap-1 bg-light p-1 rounded-3 border">
+                                    <button class="btn btn-sm btn-mode active" id="btn-multiple"
+                                        title="Select multiple individual dates">Individual</button>
+                                    <button class="btn btn-sm btn-mode" id="btn-range"
+                                        title="Select a date range">Range</button>
+                                </div>
+                            </div>
+
+                            <div class="vr d-none d-md-block" style="height: 20px; align-self: center;"></div>
+
+                            <div class="d-flex align-items-center gap-2">
+                                <small class="text-muted fw-bold text-uppercase"
+                                    style="font-size: 0.7rem; letter-spacing: 0.5px;">Action</small>
+                                <div class="d-flex gap-1 bg-light p-1 rounded-3 border">
+                                    <button class="btn btn-sm btn-action active" id="action-block" data-action="block">
+                                        <i class="fas fa-ban me-1"></i> Block
+                                    </button>
+                                    <button class="btn btn-sm btn-action" id="action-available" data-action="available">
+                                        <i class="fas fa-check me-1"></i> Available
+                                    </button>
+                                    <button class="btn btn-sm btn-action" id="action-price" data-action="price">
+                                        <i class="fas fa-tag me-1"></i> Price
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Quick Actions -->
+                    <div class="quick-actions">
+                        <button class="quick-action-btn" id="quick-block-30">
+                            <i class="fas fa-calendar-plus"></i>
+                            Block Next 30 Days
+                        </button>
+                        <button class="quick-action-btn" id="quick-block-weekends">
+                            <i class="fas fa-calendar-week"></i>
+                            Block Weekends
+                        </button>
+                        <button class="quick-action-btn" id="btn-recurring">
+                            <i class="fas fa-redo"></i>
+                            Recurring Pattern
+                        </button>
+                        <button class="quick-action-btn" id="btn-pricing">
+                            <i class="fas fa-tags"></i>
+                            Dynamic Pricing
+                        </button>
+                        <button class="quick-action-btn" id="btn-export">
+                            <i class="fas fa-download"></i>
+                            Export iCal
+                        </button>
+                        <button class="quick-action-btn text-danger" id="quick-clear-all">
+                            <i class="fas fa-trash"></i>
+                            Clear All
+                        </button>
+                    </div>
+
+                    <!-- Calendar Navigation -->
+                    <div class="calendar-nav">
+                        <button class="nav-btn" id="prev-months">
+                            <i class="fas fa-chevron-left"></i>
+                        </button>
+                        <div class="text-center">
+                            <small class="text-muted">
+                                <i class="fas fa-info-circle me-1"></i>
+                                Drag to select multiple dates |
+                                <kbd class="kbd">Ctrl+Z</kbd> Undo |
+                                <kbd class="kbd">Ctrl+Y</kbd> Redo
+                            </small>
+                        </div>
+                        <button class="nav-btn" id="next-months">
+                            <i class="fas fa-chevron-right"></i>
+                        </button>
+                    </div>
+
+                    <!-- The Calendar Container -->
+                    <div id="advanced-calendar" style="min-height: 450px;" data-listing="<%= listingJSON %>"
+                        data-bookings="<%= bookingsJSON %>">
+                        <div class="d-flex justify-content-center align-items-center h-100 py-5">
+                            <div class="spinner-border text-danger" role="status">
+                                <span class="visually-hidden">Loading calendar...</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Legend -->
+                    <div class="legend-box">
+                        <div class="row g-3">
+                            <div class="col-md-3 col-6">
+                                <div class="legend-item">
+                                    <span class="dot" style="background: white; border: 2px solid #ccc;"></span>
+                                    <span>Available</span>
+                                </div>
+                            </div>
+                            <div class="col-md-3 col-6">
+                                <div class="legend-item">
+                                    <span class="dot" style="background: #ef4444;"></span>
+                                    <span>Blocked</span>
+                                </div>
+                            </div>
+                            <div class="col-md-3 col-6">
+                                <div class="legend-item">
+                                    <span class="dot" style="background: #f59e0b;"></span>
+                                    <span>Booked</span>
+                                </div>
+                            </div>
+                            <div class="col-md-3 col-6">
+                                <div class="legend-item">
+                                    <span class="dot"
+                                        style="background: linear-gradient(135deg, #10b981 0%, #059669 100%);"></span>
+                                    <span>Custom Price</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Analytics Sidebar -->
+                <div class="analytics-card" data-aos="fade-left">
+                    <h5 class="fw-bold mb-4">📊 Availability Insights</h5>
+
+                    <div class="stat-item">
+                        <span class="stat-label">Total Blocked Days</span>
+                        <span class="stat-value" id="stat-count">0</span>
+                    </div>
+
+                    <div class="stat-item">
+                        <span class="stat-label">Booked Days (Next 90d)</span>
+                        <span class="stat-value" id="stat-booked">0</span>
+                    </div>
+
+                    <div class="stat-item">
+                        <span class="stat-label">Projected Occupancy</span>
+                        <span class="stat-value" id="stat-occupancy">0%</span>
+                    </div>
+
+                    <div class="stat-item border-0">
+                        <span class="stat-label">Estimated Loss/Hold Value</span>
+                        <span class="stat-value" id="stat-value">₹0</span>
+                    </div>
+
+                    <button id="save-btn" class="btn btn-light w-100 py-3 rounded-3 mt-3 fw-bold shadow-sm">
+                        <i class="fas fa-check-circle me-2"></i> Save Changes
+                    </button>
+
+                    <div class="info-box">
+                        <p class="small mb-0">
+                            <i class="fas fa-shield-alt me-1"></i>
+                            Blocked dates are instantly removed from search results and cannot be booked by guests.
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Pricing Modal -->
+    <div class="modal fade" id="pricingModal" tabindex="-1">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content border-0 shadow-lg" style="border-radius: 20px;">
+                <div class="modal-header border-0 pb-0">
+                    <h5 class="modal-title fw-bold">Set Custom Price</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body p-4">
+                    <div class="alert alert-info d-flex align-items-center mb-4 border-0 bg-soft-info"
+                        style="border-radius: 12px;">
+                        <i class="fas fa-info-circle me-3 text-info fs-4"></i>
+                        <small>Set a custom price for specific dates (e.g., weekends, holidays). This overrides the base
+                            price.</small>
+                    </div>
+
+                    <form id="pricing-form">
+                        <div class="mb-4">
+                            <label class="form-label fw-bold small text-uppercase text-muted">Selected Range</label>
+                            <div class="d-flex align-items-center gap-3 p-3 bg-light rounded-3">
+                                <div class="d-flex align-items-center gap-2">
+                                    <i class="fas fa-calendar-alt text-primary"></i>
+                                    <span id="pricing-start-date" class="fw-bold"></span>
+                                </div>
+                                <i class="fas fa-arrow-right text-muted small"></i>
+                                <div class="d-flex align-items-center gap-2">
+                                    <i class="fas fa-calendar-alt text-primary"></i>
+                                    <span id="pricing-end-date" class="fw-bold"></span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="mb-4">
+                            <label for="custom-price" class="form-label fw-bold small text-uppercase text-muted">Price
+                                per Night</label>
+                            <div class="input-group input-group-lg">
+                                <span class="input-group-text bg-white border-end-0 text-muted">₹</span>
+                                <input type="number" class="form-control border-start-0 ps-0 fw-bold" id="custom-price"
+                                    placeholder="0" min="0" required>
+                            </div>
+                        </div>
+
+                        <div class="mb-2">
+                            <label for="pricing-reason"
+                                class="form-label fw-bold small text-uppercase text-muted">Reason (Optional)</label>
+                            <input type="text" class="form-control" id="pricing-reason"
+                                placeholder="e.g. Holiday Season, Weekend Rate">
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer border-0 pt-0 px-4 pb-4">
+                    <button type="button" class="btn btn-outline-danger rounded-pill px-4 fw-bold me-auto d-none"
+                        id="remove-pricing-btn">
+                        <i class="fas fa-trash-alt me-2"></i>Remove
+                    </button>
+                    <button type="button" class="btn btn-light rounded-pill px-4 fw-bold"
+                        data-bs-dismiss="modal">Cancel</button>
+                    <button type="button" class="btn btn-dark rounded-pill px-4 fw-bold" id="save-pricing-btn">
+                        Set Price
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Advanced Availability Script -->
+    <script src="/js/advanced-availability.js?v=<%= Date.now() + 8 %>"></script>
+
+    <script>
+        // Initialize Advanced Availability Manager with error handling
+        document.addEventListener('DOMContentLoaded', () => {
+            try {
+                console.log('🚀 Initializing Advanced Availability Calendar...');
+
+                // Read data from attributes
+                const calendarEl = document.getElementById('advanced-calendar');
+                const listing = JSON.parse(calendarEl.dataset.listing);
+                const bookings = JSON.parse(calendarEl.dataset.bookings);
+
+                console.log('✅ Listing ID:', listing._id);
+                console.log('✅ Bookings count:', bookings.length);
+                console.log('✅ Unavailable dates:', listing.unavailableDates?.length || 0);
+
+                const listingData = {
+                    listing: listing,
+                    bookings: bookings
+                };
+
+                // Check if initialization function exists
+                if (typeof window.initAdvancedAvailability !== 'function') {
+                    console.error('❌ initAdvancedAvailability function not found!');
+                    document.getElementById('advanced-calendar').innerHTML = `
+                    <div class="alert alert-danger m-4">
+                        <i class="fas fa-exclamation-triangle me-2"></i>
+                        Failed to load calendar. Please refresh the page.
+                    </div>
+                `;
+                    return;
+                }
+
+                // Initialize the manager
+                window.initAdvancedAvailability('<%= listing._id %>', listingData);
+
+                console.log('✅ Calendar initialized successfully!');
+
+                // Show welcome toast
+                setTimeout(() => {
+                    if (typeof toast !== 'undefined') {
+                        toast.info('Drag to select multiple dates, or use quick actions above!', 'Welcome to Advanced Calendar', 6000);
+                    }
+                }, 500);
+
+            } catch (error) {
+                console.error('❌ Calendar initialization error:', error);
+                document.getElementById('advanced-calendar').innerHTML = `
+                <div class="alert alert-danger m-4">
+                    <h5><i class="fas fa-exclamation-triangle me-2"></i>Calendar Error</h5>
+                    <p class="mb-2">${error.message}</p>
+                    <p class="small text-muted mb-2">Check browser console for details</p>
+                    <button class="btn btn-sm btn-outline-danger" onclick="location.reload()">
+                        <i class="fas fa-redo me-1"></i> Reload Page
+                    </button>
+                </div>
+            `;
+            }
+        });
+    </script>

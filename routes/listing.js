@@ -113,4 +113,14 @@ router.get("/:id/edit", isLoggedIn, isOwner, wrapAsync(listingController.renderE
 // Get Bookings for Calendar
 router.get("/:id/bookings", wrapAsync(listingController.getListingBookings));
 
+// ============================
+// AVAILABILITY MANAGEMENT (Host Only)
+// ============================
+router.get("/:id/availability", isLoggedIn, isOwner, wrapAsync(listingController.renderAvailability));
+router.post("/:id/availability", isLoggedIn, isOwner, wrapAsync(listingController.updateAvailability));
+
+// Advanced Availability Routes
+const availabilityRouter = require("./availability");
+router.use("/:id/availability", availabilityRouter);
+
 module.exports = router;
