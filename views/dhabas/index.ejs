@@ -109,14 +109,20 @@
                           <img
                             src="<%= dhaba.image && dhaba.image.length > 0 ? dhaba.image[0].url : 'https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?w=400&h=250&fit=crop&crop=center' %>"
                             class="dhaba-image" alt="<%= dhaba.title %>">
-                          <div class="status-badge popular">
-                            <i class="fas fa-fire me-1"></i> Trending
-                          </div>
-                          <button class="wishlist-btn" data-id="<%= dhaba._id %>"
-                            onclick="toggleWishlist(event, '<%= dhaba._id %>', 'dhaba')" title="Add to wishlist"
-                            style="position: absolute; top: 12px; right: 12px; width: 28px; height: 28px; border-radius: 50%; background: rgba(255,255,255,0.9); border: none; display: flex; align-items: center; justify-content: center; z-index: 100; cursor: pointer;">
-                            <i class="far fa-heart" style="font-size: 14px; color: #222;"></i>
-                          </button>
+                          <% if (dhaba.isTrending) { %>
+                            <div class="status-badge popular">
+                              <i class="fas fa-fire me-1"></i> TRENDING
+                            </div>
+                            <% } else { %>
+                              <div class="status-badge popular">
+                                <i class="fas fa-fire me-1"></i> Popular
+                              </div>
+                              <% } %>
+                                <button class="wishlist-btn" data-id="<%= dhaba._id %>"
+                                  onclick="toggleWishlist(event, '<%= dhaba._id %>', 'dhaba')" title="Add to wishlist"
+                                  style="position: absolute; top: 12px; right: 12px; width: 28px; height: 28px; border-radius: 50%; background: rgba(255,255,255,0.9); border: none; display: flex; align-items: center; justify-content: center; z-index: 100; cursor: pointer;">
+                                  <i class="far fa-heart" style="font-size: 14px; color: #222;"></i>
+                                </button>
                         </div>
 
                         <div class="dhaba-info">
@@ -171,16 +177,20 @@
                           <img
                             src="<%= dhaba.image && dhaba.image.length > 0 ? dhaba.image[0].url : 'https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?w=400&h=250&fit=crop&crop=center' %>"
                             class="dhaba-image" alt="<%= dhaba.title %>">
-                          <% if(dhaba.price) { %>
-                            <div class="status-badge promoted">
-                              ₹<%= Number(dhaba.price).toLocaleString("en-IN") %> for two
+                          <% if (dhaba.isTrending) { %>
+                            <div class="status-badge popular">
+                              <i class="fas fa-fire me-1"></i> TRENDING
                             </div>
-                            <% } %>
-                              <button class="wishlist-btn" data-id="<%= dhaba._id %>"
-                                onclick="toggleWishlist(event, '<%= dhaba._id %>', 'dhaba')" title="Add to wishlist"
-                                style="position: absolute; top: 12px; right: 12px; width: 28px; height: 28px; border-radius: 50%; background: rgba(255,255,255,0.9); border: none; display: flex; align-items: center; justify-content: center; z-index: 100; cursor: pointer;">
-                                <i class="far fa-heart" style="font-size: 14px; color: #222;"></i>
-                              </button>
+                            <% } else if(dhaba.price) { %>
+                              <div class="status-badge promoted">
+                                ₹<%= Number(dhaba.price).toLocaleString("en-IN") %> for two
+                              </div>
+                              <% } %>
+                                <button class="wishlist-btn" data-id="<%= dhaba._id %>"
+                                  onclick="toggleWishlist(event, '<%= dhaba._id %>', 'dhaba')" title="Add to wishlist"
+                                  style="position: absolute; top: 12px; right: 12px; width: 28px; height: 28px; border-radius: 50%; background: rgba(255,255,255,0.9); border: none; display: flex; align-items: center; justify-content: center; z-index: 100; cursor: pointer;">
+                                  <i class="far fa-heart" style="font-size: 14px; color: #222;"></i>
+                                </button>
                         </div>
 
                         <div class="dhaba-info">

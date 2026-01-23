@@ -53,6 +53,27 @@ module.exports.renderNotifications = async (req, res) => {
   res.render("users/notifications.ejs", { notifications });
 };
 
+module.exports.clearNotifications = async (req, res) => {
+  try {
+    await Notification.deleteMany({ user: req.user._id });
+    // Also clear the reference array on the User model
+    await User.findByIdAndUpdate(req.user._id, { $set: { notifications: [] } });
+
+    if (req.xhr || req.headers.accept.indexOf('json') > -1) {
+      return res.json({ success: true, message: "All notifications cleared" });
+    }
+    req.flash("success", "All notifications cleared");
+    res.redirect("/notifications");
+  } catch (error) {
+    logger.error("Clear Notifications Error: %O", error);
+    if (req.xhr || req.headers.accept.indexOf('json') > -1) {
+      return res.status(500).json({ success: false, message: "Failed to clear notifications" });
+    }
+    req.flash("error", "Failed to clear notifications");
+    res.redirect("/notifications");
+  }
+};
+
 
 module.exports.renderHostDashboard = async (req, res) => {
   try {

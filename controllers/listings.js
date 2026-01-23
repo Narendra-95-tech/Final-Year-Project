@@ -78,10 +78,10 @@ module.exports.index = async (req, res) => {
             .sort(sortOption);
     }
 
-    // Compute a simple trending list: highest price items today
+    // Compute trending list: items marked as trending first, then highest price
     const trendingListings = await Listing.find({})
-        .select('title image price location rating owner')
-        .sort({ price: -1 })
+        .select('title image price location rating owner isTrending')
+        .sort({ isTrending: -1, price: -1 })
         .limit(6);
 
     // Check for real visual messages

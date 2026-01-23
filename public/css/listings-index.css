@@ -176,21 +176,27 @@
     z-index: 5;
 }
 
-/* Trending Badge */
+/* Trending Badge - Premium Style */
 .trending-badge {
     position: absolute;
     top: 12px;
     left: 12px;
-    background: var(--airbnb-red);
+    background: #FF385C;
+    /* Vibrant Airbnb Red */
     color: white;
-    padding: 4px 10px;
-    border-radius: 6px;
-    font-weight: 600;
-    font-size: 11px;
+    padding: 6px 14px;
+    border-radius: 50px;
+    /* Pill shape */
+    font-weight: 800;
+    font-size: 12px;
     text-transform: uppercase;
-    letter-spacing: 0.5px;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.15);
-    z-index: 5;
+    letter-spacing: 0.8px;
+    box-shadow: 0 4px 10px rgba(255, 56, 92, 0.4);
+    z-index: 15;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    border: 1px solid rgba(255, 255, 255, 0.2);
 }
 
 /* Guest Favorite Badge */

@@ -206,6 +206,7 @@ router.post("/create-checkout-session", isLoggedIn, createCheckoutSession);
 // Stripe Success & Cancel Routes
 router.get("/success", isLoggedIn, handleSuccess);
 router.get("/cancel", isLoggedIn, handleCancel);
+router.post("/verify", isLoggedIn, verifyPayment);
 
 // Processing Route (Intermediate from Stripe)
 router.get("/processing", isLoggedIn, (req, res) => {
@@ -268,7 +269,11 @@ router.post("/:id/pay-upi", isLoggedIn, async (req, res) => {
   try {
     const { id } = req.params;
     const { paymentReference } = req.body;
-    const booking = await Booking.findById(id).populate('listing').populate('vehicle').populate('dhaba');
+    const booking = await Booking.findById(id)
+      .populate('listing')
+      .populate('vehicle')
+      .populate('dhaba')
+      .populate('user');
     if (!booking) return res.status(404).json({ success: false, message: "Booking not found" });
 
     // In valid manual flow, we record the UTR

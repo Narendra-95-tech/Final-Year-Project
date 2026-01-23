@@ -110,7 +110,7 @@
             const mapToken = "<%= process.env.MAP_TOKEN %>";
             const listing = JSON.parse(document.getElementById('listing-data').textContent);
             const currUserId = "<%= currUser ? currUser._id : '' %>";
-            const isOwner = "<%= currUser && listing.owner._id.equals(currUser._id) ? 'true' : 'false' %>" === 'true';
+            const isOwner = "<%= currUser && listing.owner && listing.owner._id.equals(currUser._id) ? 'true' : 'false' %>" === 'true';
 
         </script>
 
@@ -168,9 +168,9 @@
                 <div class="host-profile-card-premium" data-aos="fade-up">
                     <div class="host-card-top">
                         <div class="host-avatar-wrapper">
-                            <img src="<%= listing.owner.avatar?.url || '/images/default-avatar.png' %>"
-                                alt="<%= listing.owner.username %>" class="host-avatar-xl" />
-                            <% if(listing.owner.isVerified) { %>
+                            <img src="<%= (listing.owner && listing.owner.avatar) ? listing.owner.avatar.url : '/images/default-avatar.png' %>"
+                                alt="<%= listing.owner ? listing.owner.username : 'Host' %>" class="host-avatar-xl" />
+                            <% if(listing.owner && listing.owner.isVerified) { %>
                                 <div class="host-verified-badge" title="Verified Explorer">
                                     <i class="fas fa-check"></i>
                                 </div>
@@ -178,15 +178,16 @@
                         </div>
                         <div class="host-intro">
                             <h2 class="host-name-large">
-                                Hosted by <%= listing.owner.username %>
-                                    <% if(listing.owner.isVerified) { %>
+                                Hosted by <%= listing.owner ? listing.owner.username : 'Valued Partner' %>
+                                    <% if(listing.owner && listing.owner.isVerified) { %>
                                         <i class="fas fa-shield-check text-info ms-2" style="font-size: 18px;"
                                             title="Verified Explorer"></i>
                                         <% } %>
                             </h2>
                             <p class="host-meta-text">
-                                <%= listing.owner.isVerified ? 'Verified Explorer' : 'Superhost' %> · Joined in <%= new
-                                        Date(listing.owner.createdAt).getFullYear() %>
+                                <%= (listing.owner && listing.owner.isVerified) ? 'Verified Explorer' : 'Superhost' %> ·
+                                    Joined in <%= listing.owner ? new Date(listing.owner.createdAt).getFullYear()
+                                        : '2024' %>
                             </p>
                         </div>
                     </div>
@@ -462,7 +463,7 @@
                                 </div>
 
                                 <!-- Owner Management (if owner) -->
-                                <% if (currUser && listing.owner._id.equals(currUser._id)) { %>
+                                <% if (currUser && listing.owner && listing.owner._id.equals(currUser._id)) { %>
                                     <div class="amenities-section">
                                         <h2 class="section-title">Manage Listing</h2>
                                         <div class="d-flex gap-2">
@@ -480,7 +481,8 @@
                                     <% } %>
 
                                         <!-- Leave a Review (if logged in and not owner) -->
-                                        <% if (currUser && !listing.owner._id.equals(currUser._id)) { %>
+                                        <% if (currUser && listing.owner && !listing.owner._id.equals(currUser._id)) {
+                                            %>
                                             <div class="review-section">
                                                 <div class="review-form-card">
                                                     <div class="review-form-header">
@@ -607,7 +609,7 @@
                                 </div>
                             </div>
 
-                            <% if (currUser && listing.owner._id.equals(currUser._id)) { %>
+                            <% if (currUser && listing.owner && listing.owner._id.equals(currUser._id)) { %>
                                 <div class="owner-management-card p-3 bg-light rounded-3 border mb-3">
                                     <div class="d-flex align-items-center gap-2 mb-3 text-primary">
                                         <i class="fas fa-user-shield"></i>
@@ -685,7 +687,7 @@
                                     listing.price.toLocaleString('en-IN') %></span>
                             <span class="mobile-price-period">/ night</span>
                         </div>
-                        <% if (currUser && listing.owner._id.equals(currUser._id)) { %>
+                        <% if (currUser && listing.owner && listing.owner._id.equals(currUser._id)) { %>
                             <div class="d-flex gap-2 align-items-center">
                                 <a href="/listings/<%= listing._id %>/edit"
                                     class="btn btn-outline-dark btn-sm rounded-pill">Edit</a>

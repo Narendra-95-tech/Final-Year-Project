@@ -712,7 +712,7 @@
                       <div class="card-footer d-flex justify-content-between">
                         <div class="d-flex gap-1">
                           <a href="/bookings/<%= b._id %>" class="btn btn-sm btn-light rounded-pill">View Memory</a>
-                          <% if(b.type==='listing' ) { %>
+                          <% if(b.type==='listing' && b.item && b.item._id) { %>
                             <a href="/listings/<%= b.item._id %>"
                               class="btn btn-sm btn-outline-primary rounded-pill border-0">Book Again</a>
                             <% } %>

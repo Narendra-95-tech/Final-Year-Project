@@ -44,6 +44,7 @@ router.get("/logout", userController.logout);
 router.get("/profile", isLoggedIn, userController.renderProfile);
 router.get("/profile/reviews", isLoggedIn, userController.renderMyReviews);
 router.get("/notifications", isLoggedIn, userController.renderNotifications);
+router.delete("/notifications", isLoggedIn, wrapAsync(userController.clearNotifications));
 router.get("/dashboard", isLoggedIn, userController.renderHostDashboard);
 
 // Wishlist (Favorites) - Universal Route

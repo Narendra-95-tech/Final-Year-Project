@@ -46,7 +46,7 @@ module.exports.index = async (req, res) => {
 
   try {
     const allDhabas = await Dhaba.find(filter).sort(sortOption).populate("owner");
-    const trendingDhabas = await Dhaba.find({}).sort({ rating: -1 }).limit(6);
+    const trendingDhabas = await Dhaba.find({}).sort({ isTrending: -1, rating: -1 }).limit(6);
 
     // Check for real visual messages
     const existingSuccess = res.locals.success;

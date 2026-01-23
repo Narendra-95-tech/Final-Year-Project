@@ -213,6 +213,10 @@ const dhabaSchema = new Schema({
             required: false,
         },
     },
+    isTrending: {
+        type: Boolean,
+        default: false,
+    },
 });
 
 // Indexes for Search & Filter Performance

@@ -245,22 +245,24 @@
                       <div class="price-overlay">
                         ₹<%= t.price ? Number(t.price).toLocaleString("en-IN") : "N/A" %>
                       </div>
-                      <div class="trending-badge">Trending</div>
-                      <% if (t.reviews && t.reviews.length> 0) {
-                        const avgRating = (t.reviews.reduce((sum, r) => sum + (r.rating || 5), 0) /
-                        t.reviews.length).toFixed(1);
-                        if (avgRating >= 4.8) { %>
-                        <div class="guest-favorite-badge">
-                          <i class="fas fa-medal text-warning"></i> Guest favorite
-                        </div>
+                      <% if (t.isTrending) { %>
+                        <div class="trending-badge">TRENDING</div>
                         <% } %>
-                          <div class="rating-badge">
-                            <span class="stars">★</span>
-                            <span>
-                              <%= avgRating %>
-                            </span>
-                          </div>
-                          <% } %>
+                          <% if (t.reviews && t.reviews.length> 0) {
+                            const avgRating = (t.reviews.reduce((sum, r) => sum + (r.rating || 5), 0) /
+                            t.reviews.length).toFixed(1);
+                            if (avgRating >= 4.8) { %>
+                            <div class="guest-favorite-badge">
+                              <i class="fas fa-medal text-warning"></i> Guest favorite
+                            </div>
+                            <% } %>
+                              <div class="rating-badge">
+                                <span class="stars">★</span>
+                                <span>
+                                  <%= avgRating %>
+                                </span>
+                              </div>
+                              <% } %>
                     </div>
                     <div class="listing-info">
                       <h5 class="listing-title">
@@ -309,21 +311,24 @@
                       <div class="price-overlay">
                         ₹<%= listing.price ? Number(listing.price).toLocaleString("en-IN") : "N/A" %>
                       </div>
-                      <% if (listing.reviews && listing.reviews.length> 0) {
-                        const avgRating = (listing.reviews.reduce((sum, r) => sum + (r.rating || 5), 0) /
-                        listing.reviews.length).toFixed(1);
-                        if (avgRating >= 4.8) { %>
-                        <div class="guest-favorite-badge">
-                          <i class="fas fa-medal text-warning"></i> Guest favorite
-                        </div>
+                      <% if (listing.isTrending) { %>
+                        <div class="trending-badge">TRENDING</div>
                         <% } %>
-                          <div class="rating-badge">
-                            <span class="stars">★</span>
-                            <span>
-                              <%= avgRating %>
-                            </span>
-                          </div>
-                          <% } %>
+                          <% if (listing.reviews && listing.reviews.length> 0) {
+                            const avgRating = (listing.reviews.reduce((sum, r) => sum + (r.rating || 5), 0) /
+                            listing.reviews.length).toFixed(1);
+                            if (avgRating >= 4.8) { %>
+                            <div class="guest-favorite-badge">
+                              <i class="fas fa-medal text-warning"></i> Guest favorite
+                            </div>
+                            <% } %>
+                              <div class="rating-badge">
+                                <span class="stars">★</span>
+                                <span>
+                                  <%= avgRating %>
+                                </span>
+                              </div>
+                              <% } %>
                     </div>
                     <div class="listing-info">
                       <h5 class="listing-title">

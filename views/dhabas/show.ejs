@@ -155,17 +155,18 @@
 
             <!-- Host Info Row -->
             <div class="host-info-row border-bottom pb-4 mb-4">
-              <img src="https://ui-avatars.com/api/?name=<%= dhaba.owner.username %>&background=random"
-                class="host-avatar-large" alt="<%= dhaba.owner.username %>">
+              <img
+                src="https://ui-avatars.com/api/?name=<%= dhaba.owner ? dhaba.owner.username : 'Host' %>&background=random"
+                class="host-avatar-large" alt="<%= dhaba.owner ? dhaba.owner.username : 'Host' %>">
               <div class="host-text">
-                <div class="host-name">Hosted by <%= dhaba.owner.username %>
-                    <% if(dhaba.owner.isVerified) { %>
+                <div class="host-name">Hosted by <%= dhaba.owner ? dhaba.owner.username : 'Valued Partner' %>
+                    <% if(dhaba.owner && dhaba.owner.isVerified) { %>
                       <i class="fas fa-shield-check text-info ms-1" style="font-size: 16px;"></i>
                       <% } %>
                 </div>
                 <div class="host-badge">
-                  <%= dhaba.owner.isVerified ? 'Verified Explorer' : 'Superhost' %> · Joined in <%= new
-                      Date(dhaba.owner.createdAt).getFullYear() %>
+                  <%= dhaba.owner && dhaba.owner.isVerified ? 'Verified Explorer' : 'Superhost' %> · Joined in <%=
+                      dhaba.owner ? new Date(dhaba.owner.createdAt).getFullYear() : '2024' %>
                 </div>
               </div>
             </div>
@@ -565,7 +566,7 @@
                     <div class="card col-5 mb-3 ms-3">
                       <div class="card-body">
                         <h5 class="card-title mb-1">
-                          @<%= review.author.username %>
+                          @<%= review.author ? review.author.username : 'Anonymous' %>
                             <% if(review.isVerified) { %>
                               <i class="fas fa-shield-check text-success ms-1" title="Verified Diner"></i>
                               <span class="text-success small ms-1" style="font-weight: 600;">Verified</span>

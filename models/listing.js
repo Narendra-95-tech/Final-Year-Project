@@ -185,6 +185,10 @@ const listingSchema = new Schema({
   capacity: {
     type: Number,
     default: function () { return this.guests || 2; }
+  },
+  isTrending: {
+    type: Boolean,
+    default: false
   }
 }, {
   timestamps: true,

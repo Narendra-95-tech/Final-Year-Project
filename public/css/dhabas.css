@@ -480,8 +480,16 @@
 }
 
 .status-badge.popular {
-  background: rgba(253, 126, 20, 0.9);
+  background: #FF385C;
+  /* Match premium trending red */
   color: var(--white);
+  padding: 6px 14px;
+  border-radius: 50px;
+  font-weight: 800;
+  font-size: 11px;
+  letter-spacing: 0.8px;
+  box-shadow: 0 4px 10px rgba(255, 56, 92, 0.3);
+  border: 1px solid rgba(255, 255, 255, 0.2);
 }
 
 /* Cuisine Badge */
