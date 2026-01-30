@@ -194,6 +194,7 @@ app.use(helmet({
       scriptSrc: [
         "'self'",
         "'unsafe-inline'",
+        "'unsafe-eval'",
         "https://cdn.jsdelivr.net",
         "https://unpkg.com",
         "https://js.stripe.com",
@@ -463,8 +464,21 @@ app.use("/api/trip", apiLimiter, tripPlannerRoutes);
 app.use("/auth", authLimiter, authRoutes); // Apply auth rate limiter
 app.use("/api/wishlist", apiLimiter, wishlistRoutes);
 app.use("/ai/magic", apiLimiter, aiMagicRouter);
-app.use("/trust", trustRouter);
+app.get("/trust", trustRouter);
 app.use("/api/otp", authLimiter, otpRouter); // Apply auth rate limiter to OTP
+
+// Map Routes
+const mapRouter = require("./routes/map.js");
+app.use("/api/map", mapRouter);
+
+// Interactive Map Page
+app.get("/map", (req, res) => {
+  res.render("map-search-interactive", {
+    title: "Explore on Map | WanderLust",
+    description: "Discover listings, vehicles, and dhabas near you with our interactive map.",
+    mapToken: process.env.MAP_TOKEN
+  });
+});
 
 
 

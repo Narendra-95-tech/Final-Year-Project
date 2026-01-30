@@ -378,77 +378,7 @@
 
 
 
-                  <!-- Floating Map Toggle Button -->
-                  <button id="view-toggle-btn" class="map-view-btn">
-                    <span class="btn-text">Show Map</span>
-                    <i class="fas fa-map"></i>
-                  </button>
-
-                  <!-- Map View Container -->
-                  <div id="map-view-container" class="map-view-container" style="display: none;">
-                    <button id="close-map-btn" class="close-map-btn" title="Exit Map View">
-                      <i class="fas fa-times"></i>
-                    </button>
-                    <div id="map-listings-wrapper"></div>
-                  </div>
-
-                  <link rel="stylesheet" href="/css/map-listings-view.css">
-                  <style>
-                    .map-view-btn {
-                      position: fixed;
-                      bottom: 30px;
-                      left: 50%;
-                      transform: translateX(-50%);
-                      background: linear-gradient(135deg, #1a1a1a, #333);
-                      color: #fff;
-                      padding: 14px 28px;
-                      border-radius: 35px;
-                      border: 1px solid rgba(255, 255, 255, 0.1);
-                      z-index: 2100;
-                      font-size: 15px;
-                      font-weight: 700;
-                      display: flex;
-                      align-items: center;
-                      gap: 12px;
-                      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
-                      transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-                      cursor: pointer;
-                      animation: float-btn 4s ease-in-out infinite;
-                      backdrop-filter: blur(10px);
-                    }
-
-                    .map-view-btn:hover {
-                      transform: translateX(-50%) scale(1.1);
-                      background: #ff385c;
-                      box-shadow: 0 10px 30px rgba(255, 56, 92, 0.4);
-                      border-color: #ff385c;
-                    }
-
-                    .map-view-btn.active {
-                      background: #fff;
-                      color: #ff385c;
-                      border-color: #eee;
-                    }
-
-                    .map-view-container {
-                      position: fixed;
-                      top: 0 !important;
-                      left: 0;
-                      width: 100%;
-                      height: 100vh;
-                      background: white;
-                      z-index: 2000;
-                    }
-
-                    #map-listings-wrapper {
-                      height: 100%;
-                      width: 100%;
-                    }
-
-                    [data-theme="dark"] .map-view-container {
-                      background: #121212;
-                    }
-                  </style>
+                  <!-- Map related elements removed -->
 
 
                   <script>
@@ -470,56 +400,6 @@
                     }
 
                     document.addEventListener('DOMContentLoaded', function () {
-                      const toggleBtn = document.getElementById('view-toggle-btn');
-                      const gridContainer = document.querySelector('.container');
-                      const heroSection = document.querySelector('.listings-hero');
-                      const resultsHeader = document.querySelector('.d-flex.justify-content-between.align-items-center.mb-4');
-                      const activeFilters = document.querySelector('.mb-4');
-                      const mapViewContainer = document.getElementById('map-view-container');
-                      const closeMapBtn = document.getElementById('close-map-btn');
-
-                      let mapInitialized = false;
-                      let mapListingsView = null;
-
-                      toggleBtn.addEventListener('click', function () {
-                        const isShowingMap = mapViewContainer.style.display === 'block';
-                        if (isShowingMap) {
-                          closeMapView();
-                        } else {
-                          openMapView();
-                        }
-                      });
-
-                      closeMapBtn.addEventListener('click', closeMapView);
-
-                      function openMapView() {
-                        mapViewContainer.style.display = 'block';
-                        document.body.style.overflow = 'hidden';
-                        toggleBtn.querySelector('.btn-text').textContent = 'Show List';
-                        toggleBtn.querySelector('i').className = 'fas fa-list';
-                        toggleBtn.classList.add('active');
-
-                        if (!mapInitialized) {
-                          mapListingsView = new MapListingsView('map-listings-wrapper', {
-                            mapToken: '<%= process.env.MAP_TOKEN %>',
-                            listings: [], // Start empty for faster initial load
-                            fetchUrl: '/listings/api/map' // Fetch data asynchronously
-                          });
-                          mapInitialized = true;
-                        }
-                      }
-
-                      function closeMapView() {
-                        mapViewContainer.style.display = 'none';
-                        document.body.style.overflow = 'auto';
-                        toggleBtn.querySelector('.btn-text').textContent = 'Show Map';
-                        toggleBtn.querySelector('i').className = 'fas fa-map';
-                        toggleBtn.classList.remove('active');
-                        // Bring back elements
-                        gridContainer.style.opacity = '1';
-                        if (heroSection) heroSection.style.display = 'block';
-                      }
-
                       // Wishlist functionality
                       // ... existing code ...
                     });

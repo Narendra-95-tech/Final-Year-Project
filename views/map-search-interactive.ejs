@@ -1,0 +1,119 @@
+<% layout("/layouts/boilerplate") -%>
+
+    <link rel="stylesheet" href="/css/map-search-interactive.css">
+    <link rel="stylesheet" href="/css/map-enhancements.css">
+    <!-- Mapbox CSS -->
+    <link href="https://api.mapbox.com/mapbox-gl-js/v2.15.0/mapbox-gl.css" rel="stylesheet">
+    <!-- Mapbox Geocoder CSS -->
+    <link rel="stylesheet"
+        href="https://api.mapbox.com/mapbox-gl-js/plugins/mapbox-gl-geocoder/v5.0.0/mapbox-gl-geocoder.css"
+        type="text/css">
+    <!-- Mapbox Draw CSS -->
+    <link rel="stylesheet" href="https://api.mapbox.com/mapbox-gl-js/plugins/mapbox-gl-draw/v1.4.0/mapbox-gl-draw.css"
+        type="text/css" />
+    <!-- Mapbox Directions CSS -->
+    <link rel="stylesheet"
+        href="https://api.mapbox.com/mapbox-gl-js/plugins/mapbox-gl-directions/v4.1.1/mapbox-gl-directions.css"
+        type="text/css">
+
+
+    <div class="map-page-container">
+
+        <!-- Sidebar -->
+        <aside class="map-sidebar">
+            <button class="sidebar-toggle-btn" title="Toggle Sidebar">
+                <i class="fas fa-chevron-left"></i>
+            </button>
+
+            <div class="sidebar-header">
+                <h1 class="sidebar-title">Explore Map</h1>
+                <div class="sidebar-stats">
+                    <span id="result-count" class="stat-item"><i class="fas fa-search"></i> Loading results...</span>
+                </div>
+            </div>
+
+            <div class="sidebar-filters">
+                <div class="filter-group">
+                    <div class="filter-title">What are you looking for?</div>
+                    <div class="type-toggles">
+                        <div class="type-toggle active" data-type="listings">
+                            <i class="fas fa-home" style="color: var(--listing-color);"></i>
+                            <span>Stays</span>
+                        </div>
+                        <div class="type-toggle active" data-type="vehicles">
+                            <i class="fas fa-car" style="color: var(--vehicle-color);"></i>
+                            <span>Vehicles</span>
+                        </div>
+                        <div class="type-toggle active" data-type="dhabas">
+                            <i class="fas fa-utensils" style="color: var(--dhaba-color);"></i>
+                            <span>Food</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Price Filter (Placeholder for now) -->
+                <div class="filter-group">
+                    <div class="filter-title">Price Range</div>
+                    <input type="range" class="form-range" min="0" max="50000" id="priceRange">
+                    <div class="range-inputs">
+                        <span>₹0</span>
+                        <span>₹50,000+</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Results List (Hidden by default, shown when syncing) -->
+            <div class="sidebar-results-list" id="sidebar-results-list">
+                <!-- Items will be injected here -->
+            </div>
+        </aside>
+
+        <!-- Map Container -->
+        <main class="map-container">
+            <div id="map"></div>
+
+            <!-- Style Switcher -->
+            <div class="style-switcher">
+                <button class="style-btn active" data-style="mapbox://styles/mapbox/streets-v12" title="Streets">
+                    <i class="fas fa-map"></i>
+                </button>
+                <button class="style-btn" data-style="mapbox://styles/mapbox/satellite-streets-v12" title="Satellite">
+                    <i class="fas fa-satellite"></i>
+                </button>
+                <button class="style-btn" data-style="mapbox://styles/mapbox/dark-v11" title="Dark Mode">
+                    <i class="fas fa-moon"></i>
+                </button>
+                <button class="style-btn" data-style="mapbox://styles/mapbox/outdoors-v12" title="Terrain">
+                    <i class="fas fa-mountain"></i>
+                </button>
+            </div>
+
+            <div class="map-overlays">
+                <button class="map-control-btn" id="toggle-3d-btn" title="Toggle 3D Buildings">
+                    <i class="fas fa-cube"></i>
+                </button>
+            </div>
+
+            <button class="search-area-btn">
+                <i class="fas fa-redo-alt"></i> Search this area
+            </button>
+
+            <!-- Mobile Trigger -->
+            <button class="mobile-filters-trigger">
+                <i class="fas fa-filter"></i> Filters & List
+            </button>
+        </main>
+
+    </div>
+
+    <script>
+        const mapToken = "<%= mapToken %>";
+    </script>
+    <script src="https://api.mapbox.com/mapbox-gl-js/v2.15.0/mapbox-gl.js"></script>
+    <script
+        src="https://api.mapbox.com/mapbox-gl-js/plugins/mapbox-gl-geocoder/v5.0.0/mapbox-gl-geocoder.min.js"></script>
+    <script src="https://api.mapbox.com/mapbox-gl-js/plugins/mapbox-gl-draw/v1.4.0/mapbox-gl-draw.js"></script>
+    <script
+        src="https://api.mapbox.com/mapbox-gl-js/plugins/mapbox-gl-directions/v4.1.1/mapbox-gl-directions.js"></script>
+    <script src="https://unpkg.com/@turf/turf@6/turf.min.js"></script> <!-- Turf.js for spatial analysis -->
+    <script src="/js/map-search-interactive.js"></script>

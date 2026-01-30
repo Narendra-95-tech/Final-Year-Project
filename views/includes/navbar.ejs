@@ -783,6 +783,12 @@
       <!-- Right Navigation -->
       <ul class="navbar-nav align-items-center ms-auto">
         <li class="nav-item">
+          <a class="nav-link <%= typeof currentPage !== 'undefined' && currentPage === 'map' ? 'active' : '' %>"
+            href="/map">
+            <i class="fas fa-map-marked-alt"></i> Map View
+          </a>
+        </li>
+        <li class="nav-item">
           <a class="nav-link <%= typeof currentPage !== 'undefined' && currentPage === 'listings' ? 'active' : '' %>"
             href="/listings">
             <i class="fas fa-home"></i> Listings
