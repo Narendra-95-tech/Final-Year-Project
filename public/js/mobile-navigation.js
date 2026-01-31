@@ -57,19 +57,37 @@
         const currentPath = window.location.pathname;
         const navItems = document.querySelectorAll('.mobile-nav-item');
 
+        // Remove active class from all items first
+        navItems.forEach(item => item.classList.remove('active'));
+
+        // Find best match
+        let bestMatch = null;
+        let bestMatchLength = 0;
+
         navItems.forEach(item => {
             const href = item.getAttribute('href');
+            if (!href) return;
 
-            // Remove active class from all
-            item.classList.remove('active');
-
-            // Add active class to current page
-            if (href === currentPath ||
-                (href === '/' && currentPath === '/') ||
-                (href !== '/' && currentPath.startsWith(href))) {
-                item.classList.add('active');
+            // Exact match
+            if (href === currentPath) {
+                bestMatch = item;
+                bestMatchLength = href.length;
+            }
+            // Partial match (for nested routes)
+            else if (href !== '/' && currentPath.startsWith(href) && href.length > bestMatchLength) {
+                bestMatch = item;
+                bestMatchLength = href.length;
+            }
+            // Home page
+            else if (href === '/' && currentPath === '/' && !bestMatch) {
+                bestMatch = item;
             }
         });
+
+        // Apply active class to best match
+        if (bestMatch) {
+            bestMatch.classList.add('active');
+        }
     }
 
     // Update notification badge

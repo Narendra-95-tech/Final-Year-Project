@@ -2,7 +2,14 @@
 (function () {
   let deferredPrompt;
   const INSTALL_DISMISSED_KEY = 'pwa-install-dismissed';
-  const DAYS_TO_WAIT_AFTER_DISMISSAL = 7;
+  const HOURS_TO_WAIT_AFTER_DISMISSAL = 2; // Wait 2 hours before showing again
+
+  // DEBUG: Check for reset_pwa parameter
+  const urlParams = new URLSearchParams(window.location.search);
+  if (urlParams.has('reset_pwa')) {
+    localStorage.removeItem(INSTALL_DISMISSED_KEY);
+    console.log('🔄 PWA dismissal history cleared debug command');
+  }
 
   // Register Service Worker
   if ('serviceWorker' in navigator) {
@@ -22,10 +29,10 @@
     const dismissed = localStorage.getItem(INSTALL_DISMISSED_KEY);
     if (dismissed) {
       const lastDismissal = parseInt(dismissed);
-      const daysSince = (Date.now() - lastDismissal) / (1000 * 60 * 60 * 24);
+      const hoursSince = (Date.now() - lastDismissal) / (1000 * 60 * 60);
 
-      if (daysSince < DAYS_TO_WAIT_AFTER_DISMISSAL) {
-        console.log(`ℹ️ PWA promotion dismissed ${daysSince.toFixed(1)} days ago. Waiting ${DAYS_TO_WAIT_AFTER_DISMISSAL} days.`);
+      if (hoursSince < HOURS_TO_WAIT_AFTER_DISMISSAL) {
+        console.log(`ℹ️ PWA promotion dismissed ${hoursSince.toFixed(1)} hours ago. Waiting ${HOURS_TO_WAIT_AFTER_DISMISSAL} hours.`);
         return false;
       }
     }

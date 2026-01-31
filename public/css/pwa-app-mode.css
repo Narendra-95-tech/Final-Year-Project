@@ -61,7 +61,8 @@
     justify-content: center;
     z-index: 99999;
     opacity: 1;
-    transition: opacity 0.5s ease;
+    transition: opacity 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+    backdrop-filter: blur(20px);
 }
 
 .pwa-splash.hidden {
@@ -73,7 +74,8 @@
     width: 120px;
     height: 120px;
     margin-bottom: 24px;
-    animation: pulse 2s ease-in-out infinite;
+    animation: logoFloat 2s ease-in-out infinite;
+    filter: drop-shadow(0 10px 30px rgba(0, 0, 0, 0.3));
 }
 
 .pwa-splash-text {
@@ -97,6 +99,18 @@
     border-top-color: white;
     border-radius: 50%;
     animation: spin 1s linear infinite;
+}
+
+@keyframes logoFloat {
+
+    0%,
+    100% {
+        transform: translateY(0) scale(1);
+    }
+
+    50% {
+        transform: translateY(-10px) scale(1.05);
+    }
 }
 
 @keyframes pulse {
@@ -286,17 +300,48 @@
         }
     }
 
-    /* Card tap animations */
-    .card:active {
-        transform: scale(0.98);
-        transition: transform 0.1s ease;
+    /* Card tap animations with haptic-style feedback */
+    .card {
+        transition: transform 0.2s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.2s ease;
     }
 
-    /* Button tap animations */
+    .card:active {
+        transform: scale(0.97);
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+    }
+
+    /* Button tap animations with ripple effect */
+    .btn,
+    button {
+        position: relative;
+        overflow: hidden;
+        transition: transform 0.1s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
     .btn:active,
     button:active {
-        transform: scale(0.95);
-        transition: transform 0.1s ease;
+        transform: scale(0.96);
+    }
+
+    /* Ripple effect on tap */
+    .btn::after,
+    button::after {
+        content: '';
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        width: 0;
+        height: 0;
+        border-radius: 50%;
+        background: rgba(255, 255, 255, 0.5);
+        transform: translate(-50%, -50%);
+        transition: width 0.6s, height 0.6s;
+    }
+
+    .btn:active::after,
+    button:active::after {
+        width: 300px;
+        height: 300px;
     }
 }
 

@@ -64,6 +64,22 @@
             "purpose": "any maskable"
         }
     ],
+    "screenshots": [
+        {
+            "src": "/images/screenshot-home.png",
+            "sizes": "1080x1920",
+            "type": "image/png",
+            "form_factor": "narrow",
+            "label": "WanderLust home screen showing featured stays and search"
+        },
+        {
+            "src": "/images/screenshot-listing.png",
+            "sizes": "1080x1920",
+            "type": "image/png",
+            "form_factor": "narrow",
+            "label": "Property details with amenities and booking options"
+        }
+    ],
     "categories": [
         "travel",
         "lifestyle",

@@ -14,11 +14,13 @@
     // Initialize app mode features
     if (isStandalone) {
         initStandaloneMode();
+        console.log('🚀 Running in standalone PWA mode');
     }
 
     // Always initialize these features
     initPullToRefresh();
     initOfflineDetection();
+    initHapticFeedback();
     showSplashScreen();
 
     /**
@@ -55,6 +57,20 @@
 
         // Enable page transitions
         enablePageTransitions();
+
+        // Add app-like scroll behavior
+        document.body.style.overscrollBehavior = 'contain';
+
+        // Disable text selection for app-like feel
+        document.body.style.webkitUserSelect = 'none';
+        document.body.style.userSelect = 'none';
+
+        // Allow text selection in inputs and textareas
+        const selectableElements = document.querySelectorAll('input, textarea, [contenteditable]');
+        selectableElements.forEach(el => {
+            el.style.webkitUserSelect = 'text';
+            el.style.userSelect = 'text';
+        });
     }
 
     /**
@@ -83,12 +99,12 @@
     `;
         document.body.prepend(splash);
 
-        // Hide splash after content loads
+        // Hide splash after content loads with smooth transition
         window.addEventListener('load', () => {
             setTimeout(() => {
                 splash.classList.add('hidden');
-                setTimeout(() => splash.remove(), 500);
-            }, 1500);
+                setTimeout(() => splash.remove(), 600);
+            }, 1200); // Show for at least 1.2 seconds
         });
     }
 
@@ -101,6 +117,7 @@
         let startY = 0;
         let currentY = 0;
         let pulling = false;
+        let canPull = false;
 
         const indicator = document.createElement('div');
         indicator.className = 'pull-to-refresh';
@@ -111,17 +128,19 @@
             if (window.pageYOffset === 0) {
                 startY = e.touches[0].pageY;
                 pulling = true;
+                canPull = true;
             }
         }, { passive: true });
 
         document.addEventListener('touchmove', (e) => {
-            if (!pulling) return;
+            if (!pulling || !canPull) return;
 
             currentY = e.touches[0].pageY;
             const pullDistance = currentY - startY;
 
             if (pullDistance > 0 && pullDistance < 100) {
                 indicator.style.top = `${pullDistance - 60}px`;
+                indicator.style.transform = `rotate(${pullDistance * 3}deg)`;
             }
         }, { passive: true });
 
@@ -131,16 +150,20 @@
             const pullDistance = currentY - startY;
 
             if (pullDistance > 80) {
-                // Trigger refresh
+                // Trigger refresh with haptic feedback
+                triggerHaptic('medium');
                 indicator.classList.add('active');
+                indicator.style.top = '20px';
                 setTimeout(() => {
                     window.location.reload();
                 }, 500);
             } else {
                 indicator.style.top = '-60px';
+                indicator.style.transform = 'rotate(0deg)';
             }
 
             pulling = false;
+            canPull = false;
         });
     }
 
@@ -153,6 +176,40 @@
         if (main) {
             main.classList.add('page-transition');
         }
+    }
+
+    /**
+     * Initialize haptic feedback
+     */
+    function initHapticFeedback() {
+        // Check if Vibration API is supported
+        if (!('vibrate' in navigator)) {
+            console.log('Haptic feedback not supported');
+            return;
+        }
+
+        // Add haptic feedback to buttons and links
+        document.addEventListener('click', (e) => {
+            const target = e.target.closest('button, a, .btn, .card, .mobile-nav-item');
+            if (target && isStandalone) {
+                triggerHaptic('light');
+            }
+        }, { passive: true });
+    }
+
+    /**
+     * Trigger haptic feedback
+     */
+    function triggerHaptic(intensity = 'light') {
+        if (!('vibrate' in navigator)) return;
+
+        const patterns = {
+            light: 10,
+            medium: 20,
+            heavy: 30
+        };
+
+        navigator.vibrate(patterns[intensity] || patterns.light);
     }
 
     /**
