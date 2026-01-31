@@ -32,6 +32,7 @@
     return true;
   }
 
+  // --- Android / Desktop Logic ---
   // Listen for beforeinstallprompt event
   window.addEventListener('beforeinstallprompt', (e) => {
     console.log('💡 PWA install prompt available (beforeinstallprompt fired)');
@@ -50,14 +51,78 @@
     }
   });
 
-  // Show install promotion
+  // --- iOS Logic ---
+  // Update: Removed 'iphone' exclusion to be more inclusive of iPadOS which requests desktop site often
+  const isIos = () => {
+    const userAgent = window.navigator.userAgent.toLowerCase();
+    return /iphone|ipad|ipod/.test(userAgent);
+  };
+
+  const isInStandaloneMode = () => ('standalone' in window.navigator) && (window.navigator.standalone);
+
+  // Check for iOS on load
+  if (isIos() && !isInStandaloneMode() && shouldShowPromotion()) {
+    // Show iOS-specific banner
+    showIosInstallPromotion();
+  }
+
+  // Show install promotion (for Android/Desktop)
   function showInstallPromotion() {
     // Create install banner if it doesn't exist
-    if (!document.getElementById('pwa-install-banner')) {
-      const banner = document.createElement('div');
-      banner.id = 'pwa-install-banner';
-      banner.className = 'pwa-install-banner';
-      banner.innerHTML = `
+    if (document.getElementById('pwa-install-banner')) return;
+
+    const banner = createBannerHTML();
+    document.body.appendChild(banner);
+
+    // Add event listeners
+    document.getElementById('pwa-install-btn').addEventListener('click', installPWA);
+    document.getElementById('pwa-dismiss-btn').addEventListener('click', dismissInstallPromotion);
+
+    // Show banner with animation
+    // Use a small delay to ensure DOM is ready and transition triggers
+    requestAnimationFrame(() => {
+      setTimeout(() => {
+        banner.classList.add('show');
+      }, 100);
+    });
+  }
+
+  // Show iOS-specific install promotion
+  function showIosInstallPromotion() {
+    if (document.getElementById('pwa-install-banner')) return;
+
+    const banner = document.createElement('div');
+    banner.id = 'pwa-install-banner';
+    banner.className = 'pwa-install-banner ios-banner';
+    banner.innerHTML = `
+            <div class="pwa-banner-content">
+                <div class="pwa-banner-icon">
+                    <img src="/images/wanderlust-logo.svg" alt="WanderLust" width="48" height="48">
+                </div>
+                <div class="pwa-banner-text">
+                    <strong>Install WanderLust</strong>
+                    <p>Tap <svg class="ios-share-icon" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"/><polyline points="16 6 12 2 8 6"/><line x1="12" y1="2" x2="12" y2="15"/></svg> then "Add to Home Screen"</p>
+                </div>
+                <div class="pwa-banner-actions">
+                    <button id="pwa-dismiss-btn" class="btn-dismiss-pwa">×</button>
+                </div>
+            </div>
+        `;
+
+    document.body.appendChild(banner);
+    document.getElementById('pwa-dismiss-btn').addEventListener('click', dismissInstallPromotion);
+
+    requestAnimationFrame(() => {
+      setTimeout(() => banner.classList.add('show'), 100);
+    });
+  }
+
+  // Helper to create the standard banner HTML
+  function createBannerHTML() {
+    const banner = document.createElement('div');
+    banner.id = 'pwa-install-banner';
+    banner.className = 'pwa-install-banner';
+    banner.innerHTML = `
       <div class="pwa-banner-content">
         <div class="pwa-banner-icon">
           <img src="/images/wanderlust-logo.svg" alt="WanderLust" width="48" height="48">
@@ -72,21 +137,7 @@
         </div>
       </div>
     `;
-
-      document.body.appendChild(banner);
-
-      // Add event listeners
-      document.getElementById('pwa-install-btn').addEventListener('click', installPWA);
-      document.getElementById('pwa-dismiss-btn').addEventListener('click', dismissInstallPromotion);
-
-      // Show banner with animation
-      // Use a small delay to ensure DOM is ready and transition triggers
-      requestAnimationFrame(() => {
-        setTimeout(() => {
-          banner.classList.add('show');
-        }, 100);
-      });
-    }
+    return banner;
   }
 
   // Install PWA
@@ -173,7 +224,7 @@
     right: 0;
     background: linear-gradient(135deg, #FF385C, #FF5A5F);
     color: white;
-    padding: 16px 20px;
+    padding: 12px 20px;
     box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.15);
     z-index: 10000;
     transition: bottom 0.4s cubic-bezier(0.22, 1, 0.36, 1);
@@ -181,6 +232,7 @@
   
   .pwa-install-banner.show {
     bottom: 0;
+    padding-bottom: env(safe-area-inset-bottom, 20px); /* Handle iPhone Home Indicator */
   }
   
   .pwa-banner-content {
@@ -213,6 +265,15 @@
     margin: 0;
     font-size: 14px;
     opacity: 0.95;
+    line-height: 1.4;
+  }
+  
+  .ios-share-icon {
+    height: 18px;
+    vertical-align: middle;
+    margin: 0 4px;
+    filter: brightness(0) invert(1);
+    display: inline-block;
   }
   
   .pwa-banner-actions {
@@ -225,12 +286,13 @@
     background: white;
     color: #FF385C;
     border: none;
-    padding: 10px 24px;
+    padding: 8px 20px;
     border-radius: 20px;
     font-weight: 600;
     cursor: pointer;
     transition: all 0.2s ease;
     box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    white-space: nowrap;
   }
   
   .btn-install-pwa:hover {
@@ -250,7 +312,6 @@
     height: 32px;
     border-radius: 50%;
     font-size: 20px;
-    line-height: 1;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -264,11 +325,15 @@
   
   @media (max-width: 768px) {
     .pwa-banner-text p {
-      display: none;
+      display: block; /* Show text on mobile for iOS instructions */
     }
     
     .pwa-banner-content {
       gap: 12px;
+    }
+    
+    .pwa-install-banner.ios-banner .pwa-banner-text p {
+        font-size: 13px;
     }
     
     .btn-install-pwa {
