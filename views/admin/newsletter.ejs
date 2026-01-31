@@ -1,0 +1,348 @@
+<% layout("/layouts/boilerplate") %>
+
+    <!-- Quill.js Styles -->
+    <link href="https://cdn.quilljs.com/1.3.6/quill.snow.css" rel="stylesheet">
+
+    <style>
+        :root {
+            --dash-primary: #fe6b00;
+            --dash-secondary: #ff8533;
+            --dash-bg: rgba(255, 255, 255, 0.05);
+            --dash-border: rgba(255, 255, 255, 0.1);
+        }
+
+        .dashboard-container {
+            padding: 2rem 0;
+            animation: fadeIn 0.8s ease-out;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .glass-card {
+            background: var(--dash-bg);
+            backdrop-filter: blur(15px);
+            -webkit-backdrop-filter: blur(15px);
+            border: 1px solid var(--dash-border);
+            border-radius: 20px;
+            color: white;
+            overflow: hidden;
+        }
+
+        .stat-card {
+            transition: transform 0.3s cubic-bezier(0.34, 1.56, 1, 1);
+            cursor: pointer;
+        }
+
+        .stat-card:hover {
+            transform: scale(1.05);
+        }
+
+        .stat-icon {
+            font-size: 1.5rem;
+            width: 45px;
+            height: 45px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 12px;
+            margin-bottom: 10px;
+        }
+
+        #editor {
+            height: 350px;
+            background: white;
+            color: #333;
+            border-radius: 0 0 12px 12px;
+        }
+
+        .ql-toolbar {
+            background: #f8f9fa;
+            border-radius: 12px 12px 0 0;
+        }
+
+        .preview-modal .modal-content {
+            background: #fff;
+            color: #333;
+        }
+
+        .newsletter-btn-group {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+        }
+
+        .btn-test {
+            background: transparent;
+            border: 2px solid var(--dash-primary);
+            color: var(--dash-primary);
+        }
+
+        .btn-test:hover {
+            background: var(--dash-primary);
+            color: white;
+        }
+
+        .btn-broadcast {
+            background: var(--dash-primary);
+            border: none;
+            color: white;
+            box-shadow: 0 4px 15px rgba(254, 107, 0, 0.3);
+        }
+
+        .btn-broadcast:hover {
+            background: var(--dash-secondary);
+            box-shadow: 0 6px 20px rgba(254, 107, 0, 0.5);
+        }
+
+        .pulse-btn {
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0% {
+                box-shadow: 0 0 0 0 rgba(254, 107, 0, 0.4);
+            }
+
+            70% {
+                box-shadow: 0 0 0 15px rgba(254, 107, 0, 0);
+            }
+
+            100% {
+                box-shadow: 0 0 0 0 rgba(254, 107, 0, 0);
+            }
+        }
+    </style>
+
+    <div class="container dashboard-container">
+        <!-- Header Section -->
+        <div class="d-flex justify-content-between align-items-center mb-4 text-white">
+            <div>
+                <h2 class="mb-0 fw-bold"><i class="fas fa-paper-plane me-2 text-warning"></i>Newsletter V2</h2>
+                <p class="text-white-50 small">Manage subscriptions and broadcasts</p>
+            </div>
+            <div class="text-end">
+                <span class="badge bg-success p-2 rounded-pill">System Alive</span>
+            </div>
+        </div>
+
+        <!-- Stats Row -->
+        <div class="row g-3 mb-4">
+            <div class="col-md-3">
+                <div class="glass-card p-3 stat-card h-100">
+                    <div class="stat-icon bg-primary bg-opacity-25 text-primary"><i class="fas fa-users text-light"></i>
+                    </div>
+                    <h3 class="mb-0 fw-bold">
+                        <%= totalSubscribers %>
+                    </h3>
+                    <small class="text-white-50">Total Active</small>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="glass-card p-3 stat-card h-100 border-warning border-opacity-25">
+                    <div class="stat-icon bg-warning bg-opacity-25 text-warning"><i class="fas fa-utensils"></i></div>
+                    <h3 class="mb-0 fw-bold">
+                        <%= segmentStats.dhabas %>
+                    </h3>
+                    <small class="text-white-50">Dhaba Lovers</small>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="glass-card p-3 stat-card h-100 border-info border-opacity-25">
+                    <div class="stat-icon bg-info bg-opacity-25 text-info"><i class="fas fa-home"></i></div>
+                    <h3 class="mb-0 fw-bold">
+                        <%= segmentStats.listings %>
+                    </h3>
+                    <small class="text-white-50">Homes Seekers</small>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="glass-card p-3 stat-card h-100 border-light border-opacity-25">
+                    <div class="stat-icon bg-light bg-opacity-25 text-light"><i class="fas fa-car"></i></div>
+                    <h3 class="mb-0 fw-bold">
+                        <%= segmentStats.vehicles %>
+                    </h3>
+                    <small class="text-white-50">Car Renters</small>
+                </div>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-lg-8">
+                <div class="glass-card p-4">
+                    <h5 class="mb-4"><i class="fas fa-edit me-2"></i>Compose Email</h5>
+
+                    <form id="broadcastForm" action="/admin/newsletter/broadcast" method="POST">
+                        <div class="mb-3">
+                            <label class="form-label small text-white-50">Target Segment</label>
+                            <select name="segment" id="segmentSelect"
+                                class="form-select bg-dark border-secondary text-white">
+                                <option value="all">Every Single Subscriber (<%= totalSubscribers %>)</option>
+                                <option value="dhabas">Dhaba Lovers (<%= segmentStats.dhabas %>)</option>
+                                <option value="listings">Homes / Homestays (<%= segmentStats.listings %>)</option>
+                                <option value="vehicles">Vehicle Renters (<%= segmentStats.vehicles %>)</option>
+                            </select>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label small text-white-50">Email Subject</label>
+                            <input type="text" name="subject" id="emailSubject"
+                                class="form-control bg-dark border-secondary text-white" required
+                                placeholder="Subject line...">
+                        </div>
+
+                        <div class="mb-4">
+                            <label class="form-label small text-white-50">Message Body</label>
+                            <!-- Quill Editor Container -->
+                            <div id="editor"></div>
+                            <input type="hidden" name="message" id="messageContent">
+                        </div>
+
+                        <div class="newsletter-btn-group">
+                            <button type="button" class="btn btn-test rounded-pill py-2 fw-bold" id="btnPreview">
+                                <i class="fas fa-eye me-1"></i> Preview
+                            </button>
+                            <button type="button" class="btn btn-test rounded-pill py-2 fw-bold" id="btnTest">
+                                <i class="fas fa-vial me-1"></i> Send Test
+                            </button>
+                        </div>
+
+                        <button type="submit" class="btn btn-broadcast w-100 rounded-pill py-3 mt-3 fw-bold pulse-btn"
+                            id="btnBroadcast">
+                            <i class="fas fa-bullhorn me-2"></i> Blast to Segment
+                        </button>
+                    </form>
+                </div>
+            </div>
+
+            <div class="col-lg-4">
+                <div class="glass-card p-4 h-100">
+                    <h5><i class="fas fa-lightbulb me-2 text-warning"></i>Pro Tips</h5>
+                    <hr class="border-secondary">
+                    <ul class="list-unstyled small text-white-50">
+                        <li class="mb-3"><i class="fas fa-check text-success me-2"></i>Use <strong>bold</strong> and
+                            <em>italic</em> for emphasis.</li>
+                        <li class="mb-3"><i class="fas fa-check text-success me-2"></i>Include links to high-performing
+                            listings.</li>
+                        <li class="mb-3"><i class="fas fa-exclamation-triangle text-warning me-2"></i>Always send a
+                            <strong>Test Email</strong> to yourself before broadcasting.</li>
+                        <li class="mb-3"><i class="fas fa-info-circle text-info me-2"></i>Segmenting helps reduce
+                            unsubscribes!</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Preview Modal -->
+    <div class="modal fade preview-modal" id="previewModal" tabindex="-1">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content border-0 overflow-hidden" style="border-radius: 20px;">
+                <div class="modal-header bg-dark text-white border-0">
+                    <h5 class="modal-title">Email Preview</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body p-0">
+                    <div class="p-4 bg-light text-center">
+                        <h4 id="previewSubject" class="fw-bold mb-0 text-muted"></h4>
+                    </div>
+                    <div class="p-4" id="previewBody" style="min-height: 200px;">
+                        <!-- Content injected here -->
+                    </div>
+                    <div class="p-4 bg-light text-center small text-muted border-top">
+                        &copy; 2026 WanderLust Travel. All rights reserved.
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Quill.js Scripts -->
+    <script src="https://cdn.quilljs.com/1.3.6/quill.js"></script>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            // Initialize Quill
+            var quill = new Quill('#editor', {
+                theme: 'snow',
+                placeholder: 'Type your awesome newsletter here...',
+                modules: {
+                    toolbar: [
+                        [{ 'header': [1, 2, 3, false] }],
+                        ['bold', 'italic', 'underline', 'strike'],
+                        [{ 'list': 'ordered' }, { 'list': 'bullet' }],
+                        [{ 'color': [] }, { 'background': [] }],
+                        ['link', 'clean']
+                    ]
+                }
+            });
+
+            const form = document.getElementById('broadcastForm');
+            const previewBtn = document.getElementById('btnPreview');
+            const testBtn = document.getElementById('btnTest');
+            const previewModal = new bootstrap.Modal(document.getElementById('previewModal'));
+
+            // Preview Logic
+            previewBtn.addEventListener('click', () => {
+                document.getElementById('previewSubject').innerText = document.getElementById('emailSubject').value || 'No Subject';
+                document.getElementById('previewBody').innerHTML = quill.root.innerHTML;
+                previewModal.show();
+            });
+
+            // Test Email Logic
+            testBtn.addEventListener('click', async () => {
+                const subject = document.getElementById('emailSubject').value;
+                const message = quill.root.innerHTML;
+
+                if (!subject) return alert('Please enter a subject first!');
+
+                testBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Sending...';
+                testBtn.disabled = true;
+
+                try {
+                    const res = await fetch('/admin/newsletter/test', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ subject, message })
+                    });
+                    const data = await res.json();
+                    if (data.success) {
+                        alert('✨ ' + data.message);
+                    } else {
+                        alert('❌ ' + data.message);
+                    }
+                } catch (e) {
+                    alert('Err: ' + e.message);
+                } finally {
+                    testBtn.innerHTML = '<i class="fas fa-vial me-1"></i> Send Test';
+                    testBtn.disabled = false;
+                }
+            });
+
+            // Broadcast Submit Logic
+            form.addEventListener('submit', function (e) {
+                const message = quill.root.innerHTML;
+                if (quill.getText().trim().length === 0) {
+                    e.preventDefault();
+                    return alert('Please write some content first!');
+                }
+                document.getElementById('messageContent').value = message;
+
+                if (!confirm('🚨 CRITICAL: Are you sure you want to BLAST this to the selected segment?')) {
+                    e.preventDefault();
+                } else {
+                    document.getElementById('btnBroadcast').innerHTML = '<i class="fas fa-spinner fa-spin"></i> Broadcasting...';
+                    document.getElementById('btnBroadcast').classList.remove('pulse-btn');
+                }
+            });
+        });
+    </script>

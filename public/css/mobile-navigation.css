@@ -1,0 +1,322 @@
+/* ========================================
+   MOBILE BOTTOM NAVIGATION (Airbnb-style)
+   ======================================== */
+
+.mobile-bottom-nav {
+    display: none;
+    /* Hidden on desktop */
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background: #ffffff;
+    border-top: 1px solid #e0e0e0;
+    box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.1);
+    z-index: 1000;
+    padding: 8px 0 calc(8px + env(safe-area-inset-bottom));
+    /* Safe area for notched phones */
+    backdrop-filter: blur(10px);
+    background: rgba(255, 255, 255, 0.95);
+}
+
+.mobile-bottom-nav-container {
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+    max-width: 100%;
+    margin: 0 auto;
+}
+
+.mobile-nav-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-decoration: none;
+    color: #717171;
+    padding: 4px 12px;
+    min-width: 60px;
+    transition: all 0.2s ease;
+    position: relative;
+}
+
+.mobile-nav-item i {
+    font-size: 22px;
+    margin-bottom: 4px;
+    transition: all 0.2s ease;
+}
+
+.mobile-nav-item span {
+    font-size: 10px;
+    font-weight: 500;
+    text-align: center;
+    transition: all 0.2s ease;
+}
+
+/* Active state */
+.mobile-nav-item.active {
+    color: #FF385C;
+}
+
+.mobile-nav-item.active i {
+    transform: scale(1.1);
+}
+
+.mobile-nav-item.active span {
+    font-weight: 600;
+}
+
+/* Tap feedback */
+.mobile-nav-item:active {
+    transform: scale(0.95);
+    opacity: 0.7;
+}
+
+/* Badge for notifications */
+.mobile-nav-badge {
+    position: absolute;
+    top: 0;
+    right: 8px;
+    background: #FF385C;
+    color: white;
+    font-size: 10px;
+    font-weight: 600;
+    padding: 2px 5px;
+    border-radius: 10px;
+    min-width: 16px;
+    text-align: center;
+}
+
+/* Show on mobile only */
+@media (max-width: 768px) {
+    .mobile-bottom-nav {
+        display: block;
+    }
+
+    /* Add padding to body to prevent content from being hidden behind nav */
+    body {
+        padding-bottom: 70px;
+    }
+
+    /* Hide desktop navbar on mobile */
+    .navbar {
+        display: none !important;
+    }
+}
+
+/* ========================================
+   MOBILE HEADER (Simplified)
+   ======================================== */
+
+.mobile-header {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    background: white;
+    border-bottom: 1px solid #e0e0e0;
+    padding: 12px 16px;
+    z-index: 999;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.08);
+}
+
+.mobile-header-content {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.mobile-logo {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    text-decoration: none;
+    color: #FF385C;
+    font-size: 20px;
+    font-weight: 700;
+}
+
+.mobile-logo img {
+    height: 28px;
+    width: auto;
+}
+
+.mobile-menu-btn {
+    background: none;
+    border: none;
+    font-size: 24px;
+    color: #222;
+    cursor: pointer;
+    padding: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+@media (max-width: 768px) {
+    .mobile-header {
+        display: block;
+    }
+
+    /* Add padding to body for fixed header */
+    body {
+        padding-top: 60px;
+    }
+}
+
+/* ========================================
+   MOBILE MENU OVERLAY
+   ======================================== */
+
+.mobile-menu-overlay {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.5);
+    z-index: 9998;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+.mobile-menu-overlay.active {
+    opacity: 1;
+}
+
+.mobile-menu {
+    position: fixed;
+    top: 0;
+    right: -100%;
+    width: 85%;
+    max-width: 400px;
+    height: 100%;
+    background: white;
+    z-index: 9999;
+    transition: right 0.3s ease;
+    overflow-y: auto;
+    box-shadow: -2px 0 10px rgba(0, 0, 0, 0.1);
+}
+
+.mobile-menu.active {
+    right: 0;
+}
+
+.mobile-menu-header {
+    padding: 20px;
+    border-bottom: 1px solid #e0e0e0;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.mobile-menu-close {
+    background: none;
+    border: none;
+    font-size: 28px;
+    color: #222;
+    cursor: pointer;
+    padding: 8px;
+}
+
+.mobile-menu-content {
+    padding: 20px;
+}
+
+.mobile-menu-section {
+    margin-bottom: 30px;
+}
+
+.mobile-menu-section h3 {
+    font-size: 14px;
+    font-weight: 600;
+    color: #717171;
+    text-transform: uppercase;
+    margin-bottom: 12px;
+    letter-spacing: 0.5px;
+}
+
+.mobile-menu-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px 0;
+    text-decoration: none;
+    color: #222;
+    font-size: 16px;
+    transition: all 0.2s ease;
+    border-bottom: 1px solid #f0f0f0;
+}
+
+.mobile-menu-item:last-child {
+    border-bottom: none;
+}
+
+.mobile-menu-item i {
+    font-size: 20px;
+    color: #717171;
+    width: 24px;
+    text-align: center;
+}
+
+.mobile-menu-item:active {
+    background: #f7f7f7;
+    padding-left: 8px;
+}
+
+@media (max-width: 768px) {
+    .mobile-menu-overlay {
+        display: block;
+    }
+}
+
+/* ========================================
+   MOBILE RESPONSIVE UTILITIES
+   ======================================== */
+
+/* Hide on mobile */
+@media (max-width: 768px) {
+    .hide-mobile {
+        display: none !important;
+    }
+}
+
+/* Show only on mobile */
+.show-mobile {
+    display: none !important;
+}
+
+@media (max-width: 768px) {
+    .show-mobile {
+        display: block !important;
+    }
+
+    .show-mobile-flex {
+        display: flex !important;
+    }
+
+    .show-mobile-inline {
+        display: inline !important;
+    }
+}
+
+/* Touch-friendly tap targets */
+@media (max-width: 768px) {
+
+    .btn,
+    .form-control,
+    a,
+    button {
+        min-height: 44px;
+        /* Apple's recommended minimum */
+    }
+
+    /* Prevent zoom on input focus */
+    input,
+    select,
+    textarea {
+        font-size: 16px !important;
+    }
+}

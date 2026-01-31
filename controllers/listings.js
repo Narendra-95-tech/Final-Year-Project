@@ -1,4 +1,5 @@
 const Listing = require('../models/listing');
+const User = require('../models/user');
 const Booking = require('../models/booking');
 const mbxGeocoding = require('@mapbox/mapbox-sdk/services/geocoding');
 const mapToken = process.env.MAP_TOKEN;
@@ -170,6 +171,11 @@ module.exports.createListing = async (req, res, next) => {
     newListing.geometry = response.body.features[0].geometry;
 
     let savedListing = await newListing.save();
+
+    // Auto-promote user to host if they are currently a basic user
+    if (req.user && req.user.role === "user") {
+        await User.findByIdAndUpdate(req.user._id, { role: "host" });
+    }
 
     req.flash("success", "New Listing Created!");
     res.redirect("/listings");

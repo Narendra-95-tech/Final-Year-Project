@@ -1,20 +1,30 @@
 <style>
-  /* ===== MODERN FOOTER DESIGN ===== */
+  /* ===== PREMIUM FOOTER V2 DESIGN ===== */
   footer {
-    background: linear-gradient(135deg, var(--gray-900), var(--gray-800));
-    color: var(--gray-900);
+    background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+    color: #e2e8f0;
     margin-top: auto;
-    padding: 4rem 0 2rem 0;
+    padding: 5rem 0 2rem 0;
     position: relative;
     overflow: hidden;
-    transition: all var(--transition-normal);
+    font-family: 'Plus Jakarta Sans', sans-serif;
   }
 
-  [data-theme="dark"] footer {
-    background: linear-gradient(135deg, #0a0e27, #1a1f3a);
-    color: var(--gray-100);
+  /* Subtle Pattern Overlay */
+  footer::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-image:
+      radial-gradient(circle at 15% 50%, rgba(254, 66, 77, 0.08) 0%, transparent 25%),
+      radial-gradient(circle at 85% 30%, rgba(66, 133, 244, 0.08) 0%, transparent 25%);
+    pointer-events: none;
   }
 
+  /* Top Gradient Border */
   footer::before {
     content: '';
     position: absolute;
@@ -22,94 +32,118 @@
     left: 0;
     right: 0;
     height: 4px;
-    background: linear-gradient(90deg, var(--primary-orange), var(--secondary-blue), var(--primary-orange));
+    background: linear-gradient(90deg, #ff385c, #d90b3e, #ff385c);
     background-size: 200% 100%;
-    animation: gradientShift 3s ease-in-out infinite;
+    animation: gradientShift 4s ease-in-out infinite;
+    box-shadow: 0 0 15px rgba(255, 56, 92, 0.5);
   }
 
   @keyframes gradientShift {
-    0%, 100% { background-position: 0% 50%; }
-    50% { background-position: 100% 50%; }
+
+    0%,
+    100% {
+      background-position: 0% 50%;
+    }
+
+    50% {
+      background-position: 100% 50%;
+    }
   }
 
+  /* Brand Section */
   .footer-brand {
-    font-weight: 700;
-    font-size: 1.5rem;
-    color: var(--primary-orange) !important;
+    font-weight: 800;
+    font-size: 1.8rem;
+    color: #ff385c !important;
     text-decoration: none;
-    display: flex;
+    display: inline-flex;
     align-items: center;
-    gap: 0.5rem;
-    margin-bottom: 1rem;
-    transition: all var(--transition-fast);
-  }
-
-  .footer-brand:hover {
-    color: var(--primary-orange-hover) !important;
-    transform: translateY(-2px);
+    gap: 0.75rem;
+    margin-bottom: 1.25rem;
+    letter-spacing: -0.5px;
   }
 
   .footer-brand i {
-    font-size: 1.8rem;
+    font-size: 2rem;
+    filter: drop-shadow(0 0 8px rgba(255, 56, 92, 0.4));
   }
 
-  /* Footer Description */
   .footer-description {
-    color: var(--gray-300);
-    font-size: 0.9rem;
-    line-height: 1.6;
-    max-width: 300px;
+    color: #94a3b8;
+    font-size: 0.95rem;
+    line-height: 1.7;
+    margin-bottom: 2rem;
+    max-width: 350px;
   }
 
-  /* Social Links */
-  .social-links {
+  /* Newsletter Box */
+  .newsletter-box {
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    padding: 1.5rem;
+    border-radius: 16px;
+    backdrop-filter: blur(10px);
+    margin-bottom: 2rem;
+  }
+
+  .newsletter-title {
+    font-weight: 700;
+    color: #fff;
+    margin-bottom: 0.5rem;
     display: flex;
-    gap: 1rem;
-    margin-top: 1.5rem;
+    align-items: center;
+    gap: 0.5rem;
   }
 
-  .social-link {
+  .newsletter-input-group {
+    position: relative;
+    display: flex;
+    gap: 0.5rem;
+    margin-top: 1rem;
+  }
+
+  .newsletter-input {
+    background: rgba(0, 0, 0, 0.2);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    color: #fff;
+    padding: 0.75rem 1rem;
+    border-radius: 12px;
+    width: 100%;
+    outline: none;
+    transition: all 0.3s ease;
+  }
+
+  .newsletter-input:focus {
+    border-color: #ff385c;
+    box-shadow: 0 0 0 3px rgba(255, 56, 92, 0.15);
+  }
+
+  .newsletter-btn {
+    background: #ff385c;
+    color: white;
+    border: none;
     width: 45px;
     height: 45px;
-    border-radius: 50%;
-    background: rgba(255, 255, 255, 0.1);
-    color: var(--white);
+    border-radius: 12px;
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 1.1rem;
-    text-decoration: none;
-    transition: all var(--transition-fast);
-    backdrop-filter: blur(10px);
-    border: 1px solid rgba(255, 255, 255, 0.2);
+    cursor: pointer;
+    transition: all 0.3s ease;
+    flex-shrink: 0;
   }
 
-  .social-link:hover {
-    background: var(--primary-orange);
-    color: var(--white);
-    transform: translateY(-3px) scale(1.1);
-    box-shadow: var(--shadow-lg);
-    border-color: var(--primary-orange);
+  .newsletter-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(255, 56, 92, 0.3);
   }
 
-  /* Footer Links */
+  /* Headings & Links */
   .footer-heading {
-    color: var(--white);
-    font-weight: 600;
+    color: #fff;
+    font-weight: 700;
     font-size: 1.1rem;
     margin-bottom: 1.5rem;
-    position: relative;
-  }
-
-  .footer-heading::after {
-    content: '';
-    position: absolute;
-    bottom: -5px;
-    left: 0;
-    width: 30px;
-    height: 2px;
-    background: var(--primary-orange);
-    border-radius: var(--radius-full);
   }
 
   .footer-links {
@@ -118,210 +152,394 @@
     margin: 0;
   }
 
-  .footer-links li {
-    margin-bottom: 0.75rem;
-  }
-
   .footer-link {
-    color: var(--gray-300);
+    color: #94a3b8;
     text-decoration: none;
-    font-size: 0.9rem;
-    transition: all var(--transition-fast);
+    font-size: 0.95rem;
     display: flex;
     align-items: center;
     gap: 0.5rem;
+    margin-bottom: 0.85rem;
+    transition: all 0.2s ease;
   }
 
   .footer-link:hover {
-    color: var(--primary-orange);
-    text-decoration: none;
+    color: #ff385c;
     transform: translateX(5px);
   }
 
-  .footer-link i {
-    font-size: 0.8rem;
-    opacity: 0.7;
-    transition: all var(--transition-fast);
+  /* App Buttons */
+  .app-buttons {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
   }
 
-  .footer-link:hover i {
-    opacity: 1;
-    color: var(--primary-orange);
+  .app-btn {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    padding: 0.6rem 1rem;
+    border-radius: 12px;
+    text-decoration: none;
+    color: #fff;
+    transition: all 0.3s ease;
+  }
+
+  .app-btn:hover {
+    background: rgba(255, 255, 255, 0.1);
+    transform: translateY(-2px);
+    border-color: rgba(255, 255, 255, 0.2);
+  }
+
+  .app-btn i {
+    font-size: 1.5rem;
+  }
+
+  .app-btn-text span {
+    display: block;
+    font-size: 0.7rem;
+    color: #94a3b8;
+    line-height: 1;
+  }
+
+  .app-btn-text strong {
+    font-size: 0.9rem;
+    font-weight: 600;
+  }
+
+  /* Social Links with Glow */
+  .social-links {
+    display: flex;
+    gap: 0.75rem;
+    margin-top: 1.5rem;
+  }
+
+  .social-link {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.05);
+    color: #fff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+  }
+
+  .social-link:hover {
+    transform: translateY(-4px) scale(1.1);
+  }
+
+  .social-link.fb:hover {
+    background: #1877f2;
+    border-color: #1877f2;
+    box-shadow: 0 4px 15px rgba(24, 119, 242, 0.4);
+  }
+
+  .social-link.tw:hover {
+    background: #1da1f2;
+    border-color: #1da1f2;
+    box-shadow: 0 4px 15px rgba(29, 161, 242, 0.4);
+  }
+
+  .social-link.ig:hover {
+    background: linear-gradient(45deg, #f09433 0%, #e6683c 25%, #dc2743 50%, #cc2366 75%, #bc1888 100%);
+    border-color: transparent;
+    box-shadow: 0 4px 15px rgba(220, 39, 67, 0.4);
+  }
+
+  .social-link.li:hover {
+    background: #0077b5;
+    border-color: #0077b5;
+    box-shadow: 0 4px 15px rgba(0, 119, 181, 0.4);
   }
 
   /* Footer Bottom */
   .footer-bottom {
-    border-top: 1px solid rgba(255, 255, 255, 0.1);
+    margin-top: 4rem;
     padding-top: 2rem;
-    margin-top: 3rem;
+    border-top: 1px solid rgba(255, 255, 255, 0.08);
     display: flex;
     justify-content: space-between;
     align-items: center;
     flex-wrap: wrap;
-    gap: 1rem;
+    gap: 1.5rem;
   }
 
-  .footer-copyright {
-    color: var(--gray-400);
-    font-size: 0.85rem;
-    margin: 0;
+  .payment-methods {
+    display: flex;
+    gap: 0.5rem;
+    font-size: 1.5rem;
+    color: #94a3b8;
   }
 
-  .footer-contact {
-    color: var(--gray-400);
-    font-size: 0.85rem;
-    margin: 0;
+  .payment-methods i {
+    transition: color 0.3s;
+  }
+
+  .payment-methods i:hover {
+    color: #fff;
+  }
+
+  /* Back to Top */
+  .back-to-top {
+    position: fixed;
+    bottom: 30px;
+    right: 30px;
+    width: 50px;
+    height: 50px;
+    background: #ff385c;
+    color: white;
+    border-radius: 50%;
     display: flex;
     align-items: center;
-    gap: 1rem;
+    justify-content: center;
+    font-size: 1.2rem;
+    cursor: pointer;
+    box-shadow: 0 4px 15px rgba(255, 56, 92, 0.4);
+    transition: all 0.3s ease;
+    opacity: 0;
+    visibility: hidden;
+    z-index: 1000;
+    border: none;
   }
 
-  .footer-contact a {
-    color: var(--gray-400);
-    text-decoration: none;
-    transition: color var(--transition-fast);
+  .back-to-top.visible {
+    opacity: 1;
+    visibility: visible;
+    transform: translateY(0);
   }
 
-  .footer-contact a:hover {
-    color: var(--primary-orange);
+  .back-to-top:hover {
+    transform: translateY(-5px);
+    background: #e31c5f;
   }
 
-  /* Responsive Design */
   @media (max-width: 768px) {
-    footer {
-      padding: 3rem 0 1.5rem 0;
-      text-align: center;
-    }
-
     .footer-bottom {
       flex-direction: column;
-      gap: 1.5rem;
       text-align: center;
-    }
-
-    .footer-contact {
-      flex-direction: column;
-      gap: 0.5rem;
-    }
-
-    .social-links {
-      justify-content: center;
-    }
-  }
-
-  @media (max-width: 576px) {
-    .footer-description {
-      max-width: none;
-    }
-
-    .social-links {
-      flex-wrap: wrap;
-      gap: 0.75rem;
-    }
-
-    .social-link {
-      width: 40px;
-      height: 40px;
-      font-size: 1rem;
     }
   }
 </style>
 
 <footer>
   <div class="container">
-    <div class="row g-4">
-      <!-- Company Info -->
-      <div class="col-lg-4 col-md-6">
+    <div class="row g-5">
+      <!-- Brand & Newsletter -->
+      <div class="col-lg-4 col-md-12">
         <a class="footer-brand" href="/">
           <i class="fas fa-compass"></i>
           WanderLust
         </a>
         <p class="footer-description">
-          Your complete travel companion. Find perfect stays, rent vehicles, and discover authentic local dhabas all in one place.
+          Discover unique stays, authentic dhabas, and seamless vehicle rentals. Your all-in-one platform for
+          unforgettable journeys.
         </p>
+
+        <!-- Newsletter -->
+        <div class="newsletter-box">
+          <div class="newsletter-title">
+            <i class="fas fa-envelope-open-text text-warning"></i>
+            Subscribe for Travel Deals
+          </div>
+          <form class="newsletter-input-group flex-column" id="newsletterForm">
+            <div class="d-flex gap-3 mb-2 small text-white-50">
+              <label class="d-flex align-items-center gap-1 cursor-pointer">
+                <input type="checkbox" name="preferences" value="listings" checked> Homes
+              </label>
+              <label class="d-flex align-items-center gap-1 cursor-pointer">
+                <input type="checkbox" name="preferences" value="dhabas" checked> Dhabas
+              </label>
+              <label class="d-flex align-items-center gap-1 cursor-pointer">
+                <input type="checkbox" name="preferences" value="vehicles" checked> Cars
+              </label>
+            </div>
+            <div class="d-flex w-100 gap-2">
+              <input type="email" name="email" class="newsletter-input" placeholder="Enter your registered email..."
+                required>
+              <button type="submit" class="newsletter-btn">
+                <i class="fas fa-paper-plane"></i>
+              </button>
+            </div>
+          </form>
+          <div id="newsletterMsg" class="mt-2 small" style="display:none;"></div>
+
+          <script>
+            document.getElementById('newsletterForm').addEventListener('submit', async function (e) {
+              e.preventDefault();
+              const input = this.querySelector('input[name="email"]');
+              const btn = this.querySelector('button');
+              const msg = document.getElementById('newsletterMsg');
+
+              // Collect preferences
+              const prefs = Array.from(this.querySelectorAll('input[name="preferences"]:checked')).map(cb => cb.value);
+
+              const originalContent = btn.innerHTML;
+
+              btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
+              btn.disabled = true;
+              msg.style.display = 'none';
+
+              try {
+                const res = await fetch('/subscribe', {
+                  method: 'POST',
+                  headers: {
+                    'Content-Type': 'application/json',
+                    'Accept': 'application/json'
+                  },
+                  body: JSON.stringify({
+                    email: input.value,
+                    preferences: prefs
+                  })
+                });
+
+                console.log("Fetch status:", res.status); // Debug log
+
+                // Handle non-JSON responses (like 500 pages)
+                const contentType = res.headers.get("content-type");
+                let data;
+                if (contentType && contentType.indexOf("application/json") !== -1) {
+                  data = await res.json();
+                } else {
+                  throw new Error("Server returned non-JSON response: " + res.status);
+                }
+
+                msg.style.display = 'block';
+                if (data.success) {
+                  msg.style.setProperty('color', '#10b981', 'important');
+                  // Show promo code if available
+                  msg.innerHTML = data.code
+                    ? `Success! Code: <strong style="color:#fff; background:#10b981; padding:2px 6px; border-radius:4px;">${data.code}</strong> sent to email!`
+                    : 'Success! Check your email.';
+                  input.value = '';
+                  btn.innerHTML = '<i class="fas fa-check"></i>';
+                } else {
+                  msg.style.color = '#ef4444';
+                  msg.textContent = data.message || 'Something went wrong.';
+                  btn.innerHTML = originalContent;
+                }
+              } catch (err) {
+                msg.style.display = 'block';
+                msg.style.color = '#ef4444';
+                msg.textContent = 'Server error. Try again.';
+                btn.innerHTML = originalContent;
+              } finally {
+                btn.disabled = false;
+                setTimeout(() => {
+                  if (btn.innerHTML.includes('check')) btn.innerHTML = originalContent;
+                  msg.style.display = 'none';
+                }, 3000);
+              }
+            });
+          </script>
+        </div>
+
         <div class="social-links">
-          <a href="#" class="social-link" title="Facebook">
-            <i class="fab fa-facebook-f"></i>
-          </a>
-          <a href="#" class="social-link" title="Instagram">
-            <i class="fab fa-instagram"></i>
-          </a>
-          <a href="#" class="social-link" title="Twitter">
-            <i class="fab fa-twitter"></i>
-          </a>
-          <a href="#" class="social-link" title="LinkedIn">
-            <i class="fab fa-linkedin-in"></i>
-          </a>
-          <a href="#" class="social-link" title="YouTube">
-            <i class="fab fa-youtube"></i>
-          </a>
+          <a href="#" class="social-link fb"><i class="fab fa-facebook-f"></i></a>
+          <a href="#" class="social-link ig"><i class="fab fa-instagram"></i></a>
+          <a href="#" class="social-link tw"><i class="fab fa-twitter"></i></a>
+          <a href="#" class="social-link li"><i class="fab fa-linkedin-in"></i></a>
         </div>
       </div>
 
-      <!-- Explore -->
-      <div class="col-lg-2 col-md-3 col-6">
-        <h5 class="footer-heading">Explore</h5>
+      <!-- Quick Links -->
+      <div class="col-lg-2 col-md-4 col-6">
+        <h5 class="footer-heading">Discover</h5>
         <ul class="footer-links">
-          <li><a href="/listings" class="footer-link"><i class="fas fa-chevron-right"></i>Vacation Rentals</a></li>
-          <li><a href="/vehicles" class="footer-link"><i class="fas fa-chevron-right"></i>Vehicle Rentals</a></li>
-          <li><a href="/dhabas" class="footer-link"><i class="fas fa-chevron-right"></i>Local Dhabas</a></li>
-          <li><a href="/search" class="footer-link"><i class="fas fa-chevron-right"></i>Search</a></li>
-          <li><a href="#" class="footer-link"><i class="fas fa-chevron-right"></i>Featured Places</a></li>
+          <li><a href="/listings" class="footer-link">Homes</a></li>
+          <li><a href="/dhabas" class="footer-link">Dhabas</a></li>
+          <li><a href="/vehicles" class="footer-link">Vehicles</a></li>
+          <li><a href="/search" class="footer-link">Search</a></li>
         </ul>
       </div>
 
       <!-- Support -->
-      <div class="col-lg-2 col-md-3 col-6">
+      <div class="col-lg-2 col-md-4 col-6">
         <h5 class="footer-heading">Support</h5>
         <ul class="footer-links">
-          <li><a href="#" class="footer-link"><i class="fas fa-chevron-right"></i>Help Center</a></li>
-          <li><a href="#" class="footer-link"><i class="fas fa-chevron-right"></i>Contact Us</a></li>
-          <li><a href="#" class="footer-link"><i class="fas fa-chevron-right"></i>Safety</a></li>
-          <li><a href="#" class="footer-link"><i class="fas fa-chevron-right"></i>Trust & Safety</a></li>
-          <li><a href="#" class="footer-link"><i class="fas fa-chevron-right"></i>Cancellation</a></li>
+          <li><a href="#" class="footer-link">Help Center</a></li>
+          <li><a href="#" class="footer-link">Safety</a></li>
+          <li><a href="#" class="footer-link">Cancellation</a></li>
+          <li><a href="#" class="footer-link">Report Issue</a></li>
         </ul>
       </div>
 
-      <!-- Host -->
-      <div class="col-lg-2 col-md-6 col-6">
-        <h5 class="footer-heading">Host</h5>
-        <ul class="footer-links">
-          <li><a href="/listings/new" class="footer-link"><i class="fas fa-chevron-right"></i>List Property</a></li>
-          <li><a href="/vehicles/new" class="footer-link"><i class="fas fa-chevron-right"></i>List Vehicle</a></li>
-          <li><a href="/dhabas/new" class="footer-link"><i class="fas fa-chevron-right"></i>List Dhaba</a></li>
-          <li><a href="#" class="footer-link"><i class="fas fa-chevron-right"></i>Host Resources</a></li>
-          <li><a href="#" class="footer-link"><i class="fas fa-chevron-right"></i>Community</a></li>
-        </ul>
-      </div>
-
-      <!-- Legal -->
-      <div class="col-lg-2 col-md-6 col-6">
-        <h5 class="footer-heading">Legal</h5>
-        <ul class="footer-links">
-          <li><a href="#" class="footer-link"><i class="fas fa-chevron-right"></i>Privacy Policy</a></li>
-          <li><a href="#" class="footer-link"><i class="fas fa-chevron-right"></i>Terms of Service</a></li>
-          <li><a href="#" class="footer-link"><i class="fas fa-chevron-right"></i>Cookie Policy</a></li>
-          <li><a href="#" class="footer-link"><i class="fas fa-chevron-right"></i>Accessibility</a></li>
-          <li><a href="#" class="footer-link"><i class="fas fa-chevron-right"></i>Sitemap</a></li>
-        </ul>
+      <!-- Get the App -->
+      <div class="col-lg-4 col-md-4">
+        <h5 class="footer-heading">Get the App</h5>
+        <p class="text-white-50 small mb-3">Download for the best experience.</p>
+        <div class="app-buttons">
+          <a href="#" class="app-btn">
+            <i class="fab fa-apple"></i>
+            <div class="app-btn-text">
+              <span>Download on the</span>
+              <strong>App Store</strong>
+            </div>
+          </a>
+          <a href="#" class="app-btn">
+            <i class="fab fa-google-play"></i>
+            <div class="app-btn-text">
+              <span>GET IT ON</span>
+              <strong>Google Play</strong>
+            </div>
+          </a>
+        </div>
       </div>
     </div>
 
-    <!-- Footer Bottom -->
+    <!-- Bottom Bar -->
     <div class="footer-bottom">
-      <p class="footer-copyright">
-        &copy; <%= new Date().getFullYear() %> WanderLust Private Limited. All rights reserved.
-      </p>
-      <p class="footer-contact">
-        <a href="mailto:support@wanderlust.com">
-          <i class="fas fa-envelope"></i>
-          support@wanderlust.com
-        </a>
-        <a href="tel:+919876543210">
-          <i class="fas fa-phone"></i>
-          +91 98765 43210
-        </a>
-      </p>
+      <div class="copyright">
+        <p class="mb-0 text-white-50 small">&copy; <%= new Date().getFullYear() %> WanderLust Pvt Ltd. All rights
+            reserved.</p>
+        <div class="d-flex align-items-center gap-3 mt-2 text-white-50 small">
+          <a href="#" class="text-reset text-decoration-none hover-white">Privacy</a>
+          <span>•</span>
+          <a href="#" class="text-reset text-decoration-none hover-white">Terms</a>
+          <span>•</span>
+          <a href="tel:+919860182371" class="text-reset text-decoration-none hover-white"><i
+              class="fas fa-phone-alt me-1"></i> +91 98601 82371</a>
+        </div>
+      </div>
+
+      <!-- Trust Badges -->
+      <div class="payment-methods">
+        <i class="fab fa-cc-visa" title="Visa"></i>
+        <i class="fab fa-cc-mastercard" title="Mastercard"></i>
+        <i class="fab fa-cc-amex" title="Amex"></i>
+        <i class="fab fa-stripe" title="Stripe"></i>
+        <i class="fas fa-lock" title="Secure SSL" style="font-size: 1rem; margin-left:10px; opacity:0.7;"></i>
+      </div>
     </div>
   </div>
 </footer>
+
+<!-- Back to Top Button -->
+<button class="back-to-top" id="backToTop" title="Back to Top">
+  <i class="fas fa-arrow-up"></i>
+</button>
+
+<script>
+  // Back to Top Logic
+  const backToTopBtn = document.getElementById('backToTop');
+
+  window.addEventListener('scroll', () => {
+    if (window.scrollY > 300) {
+      backToTopBtn.classList.add('visible');
+    } else {
+      backToTopBtn.classList.remove('visible');
+    }
+  });
+
+  backToTopBtn.addEventListener('click', () => {
+    window.scrollTo({
+      top: 0,
+      behavior: 'smooth'
+    });
+  });
+</script>

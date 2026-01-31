@@ -1,4 +1,5 @@
 const Dhaba = require("../models/dhaba");
+const User = require("../models/user");
 const Review = require("../models/review");
 const crypto = require("crypto");
 
@@ -183,6 +184,12 @@ module.exports.createDhaba = async (req, res) => {
 
   try {
     await dhaba.save();
+
+    // Auto-promote user to host if they are currently a basic user
+    if (req.user && req.user.role === "user") {
+      await User.findByIdAndUpdate(req.user._id, { role: "host" });
+    }
+
     req.flash("success", "New dhaba added!");
     res.redirect("/dhabas");
   } catch (e) {

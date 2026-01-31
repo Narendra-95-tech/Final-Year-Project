@@ -1,0 +1,573 @@
+<% layout("/layouts/boilerplate") %>
+
+    <style>
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .stats-card {
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.9), rgba(255, 255, 255, 0.7));
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            border-radius: 16px;
+            padding: 1.5rem;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            animation: fadeInUp 0.5s ease-out;
+        }
+
+        .stats-card:hover {
+            transform: translateY(-8px) scale(1.02);
+            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.15);
+        }
+
+        .stats-icon {
+            width: 50px;
+            height: 50px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            transition: transform 0.3s ease;
+        }
+
+        .stats-card:hover .stats-icon {
+            transform: rotate(5deg) scale(1.1);
+        }
+
+        .search-filter-bar {
+            background: white;
+            border-radius: 12px;
+            padding: 1.5rem;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+            margin-bottom: 1.5rem;
+            animation: fadeInUp 0.6s ease-out;
+        }
+
+        .table-glass {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 16px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+            animation: fadeInUp 0.7s ease-out;
+        }
+
+        .table tbody tr {
+            transition: all 0.2s ease;
+        }
+
+        .table tbody tr:hover {
+            background-color: rgba(0, 123, 255, 0.05);
+            transform: scale(1.01);
+        }
+
+        .pagination-controls {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1rem;
+            background: white;
+            border-radius: 0 0 16px 16px;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 4rem 2rem;
+            animation: fadeInUp 0.5s ease-out;
+        }
+
+        .empty-state i {
+            font-size: 4rem;
+            color: #ddd;
+            margin-bottom: 1rem;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+
+            0%,
+            100% {
+                opacity: 0.5;
+            }
+
+            50% {
+                opacity: 1;
+            }
+        }
+
+        .btn {
+            transition: all 0.2s ease;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+        }
+
+        @media (max-width: 768px) {
+            .stats-card {
+                margin-bottom: 1rem;
+            }
+
+            .search-filter-bar .row {
+                gap: 0.5rem;
+            }
+        }
+    </style>
+
+    <div class="container py-5">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h1 class="fw-bold"><i class="fas fa-utensils me-2"></i>Manage Dhabas</h1>
+            <a href="/admin" class="btn btn-outline-dark rounded-pill"><i class="fas fa-arrow-left me-2"></i>Back to
+                Dashboard</a>
+        </div>
+
+        <!-- Statistics Cards -->
+        <div class="row g-3 mb-4">
+            <div class="col-md-3">
+                <div class="stats-card">
+                    <div class="d-flex align-items-center gap-3">
+                        <div class="stats-icon bg-primary bg-opacity-10 text-primary">
+                            <i class="fas fa-store"></i>
+                        </div>
+                        <div>
+                            <div class="text-muted small">Total Dhabas</div>
+                            <div class="fs-4 fw-bold" id="totalCount">
+                                <%= dhabas.length %>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="stats-card">
+                    <div class="d-flex align-items-center gap-3">
+                        <div class="stats-icon bg-success bg-opacity-10 text-success">
+                            <i class="fas fa-leaf"></i>
+                        </div>
+                        <div>
+                            <div class="text-muted small">Vegetarian</div>
+                            <div class="fs-4 fw-bold" id="vegCount">
+                                <%= dhabas.filter(d=> d.isVegetarian).length %>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="stats-card">
+                    <div class="d-flex align-items-center gap-3">
+                        <div class="stats-icon bg-danger bg-opacity-10 text-danger">
+                            <i class="fas fa-drumstick-bite"></i>
+                        </div>
+                        <div>
+                            <div class="text-muted small">Non-Vegetarian</div>
+                            <div class="fs-4 fw-bold" id="nonVegCount">
+                                <%= dhabas.filter(d=> !d.isVegetarian).length %>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="stats-card">
+                    <div class="d-flex align-items-center gap-3">
+                        <div class="stats-icon bg-info bg-opacity-10 text-info">
+                            <i class="fas fa-users"></i>
+                        </div>
+                        <div>
+                            <div class="text-muted small">Unique Owners</div>
+                            <div class="fs-4 fw-bold" id="ownerCount">
+                                <%= new Set(dhabas.map(d=> d.owner ? d.owner._id.toString() : 'unknown')).size %>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Search and Filter Bar -->
+        <div class="search-filter-bar">
+            <div class="row g-3 align-items-center">
+                <div class="col-md-5">
+                    <div class="input-group">
+                        <span class="input-group-text bg-light border-0"><i class="fas fa-search"></i></span>
+                        <input type="text" class="form-control border-0 bg-light" id="searchInput"
+                            placeholder="Search by name, location, or owner...">
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <select class="form-select border-0 bg-light" id="typeFilter">
+                        <option value="">All Types</option>
+                        <option value="veg">Vegetarian Only</option>
+                        <option value="nonveg">Non-Vegetarian Only</option>
+                    </select>
+                </div>
+                <div class="col-md-2">
+                    <button class="btn btn-outline-secondary w-100" onclick="resetFilters()">
+                        <i class="fas fa-redo me-2"></i>Reset
+                    </button>
+                </div>
+                <div class="col-md-2">
+                    <button class="btn btn-success w-100" onclick="exportToCSV()">
+                        <i class="fas fa-download me-2"></i>Export
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Table -->
+        <div class="table-glass">
+            <div class="p-4">
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <div>
+                        <input type="checkbox" id="selectAll" class="form-check-input me-2">
+                        <label for="selectAll" class="form-check-label small text-muted">Select All</label>
+                        <button class="btn btn-sm btn-danger ms-3" id="bulkDeleteBtn" style="display: none;"
+                            onclick="bulkDelete()">
+                            <i class="fas fa-trash me-1"></i>Delete Selected
+                        </button>
+                    </div>
+                    <div class="text-muted small">
+                        Showing <span id="showingCount">0</span> of <span id="totalCountDisplay">
+                            <%= dhabas.length %>
+                        </span> dhabas
+                    </div>
+                </div>
+                <div class="table-responsive">
+                    <table class="table align-middle mb-0">
+                        <thead>
+                            <tr>
+                                <th width="30"></th>
+                                <th style="cursor: pointer;" onclick="sortTable('name')">
+                                    Dhaba <i class="fas fa-sort ms-1"></i>
+                                </th>
+                                <th style="cursor: pointer;" onclick="sortTable('owner')">
+                                    Owner <i class="fas fa-sort ms-1"></i>
+                                </th>
+                                <th>Contact</th>
+                                <th style="cursor: pointer;" onclick="sortTable('type')">
+                                    Type <i class="fas fa-sort ms-1"></i>
+                                </th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="dhabasTableBody">
+                            <% for(let dhaba of dhabas) { %>
+                                <tr data-dhaba-id="<%= dhaba._id %>"
+                                    data-name="<%= (dhaba.name || 'Untitled').toLowerCase() %>"
+                                    data-location="<%= (dhaba.location || '').toLowerCase() %>"
+                                    data-owner="<%= dhaba.owner ? dhaba.owner.username.toLowerCase() : 'unknown' %>"
+                                    data-type="<%= dhaba.isVegetarian ? 'veg' : 'nonveg' %>">
+                                    <td>
+                                        <input type="checkbox" class="form-check-input row-checkbox">
+                                    </td>
+                                    <td>
+                                        <div class="d-flex align-items-center gap-3">
+                                            <img src="<%= dhaba.image.url %>"
+                                                style="width: 50px; height: 50px; object-fit: cover; border-radius: 8px;">
+                                            <div>
+                                                <div class="fw-bold">
+                                                    <%= (dhaba.name || "Untitled" ) %>
+                                                </div>
+                                                <div class="text-muted small">
+                                                    <i class="fas fa-map-marker-alt me-1"></i>
+                                                    <%= (dhaba.location || "N/A" ) %>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <div class="small fw-bold">
+                                            <%= dhaba.owner ? dhaba.owner.username : 'Unknown' %>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <i class="fas fa-phone text-primary me-2"></i>
+                                        <%= dhaba.phone %>
+                                    </td>
+                                    <td>
+                                        <% if(dhaba.isVegetarian) { %>
+                                            <span class="badge bg-success rounded-pill">
+                                                <i class="fas fa-leaf me-1"></i>Veg
+                                            </span>
+                                            <% } else { %>
+                                                <span class="badge bg-danger rounded-pill">
+                                                    <i class="fas fa-drumstick-bite me-1"></i>Non-Veg
+                                                </span>
+                                                <% } %>
+                                    </td>
+                                    <td>
+                                        <div class="d-flex gap-2">
+                                            <a href="/dhabas/<%= dhaba._id %>"
+                                                class="btn btn-sm btn-light rounded-circle shadow-sm" title="View">
+                                                <i class="fas fa-eye"></i>
+                                            </a>
+                                            <form method="POST" action="/admin/dhabas/<%= dhaba._id %>?_method=DELETE"
+                                                onsubmit="return confirm('Permanently remove this Dhaba?')">
+                                                <button
+                                                    class="btn btn-sm btn-danger bg-opacity-10 text-danger border-0 rounded-circle shadow-sm"
+                                                    title="Delete">
+                                                    <i class="fas fa-trash"></i>
+                                                </button>
+                                            </form>
+                                        </div>
+                                    </td>
+                                </tr>
+                                <% } %>
+                        </tbody>
+                    </table>
+                </div>
+                <div id="emptyState" class="empty-state" style="display: none;">
+                    <i class="fas fa-search"></i>
+                    <h4 class="text-muted">No dhabas found</h4>
+                    <p class="text-muted">Try adjusting your search or filter criteria</p>
+                </div>
+            </div>
+
+            <!-- Pagination -->
+            <div class="pagination-controls">
+                <div>
+                    <select class="form-select form-select-sm" id="itemsPerPage" style="width: auto;">
+                        <option value="10">10 per page</option>
+                        <option value="25">25 per page</option>
+                        <option value="50">50 per page</option>
+                        <option value="100">100 per page</option>
+                    </select>
+                </div>
+                <nav>
+                    <ul class="pagination pagination-sm mb-0" id="pagination">
+                    </ul>
+                </nav>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let currentPage = 1;
+        let itemsPerPage = 10;
+        let allRows = [];
+        let filteredRows = [];
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', function () {
+            allRows = Array.from(document.querySelectorAll('#dhabasTableBody tr'));
+            filteredRows = [...allRows];
+            updateDisplay();
+
+            // Event listeners
+            document.getElementById('searchInput').addEventListener('input', filterTable);
+            document.getElementById('typeFilter').addEventListener('change', filterTable);
+            document.getElementById('itemsPerPage').addEventListener('change', function () {
+                itemsPerPage = parseInt(this.value);
+                currentPage = 1;
+                updateDisplay();
+            });
+            document.getElementById('selectAll').addEventListener('change', function () {
+                const checkboxes = document.querySelectorAll('.row-checkbox:not([style*="display: none"])');
+                checkboxes.forEach(cb => cb.checked = this.checked);
+                updateBulkDeleteButton();
+            });
+
+            // Row checkbox listeners
+            document.querySelectorAll('.row-checkbox').forEach(cb => {
+                cb.addEventListener('change', updateBulkDeleteButton);
+            });
+        });
+
+        function filterTable() {
+            const searchTerm = document.getElementById('searchInput').value.toLowerCase();
+            const typeFilter = document.getElementById('typeFilter').value;
+
+            filteredRows = allRows.filter(row => {
+                const name = row.dataset.name;
+                const location = row.dataset.location;
+                const owner = row.dataset.owner;
+                const type = row.dataset.type;
+
+                const matchesSearch = !searchTerm ||
+                    name.includes(searchTerm) ||
+                    location.includes(searchTerm) ||
+                    owner.includes(searchTerm);
+
+                const matchesType = !typeFilter || type === typeFilter;
+
+                return matchesSearch && matchesType;
+            });
+
+            currentPage = 1;
+            updateDisplay();
+        }
+
+        function updateDisplay() {
+            // Hide all rows
+            allRows.forEach(row => row.style.display = 'none');
+
+            // Calculate pagination
+            const start = (currentPage - 1) * itemsPerPage;
+            const end = start + itemsPerPage;
+            const pageRows = filteredRows.slice(start, end);
+
+            // Show current page rows
+            pageRows.forEach(row => row.style.display = '');
+
+            // Update counts
+            document.getElementById('showingCount').textContent = filteredRows.length;
+
+            // Show/hide empty state
+            const emptyState = document.getElementById('emptyState');
+            const tableBody = document.getElementById('dhabasTableBody');
+            if (filteredRows.length === 0) {
+                emptyState.style.display = 'block';
+                tableBody.style.display = 'none';
+            } else {
+                emptyState.style.display = 'none';
+                tableBody.style.display = '';
+            }
+
+            // Update pagination
+            renderPagination();
+            updateBulkDeleteButton();
+        }
+
+        function renderPagination() {
+            const totalPages = Math.ceil(filteredRows.length / itemsPerPage);
+            const pagination = document.getElementById('pagination');
+            pagination.innerHTML = '';
+
+            if (totalPages <= 1) return;
+
+            // Previous button
+            const prevLi = document.createElement('li');
+            prevLi.className = `page-item ${currentPage === 1 ? 'disabled' : ''}`;
+            prevLi.innerHTML = `<a class="page-link" href="#" onclick="changePage(${currentPage - 1}); return false;">Previous</a>`;
+            pagination.appendChild(prevLi);
+
+            // Page numbers
+            for (let i = 1; i <= totalPages; i++) {
+                if (i === 1 || i === totalPages || (i >= currentPage - 1 && i <= currentPage + 1)) {
+                    const li = document.createElement('li');
+                    li.className = `page-item ${i === currentPage ? 'active' : ''}`;
+                    li.innerHTML = `<a class="page-link" href="#" onclick="changePage(${i}); return false;">${i}</a>`;
+                    pagination.appendChild(li);
+                } else if (i === currentPage - 2 || i === currentPage + 2) {
+                    const li = document.createElement('li');
+                    li.className = 'page-item disabled';
+                    li.innerHTML = '<a class="page-link" href="#">...</a>';
+                    pagination.appendChild(li);
+                }
+            }
+
+            // Next button
+            const nextLi = document.createElement('li');
+            nextLi.className = `page-item ${currentPage === totalPages ? 'disabled' : ''}`;
+            nextLi.innerHTML = `<a class="page-link" href="#" onclick="changePage(${currentPage + 1}); return false;">Next</a>`;
+            pagination.appendChild(nextLi);
+        }
+
+        function changePage(page) {
+            const totalPages = Math.ceil(filteredRows.length / itemsPerPage);
+            if (page < 1 || page > totalPages) return;
+            currentPage = page;
+            updateDisplay();
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        function resetFilters() {
+            document.getElementById('searchInput').value = '';
+            document.getElementById('typeFilter').value = '';
+            filterTable();
+        }
+
+        function sortTable(column) {
+            const isAscending = filteredRows[0]?.dataset.sortOrder !== 'asc';
+
+            filteredRows.sort((a, b) => {
+                let aVal, bVal;
+                if (column === 'name') {
+                    aVal = a.dataset.name;
+                    bVal = b.dataset.name;
+                } else if (column === 'owner') {
+                    aVal = a.dataset.owner;
+                    bVal = b.dataset.owner;
+                } else if (column === 'type') {
+                    aVal = a.dataset.type;
+                    bVal = b.dataset.type;
+                }
+
+                if (isAscending) {
+                    return aVal > bVal ? 1 : -1;
+                } else {
+                    return aVal < bVal ? 1 : -1;
+                }
+            });
+
+            filteredRows.forEach(row => row.dataset.sortOrder = isAscending ? 'asc' : 'desc');
+            updateDisplay();
+        }
+
+        function updateBulkDeleteButton() {
+            const checkedBoxes = document.querySelectorAll('.row-checkbox:checked');
+            const visibleChecked = Array.from(checkedBoxes).filter(cb =>
+                cb.closest('tr').style.display !== 'none'
+            );
+            const bulkDeleteBtn = document.getElementById('bulkDeleteBtn');
+            bulkDeleteBtn.style.display = visibleChecked.length > 0 ? 'inline-block' : 'none';
+        }
+
+        function bulkDelete() {
+            const checkedBoxes = Array.from(document.querySelectorAll('.row-checkbox:checked'))
+                .filter(cb => cb.closest('tr').style.display !== 'none');
+
+            if (checkedBoxes.length === 0) return;
+
+            if (!confirm(`Are you sure you want to delete ${checkedBoxes.length} dhaba(s)?`)) return;
+
+            const deletePromises = checkedBoxes.map(cb => {
+                const row = cb.closest('tr');
+                const dhabaId = row.dataset.dhabaId;
+                return fetch(`/admin/dhabas/${dhabaId}?_method=DELETE`, {
+                    method: 'POST'
+                });
+            });
+
+            Promise.all(deletePromises).then(() => {
+                location.reload();
+            });
+        }
+
+        function exportToCSV() {
+            const headers = ['Name', 'Location', 'Owner', 'Contact', 'Type'];
+            const rows = filteredRows.map(row => {
+                const cells = row.querySelectorAll('td');
+                return [
+                    row.dataset.name,
+                    row.dataset.location,
+                    row.dataset.owner,
+                    cells[3].textContent.trim(),
+                    row.dataset.type === 'veg' ? 'Vegetarian' : 'Non-Vegetarian'
+                ];
+            });
+
+            let csvContent = headers.join(',') + '\n';
+            rows.forEach(row => {
+                csvContent += row.map(cell => `"${cell}"`).join(',') + '\n';
+            });
+
+            const blob = new Blob([csvContent], { type: 'text/csv' });
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `dhabas_${new Date().toISOString().split('T')[0]}.csv`;
+            a.click();
+            window.URL.revokeObjectURL(url);
+        }
+    </script>

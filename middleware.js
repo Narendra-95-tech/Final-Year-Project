@@ -37,8 +37,9 @@ module.exports.isLoggedIn = (req, res, next) => {
 };
 
 module.exports.isAdmin = (req, res, next) => {
-    if (!req.isAuthenticated() || !req.user || req.user.role !== "admin") {
-        req.flash("error", "Admin access required.");
+    const SUPER_ADMIN_EMAIL = "narendrabhute922@gmail.com";
+    if (!req.isAuthenticated() || !req.user || req.user.role !== "admin" || req.user.email !== SUPER_ADMIN_EMAIL) {
+        req.flash("error", "Access restricted to Master Admin only.");
         return res.redirect("/");
     }
     next();

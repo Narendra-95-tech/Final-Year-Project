@@ -1,0 +1,86 @@
+<% layout("/layouts/boilerplate") %>
+
+    <div class="container py-5">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h1 class="fw-bold">Content Moderation</h1>
+            <a href="/admin" class="btn btn-outline-dark rounded-pill">Back to Dashboard</a>
+        </div>
+
+        <div class="table-glass p-0">
+            <div class="p-4 border-bottom">
+                <h5 class="fw-bold mb-0">Platform Reviews</h5>
+                <p class="text-muted small">Manage and moderate user-generated ratings</p>
+            </div>
+            <div class="table-responsive">
+                <table class="table align-middle">
+                    <thead class="bg-light">
+                        <tr>
+                            <th class="ps-4">User</th>
+                            <th>Rating</th>
+                            <th>Comment</th>
+                            <th>Posted On</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <% if(reviews.length===0) { %>
+                            <tr>
+                                <td colspan="5" class="text-center py-5">
+                                    <i class="fas fa-comment-slash fa-3x text-muted mb-3 d-block"></i>
+                                    <div class="text-muted">No reviews found to moderate.</div>
+                                </td>
+                            </tr>
+                            <% } %>
+                                <% for(let review of reviews) { %>
+                                    <tr>
+                                        <td class="ps-4">
+                                            <div class="d-flex align-items-center gap-2">
+                                                <div class="rounded-circle bg-dark text-white d-flex align-items-center justify-content-center"
+                                                    style="width: 32px; height: 32px; font-size: 11px;">
+                                                    <%= (review.author && review.author.username) ?
+                                                        review.author.username[0].toUpperCase() : '?' %>
+                                                </div>
+                                                <div class="fw-bold small">
+                                                    <%= (review.author && review.author.username) ?
+                                                        review.author.username : 'Deleted User' %>
+                                                </div>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <% for(let i=0; i<5; i++) { %>
+                                                <i class="fas fa-star <%= i < review.rating ? 'text-warning' : 'text-muted opacity-25' %>"
+                                                    style="font-size: 11px;"></i>
+                                                <% } %>
+                                        </td>
+                                        <td style="max-width: 300px;">
+                                            <div class="text-truncate small" title="<%= review.comment %>">
+                                                <%= review.comment %>
+                                            </div>
+                                        </td>
+                                        <td class="text-muted small">
+                                            <%= review.createdAt.toLocaleDateString() %>
+                                        </td>
+                                        <td>
+                                            <div class="d-flex gap-2">
+                                                <button
+                                                    class="btn btn-sm btn-outline-success border-0 rounded-pill px-3"
+                                                    disabled>
+                                                    <i class="fas fa-check me-1"></i> Approved
+                                                </button>
+                                                <form method="POST"
+                                                    action="/admin/reviews/<%= review._id %>?_method=DELETE"
+                                                    onsubmit="return confirm('Delete this review permanently?')">
+                                                    <button
+                                                        class="btn btn-sm btn-outline-danger border-0 rounded-pill px-3">
+                                                        <i class="fas fa-times me-1"></i> Remove
+                                                    </button>
+                                                </form>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    <% } %>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>

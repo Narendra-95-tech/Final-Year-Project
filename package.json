@@ -15,8 +15,10 @@
     "seed:listings": "node init/listings.js",
     "seed:vehicles": "node init/vehicles.js",
     "seed:dhabas": "node seeds/index.js",
-    "build:assets": "node scripts/build-assets.js",
-    "build": "npm run build:assets"
+    "minify": "node scripts/minify-assets.js",
+    "build:assets": "npm run minify",
+    "build": "npm run build:assets",
+    "prebuild": "echo Building optimized assets for production..."
   },
   "engines": {
     "node": "18.x",
@@ -64,6 +66,7 @@
     "mongoose-findorcreate": "^4.0.0",
     "multer": "^2.0.2",
     "multer-storage-cloudinary": "^4.0.0",
+    "node-cache": "^5.1.2",
     "nodemailer": "^7.0.12",
     "openai": "^4.104.0",
     "passport": "^0.7.0",
@@ -78,6 +81,7 @@
     "stripe": "^19.1.0",
     "uuid": "^13.0.0",
     "validator": "^13.15.20",
+    "web-push": "^3.6.7",
     "winston": "^3.11.0",
     "ws": "^8.18.3",
     "xss-clean": "^0.1.4"
@@ -89,6 +93,6 @@
     "mongodb-memory-server": "^9.5.0",
     "nodemon": "^3.0.1",
     "supertest": "^6.3.4",
-    "terser": "^5.36.0"
+    "terser": "^5.46.0"
   }
 }

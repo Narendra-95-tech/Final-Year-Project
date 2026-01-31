@@ -10,7 +10,7 @@ exports.isLoggedIn = (req, res, next) => {
 
 // Middleware to check if user is an admin
 exports.isAdmin = (req, res, next) => {
-    if (req.isAuthenticated() && req.user.isAdmin) {
+    if (req.isAuthenticated() && req.user.role === 'admin') {
         return next();
     }
     req.flash('error', 'You do not have permission to access this page');

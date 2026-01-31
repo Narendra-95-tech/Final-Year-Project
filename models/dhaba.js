@@ -63,6 +63,12 @@ const dhabaSchema = new Schema({
     phone: {
         type: String,
         required: true,
+        validate: {
+            validator: function (v) {
+                return /^(\+91[\-\s]?)?[789]\d{9}$/.test(v);
+            },
+            message: props => `${props.value} is not a valid Indian phone number!`
+        }
     },
     email: String,
     website: String,

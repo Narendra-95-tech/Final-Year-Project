@@ -206,6 +206,8 @@ listingSchema.index({ owner: 1 }); // Optimize owner lookups
 listingSchema.index({ unavailableDates: 1 }); // Optimize availability queries
 listingSchema.index({ propertyType: 1, price: 1, guests: 1 }); // Compound index for common filters
 listingSchema.index({ geometry: '2dsphere' }); // Geospatial Index
+listingSchema.index({ createdAt: -1 }); // Recent listings
+listingSchema.index({ location: 1, price: 1 }); // Location-based price filtering
 
 listingSchema.post("findOneAndDelete", async (listing) => {
   if (listing) {

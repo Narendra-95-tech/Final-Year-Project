@@ -110,9 +110,12 @@
                     <div class="row">
                         <div class="mb-3 col-md-6">
                             <label for="phone" class="form-label">Phone Number</label>
-                            <input name="dhaba[phone]" placeholder="+91 9876543210" type="tel" class="form-control"
-                                required />
-                            <div class="invalid-feedback">Phone number is required</div>
+                            <input name="dhaba[phone]" id="phoneInput" placeholder="+91 9876543210" type="tel"
+                                class="form-control" required pattern="^(\+91[\-\s]?)?[789]\d{9}$" maxlength="15" />
+                            <div class="invalid-feedback">Please enter a valid 10-digit Indian phone number (e.g.,
+                                9876543210 or +91 9876543210).</div>
+                            <div id="phone-valid" class="text-success small mt-1" style="display:none;"><i
+                                    class="fas fa-check-circle"></i> Valid format</div>
                         </div>
 
                         <div class="mb-3 col-md-6">
@@ -299,6 +302,24 @@
                         } finally {
                             aiBtn.innerHTML = '<i class="fas fa-magic me-1"></i> Get AI Price';
                             aiBtn.disabled = false;
+                        }
+                    });
+                }
+
+                const phoneInput = document.getElementById('phoneInput');
+                const phoneValid = document.getElementById('phone-valid');
+
+                if (phoneInput) {
+                    phoneInput.addEventListener('input', function () {
+                        const regex = /^(\+91[\-\s]?)?[789]\d{9}$/;
+                        if (regex.test(this.value)) {
+                            this.classList.remove('is-invalid');
+                            this.classList.add('is-valid');
+                            phoneValid.style.display = 'block';
+                        } else {
+                            this.classList.remove('is-valid');
+                            this.classList.add('is-invalid');
+                            phoneValid.style.display = 'none';
                         }
                     });
                 }

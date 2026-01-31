@@ -44,7 +44,7 @@ const userSchema = new Schema({
     },
     role: {
         type: String,
-        enum: ["user", "admin"],
+        enum: ["user", "host", "admin"],
         default: "user"
     },
     followers: [{
@@ -143,6 +143,13 @@ const userSchema = new Schema({
         filename: String,
         type: { type: String, enum: ['ID', 'Passport', 'License'] },
         uploadedAt: { type: Date, default: Date.now }
+    }],
+    coupons: [{
+        code: String,
+        discountPercent: Number,
+        isUsed: { type: Boolean, default: false },
+        expiryDate: Date,
+        createdAt: { type: Date, default: Date.now }
     }]
 }, {
     timestamps: true,

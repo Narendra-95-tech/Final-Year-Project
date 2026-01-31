@@ -33,6 +33,17 @@
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap"
     rel="stylesheet">
 
+  <!-- Performance: DNS Prefetch for external resources -->
+  <link rel="dns-prefetch" href="https://cdn.jsdelivr.net">
+  <link rel="dns-prefetch" href="https://cdnjs.cloudflare.com">
+  <link rel="dns-prefetch" href="https://res.cloudinary.com">
+  <link rel="dns-prefetch" href="https://api.mapbox.com">
+  <link rel="dns-prefetch" href="https://js.stripe.com">
+
+  <!-- Performance: Preconnect to critical origins -->
+  <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
+  <link rel="preconnect" href="https://res.cloudinary.com" crossorigin>
+
   <!-- Bootstrap 5 & Font Awesome -->
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/css/bootstrap.min.css" rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
@@ -62,6 +73,11 @@
   <link rel="stylesheet" href="/css/enhanced-map.css">
   <link rel="stylesheet" href="/css/map-listings-view.css">
   <link rel="stylesheet" href="/css/map-controls.css">
+
+  <!-- Mobile Navigation CSS -->
+  <link rel="stylesheet" href="/css/mobile-navigation.css">
+  <link rel="stylesheet" href="/css/mobile-responsive.css">
+  <link rel="stylesheet" href="/css/pwa-app-mode.css">
 
   <!-- Responsive CSS Files -->
   <link rel="stylesheet" href="/css/dhabas-responsive.css">
@@ -505,609 +521,618 @@
     <!-- Navbar -->
     <%- include("../includes/navbar.ejs") %>
 
-      <!-- Main Content -->
-      <main>
-        <%- body %>
-      </main>
+      <!-- Mobile Navigation -->
+      <%- include("../includes/mobile-nav.ejs") %>
 
-      <!-- Footer -->
-      <%- include("../includes/footer.ejs") %>
+        <!-- Main Content -->
+        <main>
+          <%- body %>
+        </main>
 
-        <!-- Bootstrap JS Bundle with Popper -->
-        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+        <!-- Footer -->
+        <%- include("../includes/footer.ejs") %>
 
-        <!-- AOS (Animate On Scroll) -->
-        <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
+          <!-- Bootstrap JS Bundle with Popper -->
+          <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 
-        <!-- Socket.io -->
-        <script src="/socket.io/socket.io.js"></script>
-        <script>
-          // Initialize Socket.io
-          window.socket = io({
-            withCredentials: true,
-            transports: ['websocket', 'polling']
-          });
+          <!-- AOS (Animate On Scroll) -->
+          <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
 
-          window.socket.on('connect', () => {
-            console.log('Connected to WanderLust Real-time Services');
+          <!-- Socket.io -->
+          <script src="/socket.io/socket.io.js"></script>
+          <script>
+            // Initialize Socket.io
+            window.socket = io({
+              withCredentials: true,
+              transports: ['websocket', 'polling']
+            });
 
-            // Authenticate if user is logged in
-            const userId = document.querySelector('meta[name="user-id"]')?.content;
-            if (userId) {
-              window.socket.emit('authenticate', userId);
-            }
-          });
-        </script>
+            window.socket.on('connect', () => {
+              console.log('Connected to WanderLust Real-time Services');
 
-        <!-- Custom Scripts -->
-        <script src="/js/language-manager.js"></script>
-        <script src="/js/main.js"></script>
-        <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
-        <script src="/js/script.js"></script>
-        <script src="/js/booking.js"></script>
-        <script src="/js/vehicles.js"></script>
-        <script src="/js/dhabas.js"></script>
-        <script src="/js/enhanced-map.js"></script>
-        <script src="/js/map-listings-view.js"></script>
+              // Authenticate if user is logged in
+              const userId = document.querySelector('meta[name="user-id"]')?.content;
+              if (userId) {
+                window.socket.emit('authenticate', userId);
+              }
+            });
+          </script>
 
-        <!-- Performance: Lazy Loading for Images -->
-        <script src="/js/lazy-loading.js" defer></script>
+          <!-- Custom Scripts -->
+          <script src="/js/language-manager.js"></script>
+          <script src="/js/main.js"></script>
+          <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+          <script src="/js/script.js"></script>
+          <script src="/js/booking.js"></script>
+          <script src="/js/vehicles.js"></script>
+          <script src="/js/dhabas.js"></script>
+          <script src="/js/enhanced-map.js"></script>
+          <script src="/js/map-listings-view.js"></script>
 
-        <!-- PWA Installation Handler -->
-        <script src="/js/pwa-install.js" defer></script>
+          <!-- Performance: Lazy Loading for Images -->
+          <script src="/js/lazy-load.js" defer></script>
 
-        <!-- Google Maps API (add your API key) -->
-        <script src="https://maps.googleapis.com/maps/api/js?key=YOUR_GOOGLE_MAPS_API_KEY&libraries=places" async
-          defer></script>
+          <!-- Mobile Navigation -->
+          <script src="/js/mobile-navigation.js" defer></script>
 
-        <!-- Stripe JS -->
-        <script src="https://js.stripe.com/v3/"></script>
+          <!-- PWA Installation Handler -->
+          <script src="/js/pwa-install.js" defer></script>
+
+          <!-- Push Notifications -->
+          <script src="/js/push-notifications.js" defer></script>
+
+          <!-- Google Maps API (add your API key) -->
+          <script src="https://maps.googleapis.com/maps/api/js?key=YOUR_GOOGLE_MAPS_API_KEY&libraries=places" async
+            defer></script>
+
+          <!-- Stripe JS -->
+          <script src="https://js.stripe.com/v3/"></script>
 
 
 
-        <!-- AI Assistant Script -->
-        <script src="/js/ai-assistant-fixed.js" defer></script>
-        <style>
-          /* AI Assistant Floating Button */
-          .ai-assistant-float {
-            position: fixed;
-            bottom: 30px;
-            right: 30px;
-            width: 64px;
-            height: 64px;
-            border-radius: 50%;
-            background: linear-gradient(135deg, #4a6fa5, #2c4d7b);
-            color: white;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 28px;
-            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
-            cursor: pointer;
-            z-index: 9999;
-            transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
-            border: 2px solid rgba(255, 255, 255, 0.15);
-            animation: float 3s ease-in-out infinite;
-          }
-
-          @keyframes float {
-            0% {
-              transform: translateY(0px);
-            }
-
-            50% {
-              transform: translateY(-8px);
-            }
-
-            100% {
-              transform: translateY(0px);
-            }
-          }
-
-          .ai-assistant-float:hover {
-            transform: translateY(-5px) scale(1.05);
-            box-shadow: 0 12px 28px rgba(0, 0, 0, 0.2);
-            background: linear-gradient(135deg, #5a7fb5, #3c5d8b);
-          }
-
-          .ai-assistant-float i {
-            color: white;
-            filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.2));
-          }
-
-          /* AI Assistant Chat Container */
-          .ai-assistant {
-            position: fixed;
-            bottom: 100px;
-            right: 30px;
-            width: 380px;
-            max-width: calc(100vw - 60px);
-            height: 600px;
-            max-height: calc(100vh - 150px);
-            border-radius: 16px;
-            background: rgba(255, 255, 255, 0.98);
-            backdrop-filter: blur(10px);
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
-            display: flex;
-            flex-direction: column;
-            z-index: 9998;
-            overflow: hidden;
-            transform: translateY(20px);
-            opacity: 0;
-            visibility: hidden;
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-            border: 1px solid rgba(0, 0, 0, 0.05);
-          }
-
-          .ai-assistant.visible {
-            transform: translateY(0);
-            opacity: 1;
-            visibility: visible;
-          }
-
-          /* Header */
-          .ai-assistant-header {
-            padding: 18px 24px;
-            background: linear-gradient(135deg, #4a6fa5, #2c4d7b);
-            color: white;
-            display: flex;
-            align-items: center;
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-          }
-
-          .ai-avatar {
-            width: 40px;
-            height: 40px;
-            border-radius: 50%;
-            background: rgba(255, 255, 255, 0.2);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            margin-right: 12px;
-            font-size: 20px;
-          }
-
-          .header-content h3 {
-            margin: 0;
-            font-size: 16px;
-            font-weight: 600;
-            letter-spacing: 0.3px;
-          }
-
-          .ai-status {
-            font-size: 12px;
-            opacity: 0.9;
-            display: flex;
-            align-items: center;
-            margin-top: 2px;
-          }
-
-          .ai-status::before {
-            content: '';
-            display: inline-block;
-            width: 8px;
-            height: 8px;
-            background: #4caf50;
-            border-radius: 50%;
-            margin-right: 6px;
-            animation: pulse 2s infinite;
-          }
-
-          @keyframes pulse {
-            0% {
-              transform: scale(1);
-              opacity: 1;
-            }
-
-            50% {
-              transform: scale(1.2);
-              opacity: 0.8;
-            }
-
-            100% {
-              transform: scale(1);
-              opacity: 1;
-            }
-          }
-
-          /* Messages */
-          .ai-assistant-messages {
-            flex: 1;
-            overflow-y: auto;
-            padding: 20px;
-            background: #f8f9fa;
-            background-image: radial-gradient(#e0e0e0 1px, transparent 1px);
-            background-size: 20px 20px;
-          }
-
-          .message {
-            margin-bottom: 16px;
-            opacity: 0;
-            animation: fadeIn 0.3s ease-out forwards;
-            transform-origin: center bottom;
-          }
-
-          @keyframes fadeIn {
-            from {
-              opacity: 0;
-              transform: translateY(10px);
-            }
-
-            to {
-              opacity: 1;
-              transform: translateY(0);
-            }
-          }
-
-          .message-content {
-            display: flex;
-            max-width: 85%;
-            animation: slideIn 0.3s ease-out forwards;
-          }
-
-          .user-message .message-content {
-            margin-left: auto;
-            flex-direction: row-reverse;
-          }
-
-          .assistant-message .message-content {
-            margin-right: auto;
-          }
-
-          .message-text {
-            padding: 12px 16px;
-            border-radius: 18px;
-            background: white;
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
-            word-wrap: break-word;
-            line-height: 1.5;
-            font-size: 14px;
-            position: relative;
-            transition: all 0.2s ease;
-          }
-
-          .user-message .message-text {
-            background: #4a6fa5;
-            color: white;
-            border-bottom-right-radius: 4px;
-          }
-
-          .assistant-message .message-text {
-            border-bottom-left-radius: 4px;
-            background: white;
-            border: 1px solid #e0e0e0;
-          }
-
-          /* Input Area */
-          .ai-assistant-input {
-            padding: 16px;
-            background: white;
-            border-top: 1px solid rgba(0, 0, 0, 0.05);
-            box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.02);
-          }
-
-          .input-group {
-            display: flex;
-            align-items: center;
-            background: #f5f7fa;
-            border-radius: 24px;
-            padding: 4px 4px 4px 16px;
-          }
-
-          .message-input {
-            flex: 1;
-            min-height: 40px;
-            max-height: 120px;
-            border: none;
-            background: transparent;
-            outline: none;
-            resize: none;
-            font-family: inherit;
-            font-size: 14px;
-            line-height: 1.5;
-            padding: 8px 0;
-            color: #333;
-          }
-
-          .message-input:empty:before {
-            content: attr(placeholder);
-            color: #9e9e9e;
-            pointer-events: none;
-          }
-
-          .input-group button {
-            background: none;
-            border: none;
-            color: #666;
-            font-size: 18px;
-            padding: 8px 12px;
-            cursor: pointer;
-            transition: all 0.2s ease;
-            border-radius: 50%;
-            width: 40px;
-            height: 40px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-          }
-
-          .input-group button:hover {
-            background: rgba(0, 0, 0, 0.05);
-            color: #4a6fa5;
-          }
-
-          .send-btn {
-            background: #4a6fa5 !important;
-            color: white !important;
-            margin-left: 4px;
-          }
-
-          .send-btn:hover {
-            background: #3a5f8f !important;
-            transform: scale(1.05);
-          }
-
-          /* Typing Indicator */
-          .typing-indicator {
-            display: none;
-            padding: 12px 20px;
-            align-items: center;
-            justify-content: center;
-          }
-
-          .typing-indicator span {
-            width: 8px;
-            height: 8px;
-            background-color: #9e9e9e;
-            border-radius: 50%;
-            display: inline-block;
-            margin: 0 2px;
-            animation: bounce 1.4s infinite ease-in-out both;
-          }
-
-          .typing-indicator span:nth-child(1) {
-            animation-delay: -0.32s;
-          }
-
-          .typing-indicator span:nth-child(2) {
-            animation-delay: -0.16s;
-          }
-
-          @keyframes bounce {
-
-            0%,
-            80%,
-            100% {
-              transform: scale(0);
-            }
-
-            40% {
-              transform: scale(1.0);
-            }
-          }
-
-          /* Responsive Adjustments */
-          @media (max-width: 576px) {
-            .ai-assistant {
-              width: 100%;
-              height: 100%;
-              max-width: 100%;
-              max-height: 100%;
-              bottom: 0;
-              right: 0;
-              border-radius: 0;
-            }
-
+          <!-- AI Assistant Script -->
+          <script src="/js/ai-assistant-fixed.js" defer></script>
+          <style>
+            /* AI Assistant Floating Button */
             .ai-assistant-float {
-              bottom: 20px;
-              right: 20px;
-              width: 56px;
-              height: 56px;
-              font-size: 24px;
+              position: fixed;
+              bottom: 30px;
+              right: 30px;
+              width: 64px;
+              height: 64px;
+              border-radius: 50%;
+              background: linear-gradient(135deg, #4a6fa5, #2c4d7b);
+              color: white;
+              display: flex;
+              align-items: center;
+              justify-content: center;
+              font-size: 28px;
+              box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+              cursor: pointer;
+              z-index: 9999;
+              transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+              border: 2px solid rgba(255, 255, 255, 0.15);
+              animation: float 3s ease-in-out infinite;
             }
-          }
 
-          /* Dark Mode Support */
-          @media (prefers-color-scheme: dark) {
+            @keyframes float {
+              0% {
+                transform: translateY(0px);
+              }
+
+              50% {
+                transform: translateY(-8px);
+              }
+
+              100% {
+                transform: translateY(0px);
+              }
+            }
+
+            .ai-assistant-float:hover {
+              transform: translateY(-5px) scale(1.05);
+              box-shadow: 0 12px 28px rgba(0, 0, 0, 0.2);
+              background: linear-gradient(135deg, #5a7fb5, #3c5d8b);
+            }
+
+            .ai-assistant-float i {
+              color: white;
+              filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.2));
+            }
+
+            /* AI Assistant Chat Container */
             .ai-assistant {
-              background: rgba(30, 35, 45, 0.98);
-              border-color: rgba(255, 255, 255, 0.1);
+              position: fixed;
+              bottom: 100px;
+              right: 30px;
+              width: 380px;
+              max-width: calc(100vw - 60px);
+              height: 600px;
+              max-height: calc(100vh - 150px);
+              border-radius: 16px;
+              background: rgba(255, 255, 255, 0.98);
+              backdrop-filter: blur(10px);
+              box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+              display: flex;
+              flex-direction: column;
+              z-index: 9998;
+              overflow: hidden;
+              transform: translateY(20px);
+              opacity: 0;
+              visibility: hidden;
+              transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+              border: 1px solid rgba(0, 0, 0, 0.05);
+            }
+
+            .ai-assistant.visible {
+              transform: translateY(0);
+              opacity: 1;
+              visibility: visible;
+            }
+
+            /* Header */
+            .ai-assistant-header {
+              padding: 18px 24px;
+              background: linear-gradient(135deg, #4a6fa5, #2c4d7b);
+              color: white;
+              display: flex;
+              align-items: center;
+              box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+            }
+
+            .ai-avatar {
+              width: 40px;
+              height: 40px;
+              border-radius: 50%;
+              background: rgba(255, 255, 255, 0.2);
+              display: flex;
+              align-items: center;
+              justify-content: center;
+              margin-right: 12px;
+              font-size: 20px;
+            }
+
+            .header-content h3 {
+              margin: 0;
+              font-size: 16px;
+              font-weight: 600;
+              letter-spacing: 0.3px;
+            }
+
+            .ai-status {
+              font-size: 12px;
+              opacity: 0.9;
+              display: flex;
+              align-items: center;
+              margin-top: 2px;
+            }
+
+            .ai-status::before {
+              content: '';
+              display: inline-block;
+              width: 8px;
+              height: 8px;
+              background: #4caf50;
+              border-radius: 50%;
+              margin-right: 6px;
+              animation: pulse 2s infinite;
+            }
+
+            @keyframes pulse {
+              0% {
+                transform: scale(1);
+                opacity: 1;
+              }
+
+              50% {
+                transform: scale(1.2);
+                opacity: 0.8;
+              }
+
+              100% {
+                transform: scale(1);
+                opacity: 1;
+              }
+            }
+
+            /* Messages */
+            .ai-assistant-messages {
+              flex: 1;
+              overflow-y: auto;
+              padding: 20px;
+              background: #f8f9fa;
+              background-image: radial-gradient(#e0e0e0 1px, transparent 1px);
+              background-size: 20px 20px;
+            }
+
+            .message {
+              margin-bottom: 16px;
+              opacity: 0;
+              animation: fadeIn 0.3s ease-out forwards;
+              transform-origin: center bottom;
+            }
+
+            @keyframes fadeIn {
+              from {
+                opacity: 0;
+                transform: translateY(10px);
+              }
+
+              to {
+                opacity: 1;
+                transform: translateY(0);
+              }
+            }
+
+            .message-content {
+              display: flex;
+              max-width: 85%;
+              animation: slideIn 0.3s ease-out forwards;
+            }
+
+            .user-message .message-content {
+              margin-left: auto;
+              flex-direction: row-reverse;
+            }
+
+            .assistant-message .message-content {
+              margin-right: auto;
             }
 
             .message-text {
-              background: #2a2f3a;
-              color: #e0e0e0;
+              padding: 12px 16px;
+              border-radius: 18px;
+              background: white;
+              box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+              word-wrap: break-word;
+              line-height: 1.5;
+              font-size: 14px;
+              position: relative;
+              transition: all 0.2s ease;
+            }
+
+            .user-message .message-text {
+              background: #4a6fa5;
+              color: white;
+              border-bottom-right-radius: 4px;
             }
 
             .assistant-message .message-text {
-              background: #2a2f3a;
-              border-color: rgba(255, 255, 255, 0.1);
+              border-bottom-left-radius: 4px;
+              background: white;
+              border: 1px solid #e0e0e0;
             }
 
+            /* Input Area */
             .ai-assistant-input {
-              background: #2a2f3a;
-              border-top-color: rgba(255, 255, 255, 0.05);
+              padding: 16px;
+              background: white;
+              border-top: 1px solid rgba(0, 0, 0, 0.05);
+              box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.02);
             }
 
             .input-group {
-              background: #1e222b;
+              display: flex;
+              align-items: center;
+              background: #f5f7fa;
+              border-radius: 24px;
+              padding: 4px 4px 4px 16px;
             }
 
             .message-input {
-              color: #e0e0e0;
+              flex: 1;
+              min-height: 40px;
+              max-height: 120px;
+              border: none;
+              background: transparent;
+              outline: none;
+              resize: none;
+              font-family: inherit;
+              font-size: 14px;
+              line-height: 1.5;
+              padding: 8px 0;
+              color: #333;
             }
 
             .message-input:empty:before {
-              color: #7a7f8c;
+              content: attr(placeholder);
+              color: #9e9e9e;
+              pointer-events: none;
             }
 
             .input-group button {
-              color: #7a7f8c;
+              background: none;
+              border: none;
+              color: #666;
+              font-size: 18px;
+              padding: 8px 12px;
+              cursor: pointer;
+              transition: all 0.2s ease;
+              border-radius: 50%;
+              width: 40px;
+              height: 40px;
+              display: flex;
+              align-items: center;
+              justify-content: center;
             }
 
             .input-group button:hover {
-              background: rgba(255, 255, 255, 0.1);
+              background: rgba(0, 0, 0, 0.05);
+              color: #4a6fa5;
             }
 
-            .ai-assistant-messages {
-              background: #1e222b;
-              background-image: radial-gradient(rgba(255, 255, 255, 0.05) 1px, transparent 1px);
+            .send-btn {
+              background: #4a6fa5 !important;
+              color: white !important;
+              margin-left: 4px;
             }
-          }
-        </style>
-        <script>
-          // AI Trip Planner Functionality
-          document.addEventListener('DOMContentLoaded', () => {
-            // AI Trip Planner
-            const aiTripPlannerBtn = document.getElementById('aiTripPlannerBtn');
-            const aiTripPlannerPanel = document.getElementById('aiTripPlannerPanel');
-            const aiTripPlannerClose = document.getElementById('aiTripPlannerClose');
-            const aiTripPlanBtn = document.getElementById('aiTripPlanBtn');
-            const aiTripQuery = document.getElementById('aiTripQuery');
 
-            // Toggle trip planner panel
-            if (aiTripPlannerBtn && aiTripPlannerPanel) {
-              aiTripPlannerBtn.addEventListener('click', (e) => {
-                e.preventDefault();
-                e.stopPropagation();
-                const isOpening = !aiTripPlannerPanel.classList.contains('visible');
+            .send-btn:hover {
+              background: #3a5f8f !important;
+              transform: scale(1.05);
+            }
 
-                // Close any other open panels first
-                document.querySelectorAll('.ai-trip-planner-panel.visible').forEach(panel => {
-                  if (panel !== aiTripPlannerPanel) {
-                    panel.classList.remove('visible');
+            /* Typing Indicator */
+            .typing-indicator {
+              display: none;
+              padding: 12px 20px;
+              align-items: center;
+              justify-content: center;
+            }
+
+            .typing-indicator span {
+              width: 8px;
+              height: 8px;
+              background-color: #9e9e9e;
+              border-radius: 50%;
+              display: inline-block;
+              margin: 0 2px;
+              animation: bounce 1.4s infinite ease-in-out both;
+            }
+
+            .typing-indicator span:nth-child(1) {
+              animation-delay: -0.32s;
+            }
+
+            .typing-indicator span:nth-child(2) {
+              animation-delay: -0.16s;
+            }
+
+            @keyframes bounce {
+
+              0%,
+              80%,
+              100% {
+                transform: scale(0);
+              }
+
+              40% {
+                transform: scale(1.0);
+              }
+            }
+
+            /* Responsive Adjustments */
+            @media (max-width: 576px) {
+              .ai-assistant {
+                width: 100%;
+                height: 100%;
+                max-width: 100%;
+                max-height: 100%;
+                bottom: 0;
+                right: 0;
+                border-radius: 0;
+              }
+
+              .ai-assistant-float {
+                bottom: 20px;
+                right: 20px;
+                width: 56px;
+                height: 56px;
+                font-size: 24px;
+              }
+            }
+
+            /* Dark Mode Support */
+            @media (prefers-color-scheme: dark) {
+              .ai-assistant {
+                background: rgba(30, 35, 45, 0.98);
+                border-color: rgba(255, 255, 255, 0.1);
+              }
+
+              .message-text {
+                background: #2a2f3a;
+                color: #e0e0e0;
+              }
+
+              .assistant-message .message-text {
+                background: #2a2f3a;
+                border-color: rgba(255, 255, 255, 0.1);
+              }
+
+              .ai-assistant-input {
+                background: #2a2f3a;
+                border-top-color: rgba(255, 255, 255, 0.05);
+              }
+
+              .input-group {
+                background: #1e222b;
+              }
+
+              .message-input {
+                color: #e0e0e0;
+              }
+
+              .message-input:empty:before {
+                color: #7a7f8c;
+              }
+
+              .input-group button {
+                color: #7a7f8c;
+              }
+
+              .input-group button:hover {
+                background: rgba(255, 255, 255, 0.1);
+              }
+
+              .ai-assistant-messages {
+                background: #1e222b;
+                background-image: radial-gradient(rgba(255, 255, 255, 0.05) 1px, transparent 1px);
+              }
+            }
+          </style>
+          <script>
+            // AI Trip Planner Functionality
+            document.addEventListener('DOMContentLoaded', () => {
+              // AI Trip Planner
+              const aiTripPlannerBtn = document.getElementById('aiTripPlannerBtn');
+              const aiTripPlannerPanel = document.getElementById('aiTripPlannerPanel');
+              const aiTripPlannerClose = document.getElementById('aiTripPlannerClose');
+              const aiTripPlanBtn = document.getElementById('aiTripPlanBtn');
+              const aiTripQuery = document.getElementById('aiTripQuery');
+
+              // Toggle trip planner panel
+              if (aiTripPlannerBtn && aiTripPlannerPanel) {
+                aiTripPlannerBtn.addEventListener('click', (e) => {
+                  e.preventDefault();
+                  e.stopPropagation();
+                  const isOpening = !aiTripPlannerPanel.classList.contains('visible');
+
+                  // Close any other open panels first
+                  document.querySelectorAll('.ai-trip-planner-panel.visible').forEach(panel => {
+                    if (panel !== aiTripPlannerPanel) {
+                      panel.classList.remove('visible');
+                    }
+                  });
+
+                  // Toggle current panel
+                  aiTripPlannerPanel.classList.toggle('visible', isOpening);
+
+                  // Toggle pulse animation when panel is open
+                  if (isOpening) {
+                    aiTripPlannerBtn.classList.remove('pulse');
+                    // Position the panel above the button
+                    const buttonRect = aiTripPlannerBtn.getBoundingClientRect();
+                    aiTripPlannerPanel.style.bottom = `${window.innerHeight - buttonRect.top + 20}px`;
+                  } else if (Math.random() > 0.7) { // 30% chance to show pulse when closing
+                    setTimeout(() => {
+                      aiTripPlannerBtn.classList.add('pulse');
+                    }, 10000); // Start pulsing after 10 seconds
                   }
                 });
-
-                // Toggle current panel
-                aiTripPlannerPanel.classList.toggle('visible', isOpening);
-
-                // Toggle pulse animation when panel is open
-                if (isOpening) {
-                  aiTripPlannerBtn.classList.remove('pulse');
-                  // Position the panel above the button
-                  const buttonRect = aiTripPlannerBtn.getBoundingClientRect();
-                  aiTripPlannerPanel.style.bottom = `${window.innerHeight - buttonRect.top + 20}px`;
-                } else if (Math.random() > 0.7) { // 30% chance to show pulse when closing
-                  setTimeout(() => {
-                    aiTripPlannerBtn.classList.add('pulse');
-                  }, 10000); // Start pulsing after 10 seconds
-                }
-              });
-            }
-
-            // Add initial pulse animation after page load
-            setTimeout(() => {
-              if (aiTripPlannerBtn) {
-                aiTripPlannerBtn.classList.add('pulse');
               }
-            }, 5000);
 
-            // Close trip planner panel
-            if (aiTripPlannerClose) {
-              aiTripPlannerClose.addEventListener('click', (e) => {
-                e.preventDefault();
-                aiTripPlannerPanel.classList.remove('visible');
-              });
-            }
-
-            // Handle trip planning
-            if (aiTripPlanBtn && aiTripQuery) {
-              const handleTripPlan = () => {
-                const query = aiTripQuery.value.trim();
-                if (query) {
-                  // Redirect to the trip planner page with the query
-                  window.location.href = `/ai/trip-planner?q=${encodeURIComponent(query)}`;
-                } else {
-                  // If no query, just go to the trip planner page
-                  window.location.href = '/ai/trip-planner';
+              // Add initial pulse animation after page load
+              setTimeout(() => {
+                if (aiTripPlannerBtn) {
+                  aiTripPlannerBtn.classList.add('pulse');
                 }
-              };
+              }, 5000);
 
-              aiTripPlanBtn.addEventListener('click', handleTripPlan);
+              // Close trip planner panel
+              if (aiTripPlannerClose) {
+                aiTripPlannerClose.addEventListener('click', (e) => {
+                  e.preventDefault();
+                  aiTripPlannerPanel.classList.remove('visible');
+                });
+              }
 
-              // Also handle Enter key in the input field
-              aiTripQuery.addEventListener('keypress', (e) => {
-                if (e.key === 'Enter') {
-                  handleTripPlan();
+              // Handle trip planning
+              if (aiTripPlanBtn && aiTripQuery) {
+                const handleTripPlan = () => {
+                  const query = aiTripQuery.value.trim();
+                  if (query) {
+                    // Redirect to the trip planner page with the query
+                    window.location.href = `/ai/trip-planner?q=${encodeURIComponent(query)}`;
+                  } else {
+                    // If no query, just go to the trip planner page
+                    window.location.href = '/ai/trip-planner';
+                  }
+                };
+
+                aiTripPlanBtn.addEventListener('click', handleTripPlan);
+
+                // Also handle Enter key in the input field
+                aiTripQuery.addEventListener('keypress', (e) => {
+                  if (e.key === 'Enter') {
+                    handleTripPlan();
+                  }
+                });
+              }
+
+              // Close panel when clicking outside
+              document.addEventListener('click', (e) => {
+                if (aiTripPlannerPanel && !aiTripPlannerPanel.contains(e.target) &&
+                  aiTripPlannerBtn && !aiTripPlannerBtn.contains(e.target)) {
+                  aiTripPlannerPanel.classList.remove('visible');
                 }
               });
-            }
 
-            // Close panel when clicking outside
-            document.addEventListener('click', (e) => {
-              if (aiTripPlannerPanel && !aiTripPlannerPanel.contains(e.target) &&
-                aiTripPlannerBtn && !aiTripPlannerBtn.contains(e.target)) {
-                aiTripPlannerPanel.classList.remove('visible');
+              // Initialize the AI Assistant when the page loads
+              // Check if the AI Assistant is enabled for this page
+              const aiAssistantEnabled = !document.body.hasAttribute('data-disable-ai-assistant');
+
+              if (aiAssistantEnabled && window.wanderAI) {
+                // Just initialize the assistant but don't auto-open it
+                console.log('AI Assistant is ready. Click the assistant button to open it.');
               }
             });
-
-            // Initialize the AI Assistant when the page loads
-            // Check if the AI Assistant is enabled for this page
-            const aiAssistantEnabled = !document.body.hasAttribute('data-disable-ai-assistant');
-
-            if (aiAssistantEnabled && window.wanderAI) {
-              // Just initialize the assistant but don't auto-open it
-              console.log('AI Assistant is ready. Click the assistant button to open it.');
-            }
-          });
-        </script>
-        <!-- Premium Confirmation Modal -->
-        <div class="modal fade" id="premiumConfirmModal" tabindex="-1" aria-hidden="true" style="z-index: 10001;">
-          <div class="modal-dialog modal-dialog-centered" style="max-width: 400px;">
-            <div class="modal-content border-0 shadow-lg" style="border-radius: 24px; overflow: hidden;">
-              <div class="modal-header border-0 pb-0 pt-4 px-4">
-                <div class="bg-danger-subtle rounded-circle d-flex align-items-center justify-content-center mb-3"
-                  style="width: 60px; height: 60px; margin: 0 auto; background: rgba(255, 77, 77, 0.1);">
-                  <i class="fas fa-exclamation-triangle text-danger fs-3"></i>
+          </script>
+          <!-- Premium Confirmation Modal -->
+          <div class="modal fade" id="premiumConfirmModal" tabindex="-1" aria-hidden="true" style="z-index: 10001;">
+            <div class="modal-dialog modal-dialog-centered" style="max-width: 400px;">
+              <div class="modal-content border-0 shadow-lg" style="border-radius: 24px; overflow: hidden;">
+                <div class="modal-header border-0 pb-0 pt-4 px-4">
+                  <div class="bg-danger-subtle rounded-circle d-flex align-items-center justify-content-center mb-3"
+                    style="width: 60px; height: 60px; margin: 0 auto; background: rgba(255, 77, 77, 0.1);">
+                    <i class="fas fa-exclamation-triangle text-danger fs-3"></i>
+                  </div>
                 </div>
-              </div>
-              <div class="modal-body text-center px-4 pb-4">
-                <h4 class="fw-bold mb-2" id="confirmTitle">Confirm Action</h4>
-                <p class="text-muted mb-4" id="confirmMessage">Are you sure you want to proceed?</p>
-                <div class="d-grid gap-2">
-                  <button type="button" class="btn btn-danger py-3 fw-bold rounded-pill shadow-sm"
-                    id="confirmBtnPrimary"
-                    style="background: linear-gradient(135deg, #FF4D4D 0%, #FF2626 100%); border: none;">Yes,
-                    Delete</button>
-                  <button type="button" class="btn btn-light py-3 fw-bold rounded-pill"
-                    data-bs-dismiss="modal">Cancel</button>
+                <div class="modal-body text-center px-4 pb-4">
+                  <h4 class="fw-bold mb-2" id="confirmTitle">Confirm Action</h4>
+                  <p class="text-muted mb-4" id="confirmMessage">Are you sure you want to proceed?</p>
+                  <div class="d-grid gap-2">
+                    <button type="button" class="btn btn-danger py-3 fw-bold rounded-pill shadow-sm"
+                      id="confirmBtnPrimary"
+                      style="background: linear-gradient(135deg, #FF4D4D 0%, #FF2626 100%); border: none;">Yes,
+                      Delete</button>
+                    <button type="button" class="btn btn-light py-3 fw-bold rounded-pill"
+                      data-bs-dismiss="modal">Cancel</button>
+                  </div>
                 </div>
               </div>
             </div>
           </div>
-        </div>
 
-        <script>
-          // Global Premium Confirmation Function
-          window.wanderConfirm = function (title, message, confirmText = 'Yes, Proceed') {
-            return new Promise((resolve) => {
-              const modalEl = document.getElementById('premiumConfirmModal');
-              const modal = new bootstrap.Modal(modalEl);
+          <script>
+            // Global Premium Confirmation Function
+            window.wanderConfirm = function (title, message, confirmText = 'Yes, Proceed') {
+              return new Promise((resolve) => {
+                const modalEl = document.getElementById('premiumConfirmModal');
+                const modal = new bootstrap.Modal(modalEl);
 
-              document.getElementById('confirmTitle').innerText = title;
-              document.getElementById('confirmMessage').innerText = message;
-              const primaryBtn = document.getElementById('confirmBtnPrimary');
-              primaryBtn.innerText = confirmText;
+                document.getElementById('confirmTitle').innerText = title;
+                document.getElementById('confirmMessage').innerText = message;
+                const primaryBtn = document.getElementById('confirmBtnPrimary');
+                primaryBtn.innerText = confirmText;
 
-              // Reset event listener
-              const newPrimaryBtn = primaryBtn.cloneNode(true);
-              primaryBtn.parentNode.replaceChild(newPrimaryBtn, primaryBtn);
+                // Reset event listener
+                const newPrimaryBtn = primaryBtn.cloneNode(true);
+                primaryBtn.parentNode.replaceChild(newPrimaryBtn, primaryBtn);
 
-              newPrimaryBtn.addEventListener('click', () => {
-                modal.hide();
-                resolve(true);
+                newPrimaryBtn.addEventListener('click', () => {
+                  modal.hide();
+                  resolve(true);
+                });
+
+                modalEl.addEventListener('hidden.bs.modal', function handler() {
+                  resolve(false);
+                  modalEl.removeEventListener('hidden.bs.modal', handler);
+                }, { once: true });
+
+                modal.show();
               });
-
-              modalEl.addEventListener('hidden.bs.modal', function handler() {
-                resolve(false);
-                modalEl.removeEventListener('hidden.bs.modal', handler);
-              }, { once: true });
-
-              modal.show();
-            });
-          };
-        </script>
-        </body>
+            };
+          </script>
+          </body>
 
 </html>

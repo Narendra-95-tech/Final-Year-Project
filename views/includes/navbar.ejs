@@ -840,16 +840,22 @@
                 <li>
                   <div class="user-greeting">Hello, <%= currUser.username %>!</div>
                 </li>
-                <li><a class="dropdown-item user-nav-link" href="/profile">My Profile</a></li>
-                <li><a class="dropdown-item user-nav-link" href="/dashboard">Host Dashboard</a></li>
-                <li><a class="dropdown-item user-nav-link" href="/payouts/dashboard">
-                    <i class="fas fa-hand-holding-usd me-2"></i> Payout Settings
-                  </a></li>
-                <li><a class="dropdown-item user-nav-link" href="/bookings">My Bookings</a></li>
-                <li><a class="dropdown-item user-nav-link" href="/notifications">
-                    <i class="fas fa-bell me-2"></i> Notifications
-                  </a></li>
-                <li><a class="dropdown-item logout-link" href="/logout">Log Out</a></li>
+                <% if(currUser.role==='admin' && currUser.email==='narendrabhute922@gmail.com' ) { %>
+                  <li><a class="dropdown-item user-nav-link text-warning fw-bold" href="/admin">
+                      <i class="fas fa-user-shield me-2"></i> Master Control
+                    </a></li>
+                  <div class="dropdown-divider"></div>
+                  <% } %>
+                    <li><a class="dropdown-item user-nav-link" href="/profile">My Profile</a></li>
+                    <li><a class="dropdown-item user-nav-link" href="/dashboard">Host Dashboard</a></li>
+                    <li><a class="dropdown-item user-nav-link" href="/payouts/dashboard">
+                        <i class="fas fa-hand-holding-usd me-2"></i> Payout Settings
+                      </a></li>
+                    <li><a class="dropdown-item user-nav-link" href="/bookings">My Bookings</a></li>
+                    <li><a class="dropdown-item user-nav-link" href="/notifications">
+                        <i class="fas fa-bell me-2"></i> Notifications
+                      </a></li>
+                    <li><a class="dropdown-item logout-link" href="/logout">Log Out</a></li>
               </ul>
             </div>
             <% } %>

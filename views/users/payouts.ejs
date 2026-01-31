@@ -19,38 +19,142 @@
 
                 <hr>
 
-                <% if(!user.payoutsEnabled) { %>
-                    <div class="text-center py-4">
-                        <img src="https://images.unsplash.com/photo-1563013544-824ae1b704d3?auto=format&fit=crop&q=80&w=200"
-                            class="rounded-circle mb-3 shadow-sm"
-                            style="width: 100px; height: 100px; object-fit: cover;">
-                        <h5 class="mb-2">Setup Payouts to Receive Money</h5>
-                        <p class="text-muted w-75 mx-auto mb-4">To receive payments from your listings, you need to
-                            connect your bank account via Stripe. It allows for secure transfers and automated payouts.
-                        </p>
-
-                        <form action="/payouts/onboarding" method="POST">
-                            <button class="btn btn-primary btn-lg rounded-pill px-5 fw-bold hover-elevate">
-                                <i class="fas fa-university me-2"></i> Connect Bank Account
-                            </button>
-                        </form>
-                        <p class="small text-muted mt-3"><i class="fas fa-lock me-1"></i> Secured by Stripe</p>
-                    </div>
-                    <% } else { %>
-                        <div class="text-center py-4">
-                            <div class="mb-3">
-                                <i class="fas fa-check-circle text-success fa-4x"></i>
+                <!-- Active Dashboard -->
+                <% if(user.payoutsEnabled) { %>
+                    <div class="row g-4">
+                        <!-- Balance Card -->
+                        <div class="col-md-6">
+                            <div
+                                class="card bg-primary text-white border-0 rounded-4 shadow h-100 overflow-hidden position-relative">
+                                <div class="card-body p-4 position-relative z-1">
+                                    <h6 class="text-white-50 mb-3 text-uppercase fw-bold ls-1">Available Balance</h6>
+                                    <h2 class="display-4 fw-bold mb-0">
+                                        <%= balance ? balance.currency : 'INR' %>
+                                            <%= balance ? balance.available.toLocaleString() : '0.00' %>
+                                    </h2>
+                                    <p class="mb-0 text-white-50 mt-2">
+                                        + <%= balance ? balance.currency : 'INR' %>
+                                            <%= balance ? balance.pending.toLocaleString() : '0.00' %> pending
+                                    </p>
+                                </div>
+                                <!-- Deco Circle -->
+                                <div class="position-absolute rounded-circle bg-white opacity-10"
+                                    style="width: 200px; height: 200px; top: -50px; right: -50px;"></div>
                             </div>
-                            <h5 class="mb-3 fw-bold">You are all set!</h5>
-                            <p class="text-muted mb-4">Your bank account is connected. You will receive payouts
-                                automatically according to Stripe's schedule.</p>
+                        </div>
 
+                        <!-- External Account Card -->
+                        <div class="col-md-6">
+                            <div class="card border-0 rounded-4 shadow h-100 bg-light">
+                                <div
+                                    class="card-body p-4 d-flex flex-column justify-content-center align-items-center text-center">
+                                    <% if(externalAccount) { %>
+                                        <div class="mb-3">
+                                            <i
+                                                class="fas <%= externalAccount.is_bank ? 'fa-university' : 'fa-credit-card' %> fa-3x text-secondary"></i>
+                                        </div>
+                                        <h5 class="fw-bold mb-1">
+                                            <%= externalAccount.brand %>
+                                        </h5>
+                                        <p class="text-muted mb-3">•••• •••• •••• <%= externalAccount.last4 %>
+                                        </p>
+                                        <span
+                                            class="badge bg-success bg-opacity-10 text-success rounded-pill px-3">Active</span>
+                                        <% } else { %>
+                                            <p class="text-muted mb-0">No external account details fetched.</p>
+                                            <% } %>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Recent Payouts -->
+                        <div class="col-12">
+                            <div class="card border-0 rounded-4 shadow-sm p-4">
+                                <h5 class="fw-bold mb-4">Recent Payouts</h5>
+                                <% if(payouts && payouts.length> 0) { %>
+                                    <div class="table-responsive">
+                                        <table class="table table-hover align-middle">
+                                            <thead class="table-light">
+                                                <tr>
+                                                    <th scope="col" class="border-0 rounded-start">Amount</th>
+                                                    <th scope="col" class="border-0">Status</th>
+                                                    <th scope="col" class="border-0">Date</th>
+                                                    <th scope="col" class="border-0 rounded-end">Arrival Date</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                <% payouts.forEach(payout=> { %>
+                                                    <tr>
+                                                        <td class="fw-bold">
+                                                            <%= payout.currency.toUpperCase() %>
+                                                                <%= (payout.amount / 100).toLocaleString() %>
+                                                        </td>
+                                                        <td>
+                                                            <% if(payout.status==='paid' ) { %>
+                                                                <span
+                                                                    class="badge bg-success bg-opacity-10 text-success rounded-pill px-3">Paid</span>
+                                                                <% } else if(payout.status==='pending' ||
+                                                                    payout.status==='in_transit' ) { %>
+                                                                    <span
+                                                                        class="badge bg-warning bg-opacity-10 text-warning rounded-pill px-3">Processing</span>
+                                                                    <% } else { %>
+                                                                        <span
+                                                                            class="badge bg-danger bg-opacity-10 text-danger rounded-pill px-3">
+                                                                            <%= payout.status %>
+                                                                        </span>
+                                                                        <% } %>
+                                                        </td>
+                                                        <td class="text-muted small">
+                                                            <%= new Date(payout.created * 1000).toLocaleDateString() %>
+                                                        </td>
+                                                        <td class="text-muted small">
+                                                            <%= new Date(payout.arrival_date *
+                                                                1000).toLocaleDateString() %>
+                                                        </td>
+                                                    </tr>
+                                                    <% }) %>
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                    <% } else { %>
+                                        <div class="text-center py-5 text-muted">
+                                            <i class="fas fa-receipt fa-2x mb-3 opacity-50"></i>
+                                            <p class="mb-0">No recent payouts found.</p>
+                                        </div>
+                                        <% } %>
+                            </div>
+                        </div>
+
+                        <!-- Links -->
+                        <div class="col-12 text-center mt-2">
                             <% if(loginLink) { %>
                                 <a href="<%= loginLink.url %>" target="_blank"
                                     class="btn btn-outline-dark rounded-pill px-4 fw-bold">
-                                    <i class="fas fa-external-link-alt me-2"></i> View Earnings Dashboard
+                                    <i class="fas fa-external-link-alt me-2"></i> View Full Stripe Dashboard
                                 </a>
                                 <% } %>
+                        </div>
+                    </div>
+
+                    <!-- Setup State -->
+                    <% } else { %>
+                        <div class="text-center py-5">
+                            <img src="https://images.unsplash.com/photo-1563013544-824ae1b704d3?auto=format&fit=crop&q=80&w=200"
+                                class="rounded-circle mb-3 shadow-sm"
+                                style="width: 100px; height: 100px; object-fit: cover;">
+                            <h5 class="mb-2">Setup Payouts to Receive Money</h5>
+                            <p class="text-muted w-75 mx-auto mb-4">To receive payments from your listings, you need to
+                                connect your bank account via Stripe. It allows for secure transfers and automated
+                                payouts.
+                            </p>
+
+                            <form action="/payouts/onboarding" method="POST"
+                                onsubmit="const btn = this.querySelector('button'); btn.innerHTML='<i class=\'fas fa-spinner fa-spin me-2\'></i> Redirecting...'; setTimeout(() => btn.disabled=true, 100);">
+                                <button class="btn btn-primary btn-lg rounded-pill px-5 fw-bold hover-elevate">
+                                    <i class="fas fa-university me-2"></i> Connect Bank Account
+                                </button>
+                            </form>
+                            <p class="small text-muted mt-3"><i class="fas fa-lock me-1"></i> Secured by Stripe</p>
                         </div>
                         <% } %>
             </div>

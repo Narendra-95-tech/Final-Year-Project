@@ -539,11 +539,98 @@ async function sendOwnerBookingAlert(booking, owner, guest) {
   }
 }
 
+// Send Newsletter Welcome Email
+async function sendNewsletterWelcome(email, promoCode) {
+  const mailOptions = {
+    from: process.env.EMAIL_FROM || process.env.EMAIL_USER,
+    to: email,
+    subject: `🎁 Your 10% Discount Code Intent: Welcome to WanderLust!`,
+    html: `
+      <!DOCTYPE html>
+      <html>
+      <head>
+        <style>
+          body { font-family: 'Plus Jakarta Sans', Arial, sans-serif; line-height: 1.6; color: #333; margin: 0; padding: 0; }
+          .container { max-width: 600px; margin: 0 auto; background: #fff; }
+          .header { background: linear-gradient(135deg, #FF385C, #D90B3E); padding: 40px 20px; text-align: center; color: white; border-radius: 0 0 20px 20px; }
+          .content { padding: 40px 20px; }
+          .coupon-box {
+            background: #fff0f3;
+            border: 2px dashed #ff385c;
+            padding: 20px;
+            text-align: center;
+            border-radius: 12px;
+            margin: 25px 0;
+            position: relative;
+          }
+          .code {
+            font-size: 32px;
+            font-weight: 800;
+            color: #ff385c;
+            letter-spacing: 2px;
+            margin: 10px 0;
+            display: block;
+            font-family: monospace;
+          }
+          .btn { display: inline-block; background: #FF385C; color: white !important; padding: 12px 30px; text-decoration: none; border-radius: 50px; font-weight: bold; margin-top: 20px; box-shadow: 0 4px 15px rgba(255, 56, 92, 0.3); }
+          .footer { text-align: center; font-size: 12px; color: #94a3b8; padding: 20px; border-top: 1px solid #f1f5f9; }
+        </style>
+      </head>
+      <body>
+        <div class="container">
+          <div class="header">
+            <h1 style="margin:0;">Welcome to the Club! ✈️</h1>
+            <p style="margin:10px 0 0 0; opacity:0.9;">Here is a special gift just for you.</p>
+          </div>
+          
+          <div class="content">
+            <p>Hi there,</p>
+            <p>Thanks for subscribing! As a welcome gift, here is an exclusive discount code for your first booking.</p>
+            
+            <div class="coupon-box">
+              <span style="color: #64748b; font-size: 0.9rem; text-transform: uppercase; letter-spacing: 1px;">Use verify code at checkout</span>
+              <span class="code">${promoCode}</span>
+              <span style="color: #64748b; font-size: 0.9rem;">Valid for 30 days • 10% OFF</span>
+            </div>
+
+            <p>Ready to start your next adventure?</p>
+            
+            <center>
+              <a href="${process.env.BASE_URL || 'http://localhost:8080'}/search" class="btn">Book Now</a>
+            </center>
+          </div>
+          
+          <div class="footer">
+            <p>You received this email because you subscribed to WanderLust.</p>
+            <p>© ${new Date().getFullYear()} WanderLust. All rights reserved.</p>
+          </div>
+        </div>
+      </body>
+      </html>
+    `
+  };
+
+  try {
+    let result;
+    if (process.env.BREVO_API_KEY) {
+      result = await sendEmailViaBrevo(mailOptions);
+    } else {
+      result = await transporter.sendMail(mailOptions);
+    }
+    console.log('✅ Subscribe email sent to:', email);
+    return { success: true, messageId: result.messageId };
+  } catch (error) {
+    console.error('❌ Subscribe email failed:', error.message);
+    return { success: false, error: error.message };
+  }
+}
+
 module.exports = {
   transporter,
   sendBookingConfirmation,
   sendPaymentReceipt,
   sendOwnerBookingAlert,
   sendCancellationEmail,
+  sendNewsletterWelcome,
   sendEmailViaBrevo
 };

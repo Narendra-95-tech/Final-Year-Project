@@ -1,0 +1,71 @@
+<% layout("/layouts/boilerplate") %>
+
+    <div class="container py-5">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h1 class="fw-bold">User Management</h1>
+            <a href="/admin" class="btn btn-outline-dark rounded-pill">Back to Dashboard</a>
+        </div>
+
+        <div class="table-glass p-0">
+            <div class="table-responsive">
+                <table class="table align-middle mb-0">
+                    <thead class="bg-light">
+                        <tr>
+                            <th class="ps-4">User</th>
+                            <th>Email</th>
+                            <th>Role</th>
+                            <th>Joined</th>
+                            <th>Status</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <% for(let user of users) { %>
+                            <tr>
+                                <td class="ps-4">
+                                    <div class="d-flex align-items-center gap-2">
+                                        <div class="rounded-circle bg-primary bg-opacity-10 text-primary d-flex align-items-center justify-content-center"
+                                            style="width: 32px; height: 32px; font-size: 12px; font-weight: bold;">
+                                            <%= user.username[0].toUpperCase() %>
+                                        </div>
+                                        <div class="fw-bold">
+                                            <%= user.username %>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td>
+                                    <%= user.email %>
+                                </td>
+                                <td>
+                                    <span
+                                        class="badge <%= user.role === 'admin' ? 'bg-warning text-dark' : (user.role === 'host' ? 'bg-indigo text-white' : 'bg-light text-dark') %> rounded-pill">
+                                        <%= user.role.toUpperCase() %>
+                                    </span>
+                                </td>
+                                <td class="small text-muted">
+                                    <%= user.createdAt.toLocaleDateString() %>
+                                </td>
+                                <td>
+                                    <span
+                                        class="badge <%= user.isActive !== false ? 'bg-success' : 'bg-danger' %> bg-opacity-10 text-<%= user.isActive !== false ? 'success' : 'danger' %> rounded-pill">
+                                        <%= user.isActive !==false ? 'Active' : 'Suspended' %>
+                                    </span>
+                                </td>
+                                <td>
+                                    <div class="d-flex gap-2">
+                                        <form method="POST"
+                                            action="/admin/users/<%= user._id %>/toggle-status?_method=PUT">
+                                            <button
+                                                class="btn btn-sm <%= user.isActive !== false ? 'btn-outline-danger' : 'btn-outline-success' %> rounded-pill px-3">
+                                                <%= user.isActive !==false ? 'Suspend' : 'Activate' %>
+                                            </button>
+                                        </form>
+                                    </div>
+                                </td>
+                            </tr>
+                            <% } %>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>

@@ -4,10 +4,16 @@
     "description": "Discover amazing stays, dhabas, and vehicles for your perfect journey",
     "start_url": "/",
     "display": "standalone",
+    "display_override": [
+        "standalone",
+        "fullscreen",
+        "minimal-ui"
+    ],
     "background_color": "#ffffff",
     "theme_color": "#FF385C",
     "orientation": "portrait-primary",
     "scope": "/",
+    "prefer_related_applications": false,
     "icons": [
         {
             "src": "/images/icon-72.png",
@@ -58,6 +64,20 @@
             "purpose": "any maskable"
         }
     ],
+    "screenshots": [
+        {
+            "src": "/images/screenshot-mobile.png",
+            "sizes": "540x720",
+            "type": "image/png",
+            "form_factor": "narrow"
+        },
+        {
+            "src": "/images/screenshot-desktop.png",
+            "sizes": "1280x720",
+            "type": "image/png",
+            "form_factor": "wide"
+        }
+    ],
     "categories": [
         "travel",
         "lifestyle",
@@ -87,6 +107,40 @@
                     "sizes": "192x192"
                 }
             ]
+        },
+        {
+            "name": "AI Trip Planner",
+            "short_name": "Plan Trip",
+            "description": "Plan your perfect journey with AI",
+            "url": "/trip-planner",
+            "icons": [
+                {
+                    "src": "/images/icon-192.png",
+                    "sizes": "192x192"
+                }
+            ]
+        },
+        {
+            "name": "My Wallet",
+            "short_name": "Wallet",
+            "description": "Manage your wallet balance",
+            "url": "/wallet",
+            "icons": [
+                {
+                    "src": "/images/icon-192.png",
+                    "sizes": "192x192"
+                }
+            ]
         }
-    ]
+    ],
+    "share_target": {
+        "action": "/share",
+        "method": "POST",
+        "enctype": "multipart/form-data",
+        "params": {
+            "title": "title",
+            "text": "text",
+            "url": "url"
+        }
+    }
 }

@@ -146,6 +146,8 @@ vehicleSchema.index({ seats: 1 });
 vehicleSchema.index({ owner: 1 }); // Optimize owner lookups
 vehicleSchema.index({ vehicleType: 1, price: 1, seats: 1 }); // Compound index for common filters
 vehicleSchema.index({ geometry: '2dsphere' });
+vehicleSchema.index({ createdAt: -1 }); // Recent vehicles
+vehicleSchema.index({ brand: 1, model: 1 }); // Brand and model filtering
 vehicleSchema.post("findOneAndDelete", async (vehicle) => {
     if (vehicle) {
         await Review.deleteMany({ _id: { $in: vehicle.reviews } });

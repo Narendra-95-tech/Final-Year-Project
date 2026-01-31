@@ -1,4 +1,5 @@
 const Vehicle = require("../models/vehicle");
+const User = require("../models/user");
 const Booking = require("../models/booking");
 const mbxGeocoding = require('@mapbox/mapbox-sdk/services/geocoding');
 const mapToken = process.env.MAP_TOKEN;
@@ -225,6 +226,11 @@ module.exports.createVehicle = async (req, res, next) => {
     newVehicle.geometry = response.body.features[0].geometry;
 
     let savedVehicle = await newVehicle.save();
+
+    // Auto-promote user to host if they are currently a basic user
+    if (req.user && req.user.role === "user") {
+        await User.findByIdAndUpdate(req.user._id, { role: "host" });
+    }
 
     req.flash("success", "New Vehicle Created!");
     res.redirect("/vehicles");

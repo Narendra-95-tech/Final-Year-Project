@@ -65,6 +65,7 @@ if (!dbUrl) {
 
 logger.info("🚀 Connecting to Database...");
 logger.info("Target: %s", dbUrl.includes("mongodb+srv") ? "MongoDB Atlas (Cloud)" : "Local MongoDB");
+logger.info("Server restarted at: " + new Date().toISOString());
 
 if (dbUrl) {
   mongoose.connect(dbUrl)
@@ -249,6 +250,7 @@ app.use(helmet({
       mediaSrc: ["'self'"],
       frameSrc: ["'self'", "https://js.stripe.com"],
       upgradeInsecureRequests: null, // Don't force HTTPS on localhost
+      formAction: ["'self'", "*.stripe.com"], // Allow forms to submit to self and Stripe
     },
   },
   crossOriginEmbedderPolicy: false,
@@ -300,39 +302,35 @@ const bookingLimiter = rateLimit({
 // Request logging
 app.use(requestLogger);
 
-// Serve static files from public directory with caching
-app.use(express.static(path.join(__dirname, 'public'), {
-  maxAge: process.env.NODE_ENV === 'production' ? '365d' : '1d', // 1 year in production, 1 day in dev
+// Static Files - Optimized with caching
+const staticOptions = {
+  maxAge: process.env.NODE_ENV === 'production' ? '1y' : '0', // 1 year in production
   etag: true, // Enable ETags for cache validation
-  lastModified: true,
+  lastModified: true, // Enable Last-Modified header
   setHeaders: (res, filePath) => {
-    // Set proper MIME types and cache headers for specific file types
-    if (filePath.endsWith('.css')) {
-      res.setHeader('Content-Type', 'text/css');
-      if (process.env.NODE_ENV === 'production') {
-        res.setHeader('Cache-Control', 'public, max-age=31536000, immutable'); // 1 year for CSS
-      }
-    } else if (filePath.endsWith('.js')) {
-      res.setHeader('Content-Type', 'application/javascript');
-      if (process.env.NODE_ENV === 'production') {
-        res.setHeader('Cache-Control', 'public, max-age=31536000, immutable'); // 1 year for JS
-      }
-    } else if (filePath.endsWith('.ico')) {
-      res.setHeader('Content-Type', 'image/x-icon');
-      if (process.env.NODE_ENV === 'production') {
-        res.setHeader('Cache-Control', 'public, max-age=31536000, immutable'); // 1 year for icons
-      }
-    } else if (filePath.match(/\.(jpg|jpeg|png|gif|svg|webp)$/)) {
-      if (process.env.NODE_ENV === 'production') {
-        res.setHeader('Cache-Control', 'public, max-age=31536000, immutable'); // 1 year for images
-      }
-    } else if (filePath.match(/\.(woff|woff2|ttf|eot)$/)) {
-      if (process.env.NODE_ENV === 'production') {
-        res.setHeader('Cache-Control', 'public, max-age=31536000, immutable'); // 1 year for fonts
-      }
+    // Set immutable cache for assets (js, css, png, jpg, jpeg, gif, svg, ico, woff, woff2, ttf, eot)
+    if (filePath.match(/\.(js|css|png|jpg|jpeg|gif|svg|ico|woff|woff2|ttf|eot)$/)) {
+      res.set('Cache-Control', 'public, max-age=31536000, immutable');
+    }
+
+    // Set shorter cache for HTML files
+    if (filePath.match(/\.html$/)) {
+      res.set('Cache-Control', 'public, max-age=3600'); // 1 hour
+    }
+
+    // Enable CORS for fonts
+    if (filePath.match(/\.(woff|woff2|ttf|eot)$/)) {
+      res.set('Access-Control-Allow-Origin', '*');
     }
   }
-}));
+};
+
+app.use(express.static(path.join(__dirname, "public"), staticOptions));
+
+// Serve minified assets from /dist in production
+if (process.env.NODE_ENV === 'production') {
+  app.use('/dist', express.static(path.join(__dirname, "public/dist"), staticOptions));
+}
 
 // Handle favicon.ico requests - redirect to favicon.png
 app.get('/favicon.ico', (req, res) => res.redirect('/favicon.png'));
@@ -431,6 +429,8 @@ passport.deserializeUser(async (id, done) => {
 // --------------------
 // Middleware
 // Make user and flash messages available in all templates
+// Middleware
+// Make user and flash messages available in all templates
 app.use((req, res, next) => {
   res.locals.currUser = req.user || null;  // For EJS templates using currUser
   res.locals.currentUser = req.user || null; // For any components using currentUser
@@ -438,8 +438,21 @@ app.use((req, res, next) => {
   res.locals.error = req.flash('error');
   res.locals.currentPath = req.path;
   res.locals.isAdmin = req.user && req.user.role === 'admin';
+
+  // FIX: Prevent caching of dynamic HTML pages (Session consistency)
+  // If it's a GET request for a page (not assets), disable cache
+  if (req.method === 'GET' && !req.path.startsWith('/static') && !req.originalUrl.includes('.')) {
+    res.set('Cache-Control', 'no-store, no-cache, must-revalidate, private');
+    res.set('Pragma', 'no-cache');
+    res.set('Expires', '0');
+  }
+
   next();
 });
+
+// Image Optimization Middleware
+const { imageOptimizationMiddleware } = require('./utils/imageOptimization');
+app.use(imageOptimizationMiddleware);
 
 // --------------------
 // Routes
@@ -466,6 +479,23 @@ app.use("/api/wishlist", apiLimiter, wishlistRoutes);
 app.use("/ai/magic", apiLimiter, aiMagicRouter);
 app.get("/trust", trustRouter);
 app.use("/api/otp", authLimiter, otpRouter); // Apply auth rate limiter to OTP
+app.use("/api/push", require("./routes/push")); // Push notifications
+
+const { isLoggedIn, isAdmin } = require("./middleware.js");
+
+// Marketing Routes
+const marketingController = require("./controllers/marketing");
+const adminController = require("./controllers/admin");
+app.post("/subscribe", marketingController.subscribe);
+app.get("/admin", isLoggedIn, isAdmin, adminController.renderDashboard);
+app.get("/admin/newsletter", isLoggedIn, isAdmin, marketingController.renderAdminNewsletter);
+app.post("/admin/newsletter/test", isLoggedIn, isAdmin, marketingController.sendTestEmail);
+app.post("/admin/newsletter/broadcast", isLoggedIn, isAdmin, marketingController.broadcastEmail);
+
+// Cache Management Routes (Admin only)
+const { cacheStatsRoute, clearCacheRoute } = require('./middleware/cache');
+app.get("/api/cache/stats", isLoggedIn, isAdmin, cacheStatsRoute);
+app.post("/api/cache/clear", isLoggedIn, isAdmin, clearCacheRoute);
 
 // Map Routes
 const mapRouter = require("./routes/map.js");
@@ -634,18 +664,19 @@ app.get('/debug/email', async (req, res) => {
   }
 });
 
-// Home route - render homepage directly
-app.get("/", async (req, res) => {
+// Home route - render homepage directly (with caching for non-logged-in users)
+const { cacheMiddleware } = require('./middleware/cache');
+app.get("/", cacheMiddleware(300), async (req, res) => {
   try {
     const Listing = require("./models/listing");
     const Vehicle = require("./models/vehicle");
     const Dhaba = require("./models/dhaba");
 
-    // Get featured items from each section (Parallel Execution)
+    // Get featured items from each section (Parallel Execution - Optimized with .lean() and .select())
     const [featuredListings, featuredVehicles, featuredDhabas, localLegendsRaw] = await Promise.all([
-      Listing.find({}).select('title description image price location country propertyType rating').sort({ _id: -1 }).limit(3).lean(),
-      Vehicle.find({}).select('title description image price location vehicleType brand model rating').sort({ _id: -1 }).limit(3).lean(),
-      Dhaba.find({}).select('title description image price location cuisine category rating').sort({ _id: -1 }).limit(3).lean(),
+      Listing.find({}).select('title description image price location country propertyType rating').sort({ createdAt: -1 }).limit(3).lean(),
+      Vehicle.find({}).select('title description image price location vehicleType brand model rating').sort({ createdAt: -1 }).limit(3).lean(),
+      Dhaba.find({}).select('title description image price location cuisine category rating').sort({ createdAt: -1 }).limit(3).lean(),
       require("./models/user").find({}).select('firstName lastName email avatar').limit(4).lean()
     ]);
 
@@ -764,11 +795,11 @@ app.get("/home", async (req, res) => {
     const Vehicle = require("./models/vehicle");
     const Dhaba = require("./models/dhaba");
 
-    // Get featured items from each section
+    // Get featured items from each section (Optimized with .lean() and .select())
     const [featuredListings, featuredVehicles, featuredDhabas, localLegendsRaw] = await Promise.all([
-      Listing.find({}).select('title description image price location country propertyType rating').sort({ _id: -1 }).limit(3).lean(),
-      Vehicle.find({}).select('title description image price location vehicleType brand model rating').sort({ _id: -1 }).limit(3).lean(),
-      Dhaba.find({}).select('title description image price location cuisine category rating').sort({ _id: -1 }).limit(3).lean(),
+      Listing.find({}).select('title description image price location country propertyType rating').sort({ createdAt: -1 }).limit(3).lean(),
+      Vehicle.find({}).select('title description image price location vehicleType brand model rating').sort({ createdAt: -1 }).limit(3).lean(),
+      Dhaba.find({}).select('title description image price location cuisine category rating').sort({ createdAt: -1 }).limit(3).lean(),
       require("./models/user").find({}).select('firstName lastName email avatar').limit(4).lean()
     ]);
 

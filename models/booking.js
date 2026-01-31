@@ -28,6 +28,19 @@ const bookingSchema = new Schema({
   paidWithUPI: { type: Boolean, default: false },
   type: { type: String, enum: ['listing', 'vehicle', 'dhaba'], required: true },
   createdAt: { type: Date, default: Date.now }
+}, {
+  timestamps: true
 });
+
+// Performance Indexes for faster queries
+bookingSchema.index({ user: 1, createdAt: -1 }); // User's booking history (most recent first)
+bookingSchema.index({ status: 1 }); // Filter by booking status
+bookingSchema.index({ paymentStatus: 1 }); // Filter by payment status
+bookingSchema.index({ type: 1 }); // Filter by booking type (listing/vehicle/dhaba)
+bookingSchema.index({ listing: 1 }); // Lookup bookings for a listing
+bookingSchema.index({ vehicle: 1 }); // Lookup bookings for a vehicle
+bookingSchema.index({ dhaba: 1 }); // Lookup bookings for a dhaba
+bookingSchema.index({ startDate: 1, endDate: 1 }); // Date range queries
+bookingSchema.index({ createdAt: -1 }); // Recent bookings
 
 module.exports = mongoose.model("Booking", bookingSchema);

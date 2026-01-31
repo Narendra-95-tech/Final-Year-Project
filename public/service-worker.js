@@ -44,7 +44,7 @@ self.addEventListener('activate', (event) => {
     );
 });
 
-// Fetch event - serve from cache, fallback to network
+// Fetch event - Network First for HTML, Cache First for assets
 self.addEventListener('fetch', (event) => {
     // Skip non-GET requests
     if (event.request.method !== 'GET') return;
@@ -52,29 +52,50 @@ self.addEventListener('fetch', (event) => {
     // Skip chrome extensions and other protocols
     if (!event.request.url.startsWith('http')) return;
 
-    event.respondWith(
-        caches.match(event.request)
-            .then((cachedResponse) => {
-                if (cachedResponse) {
-                    // Return cached version
-                    return cachedResponse;
-                }
-
-                // Clone the request
-                const fetchRequest = event.request.clone();
-
-                return fetch(fetchRequest).then((response) => {
+    // STRATEGY 1: Network First for HTML/Navigation (ensures fresh session data)
+    if (event.request.mode === 'navigate') {
+        event.respondWith(
+            fetch(event.request)
+                .then((response) => {
                     // Check if valid response
                     if (!response || response.status !== 200 || response.type !== 'basic') {
                         return response;
                     }
-
-                    // Clone the response
+                    // Clone and update cache
                     const responseToCache = response.clone();
-
-                    // Cache the fetched response for future use
                     caches.open(CACHE_NAME).then((cache) => {
-                        // Only cache GET requests for same origin
+                        cache.put(event.request, responseToCache);
+                    });
+                    return response;
+                })
+                .catch(() => {
+                    // Network failed, try cache
+                    return caches.match(event.request)
+                        .then((cachedResponse) => {
+                            if (cachedResponse) return cachedResponse;
+                            // If not in cache, show offline page
+                            return caches.match(OFFLINE_URL);
+                        });
+                })
+        );
+        return;
+    }
+
+    // STRATEGY 2: Cache First for Assets (CSS, JS, Images)
+    event.respondWith(
+        caches.match(event.request)
+            .then((cachedResponse) => {
+                if (cachedResponse) {
+                    return cachedResponse;
+                }
+
+                return fetch(event.request).then((response) => {
+                    if (!response || response.status !== 200 || response.type !== 'basic') {
+                        return response;
+                    }
+
+                    const responseToCache = response.clone();
+                    caches.open(CACHE_NAME).then((cache) => {
                         if (event.request.url.startsWith(self.location.origin)) {
                             cache.put(event.request, responseToCache);
                         }
@@ -82,8 +103,8 @@ self.addEventListener('fetch', (event) => {
 
                     return response;
                 }).catch(() => {
-                    // If both cache and network fail, show offline page
-                    return caches.match(OFFLINE_URL);
+                    // Optional: return placeholder image for failed image requests
+                    return null;
                 });
             })
     );

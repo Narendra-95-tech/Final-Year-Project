@@ -1,0 +1,158 @@
+<!-- Mobile Header (shown only on mobile) -->
+<div class="mobile-header">
+    <div class="mobile-header-content">
+        <a href="/" class="mobile-logo">
+            <img src="/images/wanderlust-logo.svg" alt="WanderLust">
+            <span>WanderLust</span>
+        </a>
+        <button class="mobile-menu-btn" aria-label="Open menu">
+            <i class="fas fa-bars"></i>
+        </button>
+    </div>
+</div>
+
+<!-- Mobile Menu Overlay -->
+<div class="mobile-menu-overlay"></div>
+
+<!-- Mobile Slide-in Menu -->
+<div class="mobile-menu">
+    <div class="mobile-menu-header">
+        <h2 style="margin: 0; font-size: 20px;">Menu</h2>
+        <button class="mobile-menu-close" aria-label="Close menu">
+            <i class="fas fa-times"></i>
+        </button>
+    </div>
+
+    <div class="mobile-menu-content">
+        <% if (currUser) { %>
+            <!-- Logged In User Menu -->
+            <div class="mobile-menu-section">
+                <h3>Account</h3>
+                <a href="/users/<%= currUser._id %>" class="mobile-menu-item" onclick="closeMobileMenu()">
+                    <i class="fas fa-user"></i>
+                    <span>My Profile</span>
+                </a>
+                <a href="/users/<%= currUser._id %>/edit" class="mobile-menu-item" onclick="closeMobileMenu()">
+                    <i class="fas fa-edit"></i>
+                    <span>Edit Profile</span>
+                </a>
+                <a href="/users/<%= currUser._id %>/settings" class="mobile-menu-item" onclick="closeMobileMenu()">
+                    <i class="fas fa-cog"></i>
+                    <span>Settings</span>
+                </a>
+            </div>
+
+            <div class="mobile-menu-section">
+                <h3>Hosting</h3>
+                <a href="/listings/new" class="mobile-menu-item" onclick="closeMobileMenu()">
+                    <i class="fas fa-plus-circle"></i>
+                    <span>Add Listing</span>
+                </a>
+                <a href="/vehicles/new" class="mobile-menu-item" onclick="closeMobileMenu()">
+                    <i class="fas fa-car"></i>
+                    <span>Add Vehicle</span>
+                </a>
+                <a href="/dhabas/new" class="mobile-menu-item" onclick="closeMobileMenu()">
+                    <i class="fas fa-utensils"></i>
+                    <span>Add Dhaba</span>
+                </a>
+            </div>
+
+            <% if (isAdmin) { %>
+                <div class="mobile-menu-section">
+                    <h3>Admin</h3>
+                    <a href="/admin" class="mobile-menu-item" onclick="closeMobileMenu()">
+                        <i class="fas fa-shield-alt"></i>
+                        <span>Dashboard</span>
+                    </a>
+                </div>
+                <% } %>
+
+                    <div class="mobile-menu-section">
+                        <a href="/logout" class="mobile-menu-item" onclick="closeMobileMenu()">
+                            <i class="fas fa-sign-out-alt"></i>
+                            <span>Logout</span>
+                        </a>
+                    </div>
+                    <% } else { %>
+                        <!-- Guest Menu -->
+                        <div class="mobile-menu-section">
+                            <a href="/login" class="mobile-menu-item" onclick="closeMobileMenu()">
+                                <i class="fas fa-sign-in-alt"></i>
+                                <span>Login</span>
+                            </a>
+                            <a href="/signup" class="mobile-menu-item" onclick="closeMobileMenu()">
+                                <i class="fas fa-user-plus"></i>
+                                <span>Sign Up</span>
+                            </a>
+                        </div>
+                        <% } %>
+
+                            <div class="mobile-menu-section">
+                                <h3>Explore</h3>
+                                <a href="/listings" class="mobile-menu-item" onclick="closeMobileMenu()">
+                                    <i class="fas fa-home"></i>
+                                    <span>Stays</span>
+                                </a>
+                                <a href="/vehicles" class="mobile-menu-item" onclick="closeMobileMenu()">
+                                    <i class="fas fa-car"></i>
+                                    <span>Vehicles</span>
+                                </a>
+                                <a href="/dhabas" class="mobile-menu-item" onclick="closeMobileMenu()">
+                                    <i class="fas fa-utensils"></i>
+                                    <span>Dhabas</span>
+                                </a>
+                                <a href="/map" class="mobile-menu-item" onclick="closeMobileMenu()">
+                                    <i class="fas fa-map-marked-alt"></i>
+                                    <span>Map View</span>
+                                </a>
+                            </div>
+    </div>
+</div>
+
+<!-- Mobile Bottom Navigation -->
+<nav class="mobile-bottom-nav">
+    <div class="mobile-bottom-nav-container">
+        <a href="/" class="mobile-nav-item" data-nav="explore">
+            <i class="fas fa-search"></i>
+            <span>Explore</span>
+        </a>
+
+        <a href="/wishlists" class="mobile-nav-item" data-nav="wishlists">
+            <i class="fas fa-heart"></i>
+            <span>Wishlists</span>
+        </a>
+
+        <% if (currUser) { %>
+            <a href="/bookings" class="mobile-nav-item" data-nav="trips">
+                <i class="fas fa-calendar"></i>
+                <span>Trips</span>
+            </a>
+
+            <a href="/inbox" class="mobile-nav-item" data-nav="inbox">
+                <i class="fas fa-envelope"></i>
+                <span>Inbox</span>
+            </a>
+
+            <a href="/users/<%= currUser._id %>" class="mobile-nav-item" data-nav="profile">
+                <i class="fas fa-user"></i>
+                <span>Profile</span>
+            </a>
+            <% } else { %>
+                <a href="/login" class="mobile-nav-item" data-nav="trips">
+                    <i class="fas fa-calendar"></i>
+                    <span>Trips</span>
+                </a>
+
+                <a href="/login" class="mobile-nav-item" data-nav="inbox">
+                    <i class="fas fa-envelope"></i>
+                    <span>Inbox</span>
+                </a>
+
+                <a href="/login" class="mobile-nav-item" data-nav="profile">
+                    <i class="fas fa-user"></i>
+                    <span>Login</span>
+                </a>
+                <% } %>
+    </div>
+</nav>

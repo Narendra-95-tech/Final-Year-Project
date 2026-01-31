@@ -1,0 +1,342 @@
+/* ========================================
+   MOBILE RESPONSIVE HOMEPAGE
+   ======================================== */
+
+/* Mobile optimizations for homepage */
+@media (max-width: 768px) {
+
+    /* Hero Section */
+    .hero-section {
+        padding: 20px 16px !important;
+        min-height: auto !important;
+    }
+
+    .hero-section h1 {
+        font-size: 28px !important;
+        line-height: 1.2 !important;
+    }
+
+    .hero-section p {
+        font-size: 16px !important;
+    }
+
+    /* Search Bar */
+    .search-bar {
+        flex-direction: column !important;
+        gap: 12px !important;
+    }
+
+    .search-bar input,
+    .search-bar select,
+    .search-bar button {
+        width: 100% !important;
+        min-height: 48px !important;
+    }
+
+    /* Featured Cards */
+    .featured-section {
+        padding: 24px 16px !important;
+    }
+
+    .section-title {
+        font-size: 22px !important;
+        margin-bottom: 16px !important;
+    }
+
+    .card-grid {
+        grid-template-columns: 1fr !important;
+        gap: 20px !important;
+    }
+
+    /* Listing Cards */
+    .listing-card {
+        border-radius: 12px !important;
+        overflow: hidden !important;
+    }
+
+    .listing-card img {
+        height: 220px !important;
+        object-fit: cover !important;
+    }
+
+    .card-body {
+        padding: 12px !important;
+    }
+
+    .card-title {
+        font-size: 16px !important;
+        margin-bottom: 8px !important;
+    }
+
+    .card-text {
+        font-size: 14px !important;
+    }
+
+    /* Price */
+    .price {
+        font-size: 16px !important;
+        font-weight: 600 !important;
+    }
+
+    /* Buttons */
+    .btn {
+        min-height: 48px !important;
+        font-size: 16px !important;
+        padding: 12px 24px !important;
+    }
+
+    /* Container spacing */
+    .container {
+        padding-left: 16px !important;
+        padding-right: 16px !important;
+    }
+
+    /* Remove excessive margins */
+    .mb-5 {
+        margin-bottom: 24px !important;
+    }
+
+    .mt-5 {
+        margin-top: 24px !important;
+    }
+}
+
+/* ========================================
+   MOBILE CARD IMPROVEMENTS
+   ======================================== */
+
+@media (max-width: 768px) {
+
+    /* Enhanced card design for mobile */
+    .card {
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1) !important;
+        border: none !important;
+        margin-bottom: 20px !important;
+    }
+
+    .card:active {
+        transform: scale(0.98);
+        transition: transform 0.1s ease;
+    }
+
+    /* Image aspect ratio */
+    .card-img-top {
+        aspect-ratio: 16/10;
+        object-fit: cover;
+    }
+
+    /* Better spacing in cards */
+    .card-body {
+        padding: 16px !important;
+    }
+
+    /* Rating stars */
+    .rating {
+        font-size: 14px !important;
+    }
+
+    /* Location */
+    .location {
+        font-size: 13px !important;
+        color: #717171 !important;
+    }
+}
+
+/* ========================================
+   MOBILE FILTERS & SEARCH
+   ======================================== */
+
+@media (max-width: 768px) {
+
+    /* Filter buttons */
+    .filter-container {
+        overflow-x: auto !important;
+        -webkit-overflow-scrolling: touch !important;
+        scrollbar-width: none !important;
+    }
+
+    .filter-container::-webkit-scrollbar {
+        display: none !important;
+    }
+
+    .filter-btn {
+        white-space: nowrap !important;
+        padding: 8px 16px !important;
+        font-size: 14px !important;
+        border-radius: 20px !important;
+        margin-right: 8px !important;
+    }
+
+    /* Search modal for mobile */
+    .search-modal-mobile {
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: white;
+        z-index: 9999;
+        transform: translateY(100%);
+        transition: transform 0.3s ease;
+    }
+
+    .search-modal-mobile.active {
+        transform: translateY(0);
+    }
+}
+
+/* ========================================
+   MOBILE TYPOGRAPHY
+   ======================================== */
+
+@media (max-width: 768px) {
+    h1 {
+        font-size: 28px !important;
+    }
+
+    h2 {
+        font-size: 24px !important;
+    }
+
+    h3 {
+        font-size: 20px !important;
+    }
+
+    h4 {
+        font-size: 18px !important;
+    }
+
+    h5 {
+        font-size: 16px !important;
+    }
+
+    p {
+        font-size: 15px !important;
+        line-height: 1.5 !important;
+    }
+
+    small {
+        font-size: 13px !important;
+    }
+}
+
+/* ========================================
+   MOBILE TOUCH IMPROVEMENTS
+   ======================================== */
+
+@media (max-width: 768px) {
+
+    /* Larger tap targets */
+    a,
+    button,
+    .btn,
+    input,
+    select,
+    textarea {
+        min-height: 44px !important;
+    }
+
+    /* Better touch feedback */
+    a:active,
+    button:active,
+    .btn:active {
+        opacity: 0.7;
+    }
+
+    /* Remove hover effects on mobile */
+    .card:hover {
+        transform: none !important;
+    }
+
+    /* Smooth scrolling */
+    html {
+        scroll-behavior: smooth;
+    }
+
+    /* Prevent text selection on tap */
+    .mobile-nav-item,
+    .mobile-menu-item {
+        -webkit-tap-highlight-color: transparent;
+        -webkit-touch-callout: none;
+        -webkit-user-select: none;
+        user-select: none;
+    }
+}
+
+/* ========================================
+   MOBILE FORMS
+   ======================================== */
+
+@media (max-width: 768px) {
+
+    .form-control,
+    .form-select {
+        font-size: 16px !important;
+        /* Prevent zoom on iOS */
+        min-height: 48px !important;
+        padding: 12px 16px !important;
+    }
+
+    .form-label {
+        font-size: 14px !important;
+        font-weight: 600 !important;
+        margin-bottom: 8px !important;
+    }
+
+    .form-group {
+        margin-bottom: 20px !important;
+    }
+
+    /* Better error messages */
+    .invalid-feedback {
+        font-size: 14px !important;
+        margin-top: 8px !important;
+    }
+}
+
+/* ========================================
+   MOBILE MODALS
+   ======================================== */
+
+@media (max-width: 768px) {
+    .modal-dialog {
+        margin: 0 !important;
+        max-width: 100% !important;
+        height: 100% !important;
+    }
+
+    .modal-content {
+        height: 100% !important;
+        border-radius: 0 !important;
+    }
+
+    .modal-header {
+        padding: 16px !important;
+    }
+
+    .modal-body {
+        padding: 20px 16px !important;
+    }
+
+    .modal-footer {
+        padding: 16px !important;
+    }
+}
+
+/* ========================================
+   MOBILE PERFORMANCE
+   ======================================== */
+
+@media (max-width: 768px) {
+
+    /* Reduce animations on mobile for better performance */
+    * {
+        animation-duration: 0.3s !important;
+        transition-duration: 0.2s !important;
+    }
+
+    /* Optimize images */
+    img {
+        image-rendering: -webkit-optimize-contrast;
+    }
+}
