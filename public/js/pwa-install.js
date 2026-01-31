@@ -1,23 +1,40 @@
 // PWA Installation Handler
-let deferredPrompt;
-let installButton;
+(function () {
+  let deferredPrompt;
+  const INSTALL_DISMISSED_KEY = 'pwa-install-dismissed';
+  const DAYS_TO_WAIT_AFTER_DISMISSAL = 7;
 
-// Register Service Worker
-if ('serviceWorker' in navigator) {
+  // Register Service Worker
+  if ('serviceWorker' in navigator) {
     window.addEventListener('load', () => {
-        navigator.serviceWorker.register('/service-worker.js')
-            .then((registration) => {
-                console.log('✅ Service Worker registered successfully:', registration.scope);
-            })
-            .catch((error) => {
-                console.error('❌ Service Worker registration failed:', error);
-            });
+      navigator.serviceWorker.register('/service-worker.js')
+        .then((registration) => {
+          console.log('✅ Service Worker registered successfully:', registration.scope);
+        })
+        .catch((error) => {
+          console.error('❌ Service Worker registration failed:', error);
+        });
     });
-}
+  }
 
-// Listen for beforeinstallprompt event
-window.addEventListener('beforeinstallprompt', (e) => {
-    console.log('💡 PWA install prompt available');
+  // Check if installation should be promoted
+  function shouldShowPromotion() {
+    const dismissed = localStorage.getItem(INSTALL_DISMISSED_KEY);
+    if (dismissed) {
+      const lastDismissal = parseInt(dismissed);
+      const daysSince = (Date.now() - lastDismissal) / (1000 * 60 * 60 * 24);
+
+      if (daysSince < DAYS_TO_WAIT_AFTER_DISMISSAL) {
+        console.log(`ℹ️ PWA promotion dismissed ${daysSince.toFixed(1)} days ago. Waiting ${DAYS_TO_WAIT_AFTER_DISMISSAL} days.`);
+        return false;
+      }
+    }
+    return true;
+  }
+
+  // Listen for beforeinstallprompt event
+  window.addEventListener('beforeinstallprompt', (e) => {
+    console.log('💡 PWA install prompt available (beforeinstallprompt fired)');
 
     // Prevent the mini-infobar from appearing on mobile
     e.preventDefault();
@@ -25,18 +42,22 @@ window.addEventListener('beforeinstallprompt', (e) => {
     // Stash the event so it can be triggered later
     deferredPrompt = e;
 
-    // Show custom install button
-    showInstallPromotion();
-});
+    // Show custom install button if allowed
+    if (shouldShowPromotion()) {
+      showInstallPromotion();
+    } else {
+      console.log('ℹ️ PWA promotion suppressed by dismissal logic');
+    }
+  });
 
-// Show install promotion
-function showInstallPromotion() {
+  // Show install promotion
+  function showInstallPromotion() {
     // Create install banner if it doesn't exist
     if (!document.getElementById('pwa-install-banner')) {
-        const banner = document.createElement('div');
-        banner.id = 'pwa-install-banner';
-        banner.className = 'pwa-install-banner';
-        banner.innerHTML = `
+      const banner = document.createElement('div');
+      banner.id = 'pwa-install-banner';
+      banner.className = 'pwa-install-banner';
+      banner.innerHTML = `
       <div class="pwa-banner-content">
         <div class="pwa-banner-icon">
           <img src="/images/wanderlust-logo.svg" alt="WanderLust" width="48" height="48">
@@ -52,24 +73,27 @@ function showInstallPromotion() {
       </div>
     `;
 
-        document.body.appendChild(banner);
+      document.body.appendChild(banner);
 
-        // Add event listeners
-        document.getElementById('pwa-install-btn').addEventListener('click', installPWA);
-        document.getElementById('pwa-dismiss-btn').addEventListener('click', dismissInstallPromotion);
+      // Add event listeners
+      document.getElementById('pwa-install-btn').addEventListener('click', installPWA);
+      document.getElementById('pwa-dismiss-btn').addEventListener('click', dismissInstallPromotion);
 
-        // Show banner with animation
+      // Show banner with animation
+      // Use a small delay to ensure DOM is ready and transition triggers
+      requestAnimationFrame(() => {
         setTimeout(() => {
-            banner.classList.add('show');
+          banner.classList.add('show');
         }, 100);
+      });
     }
-}
+  }
 
-// Install PWA
-async function installPWA() {
+  // Install PWA
+  async function installPWA() {
     if (!deferredPrompt) {
-        console.log('❌ Install prompt not available');
-        return;
+      console.log('❌ Install prompt not available');
+      return;
     }
 
     // Show the install prompt
@@ -81,74 +105,70 @@ async function installPWA() {
     console.log(`User response to install prompt: ${outcome}`);
 
     if (outcome === 'accepted') {
-        console.log('✅ User accepted the install prompt');
-        dismissInstallPromotion();
+      console.log('✅ User accepted the install prompt');
+      removeInstallBanner();
     } else {
-        console.log('❌ User dismissed the install prompt');
+      console.log('❌ User dismissed the install prompt');
+      // Do not suppress permanently on cancel, just close banner for this session? 
+      // Or treat as dismissal? Let's treat as dismissal to avoid annoyance.
+      dismissInstallPromotion();
     }
 
     // Clear the deferredPrompt
     deferredPrompt = null;
-}
+  }
 
-// Dismiss install promotion
-function dismissInstallPromotion() {
+  // Dismiss install promotion
+  function dismissInstallPromotion() {
+    removeInstallBanner();
+    // Store dismissal in localStorage
+    localStorage.setItem(INSTALL_DISMISSED_KEY, Date.now());
+    console.log('🚫 PWA promotion dismissed by user');
+  }
+
+  // Helper to remove banner from DOM
+  function removeInstallBanner() {
     const banner = document.getElementById('pwa-install-banner');
     if (banner) {
-        banner.classList.remove('show');
-        setTimeout(() => {
-            banner.remove();
-        }, 300);
+      banner.classList.remove('show');
+      setTimeout(() => {
+        banner.remove();
+      }, 300);
     }
+  }
 
-    // Store dismissal in localStorage (don't show again for 7 days)
-    localStorage.setItem('pwa-install-dismissed', Date.now());
-}
-
-// Check if user already dismissed
-window.addEventListener('load', () => {
-    const dismissed = localStorage.getItem('pwa-install-dismissed');
-    if (dismissed) {
-        const daysSinceDismissal = (Date.now() - parseInt(dismissed)) / (1000 * 60 * 60 * 24);
-        if (daysSinceDismissal < 7) {
-            // Don't show banner if dismissed within last 7 days
-            return;
-        }
-    }
-});
-
-// Detect if app is already installed
-window.addEventListener('appinstalled', () => {
+  // Detect if app is already installed
+  window.addEventListener('appinstalled', () => {
     console.log('✅ WanderLust has been installed');
-    dismissInstallPromotion();
+    removeInstallBanner();
 
     // Track installation (you can send this to analytics)
     if (typeof gtag !== 'undefined') {
-        gtag('event', 'pwa_install', {
-            event_category: 'engagement',
-            event_label: 'PWA Installed'
-        });
+      gtag('event', 'pwa_install', {
+        event_category: 'engagement',
+        event_label: 'PWA Installed'
+      });
     }
-});
+  });
 
-// Check if running as PWA
-function isPWA() {
+  // Check if running as PWA
+  function isPWA() {
     return window.matchMedia('(display-mode: standalone)').matches ||
-        window.navigator.standalone === true;
-}
+      window.navigator.standalone === true;
+  }
 
-// Show different UI if running as PWA
-if (isPWA()) {
+  // Show different UI if running as PWA
+  if (isPWA()) {
     console.log('🚀 Running as PWA');
     document.body.classList.add('pwa-mode');
-}
+  }
 
-// Add CSS for install banner
-const style = document.createElement('style');
-style.textContent = `
+  // Add CSS for install banner (Dynamically injected to keep it self-contained)
+  const style = document.createElement('style');
+  style.textContent = `
   .pwa-install-banner {
     position: fixed;
-    bottom: -200px;
+    bottom: -200px; /* Start hidden below screen */
     left: 0;
     right: 0;
     background: linear-gradient(135deg, #FF385C, #FF5A5F);
@@ -156,7 +176,7 @@ style.textContent = `
     padding: 16px 20px;
     box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.15);
     z-index: 10000;
-    transition: bottom 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    transition: bottom 0.4s cubic-bezier(0.22, 1, 0.36, 1);
   }
   
   .pwa-install-banner.show {
@@ -175,6 +195,7 @@ style.textContent = `
     border-radius: 12px;
     background: white;
     padding: 4px;
+    display: block;
   }
   
   .pwa-banner-text {
@@ -191,7 +212,7 @@ style.textContent = `
   .pwa-banner-text p {
     margin: 0;
     font-size: 14px;
-    opacity: 0.9;
+    opacity: 0.95;
   }
   
   .pwa-banner-actions {
@@ -205,32 +226,40 @@ style.textContent = `
     color: #FF385C;
     border: none;
     padding: 10px 24px;
-    border-radius: 8px;
+    border-radius: 20px;
     font-weight: 600;
     cursor: pointer;
-    transition: transform 0.2s;
+    transition: all 0.2s ease;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
   }
   
   .btn-install-pwa:hover {
-    transform: scale(1.05);
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+  }
+  
+  .btn-install-pwa:active {
+    transform: translateY(0);
   }
   
   .btn-dismiss-pwa {
-    background: transparent;
-    border: 2px solid rgba(255, 255, 255, 0.5);
+    background: rgba(255, 255, 255, 0.2);
+    border: none;
     color: white;
-    width: 36px;
-    height: 36px;
+    width: 32px;
+    height: 32px;
     border-radius: 50%;
-    font-size: 24px;
+    font-size: 20px;
     line-height: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
     cursor: pointer;
-    transition: all 0.2s;
+    transition: background 0.2s;
   }
   
   .btn-dismiss-pwa:hover {
-    background: rgba(255, 255, 255, 0.2);
-    border-color: white;
+    background: rgba(255, 255, 255, 0.3);
   }
   
   @media (max-width: 768px) {
@@ -248,4 +277,5 @@ style.textContent = `
     }
   }
 `;
-document.head.appendChild(style);
+  document.head.appendChild(style);
+})();

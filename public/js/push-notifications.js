@@ -1,151 +1,152 @@
 // Push Notification Manager for WanderLust PWA
-class PushNotificationManager {
+(function () {
+  class PushNotificationManager {
     constructor() {
-        this.vapidPublicKey = null;
-        this.subscription = null;
+      this.vapidPublicKey = null;
+      this.subscription = null;
     }
 
     // Check if push notifications are supported
     isSupported() {
-        return 'serviceWorker' in navigator && 'PushManager' in window;
+      return 'serviceWorker' in navigator && 'PushManager' in window;
     }
 
     // Request notification permission
     async requestPermission() {
-        if (!this.isSupported()) {
-            console.warn('Push notifications are not supported');
-            return false;
-        }
+      if (!this.isSupported()) {
+        console.warn('Push notifications are not supported');
+        return false;
+      }
 
-        const permission = await Notification.requestPermission();
-        console.log('Notification permission:', permission);
-        return permission === 'granted';
+      const permission = await Notification.requestPermission();
+      console.log('Notification permission:', permission);
+      return permission === 'granted';
     }
 
     // Convert VAPID key from base64 to Uint8Array
     urlBase64ToUint8Array(base64String) {
-        const padding = '='.repeat((4 - base64String.length % 4) % 4);
-        const base64 = (base64String + padding)
-            .replace(/\-/g, '+')
-            .replace(/_/g, '/');
+      const padding = '='.repeat((4 - base64String.length % 4) % 4);
+      const base64 = (base64String + padding)
+        .replace(/\-/g, '+')
+        .replace(/_/g, '/');
 
-        const rawData = window.atob(base64);
-        const outputArray = new Uint8Array(rawData.length);
+      const rawData = window.atob(base64);
+      const outputArray = new Uint8Array(rawData.length);
 
-        for (let i = 0; i < rawData.length; ++i) {
-            outputArray[i] = rawData.charCodeAt(i);
-        }
-        return outputArray;
+      for (let i = 0; i < rawData.length; ++i) {
+        outputArray[i] = rawData.charCodeAt(i);
+      }
+      return outputArray;
     }
 
     // Subscribe to push notifications
     async subscribe() {
-        try {
-            // Get service worker registration
-            const registration = await navigator.serviceWorker.ready;
+      try {
+        // Get service worker registration
+        const registration = await navigator.serviceWorker.ready;
 
-            // Check for existing subscription
-            let subscription = await registration.pushManager.getSubscription();
+        // Check for existing subscription
+        let subscription = await registration.pushManager.getSubscription();
 
-            if (!subscription) {
-                // Fetch VAPID public key from server
-                const response = await fetch('/api/push/vapid-public-key');
-                const { publicKey } = await response.json();
-                this.vapidPublicKey = publicKey;
+        if (!subscription) {
+          // Fetch VAPID public key from server
+          const response = await fetch('/api/push/vapid-public-key');
+          const { publicKey } = await response.json();
+          this.vapidPublicKey = publicKey;
 
-                // Subscribe to push notifications
-                subscription = await registration.pushManager.subscribe({
-                    userVisibleOnly: true,
-                    applicationServerKey: this.urlBase64ToUint8Array(publicKey)
-                });
+          // Subscribe to push notifications
+          subscription = await registration.pushManager.subscribe({
+            userVisibleOnly: true,
+            applicationServerKey: this.urlBase64ToUint8Array(publicKey)
+          });
 
-                console.log('✅ Push subscription created:', subscription);
-            }
-
-            this.subscription = subscription;
-
-            // Send subscription to server
-            await this.sendSubscriptionToServer(subscription);
-
-            return subscription;
-        } catch (error) {
-            console.error('❌ Failed to subscribe to push notifications:', error);
-            throw error;
+          console.log('✅ Push subscription created:', subscription);
         }
+
+        this.subscription = subscription;
+
+        // Send subscription to server
+        await this.sendSubscriptionToServer(subscription);
+
+        return subscription;
+      } catch (error) {
+        console.error('❌ Failed to subscribe to push notifications:', error);
+        throw error;
+      }
     }
 
     // Send subscription to backend
     async sendSubscriptionToServer(subscription) {
-        try {
-            const response = await fetch('/api/push/subscribe', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify(subscription)
-            });
+      try {
+        const response = await fetch('/api/push/subscribe', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(subscription)
+        });
 
-            if (!response.ok) {
-                throw new Error('Failed to send subscription to server');
-            }
-
-            console.log('✅ Subscription sent to server');
-            return await response.json();
-        } catch (error) {
-            console.error('❌ Error sending subscription:', error);
-            throw error;
+        if (!response.ok) {
+          throw new Error('Failed to send subscription to server');
         }
+
+        console.log('✅ Subscription sent to server');
+        return await response.json();
+      } catch (error) {
+        console.error('❌ Error sending subscription:', error);
+        throw error;
+      }
     }
 
     // Unsubscribe from push notifications
     async unsubscribe() {
-        try {
-            const registration = await navigator.serviceWorker.ready;
-            const subscription = await registration.pushManager.getSubscription();
+      try {
+        const registration = await navigator.serviceWorker.ready;
+        const subscription = await registration.pushManager.getSubscription();
 
-            if (subscription) {
-                await subscription.unsubscribe();
+        if (subscription) {
+          await subscription.unsubscribe();
 
-                // Notify server
-                await fetch('/api/push/unsubscribe', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify({ endpoint: subscription.endpoint })
-                });
+          // Notify server
+          await fetch('/api/push/unsubscribe', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ endpoint: subscription.endpoint })
+          });
 
-                console.log('✅ Unsubscribed from push notifications');
-                this.subscription = null;
-            }
-        } catch (error) {
-            console.error('❌ Error unsubscribing:', error);
-            throw error;
+          console.log('✅ Unsubscribed from push notifications');
+          this.subscription = null;
         }
+      } catch (error) {
+        console.error('❌ Error unsubscribing:', error);
+        throw error;
+      }
     }
 
     // Show notification permission prompt
     showPermissionPrompt() {
-        if (!this.isSupported()) {
-            return;
-        }
+      if (!this.isSupported()) {
+        return;
+      }
 
-        // Check if already granted or denied
-        if (Notification.permission === 'granted') {
-            this.subscribe();
-            return;
-        }
+      // Check if already granted or denied
+      if (Notification.permission === 'granted') {
+        this.subscribe();
+        return;
+      }
 
-        if (Notification.permission === 'denied') {
-            console.log('Notifications are blocked');
-            return;
-        }
+      if (Notification.permission === 'denied') {
+        console.log('Notifications are blocked');
+        return;
+      }
 
-        // Show custom prompt
-        const banner = document.createElement('div');
-        banner.id = 'notification-prompt';
-        banner.className = 'notification-prompt';
-        banner.innerHTML = `
+      // Show custom prompt
+      const banner = document.createElement('div');
+      banner.id = 'notification-prompt';
+      banner.className = 'notification-prompt';
+      banner.innerHTML = `
       <div class="notification-prompt-content">
         <div class="notification-prompt-icon">🔔</div>
         <div class="notification-prompt-text">
@@ -159,68 +160,68 @@ class PushNotificationManager {
       </div>
     `;
 
-        document.body.appendChild(banner);
+      document.body.appendChild(banner);
 
-        // Add event listeners
-        document.getElementById('enable-notifications-btn').addEventListener('click', async () => {
-            const granted = await this.requestPermission();
-            if (granted) {
-                await this.subscribe();
-                banner.remove();
-            }
-        });
+      // Add event listeners
+      document.getElementById('enable-notifications-btn').addEventListener('click', async () => {
+        const granted = await this.requestPermission();
+        if (granted) {
+          await this.subscribe();
+          banner.remove();
+        }
+      });
 
-        document.getElementById('dismiss-notifications-btn').addEventListener('click', () => {
-            banner.remove();
-            localStorage.setItem('notification-prompt-dismissed', Date.now());
-        });
+      document.getElementById('dismiss-notifications-btn').addEventListener('click', () => {
+        banner.remove();
+        localStorage.setItem('notification-prompt-dismissed', Date.now());
+      });
 
-        // Show with animation
-        setTimeout(() => {
-            banner.classList.add('show');
-        }, 100);
+      // Show with animation
+      setTimeout(() => {
+        banner.classList.add('show');
+      }, 100);
     }
 
     // Initialize on page load
     init() {
-        if (!this.isSupported()) {
-            console.log('Push notifications not supported');
-            return;
-        }
+      if (!this.isSupported()) {
+        console.log('Push notifications not supported');
+        return;
+      }
 
-        // Auto-subscribe if permission already granted
-        if (Notification.permission === 'granted') {
-            this.subscribe();
-        } else {
-            // Show prompt after 10 seconds if not dismissed recently
-            const dismissed = localStorage.getItem('notification-prompt-dismissed');
-            const daysSinceDismissal = dismissed ? (Date.now() - parseInt(dismissed)) / (1000 * 60 * 60 * 24) : 999;
+      // Auto-subscribe if permission already granted
+      if (Notification.permission === 'granted') {
+        this.subscribe();
+      } else {
+        // Show prompt after 10 seconds if not dismissed recently
+        const dismissed = localStorage.getItem('notification-prompt-dismissed');
+        const daysSinceDismissal = dismissed ? (Date.now() - parseInt(dismissed)) / (1000 * 60 * 60 * 24) : 999;
 
-            if (daysSinceDismissal > 3) {
-                setTimeout(() => {
-                    this.showPermissionPrompt();
-                }, 10000);
-            }
+        if (daysSinceDismissal > 3) {
+          setTimeout(() => {
+            this.showPermissionPrompt();
+          }, 10000);
         }
+      }
     }
-}
+  }
 
-// Initialize notification manager
-const notificationManager = new PushNotificationManager();
+  // Initialize notification manager
+  const notificationManager = new PushNotificationManager();
 
-// Auto-init when page loads
-if (document.readyState === 'loading') {
+  // Auto-init when page loads
+  if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', () => notificationManager.init());
-} else {
+  } else {
     notificationManager.init();
-}
+  }
 
-// Make available globally
-window.notificationManager = notificationManager;
+  // Make available globally
+  window.notificationManager = notificationManager;
 
-// Add CSS for notification prompt
-const style = document.createElement('style');
-style.textContent = `
+  // Add CSS for notification prompt
+  const style = document.createElement('style');
+  style.textContent = `
   .notification-prompt {
     position: fixed;
     bottom: -200px;
@@ -319,4 +320,5 @@ style.textContent = `
     }
   }
 `;
-document.head.appendChild(style);
+  document.head.appendChild(style);
+})();
