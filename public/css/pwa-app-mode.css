@@ -31,6 +31,30 @@
     }
 }
 
+/* Desktop-specific standalone mode (ONLY on desktop) */
+@media all and (display-mode: standalone) and (min-width: 769px) {
+
+    /* Hide mobile elements on desktop */
+    .mobile-header {
+        display: none !important;
+    }
+
+    .mobile-bottom-nav {
+        display: none !important;
+    }
+
+    /* Ensure desktop navbar is visible */
+    .navbar:not(.mobile-header) {
+        display: flex !important;
+    }
+
+    /* Remove mobile padding from body */
+    body {
+        padding-top: 0 !important;
+        padding-bottom: 0 !important;
+    }
+}
+
 /* Mobile-specific standalone mode (ONLY on mobile devices) */
 @media all and (display-mode: standalone) and (max-width: 768px) {
 

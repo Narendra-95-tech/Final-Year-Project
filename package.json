@@ -34,6 +34,9 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "@capacitor/android": "^8.0.2",
+    "@capacitor/cli": "^8.0.2",
+    "@capacitor/core": "^8.0.2",
     "@mapbox/mapbox-sdk": "^0.16.2",
     "@sentry/node": "^7.100.0",
     "axios": "^1.13.1",
