@@ -272,7 +272,17 @@ exports.handleCancel = wrapAsync(async (req, res) => {
   const { session_id: sessionId } = req.query;
   let booking = null;
   if (sessionId) {
-    booking = await Booking.findOne({ stripeSessionId: sessionId }).populate("listing");
+    booking = await Booking.findOne({ stripeSessionId: sessionId })
+      .populate("listing")
+      .populate("vehicle")
+      .populate("dhaba");
+
+    if (booking) {
+      booking.status = "Cancelled";
+      booking.paymentStatus = "Failed";
+      await booking.save();
+      console.log(`❌ Booking ${booking._id} marked as Cancelled due to payment abandonment.`);
+    }
   }
 
   res.render("bookings/cancel", { booking });

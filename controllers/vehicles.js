@@ -59,11 +59,11 @@ module.exports.index = async (req, res) => {
         const end = new Date(endDate);
         if (!isNaN(start) && !isNaN(end) && end > start) {
             const overlappingBookings = await Booking.find({
-                $or: [
-                    { startDate: { $lte: end } },
-                    { endDate: { $gte: start } }
-                ]
-            }).select("vehicle"); // Note: Booking likely has 'vehicle' field if it's a vehicle booking
+                type: 'vehicle', // Only check vehicle bookings
+                status: { $ne: 'Cancelled' }, // Ignore cancelled bookings
+                startDate: { $lte: end },
+                endDate: { $gte: start }
+            }).select("vehicle");
 
             // Wait, does Booking model differentiate Listing vs Vehicle?
             // Usually schema has { listing: Ref, vehicle: Ref }.

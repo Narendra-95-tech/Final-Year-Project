@@ -7,7 +7,68 @@
     <link rel="stylesheet" href="/css/vehicle-management.css">
     <!-- Flatpickr CSS -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+
     <style>
+        /* Trip Calculator Premium Styles */
+        .trip-geocoder-wrapper {
+            margin-bottom: 12px;
+        }
+
+        .trip-geocoder-wrapper .mapboxgl-ctrl-geocoder {
+            width: 100% !important;
+            max-width: 100% !important;
+            box-shadow: none;
+            border: 1px solid #dee2e6;
+            border-radius: 12px;
+            background-color: #f8f9fa;
+        }
+
+        .trip-geocoder-wrapper .mapboxgl-ctrl-geocoder--input {
+            height: 45px;
+            padding: 10px 10px 10px 40px;
+        }
+
+        .trip-geocoder-wrapper .mapboxgl-ctrl-geocoder--icon-search {
+            top: 12px;
+            left: 12px;
+        }
+
+        .extra-small {
+            font-size: 0.65rem;
+        }
+
+        .animate-fade-in {
+            animation: fadeIn 0.4s cubic-bezier(0.165, 0.84, 0.44, 1);
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(8px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* Custom Marker style */
+        .vehicle-custom-marker {
+            transition: all 0.3s ease;
+        }
+
+        .vehicle-custom-marker:hover {
+            transform: rotate(-45deg) scale(1.1) !important;
+            box-shadow: 0 6px 16px rgba(214, 48, 49, 0.5);
+        }
+
+        /* Availability Calendar Adjustments */
+        #availabilityCalendar {
+            border: none !important;
+            box-shadow: none !important;
+        }
+
         /* Custom Flatpickr Visibility Improvements */
         .flatpickr-day {
             color: #222 !important;
@@ -61,18 +122,16 @@
             background-color: #fff;
         }
     </style>
-    <!-- Mapbox Geocoder CSS -->
-    <link rel="stylesheet"
-        href="https://api.mapbox.com/mapbox-gl-js/plugins/mapbox-gl-geocoder/v5.0.0/mapbox-gl-geocoder.css"
-        type="text/css">
-
-    <!-- Mapbox Geocoder JS -->
-    <script
-        src="https://api.mapbox.com/mapbox-gl-js/plugins/mapbox-gl-geocoder/v5.0.0/mapbox-gl-geocoder.min.js"></script>
 
     <script src="/js/wishlist-handler.js"></script>
     <!-- Flatpickr JS -->
     <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+    <!-- Mapbox Geocoder -->
+    <script
+        src="https://api.mapbox.com/mapbox-gl-js/plugins/mapbox-gl-geocoder/v5.0.0/mapbox-gl-geocoder.min.js"></script>
+    <link rel="stylesheet"
+        href="https://api.mapbox.com/mapbox-gl-js/plugins/mapbox-gl-geocoder/v5.0.0/mapbox-gl-geocoder.css"
+        type="text/css">
 
     <body class="listing-details-page">
 
@@ -278,6 +337,17 @@
                                     <%= vehicle.location %>, <%= vehicle.country %>
                                 </p>
                                 <div id="map" class="rounded-4" style="height:350px;"></div>
+                            </div>
+
+                            <!-- Availability Calendar Section -->
+                            <div class="mt-5 pt-4 border-top">
+                                <h4 class="fw-bold mb-3">Availability</h4>
+                                <div class="card border-0 shadow-sm rounded-4 overflow-hidden">
+                                    <div class="card-body p-0">
+                                        <div id="availabilityCalendar" class="wanderlust-calendar"
+                                            style="min-height: 450px;"></div>
+                                    </div>
+                                </div>
                             </div>
 
                             <!-- Reviews Section -->
@@ -509,6 +579,52 @@
                                         <% } %>
                         </div>
 
+                        <!-- Trip & Fuel Calculator Widget -->
+                        <div class="booking-card mt-3">
+                            <div class="d-flex align-items-center gap-2 mb-3">
+                                <i class="fas fa-calculator text-primary"></i>
+                                <h6 class="fw-bold mb-0">Trip & Fuel Estimator</h6>
+                            </div>
+
+                            <div class="mb-3">
+                                <label class="extra-small fw-bold text-uppercase text-muted">Destination</label>
+                                <div id="trip-geocoder" class="trip-geocoder-wrapper"></div>
+                            </div>
+
+                            <div id="trip-stats" class="d-none animate-fade-in">
+                                <div class="p-3 bg-light rounded-3 border mb-3">
+                                    <div class="d-flex justify-content-between mb-2">
+                                        <span class="text-muted small">Distance</span>
+                                        <span id="trip-distance" class="fw-bold">0 km</span>
+                                    </div>
+                                    <div class="d-flex justify-content-between mb-2">
+                                        <span class="text-muted small">Est. Fuel Needed</span>
+                                        <span id="fuel-needed" class="fw-bold">0 L</span>
+                                    </div>
+                                    <div class="d-flex justify-content-between mb-2">
+                                        <span class="text-muted small">Fuel Type</span>
+                                        <span class="badge bg-secondary text-capitalize">
+                                            <%= vehicle.fuelType %>
+                                        </span>
+                                    </div>
+                                    <hr class="my-2">
+                                    <div class="d-flex justify-content-between">
+                                        <span class="fw-bold">Est. Fuel Cost</span>
+                                        <span id="fuel-cost" class="text-success fw-bold">₹0</span>
+                                    </div>
+                                </div>
+                                <div class="alert alert-info py-2 px-3 small border-0 mb-0">
+                                    <i class="fas fa-leaf me-1"></i> Based on <strong>
+                                        <%= vehicle.mileage || 15 %> km/l
+                                    </strong> efficiency.
+                                </div>
+                            </div>
+
+                            <div id="trip-placeholder" class="text-center py-3">
+                                <p class="text-muted small mb-0">Enter a destination to calculate trip costs.</p>
+                            </div>
+                        </div>
+
                         <!-- Trust Badges -->
                         <div class="text-center mt-3 px-3">
                             <p class="text-muted small"><i class="fas fa-lock me-1"></i> Secure Payment Guaranteed</p>
@@ -518,17 +634,26 @@
             </div>
         </div>
 
-        <!-- Gallery Component Script -->
+        <!-- JavaScript Files -->
         <script src="/js/image-gallery.js"></script>
+        <script src="/js/wanderlust-calendar.js?v=<%= Date.now() %>"></script>
         <script>
-            document.addEventListener("DOMContentLoaded", () => {
+            document.addEventListener("DOMContentLoaded", async () => {
                 const startDateInput = document.getElementById("booking-start-date");
                 const endDateInput = document.getElementById("booking-end-date");
                 const daysCount = document.getElementById("days-count");
                 const baseTotal = document.getElementById("base-total");
                 const finalTotal = document.getElementById("final-total");
 
-                const pricePerDay = <%= (vehicle && vehicle.price) ? vehicle.price : 0 %>;
+                // Set Mapbox Access Token Globally
+                if (typeof mapboxgl !== 'undefined') {
+                    mapboxgl.accessToken = mapToken;
+                }
+
+                // Use the already parsed 'vehicle' object from line 143
+                const pricePerDay = vehicle.price || 0;
+                const vehicleMileage = vehicle.mileage || 15;
+                const fuelPrice = vehicle.fuelType === 'diesel' ? 88 : 95;
 
                 const updatePrice = () => {
                     if (!startDateInput.value || !endDateInput.value) return;
@@ -537,15 +662,17 @@
                     const diff = Math.ceil((end - start) / (1000 * 60 * 60 * 24));
 
                     if (diff > 0) {
-                        daysCount.innerText = diff;
+                        if (daysCount) daysCount.innerText = diff;
                         const base = pricePerDay * diff;
-                        baseTotal.innerText = `₹${base.toLocaleString()}`;
-                        finalTotal.innerText = `₹${(base + 750).toLocaleString()}`;
+                        if (baseTotal) baseTotal.innerText = `₹${base.toLocaleString()}`;
+                        if (finalTotal) finalTotal.innerText = `₹${(base + 750).toLocaleString()}`;
                     }
                 };
 
+                // Initialize Flatpickr
+                let fpStart, fpEnd;
                 if (startDateInput && endDateInput) {
-                    const fpStart = flatpickr(startDateInput, {
+                    fpStart = flatpickr(startDateInput, {
                         minDate: "today",
                         dateFormat: "Y-m-d",
                         altInput: true,
@@ -558,11 +685,11 @@
                                 fpEnd.set('minDate', selectedDates[0]);
                                 setTimeout(() => fpEnd.open(), 100);
                             }
-                            startDateInput.dispatchEvent(new Event('change'));
+                            updatePrice();
                         }
                     });
 
-                    const fpEnd = flatpickr(endDateInput, {
+                    fpEnd = flatpickr(endDateInput, {
                         minDate: "today",
                         dateFormat: "Y-m-d",
                         altInput: true,
@@ -570,13 +697,81 @@
                         disableMobile: "true",
                         static: true,
                         monthSelectorType: "static",
-                        onChange: function (selectedDates, dateStr, instance) {
-                            endDateInput.dispatchEvent(new Event('change'));
+                        onChange: updatePrice
+                    });
+                }
+
+                // Initialize WanderLustCalendar
+                if (typeof WanderLustCalendar !== 'undefined') {
+                    const wlCalendar = new WanderLustCalendar('availabilityCalendar', {
+                        primary: '#00A699',
+                        onDateSelect: (date, range) => {
+                            if (range.startDate && fpStart) {
+                                fpStart.setDate(range.startDate);
+                                if (range.endDate && fpEnd) {
+                                    fpEnd.setDate(range.endDate);
+                                }
+                                updatePrice();
+                            }
                         }
                     });
 
-                    startDateInput.addEventListener("change", updatePrice);
-                    endDateInput.addEventListener("change", updatePrice);
+                    // Fetch and Mark Booked Dates
+                    try {
+                        const response = await fetch(`/vehicles/${vehicle._id}/bookings`);
+                        const bookedEvents = await response.json();
+                        const bookedDates = [];
+                        bookedEvents.forEach(event => {
+                            let current = new Date(event.start);
+                            const end = new Date(event.end);
+                            while (current <= end) {
+                                bookedDates.push(new Date(current));
+                                current.setDate(current.getDate() + 1);
+                            }
+                        });
+                        wlCalendar.setBookedDates(bookedDates);
+                        if (fpStart) fpStart.set('disable', bookedDates);
+                        if (fpEnd) fpEnd.set('disable', bookedDates);
+                    } catch (err) {
+                        console.error("Failed to load bookings:", err);
+                    }
+                }
+
+                // --- Trip & Fuel Calculator Logic ---
+                const geocoderContainer = document.getElementById('trip-geocoder');
+                if (geocoderContainer && typeof MapboxGeocoder !== 'undefined') {
+                    const tripGeocoder = new MapboxGeocoder({
+                        accessToken: mapboxgl.accessToken,
+                        mapboxgl: mapboxgl,
+                        placeholder: 'Where are you going?',
+                        marker: false,
+                    });
+
+                    tripGeocoder.addTo('#trip-geocoder');
+
+                    tripGeocoder.on('result', (e) => {
+                        const destCoords = e.result.geometry.coordinates;
+                        const startCoords = vehicle.geometry.coordinates;
+
+                        fetch(`https://api.mapbox.com/directions/v5/mapbox/driving/${startCoords[0]},${startCoords[1]};${destCoords[0]},${destCoords[1]}?access_token=${mapboxgl.accessToken}`)
+                            .then(res => res.json())
+                            .then(data => {
+                                if (data.routes && data.routes[0]) {
+                                    const distanceKm = (data.routes[0].distance / 1000).toFixed(1);
+                                    const fuelNeeded = (distanceKm / vehicleMileage).toFixed(1);
+                                    const estimatedCost = Math.round(fuelNeeded * fuelPrice);
+
+                                    document.getElementById('trip-placeholder')?.classList.add('d-none');
+                                    document.getElementById('trip-stats')?.classList.remove('d-none');
+                                    const distEl = document.getElementById('trip-distance');
+                                    const fuelEl = document.getElementById('fuel-needed');
+                                    const costEl = document.getElementById('fuel-cost');
+                                    if (distEl) distEl.innerText = `${distanceKm} km`;
+                                    if (fuelEl) fuelEl.innerText = `${fuelNeeded} L`;
+                                    if (costEl) costEl.innerText = `₹${estimatedCost.toLocaleString()}`;
+                                }
+                            });
+                    });
                 }
 
                 // Booking Form Submission
@@ -585,72 +780,64 @@
                     bookingForm.addEventListener('submit', async (e) => {
                         e.preventDefault();
                         const btn = e.target.querySelector('button');
-                        btn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Processing...';
-                        btn.disabled = true;
+                        if (btn) {
+                            btn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Processing...';
+                            btn.disabled = true;
+                        }
 
                         const formData = new FormData(e.target);
                         const data = Object.fromEntries(formData.entries());
-
-                        // Calculate price for payload
-                        const pricePerDay = <%= (vehicle && vehicle.price) ? vehicle.price : 0 %>;
                         const start = new Date(data.startDate);
                         const end = new Date(data.endDate);
                         const diff = Math.ceil((end - start) / (1000 * 60 * 60 * 24));
-                        const totalPrice = (diff > 0 ? (pricePerDay * diff) + 750 : 0); // Base + Cleaning + Service (approx)
-
-                        const payload = {
-                            type: 'vehicle',
-                            vehicleId: '<%= vehicle._id %>',
-                            startDate: data.startDate,
-                            endDate: data.endDate,
-                            message: data.message,
-                            totalPrice: totalPrice,
-                            guests: 1 // Default for now
-                        };
+                        const totalPrice = (diff > 0 ? (pricePerDay * diff) + 750 : 0);
 
                         try {
                             const res = await fetch('/bookings/initiate', {
                                 method: 'POST',
                                 headers: { 'Content-Type': 'application/json' },
-                                body: JSON.stringify(payload)
+                                body: JSON.stringify({
+                                    type: 'vehicle',
+                                    vehicleId: vehicle._id,
+                                    startDate: data.startDate,
+                                    endDate: data.endDate,
+                                    message: data.message,
+                                    totalPrice: totalPrice,
+                                    guests: 1
+                                })
                             });
 
                             const result = await res.json();
                             if (res.ok && result.success) {
-                                // Redirect to Confirm and Pay page
                                 window.location.href = result.redirectUrl;
                             } else {
-                                alert(result.message || result.error || 'Booking failed');
+                                alert(result.message || 'Booking failed');
                             }
                         } catch (err) {
                             console.error(err);
                             alert('Something went wrong');
                         } finally {
-                            btn.innerHTML = 'Book Now';
-                            btn.disabled = false;
+                            if (btn) {
+                                btn.innerHTML = 'Book Now';
+                                btn.disabled = false;
+                            }
                         }
                     });
                 }
 
                 // Initialize Image Gallery
-                const images = vehicle.images && vehicle.images.length > 0
-                    ? vehicle.images
-                    : vehicle.image ? [vehicle.image] : [{ url: 'https://images.unsplash.com/photo-1503376785-2acd3d0a0821', caption: vehicle.title }];
+                const imageGalleryContainer = document.getElementById('image-gallery-container');
+                if (imageGalleryContainer && typeof ImageGallery !== 'undefined') {
+                    const images = vehicle.images && vehicle.images.length > 0
+                        ? vehicle.images
+                        : vehicle.image ? [vehicle.image] : [{ url: 'https://images.unsplash.com/photo-1503376785-2acd3d0a0821', caption: vehicle.title }];
+                    new ImageGallery('image-gallery-container', images);
+                }
 
-                new ImageGallery('image-gallery-container', images);
-
-                // Initialize Enhanced Map (like Dhabas)
-                if (vehicle.geometry && vehicle.geometry.coordinates) {
+                // Initialize Enhanced Map
+                const mapContainer = document.getElementById('map');
+                if (mapContainer && vehicle.geometry && vehicle.geometry.coordinates && typeof EnhancedMap !== 'undefined' && typeof mapToken !== 'undefined') {
                     const vehicleCoords = vehicle.geometry.coordinates;
-                    const mapContainer = document.getElementById('map');
-
-                    // Clear placeholder content
-                    if (mapContainer) {
-                        mapContainer.innerHTML = '';
-                        mapContainer.className = 'map-container';
-                    }
-
-                    // Initialize EnhancedMap with search enabled
                     const enhancedMap = new EnhancedMap('map', {
                         mapToken: mapToken,
                         center: vehicleCoords,
@@ -661,46 +848,30 @@
                         showControls: true
                     });
 
-                    // Create custom marker element for vehicle
                     const markerEl = document.createElement('div');
                     markerEl.className = 'vehicle-custom-marker';
                     markerEl.innerHTML = '<i class="fas fa-car"></i>';
-
-                    // Style the marker
                     Object.assign(markerEl.style, {
-                        width: '50px',
-                        height: '50px',
+                        width: '50px', height: '50px',
                         background: 'linear-gradient(135deg, #ff7675, #d63031)',
                         borderRadius: '50% 50% 50% 0',
                         transform: 'rotate(-45deg)',
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'center',
+                        display: 'flex', alignItems: 'center', justifyContent: 'center',
                         boxShadow: '0 4px 12px rgba(214, 48, 49, 0.4)',
-                        border: '3px solid white',
-                        cursor: 'pointer',
-                        color: 'white',
-                        fontSize: '20px'
+                        border: '3px solid white', cursor: 'pointer', color: 'white', fontSize: '20px'
                     });
                     markerEl.querySelector('i').style.transform = 'rotate(45deg)';
 
-                    // Add marker to map
                     enhancedMap.addMarker('vehicle', vehicleCoords, {
                         customElement: markerEl,
                         title: vehicle.title,
                         description: `<div style="padding:4px;">
                             <h6 style="margin:0; font-weight:700;">${vehicle.title}</h6>
-                            <span style="color:#717171; font-size:12px;">${vehicle.location}, ${vehicle.country}</span><br>
-                            <span style="color:#00b894; font-weight:600; font-size:12px;">✓ Available for pickup</span>
+                            <span style="color:#717171; font-size:12px;">${vehicle.location}, ${vehicle.country}</span>
                         </div>`,
                         popup: true,
                         offset: [0, -20]
                     });
-                }
-
-                // Initialize AOS if available
-                if (typeof AOS !== 'undefined') {
-                    AOS.init({ duration: 600, once: true });
                 }
             });
         </script>

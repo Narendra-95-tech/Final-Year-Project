@@ -3,7 +3,7 @@
   "appName": "WanderLust",
   "webDir": "public",
   "server": {
-    "url": "http://192.168.77.97:8080",
+    "url": "http://192.168.77.222:8080",
     "cleartext": true,
     "allowNavigation": [
       "*"

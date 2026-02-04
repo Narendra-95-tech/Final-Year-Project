@@ -254,6 +254,13 @@ exports.handleCancel = wrapAsync(async (req, res) => {
       .populate('listing')
       .populate('vehicle')
       .populate('dhaba');
+
+    if (booking) {
+      booking.status = "Cancelled";
+      booking.paymentStatus = "Failed";
+      await booking.save();
+      console.log(`❌ (Dhaba) Booking ${booking._id} marked as Cancelled due to payment abandonment.`);
+    }
   }
 
   res.render("bookings/cancel", { booking });
@@ -428,6 +435,17 @@ exports.cancelBooking = wrapAsync(async (req, res) => {
   }
 
   await booking.save();
+
+  // Cleanup references (especially for Vehicle bookedDates if used)
+  if (booking.type === 'vehicle' && booking.vehicle) {
+    try {
+      await mongoose.model('Vehicle').findByIdAndUpdate(booking.vehicle, {
+        $pull: { bookedDates: { bookingId: booking._id } }
+      });
+    } catch (err) {
+      console.error("Failed to cleanup vehicle bookedDates:", err.message);
+    }
+  }
 
   // Send cancellation email notification
   try {

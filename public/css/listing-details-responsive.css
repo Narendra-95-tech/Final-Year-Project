@@ -201,6 +201,12 @@
     .sticky-header {
         display: none;
     }
+
+    /* Ensure Mobile Booking Bar is Visible */
+    .mobile-booking-bar {
+        display: block !important;
+        transform: translateY(0);
+    }
 }
 
 /* Mobile Portrait (320px - 575px) */
