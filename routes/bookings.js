@@ -17,6 +17,11 @@ const {
 } = require("../controllers/listingsBookings");
 
 const {
+  createOrder: createRazorpayOrder,
+  verifyPayment: verifyRazorpayPayment,
+} = require("../controllers/razorpayController");
+
+const {
   createVehicleBooking,
   checkVehicleAvailability,
 } = require("../controllers/vehiclesBookings");
@@ -203,6 +208,14 @@ router.post("/:id/pay", isLoggedIn, async (req, res) => {
 // Pay with Card (Stripe Checkout)
 router.post("/create-checkout-session", isLoggedIn, createCheckoutSession);
 
+// ==========================================
+// RAZORPAY PAYMENT ROUTES
+// ==========================================
+// 1. Create a Razorpay Order
+router.post("/razorpay/create-order", isLoggedIn, createRazorpayOrder);
+// 2. Verify payment after user pays on Razorpay popup
+router.post("/razorpay/verify-payment", isLoggedIn, verifyRazorpayPayment);
+
 // Stripe Success & Cancel Routes
 router.get("/success", isLoggedIn, handleSuccess);
 router.get("/cancel", isLoggedIn, handleCancel);
@@ -270,10 +283,11 @@ router.post("/:id/pay-upi", isLoggedIn, async (req, res) => {
     const { id } = req.params;
     const { paymentReference } = req.body;
     const booking = await Booking.findById(id)
-      .populate('listing')
-      .populate('vehicle')
-      .populate('dhaba')
+      .populate({ path: 'listing', populate: { path: 'owner' } })
+      .populate({ path: 'vehicle', populate: { path: 'owner' } })
+      .populate({ path: 'dhaba', populate: { path: 'owner' } })
       .populate('user');
+
     if (!booking) return res.status(404).json({ success: false, message: "Booking not found" });
 
     // In valid manual flow, we record the UTR
@@ -285,12 +299,9 @@ router.post("/:id/pay-upi", isLoggedIn, async (req, res) => {
     booking.isPaid = true;
     booking.status = 'Confirmed';
     booking.paymentMethod = 'UPI';
-    booking.paymentDetails = {
-      ...booking.paymentDetails,
-      utr: paymentReference,
-      mode: 'UPI_MANUAL',
-      timestamp: new Date()
-    }; // Assuming schema supports this, otherwise just added properties
+    booking.paymentId = paymentReference; // Store UTR as the payment ID
+    booking.paymentDate = new Date();
+
     await booking.save();
 
     // Trigger notifications (Email)
@@ -299,21 +310,30 @@ router.post("/:id/pay-upi", isLoggedIn, async (req, res) => {
       const Notification = require('../models/notification');
 
       if (booking.user && booking.user.email) {
-        sendBookingConfirmation(booking, booking.user).catch(console.error);
-        sendPaymentReceipt(booking, booking.user).catch(console.error);
+        sendBookingConfirmation(booking, booking.user).catch(e => console.error('Guest email failed:', e.message));
+        sendPaymentReceipt(booking, booking.user).catch(e => console.error('Receipt failed:', e.message));
       }
 
       // Notify Owner
       const item = booking.listing || booking.dhaba || booking.vehicle;
       if (item && item.owner) {
-        if (item.owner.email) sendOwnerBookingAlert(booking, item.owner, booking.user).catch(console.error);
+        if (item.owner.email) {
+          sendOwnerBookingAlert(booking, item.owner, booking.user).catch(e => console.error('Owner alert failed:', e.message));
+        }
+
+        const itemTitle = item.title || (item.brand + ' ' + item.model);
         Notification.createNotification(
-          item.owner._id,
+          item.owner._id || item.owner,
           booking.user._id,
           'booking',
-          { content: `New UPI confirmed booking for ${item.title || item.brand}`, link: `/bookings/${booking._id}` }
-        ).catch(console.error);
+          {
+            content: `received a new UPI payment for ${itemTitle}`,
+            link: `/bookings/${booking._id}`,
+            metadata: { bookingId: booking._id }
+          }
+        ).catch(e => console.error('In-app notification failed:', e.message));
       }
+      console.log('📧 UPI Payment notifications triggered for booking:', booking._id);
     } catch (e) {
       console.error("UPI Notification Error:", e.message);
     }

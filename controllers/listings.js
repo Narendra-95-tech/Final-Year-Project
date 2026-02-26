@@ -198,6 +198,13 @@ module.exports.renderEditForm = async (req, res) => {
 
 module.exports.updateListing = async (req, res) => {
     let { id } = req.params;
+
+    // 🔒 Protect the ₹1 Test Payment Listing — always keep price at ₹1
+    const PROTECTED_LISTING_ID = '69a04ccc9cd88cffd8d9f918';
+    if (id === PROTECTED_LISTING_ID && req.body.listing) {
+        req.body.listing.price = 1;
+    }
+
     let listing = await Listing.findByIdAndUpdate(id, { ...req.body.listing });
 
     if (typeof req.files !== "undefined" && req.files.length > 0) {
@@ -220,6 +227,14 @@ module.exports.updateListing = async (req, res) => {
 
 module.exports.destroyListing = async (req, res) => {
     let { id } = req.params;
+
+    // 🔒 Protect the ₹1 Test Payment Listing from deletion
+    const PROTECTED_LISTING_ID = '69a04ccc9cd88cffd8d9f918';
+    if (id === PROTECTED_LISTING_ID) {
+        req.flash("error", "This is a protected demo listing and cannot be deleted.");
+        return res.redirect(`/listings/${id}`);
+    }
+
     let deletedListing = await Listing.findByIdAndDelete(id);
     req.flash("success", "Listing Deleted!");
     res.redirect("/listings")

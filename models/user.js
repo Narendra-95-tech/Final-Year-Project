@@ -144,6 +144,19 @@ const userSchema = new Schema({
         type: { type: String, enum: ['ID', 'Passport', 'License'] },
         uploadedAt: { type: Date, default: Date.now }
     }],
+    payoutUPI: {
+        type: String,
+        trim: true
+    },
+    // Simulated Bank Connection
+    bankDetails: {
+        accountHolderName: String,
+        accountNumber: String,
+        ifscCode: String,
+        bankName: String,
+        isVerified: { type: Boolean, default: false },
+        connectedAt: Date
+    },
     coupons: [{
         code: String,
         discountPercent: Number,

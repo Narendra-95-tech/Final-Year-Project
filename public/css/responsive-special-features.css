@@ -428,15 +428,17 @@
 /* Date Picker Touch Optimization */
 .flatpickr-calendar {
     max-width: 100vw;
-    min-width: 320px !important;
-    /* Ensure enough width for all 7 days */
-    width: auto !important;
-    position: absolute !important;
     z-index: 99999 !important;
     box-shadow: 0 10px 40px rgba(0, 0, 0, 0.15) !important;
-    /* Position calendar to the left to prevent right-side clipping */
-    left: 0 !important;
-    right: auto !important;
+    border-radius: 12px !important;
+}
+
+/* Static mode: render inline below the input */
+.flatpickr-calendar.static {
+    position: relative !important;
+    top: 100% !important;
+    margin-top: 8px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15) !important;
 }
 
 /* Ensure calendar is not clipped by parent containers */
@@ -445,11 +447,21 @@
     visibility: visible !important;
 }
 
-/* Prevent booking card from clipping the calendar */
-.booking-card .flatpickr-calendar,
-.sticky-booking-sidebar .flatpickr-calendar {
-    left: 0 !important;
-    right: auto !important;
+/* When inside the booking card, ensure no clipping */
+.booking-card {
+    overflow: visible !important;
+}
+
+.booking-dates {
+    position: relative;
+}
+
+.date-input-group {
+    position: relative;
+}
+
+.listing-sidebar {
+    overflow: visible !important;
 }
 
 /* Fix innerContainer clipping issue */

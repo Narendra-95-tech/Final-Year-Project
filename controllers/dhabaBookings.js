@@ -3,6 +3,13 @@ const Booking = require("../models/booking");
 const Dhaba = require("../models/dhaba");
 const User = require("../models/user");
 const wrapAsync = require("../utils/wrapAsync");
+const Razorpay = require("razorpay");
+
+// Initialize Razorpay instance
+const razorpay = new Razorpay({
+  key_id: process.env.RAZORPAY_KEY_ID,
+  key_secret: process.env.RAZORPAY_KEY_SECRET,
+});
 
 const STRIPE_SECRET = process.env.STRIPE_SECRET_KEY;
 const STRIPE_PUBLISHABLE = process.env.STRIPE_PUBLISHABLE_KEY;
@@ -358,7 +365,10 @@ exports.updateBookingStatus = wrapAsync(async (req, res) => {
 
 exports.cancelBooking = wrapAsync(async (req, res) => {
   const { id } = req.params;
-  const booking = await Booking.findById(id);
+  const booking = await Booking.findById(id)
+    .populate('listing')
+    .populate('vehicle')
+    .populate('dhaba');
 
   if (!booking) {
     req.flash("error", "Booking not found");
@@ -425,6 +435,31 @@ exports.cancelBooking = wrapAsync(async (req, res) => {
       refundMsg = "Stripe refund failed (it may have already been refunded). Please check your statement.";
     }
   }
+  // 3. Handle Razorpay Refund
+  else if (booking.isPaid && booking.paymentMethod === 'Razorpay' && booking.paymentId) {
+    try {
+      if (process.env.RAZORPAY_KEY_ID && process.env.RAZORPAY_KEY_SECRET) {
+        const refundResponse = await razorpay.payments.refund(booking.paymentId, {
+          amount: Math.round(booking.totalPrice * 100), // Razorpay expected amount in paise
+          notes: {
+            reason: "User cancelled the booking",
+            bookingId: booking._id.toString()
+          }
+        });
+
+        if (refundResponse && refundResponse.id) {
+          refundSuccess = true;
+          refundMsg = `₹${booking.totalPrice} has been refunded to your original payment method via Razorpay.`;
+          console.log(`✅ Razorpay Refund Processed for payment ${booking.paymentId}: ${refundResponse.id}`);
+        }
+      } else {
+        refundMsg = "Automated Razorpay refund is unavailable (API keys missing). Please contact support.";
+      }
+    } catch (razorpayError) {
+      console.error("Razorpay Refund Error:", razorpayError);
+      refundMsg = `Razorpay refund failed: ${razorpayError.description || razorpayError.error?.description || "Payment too old or already refunded"}. Please contact support.`;
+    }
+  }
 
   // Update status
   booking.status = "Cancelled";
@@ -447,13 +482,45 @@ exports.cancelBooking = wrapAsync(async (req, res) => {
     }
   }
 
-  // Send cancellation email notification
+  // Send cancellation email notifications to BOTH guest and host
   try {
-    const { sendCancellationEmail } = require('../utils/emailService');
-    const user = await User.findById(booking.user);
-    if (user && user.email) {
-      sendCancellationEmail(booking, user, booking.totalPrice).catch(e => console.error('Cancellation email failed:', e.message));
-      console.log('📧 Triggering cancellation email for booking:', booking._id);
+    const { sendCancellationEmail, sendOwnerCancellationAlert } = require('../utils/emailService');
+    const Notification = require('../models/notification');
+    const refundAmount = refundSuccess ? booking.totalPrice : 0;
+
+    // 1. Notify Guest (Cancellation + Refund details)
+    const guest = await User.findById(booking.user);
+    if (guest && guest.email) {
+      sendCancellationEmail(booking, guest, refundAmount).catch(e => console.error('Guest cancellation email failed:', e.message));
+      console.log('📧 Guest cancellation email triggered for booking:', booking._id);
+    }
+
+    // 2. Notify Host/Owner (Cancellation alert)
+    const item = booking.listing || booking.dhaba || booking.vehicle;
+    if (item && item.owner) {
+      let owner = item.owner;
+      // If owner is just an ID, fetch the full user
+      if (typeof owner === 'string' || !owner.email) {
+        owner = await User.findById(item.owner);
+      }
+      if (owner && owner.email && guest) {
+        sendOwnerCancellationAlert(booking, owner, guest, refundAmount).catch(e => console.error('Owner cancellation email failed:', e.message));
+        console.log('📧 Owner cancellation alert triggered for booking:', booking._id);
+      }
+
+      // In-App Notification for Owner
+      if (owner) {
+        Notification.createNotification(
+          owner._id,
+          booking.user,
+          'cancellation',
+          {
+            content: `A guest cancelled their booking for ${item.title || 'your property'}`,
+            link: `/bookings`,
+            metadata: { bookingId: booking._id }
+          }
+        ).catch(e => console.error('Owner in-app notification failed:', e.message));
+      }
     }
   } catch (emailErr) {
     console.error('Email service trigger error:', emailErr.message);

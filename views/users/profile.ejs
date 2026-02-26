@@ -1,501 +1,893 @@
 <% layout("layouts/boilerplate") %>
 
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap"
+        rel="stylesheet">
+
     <style>
-        :root {
-            --primary-orange: #fe6b00;
-            --primary-dark: #1a1a1a;
-            --bg-light: #f8f9fa;
+        * {
+            font-family: 'Inter', sans-serif !important;
         }
 
-        .profile-container {
-            max-width: 1100px;
-            margin: 40px auto 80px;
-            padding: 0 20px;
+        .profile-page {
+            background: #f0f2f8;
+            min-height: 100vh;
+            padding-bottom: 4rem;
         }
 
-        /* Hero Header */
-        .profile-hero {
-            position: relative;
-            background: linear-gradient(135deg, #1a1a1a 0%, #333 100%);
-            border-radius: 24px;
+        /* ── Cover ── */
+        .profile-cover {
             height: 280px;
-            margin-bottom: 120px;
-            overflow: visible;
+            background: linear-gradient(135deg, #0f1729 0%, #1a1a3e 40%, #0f3460 100%);
+            position: relative;
+            overflow: hidden;
         }
 
-        .hero-pattern {
+        .profile-cover::before {
+            content: '';
             position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            opacity: 0.1;
-            background-image:
-                radial-gradient(circle at 20% 30%, var(--primary-orange) 0%, transparent 50%),
-                radial-gradient(circle at 80% 70%, var(--primary-orange) 0%, transparent 50%);
-            border-radius: 24px;
+            inset: 0;
+            background: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.03'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
         }
 
-        .profile-avatar-wrapper {
+        .cover-orb-1 {
             position: absolute;
-            bottom: -70px;
-            left: 50px;
-            z-index: 5;
-            display: flex;
-            align-items: flex-end;
-            gap: 25px;
+            width: 400px;
+            height: 400px;
+            background: radial-gradient(circle, rgba(99, 102, 241, 0.25) 0%, transparent 70%);
+            top: -150px;
+            right: -100px;
         }
 
-        .profile-avatar-large {
-            width: 160px;
-            height: 160px;
-            border-radius: 50%;
-            border: 6px solid white;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
-            background: white;
-            object-fit: cover;
+        .cover-orb-2 {
+            position: absolute;
+            width: 300px;
+            height: 300px;
+            background: radial-gradient(circle, rgba(16, 185, 129, 0.15) 0%, transparent 70%);
+            bottom: -100px;
+            left: 100px;
         }
 
-        .profile-name-section {
-            padding-bottom: 20px;
+        .btn-edit-cover {
+            position: absolute;
+            top: 16px;
+            right: 16px;
+            background: rgba(255, 255, 255, 0.12);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            color: white;
+            border-radius: 10px;
+            padding: 8px 16px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            text-decoration: none;
+            backdrop-filter: blur(10px);
+            transition: all 0.2s;
+        }
+
+        .btn-edit-cover:hover {
+            background: rgba(255, 255, 255, 0.2);
             color: white;
         }
 
-        .profile-name-large {
-            font-size: 32px;
-            font-weight: 800;
-            margin-bottom: 5px;
+        /* ── Avatar Zone ── */
+        .avatar-zone {
+            position: relative;
+            margin-top: -70px;
+            padding: 0 2rem 0;
+            display: flex;
+            align-items: flex-end;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 16px;
+        }
+
+        .avatar-wrap {
+            position: relative;
+            width: 140px;
+            height: 140px;
+            flex-shrink: 0;
+        }
+
+        .avatar-img {
+            width: 140px;
+            height: 140px;
+            border-radius: 50%;
+            border: 5px solid white;
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.15);
+            object-fit: cover;
+            background: white;
+        }
+
+        .avatar-initial {
+            width: 140px;
+            height: 140px;
+            border-radius: 50%;
+            border: 5px solid white;
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.15);
+            background: linear-gradient(135deg, #6366f1, #8b5cf6);
             display: flex;
             align-items: center;
-            gap: 12px;
+            justify-content: center;
+            font-size: 3.5rem;
+            font-weight: 900;
+            color: white;
         }
 
-        .profile-handle-large {
-            font-size: 18px;
-            opacity: 0.8;
-            font-weight: 500;
+        .verified-dot {
+            position: absolute;
+            bottom: 6px;
+            right: 6px;
+            width: 28px;
+            height: 28px;
+            background: #22c55e;
+            border: 3px solid white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.7rem;
+            color: white;
         }
 
-        /* Stats Bar */
-        .profile-stats-bar {
+        .profile-actions {
+            display: flex;
+            gap: 10px;
+            padding-bottom: 12px;
+        }
+
+        /* ── White card ── */
+        .white-card {
             background: white;
             border-radius: 20px;
-            padding: 25px;
-            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.06);
-            display: flex;
-            justify-content: space-around;
-            margin-bottom: 40px;
-            border: 1px solid rgba(0, 0, 0, 0.05);
+            padding: 1.8rem;
+            box-shadow: 0 2px 16px rgba(0, 0, 0, 0.05);
+            margin-bottom: 1.5rem;
         }
 
-        .stat-box {
-            text-align: center;
+        .card-title {
+            font-size: 1rem;
+            font-weight: 800;
+            color: #111827;
+            margin-bottom: 1.2rem;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .card-title i {
+            color: #6366f1;
+        }
+
+        /* ── Stat Pill ── */
+        .stat-pills {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+
+        .stat-pill {
             flex: 1;
+            min-width: 100px;
+            text-align: center;
+            padding: 1rem;
+            border-radius: 16px;
+            background: #f8faff;
+            border: 1px solid #e8e9ff;
         }
 
-        .stat-box:not(:last-child) {
-            border-right: 1px solid #eee;
-        }
-
-        .stat-value {
-            display: block;
-            font-size: 28px;
-            font-weight: 800;
-            color: var(--primary-dark);
+        .stat-pill .val {
+            font-size: 1.8rem;
+            font-weight: 900;
+            color: #111827;
             line-height: 1;
-            margin-bottom: 5px;
         }
 
-        .stat-text {
-            color: #888;
-            font-size: 13px;
-            font-weight: 600;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-        }
-
-        /* Content Layout */
-        .profile-grid {
-            display: grid;
-            grid-template-columns: 350px 1fr;
-            gap: 30px;
-        }
-
-        @media (max-width: 992px) {
-            .profile-grid {
-                grid-template-columns: 1fr;
-            }
-
-            .profile-avatar-wrapper {
-                left: 50%;
-                transform: translateX(-50%);
-                flex-direction: column;
-                align-items: center;
-                text-align: center;
-                bottom: -100px;
-            }
-
-            .profile-hero {
-                margin-bottom: 150px;
-            }
-        }
-
-        .profile-side-card {
-            background: white;
-            border-radius: 20px;
-            padding: 30px;
-            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.04);
-            border: 1px solid #f0f0f0;
-            margin-bottom: 30px;
-        }
-
-        .section-title {
-            font-size: 18px;
+        .stat-pill .lbl {
+            font-size: 0.7rem;
             font-weight: 700;
-            margin-bottom: 20px;
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            color: var(--primary-dark);
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+            color: #9ca3af;
+            margin-top: 4px;
         }
 
-        .section-title i {
-            color: var(--primary-orange);
-            font-size: 20px;
-        }
-
-        .info-list {
-            list-style: none;
-            padding: 0;
-            margin: 0;
-        }
-
-        .info-item {
+        /* ── Info Row ── */
+        .info-row {
             display: flex;
             justify-content: space-between;
-            padding: 12px 0;
-            border-bottom: 1px solid #f8f9fa;
+            padding: 10px 0;
+            border-bottom: 1px solid #f3f4f6;
+            font-size: 0.9rem;
         }
 
-        .info-item:last-child {
+        .info-row:last-child {
             border-bottom: none;
         }
 
-        .info-label {
-            color: #777;
+        .info-key {
+            color: #9ca3af;
             font-weight: 500;
         }
 
-        .info-data {
-            color: var(--primary-dark);
+        .info-val {
+            color: #111827;
             font-weight: 600;
+            text-align: right;
         }
 
-        .bio-text {
-            color: #555;
-            line-height: 1.6;
-            font-size: 15px;
-            background: #fff8f4;
-            padding: 20px;
-            border-radius: 15px;
-            border-left: 4px solid var(--primary-orange);
-        }
-
-        .social-pills {
+        /* ── Quick Links ── */
+        .quick-link {
             display: flex;
-            gap: 10px;
-            margin-top: 15px;
+            align-items: center;
+            gap: 12px;
+            padding: 12px 14px;
+            border-radius: 14px;
+            text-decoration: none;
+            color: #111827;
+            font-weight: 600;
+            font-size: 0.88rem;
+            border: 1px solid #f0f0f0;
+            margin-bottom: 8px;
+            transition: all 0.2s;
         }
 
-        .social-pill {
-            width: 40px;
-            height: 40px;
+        .quick-link:hover {
+            background: #f5f3ff;
+            border-color: #c4b5fd;
+            color: #6366f1;
+            transform: translateX(4px);
+        }
+
+        .quick-link .ql-icon {
+            width: 36px;
+            height: 36px;
             border-radius: 10px;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 18px;
-            transition: all 0.2s;
-            background: #f0f0f0;
-            color: #555;
+            font-size: 0.9rem;
+            flex-shrink: 0;
+        }
+
+        .quick-link .ql-badge {
+            margin-left: auto;
+            background: #f3f4f6;
+            color: #6b7280;
+            font-size: 0.7rem;
+            font-weight: 700;
+            padding: 2px 8px;
+            border-radius: 99px;
+        }
+
+        .quick-link:hover .ql-badge {
+            background: #ede9fe;
+            color: #6366f1;
+        }
+
+        /* ── Listing mini card ── */
+        .mini-items {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .mini-item {
+            display: flex;
+            gap: 12px;
+            align-items: center;
+            padding: 10px;
+            border: 1px solid #f3f4f6;
+            border-radius: 14px;
             text-decoration: none;
+            color: #111827;
+            transition: all 0.2s;
         }
 
-        .social-pill:hover {
-            transform: translateY(-3px);
-            color: white;
+        .mini-item:hover {
+            border-color: #c4b5fd;
+            background: #f5f3ff;
         }
 
-        .pill-fb:hover {
-            background: #1877f2;
+        .mini-item img {
+            width: 52px;
+            height: 52px;
+            border-radius: 10px;
+            object-fit: cover;
+            flex-shrink: 0;
         }
 
-        .pill-tw:hover {
-            background: #1da1f2;
-        }
-
-        .pill-ig:hover {
-            background: #e4405f;
-        }
-
-        .action-btn {
+        .mini-item-no-img {
+            width: 52px;
+            height: 52px;
+            border-radius: 10px;
+            background: linear-gradient(135deg, #6366f1, #8b5cf6);
             display: flex;
             align-items: center;
-            justify-content: space-between;
-            width: 100%;
-            padding: 15px 20px;
-            background: white;
-            border: 1px solid #eee;
+            justify-content: center;
+            color: white;
+            font-size: 1.2rem;
+            flex-shrink: 0;
+        }
+
+        .mini-item-title {
+            font-weight: 700;
+            font-size: 0.88rem;
+            line-height: 1.2;
+        }
+
+        .mini-item-sub {
+            font-size: 0.75rem;
+            color: #9ca3af;
+            margin-top: 2px;
+        }
+
+        /* ── Recent Bookings ── */
+        .booking-row {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px 0;
+            border-bottom: 1px solid #f9fafb;
+        }
+
+        .booking-row:last-child {
+            border-bottom: none;
+        }
+
+        .booking-icon {
+            width: 40px;
+            height: 40px;
             border-radius: 12px;
-            text-decoration: none;
-            color: var(--primary-dark);
-            font-weight: 600;
-            margin-bottom: 12px;
-            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+            font-size: 1rem;
         }
 
-        .action-btn:hover {
-            background: var(--bg-light);
-            border-color: var(--primary-orange);
-            color: var(--primary-orange);
-            transform: translateX(5px);
+        .booking-status {
+            margin-left: auto;
+            padding: 3px 10px;
+            border-radius: 999px;
+            font-size: 0.65rem;
+            font-weight: 800;
+            text-transform: uppercase;
         }
 
-        .action-btn i:first-child {
-            margin-right: 15px;
-            width: 20px;
+        /* ── Badges ── */
+        .badge-grid {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
+        }
+
+        .badge-item {
             text-align: center;
         }
 
-        .badge-verified {
-            background: #e6f7ef;
-            color: #198754;
-            font-size: 11px;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            padding: 4px 12px;
-            border-radius: 100px;
-            font-weight: 700;
+        .badge-circle {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.4rem;
+            margin: 0 auto 6px;
         }
 
-        .host-badge {
-            background: #fff4e6;
-            color: var(--primary-orange);
-            font-size: 12px;
-            padding: 5px 12px;
-            border-radius: 100px;
-            font-weight: 600;
-            display: inline-flex;
+        .badge-name {
+            font-size: 0.7rem;
+            font-weight: 700;
+            color: #6b7280;
+        }
+
+        /* ── Social pills ── */
+        .social-row {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .social-btn {
+            display: flex;
             align-items: center;
             gap: 6px;
+            padding: 8px 14px;
+            border-radius: 12px;
+            background: #f3f4f6;
+            color: #374151;
+            font-size: 0.8rem;
+            font-weight: 600;
+            text-decoration: none;
+            transition: all 0.2s;
+        }
+
+        .social-btn:hover {
+            color: white;
+        }
+
+        .social-btn.fb:hover {
+            background: #1877f2;
+        }
+
+        .social-btn.tw:hover {
+            background: #1da1f2;
+        }
+
+        .social-btn.ig:hover {
+            background: linear-gradient(135deg, #833ab4, #fd1d1d);
+        }
+
+        /* ── Btn styles ── */
+        .btn-primary-custom {
+            background: linear-gradient(135deg, #6366f1, #8b5cf6);
+            color: white;
+            border: none;
+            border-radius: 12px;
+            padding: 10px 20px;
+            font-weight: 700;
+            font-size: 0.88rem;
+            text-decoration: none;
+            transition: all 0.2s;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn-primary-custom:hover {
+            color: white;
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(99, 102, 241, 0.35);
+        }
+
+        .btn-outline-custom {
+            background: white;
+            color: #374151;
+            border: 1.5px solid #e5e7eb;
+            border-radius: 12px;
+            padding: 9px 18px;
+            font-weight: 600;
+            font-size: 0.88rem;
+            text-decoration: none;
+            transition: all 0.2s;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn-outline-custom:hover {
+            border-color: #6366f1;
+            color: #6366f1;
+        }
+
+        /* Earnings bar */
+        .earnings-highlight {
+            background: linear-gradient(135deg, #0f1729, #1e3a5f);
+            border-radius: 18px;
+            padding: 1.5rem;
+            color: white;
         }
     </style>
 
-    <div class="profile-container">
-        <!-- Hero Section -->
-        <div class="profile-hero">
-            <div class="hero-pattern"></div>
-            <div class="profile-avatar-wrapper">
-                <% if (user.avatar && user.avatar.url) { %>
-                    <img src="<%= user.avatar.url %>" alt="Profile" class="profile-avatar-large">
-                    <% } else { %>
-                        <div class="profile-avatar-large d-flex align-items-center justify-content-center"
-                            style="background: white; color: var(--primary-orange); font-size: 60px; font-weight: 800;">
-                            <%= user.username.charAt(0).toUpperCase() %>
+    <div class="profile-page">
+
+        <!-- ── Cover ── -->
+        <div class="profile-cover">
+            <div class="cover-orb-1"></div>
+            <div class="cover-orb-2"></div>
+            <a href="/profile/edit" class="btn-edit-cover"><i class="fas fa-pen me-2"></i>Edit Profile</a>
+        </div>
+
+        <div class="container" style="max-width:1100px; padding: 0 1rem;">
+
+            <!-- ── Avatar + Actions ── -->
+            <div class="avatar-zone mb-4">
+                <div class="d-flex align-items-end gap-3 flex-wrap">
+                    <div class="avatar-wrap">
+                        <% if(user.avatar && user.avatar.url) { %>
+                            <img src="<%= user.avatar.url %>" class="avatar-img" alt="<%= user.username %>">
+                            <% } else { %>
+                                <div class="avatar-initial">
+                                    <%= user.username.charAt(0).toUpperCase() %>
+                                </div>
+                                <% } %>
+                                    <% if(user.isVerified) { %>
+                                        <div class="verified-dot" title="Verified"><i class="fas fa-check"
+                                                style="font-size:0.6rem;"></i></div>
+                                        <% } %>
+                    </div>
+                    <div class="pb-2">
+                        <h2 class="fw-900 mb-1" style="font-size:1.8rem; font-weight:900; color:#111827;">
+                            <%= user.username %>
+                                <% if(user.isVerified) { %><i class="fas fa-check-circle text-primary"
+                                        style="font-size:1rem;"></i>
+                                    <% } %>
+                        </h2>
+                        <div class="text-muted" style="font-size:0.9rem;">@<%= user.username.toLowerCase() %>
+                                <% if(user.location) { %> · <i class="fas fa-map-marker-alt ms-1 me-1"></i>
+                                    <%= user.location %>
+                                        <% } %>
+                        </div>
+                        <div class="d-flex gap-2 mt-2 flex-wrap">
+                            <span class="badge rounded-pill px-3 py-2"
+                                style="background:#f0fdf4; color:#16a34a; border:1px solid #bbf7d0; font-size:0.7rem; font-weight:700;">
+                                <i class="fas fa-medal me-1"></i> WanderLust Elite
+                            </span>
+                            <% if(totalHostedItems> 0) { %>
+                                <span class="badge rounded-pill px-3 py-2"
+                                    style="background:#ede9fe; color:#7c3aed; border:1px solid #ddd6fe; font-size:0.7rem; font-weight:700;">
+                                    <i class="fas fa-home me-1"></i> Host — <%= totalHostedItems %> Listings
+                                </span>
+                                <% } %>
+                                    <span class="badge rounded-pill px-3 py-2"
+                                        style="background:#fff7ed; color:#c2410c; border:1px solid #fed7aa; font-size:0.7rem; font-weight:700;">
+                                        <i class="fas fa-user-check me-1"></i>
+                                        <%= user.verificationStatus || 'Not Verified' %>
+                                    </span>
+                        </div>
+                    </div>
+                </div>
+                <div class="profile-actions">
+                    <a href="/profile/edit" class="btn-primary-custom"><i class="fas fa-pen"></i> Edit Profile</a>
+                    <a href="/payouts/dashboard" class="btn-outline-custom"><i class="fas fa-chart-line"></i>
+                        Earnings</a>
+                </div>
+            </div>
+
+            <div class="row g-4">
+
+                <!-- ═══ LEFT (Sidebar) ═══ -->
+                <div class="col-lg-4">
+
+                    <!-- Stats -->
+                    <div class="white-card">
+                        <div class="stat-pills">
+                            <div class="stat-pill">
+                                <div class="val">
+                                    <%= bookingCount %>
+                                </div>
+                                <div class="lbl">Bookings</div>
+                            </div>
+                            <div class="stat-pill">
+                                <div class="val">
+                                    <%= reviewCount %>
+                                </div>
+                                <div class="lbl">Reviews</div>
+                            </div>
+                            <div class="stat-pill">
+                                <div class="val">
+                                    <%= favoritesCount %>
+                                </div>
+                                <div class="lbl">Favorites</div>
+                            </div>
+                        </div>
+
+                        <% if(totalHostedItems> 0) { %>
+                            <div class="earnings-highlight mt-3">
+                                <div
+                                    style="font-size:0.7rem; text-transform:uppercase; letter-spacing:0.06em; opacity:0.6; margin-bottom:4px;">
+                                    Host Net Earnings</div>
+                                <div style="font-size:2rem; font-weight:900;">₹<%= netEarnings.toLocaleString('en-IN')
+                                        %>
+                                </div>
+                                <div style="font-size:0.78rem; opacity:0.6; margin-top:4px;">
+                                    <%= totalHostedItems %> active listings · 90% cut after platform fee
+                                </div>
+                            </div>
+                            <% } %>
+                    </div>
+
+                    <!-- About -->
+                    <div class="white-card">
+                        <div class="card-title"><i class="fas fa-id-card"></i> About</div>
+                        <% if(user.bio) { %>
+                            <p
+                                style="color:#555; font-size:0.9rem; line-height:1.7; padding:12px; background:#f9f9fb; border-radius:12px; border-left:4px solid #6366f1; margin-bottom:1rem;">
+                                <%= user.bio %>
+                            </p>
+                            <% } else { %>
+                                <p class="text-muted small mb-3"><a href="/profile/edit" class="text-primary">Add a
+                                        bio</a> to tell guests about yourself.</p>
+                                <% } %>
+
+                                    <div class="info-row"><span class="info-key"><i
+                                                class="fas fa-envelope me-2"></i>Email</span><span class="info-val">
+                                            <%= user.email %>
+                                        </span></div>
+                                    <div class="info-row"><span class="info-key"><i
+                                                class="fas fa-map-marker-alt me-2"></i>Location</span><span
+                                            class="info-val">
+                                            <%= user.location || '—' %>
+                                        </span></div>
+                                    <div class="info-row"><span class="info-key"><i
+                                                class="fas fa-calendar me-2"></i>Joined</span><span class="info-val">
+                                            <%= new Date(user.createdAt).toLocaleDateString('en-IN',
+                                                {year:'numeric',month:'long'}) %>
+                                        </span></div>
+                                    <div class="info-row"><span class="info-key"><i
+                                                class="fas fa-link me-2"></i>Website</span><span class="info-val">
+                                            <% if(user.website) { %><a href="<%= user.website %>" target="_blank"
+                                                    class="text-primary" style="font-size:0.83rem;">
+                                                    <%= user.website.replace(/https?:\/\//, '' ) %>
+                                                </a>
+                                                <% } else { %>—<% } %>
+                                        </span></div>
+
+                                    <% if(user.social && (user.social.facebook || user.social.twitter ||
+                                        user.social.instagram)) { %>
+                                        <div class="mt-3">
+                                            <div class="info-key mb-2" style="font-size:0.75rem;">SOCIAL LINKS</div>
+                                            <div class="social-row">
+                                                <% if(user.social.facebook) { %><a href="<%= user.social.facebook %>"
+                                                        target="_blank" class="social-btn fb"><i
+                                                            class="fab fa-facebook-f"></i> Facebook</a>
+                                                    <% } %>
+                                                        <% if(user.social.twitter) { %><a
+                                                                href="<%= user.social.twitter %>" target="_blank"
+                                                                class="social-btn tw"><i class="fab fa-twitter"></i>
+                                                                Twitter</a>
+                                                            <% } %>
+                                                                <% if(user.social.instagram) { %><a
+                                                                        href="<%= user.social.instagram %>"
+                                                                        target="_blank" class="social-btn ig"><i
+                                                                            class="fab fa-instagram"></i> Instagram</a>
+                                                                    <% } %>
+                                            </div>
+                                        </div>
+                                        <% } %>
+                    </div>
+
+                    <!-- Badges -->
+                    <div class="white-card">
+                        <div class="card-title"><i class="fas fa-star"></i> Badges</div>
+                        <div class="badge-grid">
+                            <div class="badge-item">
+                                <div class="badge-circle" style="background:#fff7ed; border:2px solid #fed7aa;"><span
+                                        style="font-size:1.5rem;">🌱</span></div>
+                                <div class="badge-name">Level 1</div>
+                            </div>
+                            <div class="badge-item">
+                                <div class="badge-circle" style="background:#eff6ff; border:2px solid #bfdbfe;"><span
+                                        style="font-size:1.5rem;">✈️</span></div>
+                                <div class="badge-name">Traveller</div>
+                            </div>
+                            <% if(totalHostedItems> 0) { %>
+                                <div class="badge-item">
+                                    <div class="badge-circle" style="background:#f0fdf4; border:2px solid #bbf7d0;">
+                                        <span style="font-size:1.5rem;">🏠</span></div>
+                                    <div class="badge-name">Host</div>
+                                </div>
+                                <% } %>
+                                    <% if(reviewCount>= 3) { %>
+                                        <div class="badge-item">
+                                            <div class="badge-circle"
+                                                style="background:#fefce8; border:2px solid #fde68a;"><span
+                                                    style="font-size:1.5rem;">⭐</span></div>
+                                            <div class="badge-name">Reviewer</div>
+                                        </div>
+                                        <% } %>
+                        </div>
+                    </div>
+
+                </div>
+
+                <!-- ═══ RIGHT (Main) ═══ -->
+                <div class="col-lg-8">
+
+                    <!-- Quick Links -->
+                    <div class="white-card">
+                        <div class="card-title"><i class="fas fa-bolt"></i> Quick Actions</div>
+                        <div class="row g-2">
+                            <div class="col-md-6">
+                                <a href="/bookings" class="quick-link">
+                                    <div class="ql-icon" style="background:#eff6ff;"><i
+                                            class="fas fa-calendar-check text-primary"></i></div>
+                                    My Bookings
+                                    <span class="ql-badge">
+                                        <%= bookingCount %>
+                                    </span>
+                                </a>
+                            </div>
+                            <div class="col-md-6">
+                                <a href="/wishlist" class="quick-link">
+                                    <div class="ql-icon" style="background:#fef2f2;"><i
+                                            class="fas fa-heart text-danger"></i></div>
+                                    Wishlist
+                                    <span class="ql-badge">
+                                        <%= favoritesCount %>
+                                    </span>
+                                </a>
+                            </div>
+                            <div class="col-md-6">
+                                <a href="/payouts/dashboard" class="quick-link">
+                                    <div class="ql-icon" style="background:#f0fdf4;"><i
+                                            class="fas fa-hand-holding-usd text-success"></i></div>
+                                    Payout Settings
+                                    <span class="ql-badge">
+                                        <%=totalHostedItems%> items
+                                    </span>
+                                </a>
+                            </div>
+                            <div class="col-md-6">
+                                <a href="/trust/wallet" class="quick-link">
+                                    <div class="ql-icon" style="background:#fef3c7;"><i
+                                            class="fas fa-wallet text-warning"></i></div>
+                                    My Wallet
+                                    <span class="ql-badge">₹<%= (user.walletBalance||0).toLocaleString('en-IN') %>
+                                            </span>
+                                </a>
+                            </div>
+                            <div class="col-md-6">
+                                <a href="/profile/reviews" class="quick-link">
+                                    <div class="ql-icon" style="background:#fdf4ff;"><i class="fas fa-star text-purple"
+                                            style="color:#9333ea;"></i></div>
+                                    My Reviews
+                                    <span class="ql-badge">
+                                        <%= reviewCount %>
+                                    </span>
+                                </a>
+                            </div>
+                            <div class="col-md-6">
+                                <a href="/notifications" class="quick-link">
+                                    <div class="ql-icon" style="background:#f0fdf4;"><i
+                                            class="fas fa-bell text-success"></i></div>
+                                    Notifications
+                                </a>
+                            </div>
+                            <div class="col-md-6">
+                                <a href="/trust/verify" class="quick-link">
+                                    <div class="ql-icon" style="background:#eef2ff;"><i
+                                            class="fas fa-shield-alt text-indigo" style="color:#6366f1;"></i></div>
+                                    ID Verification
+                                    <span class="ql-badge">
+                                        <%= user.verificationStatus || 'None' %>
+                                    </span>
+                                </a>
+                            </div>
+                            <div class="col-md-6">
+                                <a href="/profile/edit" class="quick-link">
+                                    <div class="ql-icon" style="background:#f8fafc;"><i
+                                            class="fas fa-user-edit text-secondary"></i></div>
+                                    Edit Profile
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- My Hosted Listings -->
+                    <% if(totalHostedItems> 0) { %>
+                        <div class="white-card">
+                            <div class="card-title d-flex align-items-center justify-content-between">
+                                <span><i class="fas fa-home"></i> My Hosted Listings</span>
+                                <a href="/listings/new" class="btn-primary-custom"
+                                    style="padding:6px 14px; font-size:0.78rem;"><i class="fas fa-plus"></i> Add New</a>
+                            </div>
+                            <div class="mini-items">
+                                <% myListings.forEach(l=> { let img = l.image && l.image[0] ? l.image[0].url : null; %>
+                                    <a href="/listings/<%= l._id %>" class="mini-item">
+                                        <% if(img) { %><img src="<%= img %>" alt="<%= l.title %>">
+                                            <% } else { %>
+                                                <div class="mini-item-no-img"><i class="fas fa-home"></i></div>
+                                                <% } %>
+                                                    <div>
+                                                        <div class="mini-item-title">
+                                                            <%= l.title %>
+                                                        </div>
+                                                        <div class="mini-item-sub"><i
+                                                                class="fas fa-map-marker-alt me-1"></i>
+                                                            <%= l.location %> &nbsp;·&nbsp; ₹<%=
+                                                                    l.price.toLocaleString('en-IN') %>/night
+                                                        </div>
+                                                    </div>
+                                                    <i class="fas fa-chevron-right ms-auto text-muted"
+                                                        style="font-size:0.7rem;"></i>
+                                    </a>
+                                    <% }) %>
+                                        <% myVehicles.forEach(v=> { let img = v.image ? v.image.url : null; %>
+                                            <a href="/vehicles/<%= v._id %>" class="mini-item">
+                                                <% if(img) { %><img src="<%= img %>" alt="<%= v.brand %>">
+                                                    <% } else { %>
+                                                        <div class="mini-item-no-img"><i class="fas fa-car"></i></div>
+                                                        <% } %>
+                                                            <div>
+                                                                <div class="mini-item-title">
+                                                                    <%= v.brand %>
+                                                                        <%= v.model %>
+                                                                </div>
+                                                                <div class="mini-item-sub"><i
+                                                                        class="fas fa-car me-1"></i>Vehicle
+                                                                    &nbsp;·&nbsp; ₹<%= v.price.toLocaleString('en-IN')
+                                                                        %>/day</div>
+                                                            </div>
+                                                            <i class="fas fa-chevron-right ms-auto text-muted"
+                                                                style="font-size:0.7rem;"></i>
+                                            </a>
+                                            <% }) %>
+                                                <% myDhabas.forEach(d=> { let img = d.image && d.image[0] ?
+                                                    d.image[0].url : null; %>
+                                                    <a href="/dhabas/<%= d._id %>" class="mini-item">
+                                                        <% if(img) { %><img src="<%= img %>" alt="<%= d.title %>">
+                                                            <% } else { %>
+                                                                <div class="mini-item-no-img"><i
+                                                                        class="fas fa-utensils"></i></div>
+                                                                <% } %>
+                                                                    <div>
+                                                                        <div class="mini-item-title">
+                                                                            <%= d.title %>
+                                                                        </div>
+                                                                        <div class="mini-item-sub"><i
+                                                                                class="fas fa-map-marker-alt me-1"></i>
+                                                                            <%= d.location %> &nbsp;·&nbsp; ₹<%=
+                                                                                    d.price.toLocaleString('en-IN') %>
+                                                                                    /person
+                                                                        </div>
+                                                                    </div>
+                                                                    <i class="fas fa-chevron-right ms-auto text-muted"
+                                                                        style="font-size:0.7rem;"></i>
+                                                    </a>
+                                                    <% }) %>
+                            </div>
                         </div>
                         <% } %>
 
-                            <div class="profile-name-section">
-                                <h1 class="profile-name-large">
-                                    <%= user.username %>
-                                        <% if(user.isVerified) { %>
-                                            <i class="fas fa-check-circle text-info" style="font-size: 20px;"
-                                                title="Verified Explorer"></i>
-                                            <% } %>
-                                </h1>
-                                <div class="profile-handle-large">@<%= user.username.toLowerCase().replace(/\s/g, '' )
-                                        %>
-                                </div>
-                                <div class="mt-2 d-flex gap-2">
-                                    <span class="host-badge">
-                                        <i class="fas fa-medal"></i> Wanderer Elite
-                                    </span>
-                                    <% if(user.isVerified) { %>
-                                        <span class="badge-verified bg-info text-white border-0">
-                                            <i class="fas fa-shield-check me-1"></i> Verified Explorer
-                                        </span>
-                                        <% } %>
-                                </div>
-                            </div>
-            </div>
-        </div>
-
-        <!-- Stats Bar -->
-        <div class="profile-stats-bar">
-            <div class="stat-box">
-                <span class="stat-value">
-                    <%= bookingCount %>
-                </span>
-                <span class="stat-text">Bookings</span>
-            </div>
-            <div class="stat-box">
-                <span class="stat-value">
-                    <%= reviewCount %>
-                </span>
-                <span class="stat-text">Reviews</span>
-            </div>
-            <div class="stat-box">
-                <span class="stat-value">
-                    <%= favoritesCount %>
-                </span>
-                <span class="stat-text">Favorites</span>
-            </div>
-        </div>
-
-        <div class="profile-grid">
-            <!-- Sidebar -->
-            <div class="profile-sidebar">
-                <div class="profile-side-card">
-                    <h2 class="section-title"><i class="fas fa-id-card"></i> About Me</h2>
-                    <% if(user.bio) { %>
-                        <p class="bio-text">
-                            <%= user.bio %>
-                        </p>
-                        <% } else { %>
-                            <p class="text-muted italic">No bio shared yet.</p>
-                            <% } %>
-
-                                <ul class="info-list mt-4">
-                                    <li class="info-item">
-                                        <span class="info-label">Location</span>
-                                        <span class="info-data">
-                                            <%= user.location || 'Unknown' %>
-                                        </span>
-                                    </li>
-                                    <li class="info-item">
-                                        <span class="info-label">Member since</span>
-                                        <span class="info-data">
-                                            <%= new Date(user.createdAt).getFullYear() %>
-                                        </span>
-                                    </li>
-                                    <li class="info-item">
-                                        <span class="info-label">Trust Status</span>
-                                        <span class="info-data">
-                                            <span
-                                                class="badge-verified <%= user.verificationStatus === 'Verified' ? '' : 'bg-warning text-dark' %>">
-                                                <%= user.verificationStatus==='None' ? 'Not Verified' :
-                                                    user.verificationStatus %>
-                                            </span>
-                                        </span>
-                                    </li>
-                                </ul>
-
-                                <% if(user.social && (user.social.facebook || user.social.twitter ||
-                                    user.social.instagram)) { %>
-                                    <div class="mt-4">
-                                        <span class="info-label d-block mb-2">Connect</span>
-                                        <div class="social-pills">
-                                            <% if(user.social.facebook) { %>
-                                                <a href="<%= user.social.facebook %>" target="_blank"
-                                                    class="social-pill pill-fb"><i class="fab fa-facebook-f"></i></a>
-                                                <% } %>
-                                                    <% if(user.social.twitter) { %>
-                                                        <a href="<%= user.social.twitter %>" target="_blank"
-                                                            class="social-pill pill-tw"><i
-                                                                class="fab fa-twitter"></i></a>
-                                                        <% } %>
-                                                            <% if(user.social.instagram) { %>
-                                                                <a href="<%= user.social.instagram %>" target="_blank"
-                                                                    class="social-pill pill-ig"><i
-                                                                        class="fab fa-instagram"></i></a>
-                                                                <% } %>
-                                        </div>
+                            <!-- Recent Bookings -->
+                            <% if(recentBookings.length> 0) { %>
+                                <div class="white-card">
+                                    <div class="card-title d-flex align-items-center justify-content-between">
+                                        <span><i class="fas fa-calendar-alt"></i> Recent Bookings</span>
+                                        <a href="/bookings"
+                                            style="font-size:0.8rem; color:#6366f1; font-weight:600; text-decoration:none;">View
+                                            All</a>
                                     </div>
-                                    <% } %>
-                </div>
-            </div>
+                                    <% recentBookings.forEach(b=> {
+                                        let title = b.listing ? b.listing.title : (b.vehicle ? (b.vehicle.brand + ' ' +
+                                        b.vehicle.model) : (b.dhaba ? b.dhaba.title : 'Booking'));
+                                        let icon = b.type === 'listing' ? 'fa-home' : b.type === 'vehicle' ? 'fa-car' :
+                                        'fa-utensils';
+                                        let iconBg = b.type === 'listing' ? '#eff6ff' : b.type === 'vehicle' ? '#fdf4ff'
+                                        : '#fff7ed';
+                                        let iconColor = b.type === 'listing' ? '#3b82f6' : b.type === 'vehicle' ?
+                                        '#9333ea' : '#f59e0b';
+                                        let stBg = b.status === 'Confirmed' ? '#f0fdf4' : b.status === 'Cancelled' ?
+                                        '#fef2f2' : '#fefce8';
+                                        let stColor = b.status === 'Confirmed' ? '#16a34a' : b.status === 'Cancelled' ?
+                                        '#dc2626' : '#ca8a04';
+                                        %>
+                                        <div class="booking-row">
+                                            <div class="booking-icon"
+                                                style="background:<%= iconBg %>; color:<%= iconColor %>;"><i
+                                                    class="fas <%= icon %>"></i></div>
+                                            <div>
+                                                <div class="fw-bold" style="font-size:0.88rem;">
+                                                    <%= title %>
+                                                </div>
+                                                <div class="text-muted" style="font-size:0.75rem;">
+                                                    <%= new Date(b.createdAt).toLocaleDateString('en-IN',
+                                                        {day:'numeric', month:'short', year:'numeric'}) %>
+                                                </div>
+                                            </div>
+                                            <div class="text-end ms-auto">
+                                                <div class="fw-bold" style="font-size:0.88rem;">₹<%=
+                                                        (b.totalPrice||0).toLocaleString('en-IN') %>
+                                                </div>
+                                                <span class="booking-status"
+                                                    style="background:<%= stBg %>; color:<%= stColor %>;">
+                                                    <%= b.status %>
+                                                </span>
+                                            </div>
+                                        </div>
+                                        <% }) %>
+                                </div>
+                                <% } %>
 
-            <!-- Main Content Area -->
-            <div class="profile-main">
-                <div class="profile-side-card">
-                    <h2 class="section-title"><i class="fas fa-chart-line"></i> Owner Analytics</h2>
+                                    <!-- Sign Out -->
+                                    <a href="/logout"
+                                        class="btn btn-outline-danger w-100 rounded-pill py-3 fw-bold mt-2">
+                                        <i class="fas fa-sign-out-alt me-2"></i> Sign Out of WanderLust
+                                    </a>
 
-                    <div class="row g-3">
-                        <div class="col-md-6">
-                            <a href="/dashboard" class="action-btn">
-                                <span><i class="fas fa-tachometer-alt text-primary"></i> Host Dashboard</span>
-                                <i class="fas fa-chevron-right op-5"></i>
-                            </a>
-                        </div>
-                        <div class="col-md-6">
-                            <a href="/notifications" class="action-btn">
-                                <span><i class="fas fa-bell text-info"></i> Notifications</span>
-                                <i class="fas fa-chevron-right op-5"></i>
-                            </a>
-                        </div>
-                        <div class="col-md-6">
-                            <a href="/wishlist" class="action-btn">
-                                <span><i class="fas fa-heart text-danger"></i> Wishlist</span>
-                                <i class="fas fa-chevron-right op-5"></i>
-                            </a>
-                        </div>
-                        <div class="col-md-6">
-                            <a href="/profile/edit" class="action-btn">
-                                <span><i class="fas fa-user-edit text-success"></i> Edit Profile</span>
-                                <i class="fas fa-chevron-right op-5"></i>
-                            </a>
-                        </div>
-                        <div class="col-md-6">
-                            <a href="/trust/wallet" class="action-btn">
-                                <span><i class="fas fa-wallet text-warning"></i> My Wallet</span>
-                                <span class="badge bg-light text-dark border">₹<%= (user.walletBalance ||
-                                        0).toLocaleString() %></span>
-                            </a>
-                        </div>
-                        <div class="col-md-6">
-                            <a href="/trust/verify" class="action-btn">
-                                <span><i class="fas fa-user-shield text-primary"></i> Verification</span>
-                                <i class="fas fa-chevron-right op-5"></i>
-                            </a>
-                        </div>
-                        <div class="col-md-6">
-                            <a href="/profile/reviews" class="action-btn">
-                                <span><i class="fas fa-star text-warning"></i> My Reviews</span>
-                                <span class="badge bg-light text-dark border">
-                                    <%= reviewCount %>
-                                </span>
-                                <i class="fas fa-chevron-right op-5 ms-auto"></i>
-                            </a>
-                        </div>
-                    </div>
-                </div>
-
-
-                <div class="profile-side-card">
-                    <h2 class="section-title"><i class="fas fa-star text-warning"></i> Badges & Achievements</h2>
-                    <div class="d-flex flex-wrap gap-3">
-                        <div class="text-center">
-                            <div
-                                style="width: 60px; height: 60px; background: #fff4e6; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 8px; color: #fe6b00; border: 2px solid #fe6b00;">
-                                <i class="fas fa-seedling"></i>
-                            </div>
-                            <span style="font-size: 11px; font-weight: 700; color: #555;">Level 1</span>
-                        </div>
-                        <div class="text-center" style="opacity: 0.4;">
-                            <div
-                                style="width: 60px; height: 60px; background: #eee; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 8px; color: #888;">
-                                <i class="fas fa-fire"></i>
-                            </div>
-                            <span style="font-size: 11px; font-weight: 700; color: #888;">Explorer</span>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- My Reviews Section Removed (Moved to dedicated page) -->
-
-                <a href="/logout" class="btn btn-outline-danger w-100 rounded-pill py-3 fw-bold mt-2">
-                    <i class="fas fa-sign-out-alt me-2"></i> Sign Out of WanderLust
-                </a>
-            </div>
-        </div>
+                </div><!-- end right col -->
+            </div><!-- end row -->
+        </div><!-- end container -->
     </div>

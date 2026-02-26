@@ -8,12 +8,12 @@ class AIAssistant {
         this.recognition = null;
         this.synth = window.speechSynthesis;
         this.activeRequests = new Set();
-        
+
         // API Keys and Services
         this.mapboxAccessToken = 'pk.eyJ1IjoibmFyZW5kcmE5NSIsImV4cGlyZXMiOjE3MzU1Njg4MDB9.abcdefghijklmnopqrstuvwxyz';
         this.weatherAPIKey = 'YOUR_WEATHER_API_KEY';
         this.translationAPIKey = 'YOUR_TRANSLATION_API_KEY';
-        
+
         // Available Languages
         this.supportedLanguages = [
             { code: 'en', name: 'English', flag: '🇬🇧' },
@@ -73,7 +73,7 @@ class AIAssistant {
                 downloadGuides: false
             }
         };
-        
+
         // Current Context
         this.currentContext = {
             tripDetails: null,
@@ -95,7 +95,7 @@ class AIAssistant {
             savedPlaces: [],
             recentSearches: []
         };
-        
+
         // AI Capabilities
         this.capabilities = {
             naturalLanguageUnderstanding: true,
@@ -104,16 +104,16 @@ class AIAssistant {
             offlineMode: false,
             realTimeUpdates: true
         };
-        
+
         // Initialize WebSocket for real-time updates
         this.initializeWebSocket();
-        
+
         // Create and append the container immediately
         this.container = document.createElement('div');
         this.container.className = 'ai-assistant';
         this.container.style.display = 'flex'; // Make it visible by default
         document.body.appendChild(this.container);
-        
+
         this.initialize();
         this.loadChatHistory();
     }
@@ -122,38 +122,57 @@ class AIAssistant {
     initializeWebSocket() {
         const protocol = window.location.protocol === 'https:' ? 'wss://' : 'ws://';
         const wsUrl = `${protocol}${window.location.host}/ws/assistant`;
-        
+
         try {
-            this.socket = new WebSocket(wsUrl);
-            
-            this.socket.onopen = () => {
-                console.log('WebSocket connection established');
-                this.updateConnectionStatus('connected');
-                this.syncData();
-            };
-            
-            this.socket.onmessage = (event) => {
-                const data = JSON.parse(event.data);
-                this.handleRealTimeUpdate(data);
-            };
-            
-            this.socket.onclose = () => {
-                console.log('WebSocket connection closed');
-                this.updateConnectionStatus('disconnected');
-                // Attempt to reconnect after a delay
-                setTimeout(() => this.initializeWebSocket(), 5000);
-            };
-            
-            this.socket.onerror = (error) => {
-                console.error('WebSocket error:', error);
-                this.updateConnectionStatus('error');
-            };
+            // Using Socket.IO client library (loaded in boilerplate)
+            if (typeof io !== 'undefined') {
+                this.socket = io({
+                    transports: ['websocket', 'polling']
+                });
+
+                this.socket.on('connect', () => {
+                    console.log('Socket.IO connection established');
+                    this.updateConnectionStatus('connected');
+
+                    // Authenticate if user ID exists
+                    const userId = document.querySelector('meta[name="user-id"]')?.content;
+                    if (userId) {
+                        this.socket.emit('authenticate', userId);
+                    }
+                });
+
+                this.socket.on('ai_response', (data) => {
+                    this.handleRealTimeUpdate(data);
+                });
+
+                this.socket.on('disconnect', () => {
+                    console.log('Socket.IO disconnected');
+                    this.updateConnectionStatus('disconnected');
+                });
+
+                this.socket.on('connect_error', (error) => {
+                    console.error('Socket.IO error:', error);
+                    this.updateConnectionStatus('error');
+                });
+            } else {
+                console.warn('Socket.IO library not loaded, falling back to HTTP only');
+            }
         } catch (error) {
-            console.error('Failed to initialize WebSocket:', error);
+            console.error('Failed to initialize Socket.IO:', error);
             this.updateConnectionStatus('error');
         }
     }
-    
+
+    updateConnectionStatus(status) {
+        const statusIndicator = this.container?.querySelector('.status-indicator');
+        const statusText = this.container?.querySelector('.status-text');
+
+        if (statusIndicator && statusText) {
+            statusIndicator.className = `status-indicator ${status}`;
+            statusText.textContent = status === 'connected' ? 'Online' : status === 'disconnected' ? 'Offline' : 'Error';
+        }
+    }
+
     // Initialize the AI Assistant UI with enhanced features
     initialize() {
         // Create the main container with glass morphism effect
@@ -163,31 +182,24 @@ class AIAssistant {
                 <div class="ai-assistant-main">
                     <div class="ai-assistant-header">
                         <div class="ai-avatar">
-                            <i class="fas fa-plane-departure"></i>
+                            <i class="fas fa-robot"></i>
                             <div class="connection-status"></div>
                         </div>
                         <div class="header-content">
-                            <h3>WanderAI Assistant</h3>
+                            <h3>WanderAI</h3>
                             <div class="ai-status">
                                 <span class="status-indicator online"></span>
                                 <span class="status-text">Online</span>
-                                <span class="typing-indicator">typing...</span>
                             </div>
                         </div>
                         <div class="ai-actions">
-                            <button class="ai-action-btn" id="toggleSidebar" title="Toggle sidebar">
-                                <i class="fas fa-columns"></i>
-                            </button>
-                            <button class="ai-action-btn" id="toggleTheme" title="Toggle theme">
+                            <button class="ai-header-btn" id="toggleTheme" title="Toggle theme">
                                 <i class="fas fa-moon"></i>
                             </button>
-                            <button class="ai-action-btn ai-settings" title="Settings">
-                                <i class="fas fa-cog"></i>
-                            </button>
-                            <button class="ai-action-btn ai-minimize" title="Minimize">
+                            <button class="ai-header-btn ai-minimize" title="Minimize">
                                 <i class="fas fa-minus"></i>
                             </button>
-                            <button class="ai-action-btn ai-close" title="Close">
+                            <button class="ai-header-btn ai-close" title="Close">
                                 <i class="fas fa-times"></i>
                             </button>
                         </div>
@@ -196,17 +208,14 @@ class AIAssistant {
                     <!-- Conversation Area -->
                     <div class="ai-assistant-messages">
                         <div class="welcome-message">
-                            <h3>Welcome to WanderAI!</h3>
-                            <p>I'm your personal travel assistant. How can I help you today?</p>
+                            <h3>Hi there! 👋</h3>
+                            <p>I'm your AI travel companion. Ask me anything!</p>
                             <div class="quick-starter">
-                                <button class="quick-starter-btn" data-query="Plan a 7-day trip to Japan">
-                                    <i class="fas fa-plane"></i> Plan a Trip
+                                <button class="quick-starter-btn" onclick="window.wanderAI.handleSendMessage('Plan a trip to Goa')">
+                                    <i class="fas fa-plane"></i> Plan a trip to Goa
                                 </button>
-                                <button class="quick-starter-btn" data-query="Find best beaches in Thailand">
-                                    <i class="fas fa-umbrella-beach"></i> Find Destinations
-                                </button>
-                                <button class="quick-starter-btn" data-query="Book a hotel in Paris">
-                                    <i class="fas fa-hotel"></i> Book Accommodation
+                                <button class="quick-starter-btn" onclick="window.wanderAI.handleSendMessage('Find hotels in Mumbai')">
+                                    <i class="fas fa-hotel"></i> Find hotels in Mumbai
                                 </button>
                             </div>
                         </div>
@@ -214,62 +223,29 @@ class AIAssistant {
                     
                     <!-- Input Area -->
                     <div class="ai-assistant-input">
-                        <div class="quick-actions">
-                            <button class="quick-btn" data-command="Plan trip">
-                                <i class="fas fa-route"></i> <span>Trip Plan</span>
-                            </button>
-                            <button class="quick-btn" data-command="Weather forecast">
-                                <i class="fas fa-cloud-sun"></i> <span>Weather</span>
-                            </button>
-                            <button class="quick-btn" data-command="Budget help">
-                                <i class="fas fa-wallet"></i> <span>Budget</span>
-                            </button>
-                            <button class="quick-btn" data-command="Packing list">
-                                <i class="fas fa-suitcase"></i> <span>Packing</span>
-                            </button>
-                            <button class="quick-btn more-options">
-                                <i class="fas fa-ellipsis-h"></i> <span>More</span>
-                            </button>
-                        </div>
-                        
                         <div class="typing-indicator" style="display: none;">
                             <span></span><span></span><span></span>
                         </div>
                         
-                        <div class="input-group">
-                            <div class="input-actions">
-                                <button class="action-btn" id="attachFile" title="Attach file">
-                                    <i class="fas fa-paperclip"></i>
-                                </button>
-                                <button class="action-btn" id="voiceInput" title="Voice input">
+                        <div class="input-container">
+                            <div class="input-wrapper">
+                                <button class="input-action-btn" id="voiceInput" title="Voice Input">
                                     <i class="fas fa-microphone"></i>
                                 </button>
-                                <div class="language-selector" title="Select language">
-                                    <span class="language-flag">🌐</span>
-                                    <select id="languageSelect" class="language-selector-dropdown">
-                                    ${this.supportedLanguages.map(lang => 
-                                        `<option value="${lang.code}" data-flag="${lang.flag}" ${this.userPreferences.language === lang.code ? 'selected' : ''}>
-                                            ${lang.flag} ${lang.name}
-                                        </option>`
-                                    ).join('')}
-                                </select>
-                                </div>
+                                <div 
+                                    id="messageInput" 
+                                    class="message-input" 
+                                    contenteditable="true" 
+                                    placeholder="Type your message..."
+                                    role="textbox"
+                                    aria-multiline="true"
+                                ></div>
+                                <button class="send-btn" title="Send">
+                                    <i class="fas fa-paper-plane"></i>
+                                </button>
                             </div>
-                            
-                            <div 
-                                id="messageInput" 
-                                class="message-input" 
-                                contenteditable="true" 
-                                placeholder="Ask me anything about your trip..."
-                        role="textbox"
-                        aria-multiline="true"
-                    ></div>
-                    <button class="voice-btn" title="Voice input">
-                        <i class="fas fa-microphone"></i>
-                    </button>
-                    <button class="send-btn" title="Send message">
-                        <i class="fas fa-paper-plane"></i>
-                    </button>
+                        </div>
+                    </div>
                 </div>
             </div>
         `;
@@ -280,16 +256,32 @@ class AIAssistant {
 
     // Initialize event listeners
     initializeEventListeners() {
-        // Toggle chat visibility
-        const toggleButton = document.querySelector('.ai-minimize');
+        // Toggle chat visibility (Minimize)
+        const toggleButton = this.container.querySelector('.ai-minimize');
         if (toggleButton) {
-            toggleButton.addEventListener('click', () => this.toggle(!this.isOpen));
+            toggleButton.addEventListener('click', (e) => {
+                e.stopPropagation();
+                this.toggle(false);
+            });
         }
 
         // Close button
-        const closeButton = document.querySelector('.ai-close');
+        const closeButton = this.container.querySelector('.ai-close');
         if (closeButton) {
-            closeButton.addEventListener('click', () => this.close());
+            closeButton.addEventListener('click', (e) => {
+                e.stopPropagation();
+                this.close();
+            });
+        }
+
+        // Theme Toggle
+        const themeBtn = this.container.querySelector('#toggleTheme');
+        if (themeBtn) {
+            themeBtn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                // Simple theme toggle logic (could be improved)
+                this.container.classList.toggle('dark-mode');
+            });
         }
 
         // Send button
@@ -299,7 +291,7 @@ class AIAssistant {
         }
 
         // Voice input button
-        const voiceButton = this.container.querySelector('.voice-btn');
+        const voiceButton = this.container.querySelector('#voiceInput');
         if (voiceButton) {
             voiceButton.addEventListener('click', () => this.toggleVoiceRecognition());
         }
@@ -312,6 +304,13 @@ class AIAssistant {
                     e.preventDefault();
                     this.handleSendMessage();
                 }
+            });
+
+            // Auto-focus input when clicking container
+            this.container.addEventListener('click', (e) => {
+                // Don't focus if clicking buttons
+                if (e.target.closest('button') || e.target.closest('.ai-card')) return;
+                messageInput.focus();
             });
         }
     }
@@ -336,122 +335,195 @@ class AIAssistant {
     }
 
     // Handle sending a message
-    handleSendMessage() {
+    handleSendMessage(autoMessage = null) {
         const input = this.container.querySelector('.message-input');
-        if (!input) return;
+        const message = autoMessage || (input ? input.innerText.trim() : '');
 
-        const message = input.textContent.trim();
         if (!message) return;
 
         // Clear the input
-        input.textContent = '';
-        
+        if (input) input.innerText = '';
+
         // Add the message to the chat
-        this.handleUserInput(message);
+        this.addMessage('user', message);
+        this.sendMessageToBackend(message);
     }
 
-    // Process user message and generate response
-    async handleUserInput(message) {
-        this.addMessage('user', message);
+    // Send message to backend via WebSocket or HTTP
+    async sendMessageToBackend(message) {
         this.showTypingIndicator();
-        
+
         try {
-            // Check for specific commands or intents
-            const lowerMessage = message.toLowerCase();
-            
-            if (this.isGreeting(lowerMessage)) {
-                this.handleGreeting();
-            } else if (lowerMessage.includes('itinerary') || lowerMessage.includes('plan my trip')) {
-                await this.handleItineraryRequest(message);
-            } else if (lowerMessage.includes('weather') || lowerMessage.includes('forecast')) {
-                await this.handleWeatherRequest(message);
-            } else if (lowerMessage.includes('budget') || lowerMessage.includes('cost')) {
-                this.handleBudgetPlanning(message);
-            } else if (lowerMessage.includes('packing') || lowerMessage.includes('what to pack')) {
-                this.generatePackingList(message);
-            } else if (lowerMessage.includes('translate') || lowerMessage.includes('how to say')) {
-                this.handleTranslationRequest(message);
-            } else if (lowerMessage.includes('currency') || lowerMessage.includes('exchange rate')) {
-                this.handleCurrencyConversion(message);
-            } else if (lowerMessage.includes('emergency') || lowerMessage.includes('help')) {
-                this.provideEmergencyInfo();
-            } else if (lowerMessage.includes('transport') || lowerMessage.includes('how to get')) {
-                this.provideTransportationInfo(message);
-            } else if (lowerMessage.includes('culture') || lowerMessage.includes('etiquette')) {
-                this.provideCulturalTips(message);
-            } else if (lowerMessage.includes('food') || lowerMessage.includes('restaurant')) {
-                this.recommendLocalFood(message);
+            const context = {
+                location: this.currentContext?.currentLocation || null,
+                path: window.location.pathname
+            };
+
+            const userId = document.querySelector('meta[name="user-id"]')?.content;
+            const payload = {
+                message,
+                userId,
+                context
+            };
+
+            // Try Socket.IO first
+            if (this.socket && this.socket.connected) {
+                this.socket.emit('ai_message', payload);
             } else {
-                // Default response for general queries
-                this.addMessage('assistant', 'I can help you with various travel-related queries. Here are some things I can assist with:\n\n' +
-                    '• Plan a travel itinerary\n' +
-                    '• Check weather forecasts\n' +
-                    '• Budget planning\n' +
-                    '• Packing lists\n' +
-                    '• Language translation\n' +
-                    '• Currency conversion\n' +
-                    '• Local transportation\n' +
-                    '• Cultural tips\n\n' +
-                    'How can I assist you today?');
-                this.addMessage('assistant', 'I can help you with travel planning, finding places, and more. Try asking me to plan a trip or find local attractions!');
+                // Fallback to HTTP
+                const response = await fetch('/ai/assistant/message', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRF-Token': document.querySelector('meta[name="csrf-token"]')?.content
+                    },
+                    body: JSON.stringify(payload)
+                });
+
+                if (!response.ok) throw new Error('Network response was not ok');
+                const data = await response.json();
+                this.handleAIResponse(data);
             }
         } catch (error) {
-            console.error('Error processing message:', error);
-            this.addMessage('assistant', 'Sorry, I encountered an error. Please try again.');
-        } finally {
+            console.error('Error sending message:', error);
             this.hideTypingIndicator();
+            this.addMessage('assistant', "I'm having trouble retrieving that information right now. Please try again.");
         }
     }
 
-    // Toggle voice recognition
-    toggleVoiceRecognition() {
-        if (!('webkitSpeechRecognition' in window)) {
-            this.addSystemMessage('Speech recognition is not supported in your browser.');
-            return;
+    // Handle incoming AI response
+    handleAIResponse(data) {
+        this.hideTypingIndicator();
+
+        // 1. Show main text reply
+        if (data.reply) {
+            this.addMessage('assistant', data.reply);
         }
 
-        if (!this.recognition) {
-            this.recognition = new webkitSpeechRecognition();
-            this.recognition.continuous = false;
-            this.recognition.interimResults = false;
+        // 2. Handle Rich Content (Cards/Carousels)
+        if (data.type === 'function_result' && data.functionResult?.success) {
+            const result = data.functionResult;
 
-            this.recognition.onresult = (event) => {
-                const transcript = event.results[0][0].transcript;
-                const input = this.container.querySelector('.message-input');
-                if (input) {
-                    input.textContent = transcript;
-                    // Trigger the send after a short delay
-                    setTimeout(() => this.handleSendMessage(), 500);
-                }
-            };
-
-            this.recognition.onerror = (event) => {
-                console.error('Speech recognition error', event.error);
-                this.addSystemMessage('Error: ' + event.error);
-            };
+            if (data.functionCalled === 'search_listings' && result.count > 0) {
+                this.renderCarousel(result.results, 'listing');
+            } else if (data.functionCalled === 'search_vehicles' && result.count > 0) {
+                this.renderCarousel(result.results, 'vehicle');
+            } else if (data.functionCalled === 'search_dhabas' && result.count > 0) {
+                this.renderCarousel(result.results, 'dhaba');
+            } else if (data.functionCalled === 'get_user_bookings' && result.count > 0) {
+                this.renderBookingsList(result.bookings);
+            }
         }
 
-        if (this.isListening) {
-            this.recognition.stop();
-            this.isListening = false;
-            this.container.querySelector('.voice-btn').classList.remove('listening');
-        } else {
-            this.recognition.start();
-            this.isListening = true;
-            this.container.querySelector('.voice-btn').classList.add('listening');
+        // 3. Show Suggestions
+        if (data.suggestions && data.suggestions.length > 0) {
+            this.showSuggestions(data.suggestions);
         }
     }
 
-    // Handle trip planning queries
-    async handleTripPlanningQuery(query) {
-        try {
-            // In a real implementation, this would call your backend API
-            // For now, we'll use a simple response
-            this.addMessage('assistant', 'I can help you plan your trip! Please provide more details like: ' +
-                '\n• Destination\n• Travel dates\n• Number of travelers\n• Budget\n• Interests (e.g., adventure, relaxation, culture)');
-        } catch (error) {
-            console.error('Error handling trip planning query:', error);
-            this.addSystemMessage('Sorry, I encountered an error while planning your trip. Please try again.');
+    // Render a horizontal carousel of cards
+    renderCarousel(items, type) {
+        const messagesContainer = this.container.querySelector('.ai-assistant-messages');
+        const carouselContainer = document.createElement('div');
+        carouselContainer.className = 'ai-carousel-container fade-in';
+
+        let cardsHtml = '';
+        items.forEach(item => {
+            if (type === 'listing') cardsHtml += this.getListingCardHtml(item);
+            else if (type === 'vehicle') cardsHtml += this.getVehicleCardHtml(item);
+            else if (type === 'dhaba') cardsHtml += this.getDhabaCardHtml(item);
+        });
+
+        carouselContainer.innerHTML = `<div class="ai-carousel">${cardsHtml}</div>`;
+        messagesContainer.appendChild(carouselContainer);
+        this.scrollToBottom();
+    }
+
+    getListingCardHtml(item) {
+        return `
+            <div class="ai-card" onclick="window.location.href='/listings/${item.id}'">
+                <div class="ai-card-img" style="background-image: url('${item.image || '/images/default-listing.jpg'}')">
+                    <span class="ai-card-badge">${item.type}</span>
+                </div>
+                <div class="ai-card-content">
+                    <h4>${item.title}</h4>
+                    <p class="location"><i class="fas fa-map-marker-alt"></i> ${item.location}</p>
+                    <div class="ai-card-footer">
+                        <span class="price">₹${item.price.toLocaleString()}</span>
+                        <span class="rating"><i class="fas fa-star"></i> ${item.rating}</span>
+                    </div>
+                </div>
+            </div>
+        `;
+    }
+
+    getVehicleCardHtml(item) {
+        return `
+            <div class="ai-card" onclick="window.location.href='/vehicles/${item.id}'">
+                <div class="ai-card-img" style="background-image: url('${item.image || '/images/default-vehicle.jpg'}')">
+                    <span class="ai-card-badge">${item.type}</span>
+                </div>
+                <div class="ai-card-content">
+                    <h4>${item.name}</h4>
+                    <p class="location"><i class="fas fa-map-marker-alt"></i> ${item.location}</p>
+                    <div class="ai-card-footer">
+                        <span class="price">₹${item.price.toLocaleString()}/day</span>
+                    </div>
+                </div>
+            </div>
+        `;
+    }
+
+    getDhabaCardHtml(item) {
+        return `
+            <div class="ai-card" onclick="window.location.href='/dhabas/${item.id}'">
+                <div class="ai-card-img" style="background-image: url('${item.image || '/images/default-dhaba.jpg'}')">
+                    <span class="ai-card-badge">${item.cuisine || 'Dhaba'}</span>
+                </div>
+                <div class="ai-card-content">
+                    <h4>${item.name}</h4>
+                    <p class="location"><i class="fas fa-map-marker-alt"></i> ${item.location}</p>
+                    <div class="ai-card-footer">
+                        <span class="rating"><i class="fas fa-star"></i> ${item.rating}</span>
+                    </div>
+                </div>
+            </div>
+        `;
+    }
+
+    renderBookingsList(bookings) {
+        const html = bookings.map(b =>
+            `<div class="booking-item">
+                <strong>${b.item}</strong><br>
+                <small>${new Date(b.startDate).toLocaleDateString()} - ${b.status}</small>
+            </div>`
+        ).join('');
+        this.addMessage('assistant', `<div class="booking-list">${html}</div>`);
+    }
+
+    showSuggestions(suggestions) {
+        const messagesContainer = this.container.querySelector('.ai-assistant-messages');
+        const optionsDiv = document.createElement('div');
+        optionsDiv.className = 'ai-assistant-options fade-in';
+
+        suggestions.forEach(suggestion => {
+            const btn = document.createElement('button');
+            btn.className = 'ai-option-btn';
+            btn.innerHTML = suggestion.text;
+            btn.onclick = () => {
+                this.handleSendMessage(suggestion.text);
+            };
+            optionsDiv.appendChild(btn);
+        });
+
+        messagesContainer.appendChild(optionsDiv);
+        this.scrollToBottom();
+    }
+
+    // Handle real-time update from WebSocket
+    handleRealTimeUpdate(data) {
+        if (data.reply || data.type === 'function_result') {
+            this.handleAIResponse(data);
         }
     }
 
@@ -461,31 +533,20 @@ class AIAssistant {
         if (!messagesContainer) return;
 
         const messageDiv = document.createElement('div');
-        messageDiv.className = `message ${sender}-message`;
-        
-        const messageContent = document.createElement('div');
-        messageContent.className = 'message-content';
-        
-        if (sender === 'assistant') {
-            messageContent.innerHTML = `
-                <div class="message-avatar">
-                    <i class="fas fa-robot"></i>
-                </div>
-                <div class="message-text">${this.formatMessageContent(content)}</div>
-            `;
+        messageDiv.className = `message ${sender}-message fade-in`;
+
+        // Direct HTML content without extra wrappers, assuming CSS handles '.message' as the bubble
+        // and content needs formatting.
+        if (content.includes('<div') || content.includes('<span')) {
+            // Already HTML (e.g. from renderBookingsList)
+            messageDiv.innerHTML = content;
         } else {
-            messageContent.innerHTML = `
-                <div class="message-avatar">
-                    <i class="fas fa-user"></i>
-                </div>
-                <div class="message-text">${this.formatMessageContent(content)}</div>
-            `;
+            messageDiv.innerHTML = this.formatMessageContent(content);
         }
-        
-        messageDiv.appendChild(messageContent);
+
         messagesContainer.appendChild(messageDiv);
         this.scrollToBottom();
-        
+
         // Save to chat history
         this.chatHistory.push({ sender, content });
         this.saveChatHistory();
@@ -499,7 +560,7 @@ class AIAssistant {
         const messageDiv = document.createElement('div');
         messageDiv.className = 'message system-message';
         messageDiv.textContent = content;
-        
+
         messagesContainer.appendChild(messageDiv);
         this.scrollToBottom();
     }
@@ -516,7 +577,7 @@ class AIAssistant {
 
         // Convert URLs to links
         formatted = formatted.replace(
-            /(https?:\/\/[^\s]+)/g, 
+            /(https?:\/\/[^\s]+)/g,
             '<a href="$1" target="_blank" rel="noopener noreferrer">$1</a>'
         );
 
@@ -548,6 +609,19 @@ class AIAssistant {
         }
     }
 
+    toggleVoiceRecognition() {
+        // Simple toggle for now, in a real implementation this would use Web Speech API
+        this.isListening = !this.isListening;
+        const voiceBtn = this.container.querySelector('#voiceInput');
+        if (voiceBtn) {
+            voiceBtn.style.color = this.isListening ? 'red' : '';
+            if (this.isListening) {
+                // Mock listening start
+                this.addMessage('assistant', 'I am listening...');
+            }
+        }
+    }
+
     // Load chat history from localStorage
     loadChatHistory() {
         try {
@@ -576,41 +650,32 @@ class AIAssistant {
 document.addEventListener('DOMContentLoaded', () => {
     // Check if the AI Assistant is enabled for this page
     const aiAssistantEnabled = !document.body.hasAttribute('data-disable-ai-assistant');
-    
+
     if (aiAssistantEnabled) {
-        // Add the AI Assistant styles
-        const styleLink = document.createElement('link');
-        styleLink.rel = 'stylesheet';
-        styleLink.href = '/css/ai-assistant.css';
-        
+
         // Create the floating assistant button
         const floatingButton = document.createElement('div');
-        floatingButton.className = 'ai-assistant-float';
+        floatingButton.className = 'ai-assistant-toggle';
         floatingButton.innerHTML = '<i class="fas fa-comment-dots"></i>';
         floatingButton.onclick = () => window.wanderAI.toggle();
-        
+
         // Add the floating button to the page
         document.body.appendChild(floatingButton);
-        
-        // Load the AI Assistant
-        styleLink.onload = () => {
-            // Initialize the AI Assistant
-            window.wanderAI = new AIAssistant();
-            
-            // Auto-open after a short delay (optional)
-            setTimeout(() => window.wanderAI.toggle(true), 1000);
-            
-            // Add keyboard shortcut (Alt+A) to toggle the assistant
-            document.addEventListener('keydown', (e) => {
-                if (e.altKey && e.key.toLowerCase() === 'a') {
-                    e.preventDefault();
-                    window.wanderAI.toggle();
-                }
-            });
-        };
-        
-        document.head.appendChild(styleLink);
-        
+
+        // Initialize the AI Assistant
+        window.wanderAI = new AIAssistant();
+
+        // Auto-open after a short delay (optional)
+        // setTimeout(() => window.wanderAI.toggle(true), 1000);
+
+        // Add keyboard shortcut (Alt+A) to toggle the assistant
+        document.addEventListener('keydown', (e) => {
+            if (e.altKey && e.key.toLowerCase() === 'a') {
+                e.preventDefault();
+                window.wanderAI.toggle();
+            }
+        });
+
         // Add Font Awesome if not already loaded
         if (!document.querySelector('link[href*="font-awesome"]') && !document.querySelector('link[href*="fontawesome"]')) {
             const fontAwesome = document.createElement('link');
@@ -618,5 +683,7 @@ document.addEventListener('DOMContentLoaded', () => {
             fontAwesome.href = 'https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css';
             document.head.appendChild(fontAwesome);
         }
+
+        console.log('✅ WanderAssistant initialized');
     }
 });

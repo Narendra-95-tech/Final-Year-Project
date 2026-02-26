@@ -127,11 +127,20 @@ class BookingWidget {
         }
 
         const subtotal = this.basePrice * nights;
-        const cleaningFee = Math.max(Math.round(this.basePrice * this.cleaningFeePercent), this.minCleaningFee);
-        const extraGuestFee = (this.adults + this.children) > 2 ? ((this.adults + this.children) - 2) * 200 * nights : 0;
-        const totalBeforeFee = subtotal + cleaningFee + extraGuestFee;
-        const serviceFee = Math.round(totalBeforeFee * this.serviceFeePercent);
-        const total = totalBeforeFee + serviceFee;
+
+        // Skip fees for ₹1 test listings
+        let cleaningFee = 0;
+        let serviceFee = 0;
+        let extraGuestFee = 0;
+
+        if (this.basePrice > 1) {
+            cleaningFee = Math.max(Math.round(this.basePrice * this.cleaningFeePercent), this.minCleaningFee);
+            extraGuestFee = (this.adults + this.children) > 2 ? ((this.adults + this.children) - 2) * 200 * nights : 0;
+            const totalBeforeFee = subtotal + cleaningFee + extraGuestFee;
+            serviceFee = Math.round(totalBeforeFee * this.serviceFeePercent);
+        }
+
+        const total = subtotal + cleaningFee + extraGuestFee + serviceFee;
 
         return {
             nights,

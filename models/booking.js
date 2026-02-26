@@ -19,7 +19,9 @@ const bookingSchema = new Schema({
   message: { type: String },
   paymentIntentId: { type: String },
   stripeSessionId: { type: String },
-  paymentId: { type: String }, // Stripe payment ID
+  razorpayOrderId: { type: String },     // Razorpay Order ID
+  paymentId: { type: String },           // Stripe / Razorpay payment ID
+  paymentMethod: { type: String },       // 'Razorpay', 'Stripe', 'Wallet', 'UPI'
   paymentDate: { type: Date }, // Date when payment was successful
   paymentStatus: { type: String, enum: ['Pending', 'Paid', 'Failed', 'Refunded', 'Refund Pending'], default: 'Pending' },
   status: { type: String, enum: ['Pending', 'Confirmed', 'Cancelled'], default: 'Pending' },

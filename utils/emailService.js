@@ -401,16 +401,22 @@ async function sendCancellationEmail(booking, user, refundAmount) {
             <p>Hi <strong>${user.fullName || user.username}</strong>,</p>
             <p>Your booking for <strong>${itemTitle}</strong> (ID: #${confirmationNumber}) has been successfully cancelled.</p>
             
+            ${refundAmount > 0 ? `
             <div class="refund-card">
               <h3 style="margin-top:0; color: #dc2626;">Refund Details</h3>
               <p style="margin: 5px 0;">The following amount has been processed for refund:</p>
               <div class="amount">₹${refundAmount.toLocaleString('en-IN')}</div>
               <p style="font-size: 13px; color: #666; margin-bottom: 0;">
                 ${booking.paymentMethod === 'Wallet'
-        ? 'The amount has been credited back to your **Wander Wallet** and is available immediately.'
-        : 'The amount has been refunded to your original payment method. Please allow 5-7 business days for it to appear in your account.'}
+          ? 'The amount has been credited back to your **Wander Wallet** and is available immediately.'
+          : 'The amount has been refunded to your original payment method. Please allow 5-7 business days for it to appear in your account.'}
               </p>
             </div>
+            ` : `
+            <div style="background: #fdf2f2; border-left: 5px solid #666; padding: 20px; border-radius: 8px; margin: 20px 0;">
+              <p style="margin: 0; color: #666;">This booking was not paid for, so no refund was necessary.</p>
+            </div>
+            `}
 
             <p>We hope to see you again soon! If you have any questions regarding this cancellation, please contact our support team.</p>
             
@@ -625,12 +631,115 @@ async function sendNewsletterWelcome(email, promoCode) {
   }
 }
 
+// Send cancellation alert to the property OWNER/HOST
+async function sendOwnerCancellationAlert(booking, owner, guest, refundAmount) {
+  const itemTitle = getItemTitle(booking);
+  const confirmationNumber = booking._id.toString().slice(-8).toUpperCase();
+
+  const mailOptions = {
+    from: process.env.EMAIL_FROM || process.env.EMAIL_USER,
+    to: owner.email,
+    subject: `🚨 Booking Cancelled - ${itemTitle}`,
+    html: `
+      <!DOCTYPE html>
+      <html>
+      <head>
+        <style>
+          body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; margin: 0; padding: 0; }
+          .container { max-width: 600px; margin: 0 auto; border: 1px solid #eee; }
+          .header { background: #b91c1c; color: white; padding: 30px 20px; text-align: center; }
+          .content { padding: 30px; background: #fff; }
+          .cancel-card { background: #fef2f2; border-left: 5px solid #b91c1c; padding: 20px; border-radius: 8px; margin: 20px 0; }
+          .detail-row { display: flex; justify-content: space-between; padding: 10px 0; border-bottom: 1px dotted #ddd; }
+          .label { font-weight: bold; color: #555; }
+          .value { color: #000; }
+          .footer { background: #f9f9f9; padding: 20px; text-align: center; font-size: 12px; color: #777; }
+        </style>
+      </head>
+      <body>
+        <div class="container">
+          <div class="header">
+            <h1 style="margin:0;">Booking Cancelled</h1>
+            <p style="margin:10px 0 0 0; opacity:0.9;">A guest has cancelled their reservation</p>
+          </div>
+          <div class="content">
+            <p>Hi <strong>${owner.fullName || owner.username}</strong>,</p>
+            <p>Unfortunately, a guest has cancelled their booking for your property <strong>${itemTitle}</strong>.</p>
+            
+            <div class="cancel-card">
+              <h3 style="margin-top:0; color: #b91c1c;">Cancellation Details</h3>
+              <div class="detail-row">
+                <span class="label">Guest Name:</span>
+                <span class="value">${guest.fullName || guest.username}</span>
+              </div>
+              <div class="detail-row">
+                <span class="label">Booking ID:</span>
+                <span class="value">#${confirmationNumber}</span>
+              </div>
+              ${booking.startDate ? `
+              <div class="detail-row">
+                <span class="label">Check-in:</span>
+                <span class="value">${new Date(booking.startDate).toLocaleDateString('en-IN', { weekday: 'short', year: 'numeric', month: 'short', day: 'numeric' })}</span>
+              </div>
+              <div class="detail-row">
+                <span class="label">Check-out:</span>
+                <span class="value">${new Date(booking.endDate).toLocaleDateString('en-IN', { weekday: 'short', year: 'numeric', month: 'short', day: 'numeric' })}</span>
+              </div>
+              ` : ''}
+              <div class="detail-row">
+                <span class="label">Booking Amount:</span>
+                <span class="value">₹${booking.totalPrice.toLocaleString('en-IN')}</span>
+              </div>
+              <div class="detail-row">
+                <span class="label">Refund Issued:</span>
+                <span class="value" style="color: ${refundAmount > 0 ? '#dc2626' : '#666'}; font-weight: bold;">
+                  ${refundAmount > 0 ? `₹${refundAmount.toLocaleString('en-IN')}` : 'No refund'}
+                </span>
+              </div>
+              <div class="detail-row" style="border-bottom: none;">
+                <span class="label">Cancelled On:</span>
+                <span class="value">${new Date().toLocaleDateString('en-IN', { weekday: 'short', year: 'numeric', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' })}</span>
+              </div>
+            </div>
+
+            <p>These dates are now <strong>available again</strong> for other guests to book. No action is required from your side.</p>
+            
+            <center>
+              <a href="${process.env.BASE_URL || 'http://localhost:8080'}/profile" style="display:inline-block; background:#333; color:#fff; padding:12px 25px; text-decoration:none; border-radius:6px; margin-top:20px;">Go to Dashboard</a>
+            </center>
+          </div>
+          <div class="footer">
+            <p>© ${new Date().getFullYear()} WanderLust Inc. All rights reserved.</p>
+            <p>You received this email because you are a registered host on WanderLust.</p>
+          </div>
+        </div>
+      </body>
+      </html>
+    `
+  };
+
+  try {
+    let result;
+    if (process.env.BREVO_API_KEY) {
+      result = await sendEmailViaBrevo(mailOptions);
+    } else {
+      result = await transporter.sendMail(mailOptions);
+    }
+    console.log(`✅ Owner cancellation alert sent to: ${owner.email} for booking: ${booking._id}`);
+    return { success: true, messageId: result.messageId };
+  } catch (error) {
+    console.error('❌ Owner cancellation alert failed:', error.message);
+    return { success: false, error: error.message };
+  }
+}
+
 module.exports = {
   transporter,
   sendBookingConfirmation,
   sendPaymentReceipt,
   sendOwnerBookingAlert,
   sendCancellationEmail,
+  sendOwnerCancellationAlert,
   sendNewsletterWelcome,
   sendEmailViaBrevo
 };

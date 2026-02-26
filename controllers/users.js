@@ -12,19 +12,63 @@ module.exports.renderSignupForm = (req, res) => {
 };
 
 module.exports.renderProfile = async (req, res) => {
-  const user = await User.findById(req.user._id)
+  const userId = req.user._id;
+
+  const user = await User.findById(userId)
     .populate("wishlist")
     .populate("wishlistVehicles")
     .populate("wishlistDhabas");
 
-  const bookingCount = await Booking.countDocuments({ user: req.user._id });
-  const reviewCount = await Review.countDocuments({ author: req.user._id });
+  const [
+    bookingCount,
+    reviewCount,
+    myListings,
+    myVehicles,
+    myDhabas,
+    recentBookings,
+    recentReviews
+  ] = await Promise.all([
+    Booking.countDocuments({ user: userId }),
+    Review.countDocuments({ author: userId }),
+    Listing.find({ owner: userId }).select('title image price location').limit(3).lean(),
+    Vehicle.find({ owner: userId }).select('title brand model image price').limit(3).lean(),
+    Dhaba.find({ owner: userId }).select('title image price location').limit(3).lean(),
+    Booking.find({ user: userId }).sort({ createdAt: -1 }).limit(5)
+      .populate('listing', 'title').populate('vehicle', 'brand model').populate('dhaba', 'title'),
+    Review.find({ author: userId }).sort({ createdAt: -1 }).limit(5)
+      .populate('listing', 'title').populate('vehicle', 'brand model').populate('dhaba', 'title')
+  ]);
+
   const favoritesCount = (user.wishlist?.length || 0) + (user.wishlistVehicles?.length || 0) + (user.wishlistDhabas?.length || 0);
+
+  // Earnings for hosted items
+  const [listingIds, vehicleIds, dhabaIds] = [
+    myListings.map(l => l._id),
+    myVehicles.map(v => v._id),
+    myDhabas.map(d => d._id)
+  ];
+
+  let netEarnings = 0;
+  if (listingIds.length || vehicleIds.length || dhabaIds.length) {
+    const earningsBookings = await Booking.find({
+      $or: [{ listing: { $in: listingIds } }, { vehicle: { $in: vehicleIds } }, { dhaba: { $in: dhabaIds } }],
+      paymentStatus: 'Paid', status: 'Confirmed'
+    }).select('totalPrice');
+    netEarnings = Math.round(earningsBookings.reduce((s, b) => s + (b.totalPrice || 0), 0) * 0.9);
+  }
+
   res.render("users/profile.ejs", {
     user,
     bookingCount,
     reviewCount,
-    favoritesCount
+    favoritesCount,
+    myListings,
+    myVehicles,
+    myDhabas,
+    recentBookings,
+    recentReviews,
+    netEarnings,
+    totalHostedItems: myListings.length + myVehicles.length + myDhabas.length
   });
 };
 

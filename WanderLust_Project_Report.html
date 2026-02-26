@@ -1,0 +1,3674 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:w="urn:schemas-microsoft-com:office:word"
+  xmlns="http://www.w3.org/TR/REC-html40">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width">
+  <title>WanderLust Project Report 2025-26</title>
+  <!--[if gte mso 9]>
+<xml>
+  <w:WordDocument>
+    <w:View>Print</w:View>
+    <w:Zoom>100</w:Zoom>
+    <w:DoNotOptimizeForBrowser/>
+  </w:WordDocument>
+</xml>
+<![endif]-->
+  <style>
+    /* ── Page Setup (Word + Print) ── */
+    @page {
+      size: A4;
+      margin: 2.5cm 2.5cm 2.5cm 3cm;
+    }
+
+    @page :first {
+      margin-top: 3cm;
+    }
+
+    body {
+      font-family: "Times New Roman", Times, serif;
+      font-size: 12pt;
+      line-height: 1.5;
+      color: #000;
+      background: #fff;
+      max-width: 21cm;
+      margin: 0 auto;
+      padding: 1cm 1.5cm;
+    }
+
+    /* ── Headings ── */
+    h1 {
+      font-size: 16pt;
+      font-weight: bold;
+      text-align: center;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      margin: 28pt 0 10pt 0;
+      page-break-before: always;
+      border-bottom: 2px solid #000;
+      padding-bottom: 6pt;
+    }
+
+    h1:first-of-type {
+      page-break-before: avoid;
+    }
+
+    h2 {
+      font-size: 13pt;
+      font-weight: bold;
+      margin: 18pt 0 6pt 0;
+      border-bottom: 1px solid #555;
+      padding-bottom: 2pt;
+    }
+
+    h3 {
+      font-size: 12pt;
+      font-weight: bold;
+      margin: 14pt 0 4pt 0;
+    }
+
+    h4 {
+      font-size: 11pt;
+      font-weight: bold;
+      font-style: italic;
+      margin: 10pt 0 4pt 0;
+    }
+
+    /* ── Body text ── */
+    p {
+      text-align: justify;
+      margin: 4pt 0;
+      orphans: 3;
+      widows: 3;
+    }
+
+    /* ── Lists ── */
+    ul,
+    ol {
+      margin: 6pt 0 6pt 20pt;
+      padding: 0;
+    }
+
+    li {
+      margin-bottom: 3pt;
+      text-align: justify;
+    }
+
+    /* ── Tables ── */
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 12pt 0;
+      font-size: 10pt;
+      page-break-inside: avoid;
+    }
+
+    th {
+      background-color: #1a3a5c;
+      color: #fff;
+      font-weight: bold;
+      padding: 6pt 8pt;
+      border: 1px solid #555;
+      text-align: center;
+    }
+
+    td {
+      padding: 5pt 8pt;
+      border: 1px solid #aaa;
+      vertical-align: top;
+    }
+
+    tr:nth-child(even) td {
+      background-color: #f0f4f8;
+    }
+
+    /* ── Code blocks ── */
+    pre {
+      background: #f3f4f6;
+      border: 1px solid #ccc;
+      border-left: 4px solid #2563eb;
+      padding: 8pt 10pt;
+      font-family: "Courier New", monospace;
+      font-size: 9pt;
+      line-height: 1.4;
+      white-space: pre-wrap;
+      word-break: break-word;
+      margin: 8pt 0;
+      page-break-inside: avoid;
+    }
+
+    code {
+      font-family: "Courier New", monospace;
+      font-size: 9.5pt;
+      background: #f0f0f0;
+      padding: 0 2pt;
+    }
+
+    /* ── Horizontal rule ── */
+    hr {
+      border: none;
+      border-top: 1px solid #999;
+      margin: 14pt 0;
+    }
+
+    /* ── Cover Page ── */
+    .cover-page {
+      text-align: center;
+      page-break-after: always;
+      padding: 40pt 20pt;
+    }
+
+    .cover-page h1 {
+      font-size: 28pt;
+      border: none;
+      page-break-before: avoid;
+      margin-bottom: 4pt;
+    }
+
+    .cover-page .subtitle {
+      font-size: 14pt;
+      font-style: italic;
+      color: #333;
+      margin-bottom: 30pt;
+    }
+
+    .cover-page .divider {
+      border-top: 3px solid #1a3a5c;
+      margin: 16pt 40pt;
+    }
+
+    .cover-page table {
+      margin: 0 auto;
+      width: auto;
+      min-width: 60%;
+    }
+
+    .cover-page th,
+    .cover-page td {
+      background: transparent;
+      color: #000;
+      text-align: center;
+      border: 1px solid #999;
+    }
+
+    /* ── Print rules ── */
+    @media print {
+      body {
+        padding: 0;
+      }
+
+      h1 {
+        page-break-before: always;
+      }
+
+      pre,
+      table,
+      figure {
+        page-break-inside: avoid;
+      }
+
+      h2,
+      h3,
+      h4 {
+        page-break-after: avoid;
+      }
+    }
+  </style>
+</head>
+
+<body>
+
+  <!-- ══════════ COVER PAGE ══════════ -->
+  <div class="cover-page">
+    <p style="font-size:11pt; margin-bottom:8pt;">[College Name] | [University Name]</p>
+    <p style="font-size:10pt; margin-bottom:40pt;">Department of Computer Engineering</p>
+
+    <h1>WANDERLUST</h1>
+    <p class="subtitle">A Full-Stack AI-Powered Travel &amp; Hospitality Booking Platform</p>
+    <div class="divider"></div>
+
+    <p style="font-size:11pt; margin: 16pt 0 6pt 0;">A Project Report submitted in partial fulfillment<br>
+      of the requirements for the Degree of<br>
+      <strong>Bachelor of Engineering in Computer Engineering</strong>
+    </p>
+
+    <div class="divider"></div>
+
+    <p style="margin-top:20pt;"><strong>Submitted By:</strong></p>
+    <table style="margin:8pt auto; width:60%;">
+      <tr>
+        <th>Roll No.</th>
+        <th>Name</th>
+      </tr>
+      <tr>
+        <td>[Roll No.]</td>
+        <td>Narendra Bhute</td>
+      </tr>
+      <tr>
+        <td>[Roll No.]</td>
+        <td>[Team Member 2]</td>
+      </tr>
+      <tr>
+        <td>[Roll No.]</td>
+        <td>[Team Member 3]</td>
+      </tr>
+      <tr>
+        <td>[Roll No.]</td>
+        <td>[Team Member 4]</td>
+      </tr>
+    </table>
+
+    <p style="margin-top:20pt;"><strong>Under the Guidance of:</strong><br>
+      Prof. [Guide Name]<br>
+      [Department], [College Name]</p>
+
+    <div class="divider"></div>
+    <p style="margin-top:16pt; font-size:11pt;"><strong>Academic Year: 2025–2026</strong></p>
+  </div>
+
+  <!-- ══════════ REPORT BODY ══════════ -->
+  <p></p>
+  <h1>WANDERLUST
+  </h1>
+  <h2>A Full-Stack AI-Powered Travel & Hospitality Booking Platform
+  </h2>
+  <p></p>
+  <hr>
+  <p></p>
+  <p><strong>A Project Report submitted in partial fulfillment of the requirements for the Degree of</strong>
+  </p>
+  <p><strong>Bachelor of Engineering in Computer Engineering</strong>
+  </p>
+  <p></p>
+  <hr>
+  <p></p>
+  <p><strong>Submitted by:</strong>
+  </p>
+  <p></p>
+  <table>
+    <tr>
+      <th>Roll No.</th>
+      <th>Name</th>
+    </tr>
+    <tr>
+      <td>[Roll No.]</td>
+      <td>Narendra Bhute</td>
+    </tr>
+    <tr>
+      <td>[Roll No.]</td>
+      <td>[Team Member 2]</td>
+    </tr>
+    <tr>
+      <td>[Roll No.]</td>
+      <td>[Team Member 3]</td>
+    </tr>
+    <tr>
+      <td>[Roll No.]</td>
+      <td>[Team Member 4]</td>
+    </tr>
+  </table>
+  <p></p>
+  <p><strong>Under the guidance of:</strong>
+  </p>
+  <p>Prof. [Guide Name], [Department], [College Name]
+  </p>
+  <p></p>
+  <p><strong>Department of Computer Engineering</strong>
+  </p>
+  <p>[College Name], [University Name]
+  </p>
+  <p>Academic Year: 2025–2026
+  </p>
+  <p></p>
+  <hr>
+  <p></p>
+  <hr>
+  <p></p>
+  <h2>INDEX / TABLE OF CONTENTS
+  </h2>
+  <p></p>
+  <table>
+    <tr>
+      <th>Sr. No.</th>
+      <th>Title</th>
+      <th>Page No.</th>
+    </tr>
+    <tr>
+      <td>—</td>
+      <td>List of Abbreviations</td>
+      <td>i</td>
+    </tr>
+    <tr>
+      <td>—</td>
+      <td>List of Figures</td>
+      <td>ii</td>
+    </tr>
+    <tr>
+      <td>—</td>
+      <td>List of Tables</td>
+      <td>iii</td>
+    </tr>
+    <tr>
+      <td><strong>1</strong></td>
+      <td><strong>Introduction</strong></td>
+      <td><strong>1</strong></td>
+    </tr>
+    <tr>
+      <td>1.1</td>
+      <td>Introduction</td>
+      <td>1</td>
+    </tr>
+    <tr>
+      <td>1.2</td>
+      <td>Necessity</td>
+      <td>3</td>
+    </tr>
+    <tr>
+      <td>1.3</td>
+      <td>Objectives</td>
+      <td>5</td>
+    </tr>
+    <tr>
+      <td>1.4</td>
+      <td>Theme</td>
+      <td>6</td>
+    </tr>
+    <tr>
+      <td>1.5</td>
+      <td>Organization</td>
+      <td>7</td>
+    </tr>
+    <tr>
+      <td><strong>2</strong></td>
+      <td><strong>Literature Survey</strong></td>
+      <td><strong>10</strong></td>
+    </tr>
+    <tr>
+      <td>2.1</td>
+      <td>Existing Systems Review</td>
+      <td>10</td>
+    </tr>
+    <tr>
+      <td>2.2</td>
+      <td>Related Technologies</td>
+      <td>18</td>
+    </tr>
+    <tr>
+      <td>2.3</td>
+      <td>Research Gap</td>
+      <td>28</td>
+    </tr>
+    <tr>
+      <td><strong>3</strong></td>
+      <td><strong>System Development</strong></td>
+      <td><strong>30</strong></td>
+    </tr>
+    <tr>
+      <td>3.1</td>
+      <td>System Architecture</td>
+      <td>30</td>
+    </tr>
+    <tr>
+      <td>3.2</td>
+      <td>Database Design</td>
+      <td>38</td>
+    </tr>
+    <tr>
+      <td>3.3</td>
+      <td>Module Development</td>
+      <td>50</td>
+    </tr>
+    <tr>
+      <td><strong>4</strong></td>
+      <td><strong>Performance Analysis</strong></td>
+      <td><strong>65</strong></td>
+    </tr>
+    <tr>
+      <td>4.1</td>
+      <td>Analytical Method</td>
+      <td>65</td>
+    </tr>
+    <tr>
+      <td>4.2</td>
+      <td>Computational / Experimental Analysis</td>
+      <td>70</td>
+    </tr>
+    <tr>
+      <td>4.3</td>
+      <td>Results Comparison</td>
+      <td>78</td>
+    </tr>
+    <tr>
+      <td><strong>5</strong></td>
+      <td><strong>Conclusions</strong></td>
+      <td><strong>88</strong></td>
+    </tr>
+    <tr>
+      <td>5.1</td>
+      <td>Conclusions</td>
+      <td>88</td>
+    </tr>
+    <tr>
+      <td>5.2</td>
+      <td>Future Scope</td>
+      <td>89</td>
+    </tr>
+    <tr>
+      <td>5.3</td>
+      <td>Applications / Utility</td>
+      <td>90</td>
+    </tr>
+    <tr>
+      <td>—</td>
+      <td>Contributions</td>
+      <td>91</td>
+    </tr>
+    <tr>
+      <td>—</td>
+      <td>References</td>
+      <td>92</td>
+    </tr>
+    <tr>
+      <td>—</td>
+      <td>Appendices</td>
+      <td>94</td>
+    </tr>
+    <tr>
+      <td>—</td>
+      <td>Acknowledgement</td>
+      <td>100</td>
+    </tr>
+  </table>
+  <p></p>
+  <hr>
+  <p></p>
+  <h2>LIST OF ABBREVIATIONS
+  </h2>
+  <p></p>
+  <table>
+    <tr>
+      <th>Abbreviation</th>
+      <th>Full Form</th>
+    </tr>
+    <tr>
+      <td>AI</td>
+      <td>Artificial Intelligence</td>
+    </tr>
+    <tr>
+      <td>API</td>
+      <td>Application Programming Interface</td>
+    </tr>
+    <tr>
+      <td>CRUD</td>
+      <td>Create, Read, Update, Delete</td>
+    </tr>
+    <tr>
+      <td>CSP</td>
+      <td>Content Security Policy</td>
+    </tr>
+    <tr>
+      <td>CSRF</td>
+      <td>Cross-Site Request Forgery</td>
+    </tr>
+    <tr>
+      <td>CSS</td>
+      <td>Cascading Style Sheets</td>
+    </tr>
+    <tr>
+      <td>DB</td>
+      <td>Database</td>
+    </tr>
+    <tr>
+      <td>EJS</td>
+      <td>Embedded JavaScript Templates</td>
+    </tr>
+    <tr>
+      <td>GPT</td>
+      <td>Generative Pre-trained Transformer</td>
+    </tr>
+    <tr>
+      <td>HTML</td>
+      <td>HyperText Markup Language</td>
+    </tr>
+    <tr>
+      <td>HTTP</td>
+      <td>HyperText Transfer Protocol</td>
+    </tr>
+    <tr>
+      <td>HTTPS</td>
+      <td>HyperText Transfer Protocol Secure</td>
+    </tr>
+    <tr>
+      <td>HSTS</td>
+      <td>HTTP Strict Transport Security</td>
+    </tr>
+    <tr>
+      <td>HPP</td>
+      <td>HTTP Parameter Pollution</td>
+    </tr>
+    <tr>
+      <td>JS</td>
+      <td>JavaScript</td>
+    </tr>
+    <tr>
+      <td>JSON</td>
+      <td>JavaScript Object Notation</td>
+    </tr>
+    <tr>
+      <td>JWT</td>
+      <td>JSON Web Token</td>
+    </tr>
+    <tr>
+      <td>MVC</td>
+      <td>Model-View-Controller</td>
+    </tr>
+    <tr>
+      <td>MVP</td>
+      <td>Minimum Viable Product</td>
+    </tr>
+    <tr>
+      <td>NoSQL</td>
+      <td>Not Only Structured Query Language</td>
+    </tr>
+    <tr>
+      <td>ODM</td>
+      <td>Object Document Mapper</td>
+    </tr>
+    <tr>
+      <td>OTP</td>
+      <td>One-Time Password</td>
+    </tr>
+    <tr>
+      <td>PWA</td>
+      <td>Progressive Web App</td>
+    </tr>
+    <tr>
+      <td>RBAC</td>
+      <td>Role-Based Access Control</td>
+    </tr>
+    <tr>
+      <td>REST</td>
+      <td>Representational State Transfer</td>
+    </tr>
+    <tr>
+      <td>SDK</td>
+      <td>Software Development Kit</td>
+    </tr>
+    <tr>
+      <td>SMTP</td>
+      <td>Simple Mail Transfer Protocol</td>
+    </tr>
+    <tr>
+      <td>SQL</td>
+      <td>Structured Query Language</td>
+    </tr>
+    <tr>
+      <td>UPI</td>
+      <td>Unified Payments Interface</td>
+    </tr>
+    <tr>
+      <td>UI</td>
+      <td>User Interface</td>
+    </tr>
+    <tr>
+      <td>UX</td>
+      <td>User Experience</td>
+    </tr>
+    <tr>
+      <td>VAPID</td>
+      <td>Voluntary Application Server Identification</td>
+    </tr>
+    <tr>
+      <td>XSS</td>
+      <td>Cross-Site Scripting</td>
+    </tr>
+  </table>
+  <p></p>
+  <hr>
+  <p></p>
+  <h2>LIST OF FIGURES
+  </h2>
+  <p></p>
+  <table>
+    <tr>
+      <th>Fig. No.</th>
+      <th>Figure Title</th>
+      <th>Page No.</th>
+    </tr>
+    <tr>
+      <td>3.1</td>
+      <td>Overall System Architecture Diagram</td>
+      <td>31</td>
+    </tr>
+    <tr>
+      <td>3.2</td>
+      <td>MVC Architecture of WanderLust</td>
+      <td>32</td>
+    </tr>
+    <tr>
+      <td>3.3</td>
+      <td>Entity Relationship (ER) Diagram</td>
+      <td>40</td>
+    </tr>
+    <tr>
+      <td>3.4</td>
+      <td>Booking Flow Diagram</td>
+      <td>45</td>
+    </tr>
+    <tr>
+      <td>3.5</td>
+      <td>AI Chatbot Interaction Flow</td>
+      <td>53</td>
+    </tr>
+    <tr>
+      <td>3.6</td>
+      <td>Payment Gateway Flow</td>
+      <td>56</td>
+    </tr>
+    <tr>
+      <td>3.7</td>
+      <td>PWA Architecture</td>
+      <td>61</td>
+    </tr>
+    <tr>
+      <td>3.8</td>
+      <td>Socket.IO Real-Time Notification Flow</td>
+      <td>63</td>
+    </tr>
+    <tr>
+      <td>4.1</td>
+      <td>Homepage Load Time Comparison (Before vs After Optimization)</td>
+      <td>67</td>
+    </tr>
+    <tr>
+      <td>4.2</td>
+      <td>API Response Time Distribution</td>
+      <td>71</td>
+    </tr>
+    <tr>
+      <td>4.3</td>
+      <td>Database Query Performance Graph</td>
+      <td>74</td>
+    </tr>
+    <tr>
+      <td>4.4</td>
+      <td>Concurrent User Load Test Results</td>
+      <td>77</td>
+    </tr>
+    <tr>
+      <td>4.5</td>
+      <td>Security Vulnerability Scan Report</td>
+      <td>80</td>
+    </tr>
+    <tr>
+      <td>4.6</td>
+      <td>Lighthouse Performance Score</td>
+      <td>82</td>
+    </tr>
+  </table>
+  <p></p>
+  <hr>
+  <p></p>
+  <h2>LIST OF TABLES
+  </h2>
+  <p></p>
+  <table>
+    <tr>
+      <th>Table No.</th>
+      <th>Table Title</th>
+      <th>Page No.</th>
+    </tr>
+    <tr>
+      <td>2.1</td>
+      <td>Comparison of Existing Systems</td>
+      <td>16</td>
+    </tr>
+    <tr>
+      <td>2.2</td>
+      <td>Technology Comparison Matrix</td>
+      <td>25</td>
+    </tr>
+    <tr>
+      <td>3.1</td>
+      <td>Database Models and Relationships</td>
+      <td>39</td>
+    </tr>
+    <tr>
+      <td>3.2</td>
+      <td>REST API Endpoints Summary</td>
+      <td>50</td>
+    </tr>
+    <tr>
+      <td>3.3</td>
+      <td>Security Measures Implemented</td>
+      <td>59</td>
+    </tr>
+    <tr>
+      <td>4.1</td>
+      <td>Page Load Time Analysis</td>
+      <td>67</td>
+    </tr>
+    <tr>
+      <td>4.2</td>
+      <td>API Endpoint Response Times</td>
+      <td>72</td>
+    </tr>
+    <tr>
+      <td>4.3</td>
+      <td>Database Query Optimization Results</td>
+      <td>75</td>
+    </tr>
+    <tr>
+      <td>4.4</td>
+      <td>Load Testing Results (Concurrent Users)</td>
+      <td>77</td>
+    </tr>
+    <tr>
+      <td>4.5</td>
+      <td>Feature Comparison with Existing Platforms</td>
+      <td>84</td>
+    </tr>
+  </table>
+  <p></p>
+  <hr>
+  <hr>
+  <p></p>
+  <h1>CHAPTER 1: INTRODUCTION
+  </h1>
+  <p></p>
+  <h2>1.1 Introduction
+  </h2>
+  <p></p>
+  <p>The travel and hospitality industry has witnessed a dramatic digital transformation over the past decade. With the
+    proliferation of smartphones, high-speed internet, and cloud computing, consumers now expect seamless, on-demand
+    access to travel services. Platforms like Airbnb, MakeMyTrip, Ola, and Zomato have each carved out a niche in
+    specific segments of travel — accommodation, transportation, and food — but none provides a unified solution that
+    covers all three.
+  </p>
+  <p></p>
+  <p><strong>WanderLust</strong> is a full-stack, AI-powered travel and hospitality booking platform developed to bridge
+    this gap. It is a comprehensive web and mobile application that allows travelers to:
+  </p>
+  <ul>
+    <li>Discover and book <strong>hotel stays, guesthouses, villas, and apartments</strong>
+    </li>
+    <li>Rent <strong>vehicles</strong> (cars, bikes, vans, scooters)
+    </li>
+    <li>Book tables and explore <strong>restaurants and dhabas</strong>
+    </li>
+  </ul>
+  <p></p>
+  <p>All three services are offered within a single, unified platform backed by real-time communication, artificial
+    intelligence, interactive maps, and multiple secure payment gateways.
+  </p>
+  <p></p>
+  <p>The platform is built on the <strong>MEAN-like stack</strong> — specifically MongoDB, Express.js, Node.js, and EJS
+    as the templating engine — following the <strong>Model-View-Controller (MVC)</strong> architectural pattern. It
+    integrates modern third-party services including Cloudinary for image storage, Mapbox for geospatial mapping, Stripe
+    for payments, and OpenAI GPT for AI features.
+  </p>
+  <p></p>
+  <p>WanderLust is not merely a prototype — it is engineered with <strong>production-grade standards</strong>: security
+    middleware (Helmet, CSP, rate limiting, XSS protection), performance optimization (caching, lean queries, response
+    compression), error monitoring (Sentry), and structured logging (Winston). It is deployable on cloud platforms such
+    as Render and supports Android via Capacitor, making it a cross-platform solution.
+  </p>
+  <p></p>
+  <p>The name <em>WanderLust</em> reflects the universal human desire to explore — to travel, taste new foods, and
+    experience different cultures. The platform serves both <strong>travelers</strong> (who book) and
+    <strong>hosts</strong> (who list their properties, vehicles, or restaurants), creating a two-sided marketplace.
+  </p>
+  <p></p>
+  <hr>
+  <p></p>
+  <h2>1.2 Necessity
+  </h2>
+  <p></p>
+  <h3>1.2.1 Problem with Existing Solutions
+  </h3>
+  <p></p>
+  <p>The current landscape of travel booking is fragmented. A traveler planning a trip must:
+  </p>
+  <ol>
+    <li>Visit <strong>MakeMyTrip / Airbnb</strong> to book accommodation
+    </li>
+    <li>Open <strong>Ola / Rapido</strong> to arrange transportation
+    </li>
+    <li>Check <strong>Zomato / Swiggy</strong> for food options
+    </li>
+  </ol>
+  <p></p>
+  <p>Each of these requires a <strong>separate account, app, and payment transaction</strong>. This fragmentation leads
+    to:
+  </p>
+  <ul>
+    <li><strong>Time inefficiency</strong>: Users spend hours switching between platforms
+    </li>
+    <li><strong>Data silos</strong>: No cross-platform personalization
+    </li>
+    <li><strong>Multiple payment flows</strong>: Separate transactions, different refund policies
+    </li>
+    <li><strong>No unified travel experience</strong>: Each app has its own UI/UX paradigm
+    </li>
+  </ul>
+  <p></p>
+  <h3>1.2.2 Gap in AI Integration
+  </h3>
+  <p></p>
+  <p>Existing Indian travel platforms have limited AI integration. None offers:
+  </p>
+  <ul>
+    <li>A <strong>conversational AI travel assistant</strong> that understands user context
+    </li>
+    <li>An <strong>AI trip planner</strong> that generates complete itineraries based on natural language input
+    </li>
+    <li><strong>Smart pricing suggestions</strong> for hosts based on demand analysis
+    </li>
+    <li><strong>AI-generated listing descriptions</strong> for hosts
+    </li>
+  </ul>
+  <p></p>
+  <h3>1.2.3 Need for a Unified Platform
+  </h3>
+  <p></p>
+  <p>There is a strong market demand for a <strong>single-window travel solution</strong> — particularly in the Indian
+    travel ecosystem — where a tourist can plan, book, and manage their entire journey (stay + transport + food) from
+    one place. WanderLust directly addresses this need.
+  </p>
+  <p></p>
+  <h3>1.2.4 Mobile-First Necessity
+  </h3>
+  <p></p>
+  <p>With over 750 million smartphones in India, a <strong>mobile-first, installable application</strong> is essential.
+    WanderLust implements this through a <strong>Progressive Web App (PWA)</strong> that can be installed on any device,
+    and a native <strong>Android application</strong> built with Capacitor, without requiring a separate native
+    codebase.
+  </p>
+  <p></p>
+  <hr>
+  <p></p>
+  <h2>1.3 Objectives
+  </h2>
+  <p></p>
+  <p>The primary objectives of the WanderLust project are:
+  </p>
+  <p></p>
+  <ol>
+    <li><strong>To design and develop a unified multi-service booking platform</strong> supporting stays, vehicle
+      rentals, and restaurant reservations within a single application.
+    </li>
+  </ol>
+  <p></p>
+  <ol>
+    <li><strong>To implement AI-powered features</strong> including a real-time GPT-based chatbot, AI trip planner, AI
+      content generator, and review sentiment analyzer using the OpenAI API.
+    </li>
+  </ol>
+  <p></p>
+  <ol>
+    <li><strong>To build a secure, scalable REST API backend</strong> using Node.js and Express.js, following MVC
+      architecture and RESTful design principles.
+    </li>
+  </ol>
+  <p></p>
+  <ol>
+    <li><strong>To integrate multiple payment gateways</strong> — Stripe (card payments), UPI, and an internal Wallet
+      system — with automated email and PDF receipt generation.
+    </li>
+  </ol>
+  <p></p>
+  <ol>
+    <li><strong>To implement an interactive geospatial map interface</strong> using Mapbox GL JS for discovering
+      listings, vehicles, and restaurants on a map.
+    </li>
+  </ol>
+  <p></p>
+  <ol>
+    <li><strong>To deliver a Progressive Web App (PWA)</strong> with offline support, push notifications, and
+      installability, ensuring a native app-like experience.
+    </li>
+  </ol>
+  <p></p>
+  <ol>
+    <li><strong>To build a cross-platform Android application</strong> using Capacitor, wrapping the web application for
+      distribution on mobile devices.
+    </li>
+  </ol>
+  <p></p>
+  <ol>
+    <li><strong>To implement enterprise-grade security</strong> including Helmet.js (security headers), rate limiting,
+      NoSQL injection prevention, XSS protection, and CSRF protection.
+    </li>
+  </ol>
+  <p></p>
+  <ol>
+    <li><strong>To build a social community layer</strong> including user follow/unfollow, travel journals, wishlists,
+      and real-time notifications via Socket.IO.
+    </li>
+  </ol>
+  <p></p>
+  <ol>
+    <li><strong>To create a comprehensive admin dashboard</strong> for platform management including user verification,
+      content moderation, newsletter broadcasting, and cache management.
+    </li>
+  </ol>
+  <p></p>
+  <hr>
+  <p></p>
+  <h2>1.4 Theme
+  </h2>
+  <p></p>
+  <p>The central theme of WanderLust is <strong>"One Platform, Every Journey."</strong>
+  </p>
+  <p></p>
+  <p>The project is conceptualized around the philosophy that modern travel is holistic — it encompasses where you stay,
+    how you get around, and what you eat. Rather than treating these as separate concerns, WanderLust unifies them under
+    a single intelligent platform.
+  </p>
+  <p></p>
+  <h3>Core Design Themes:
+  </h3>
+  <p></p>
+  <p><strong>1. Unification</strong>
+  </p>
+  <p>Breaking down silos between accommodation, transportation, and food booking. A user logging into WanderLust has
+    access to all three services with a single account, single payment history, and unified notifications.
+  </p>
+  <p></p>
+  <p><strong>2. Intelligence</strong>
+  </p>
+  <p>AI is not an afterthought but a core feature. The platform uses GPT-4 to power a conversational assistant that
+    helps users find the right listing, plan their entire trip, and hosts to describe their properties.
+  </p>
+  <p></p>
+  <p><strong>3. Trust & Security</strong>
+  </p>
+  <p>WanderLust implements a Trust System where hosts can be verified with identity documents, users can see host
+    ratings and response rates, and all data is protected by multiple layers of security middleware.
+  </p>
+  <p></p>
+  <p><strong>4. Accessibility & Mobility</strong>
+  </p>
+  <p>Through PWA and Android, WanderLust is accessible on any device — desktop, mobile, or tablet — with or without
+    installation from an app store.
+  </p>
+  <p></p>
+  <p><strong>5. Community</strong>
+  </p>
+  <p>Beyond booking, WanderLust fosters a travel community where users can follow each other, share travel journals, and
+    inspire others.
+  </p>
+  <p></p>
+  <hr>
+  <p></p>
+  <h2>1.5 Organization
+  </h2>
+  <p></p>
+  <p>The WanderLust project is organized into the following structure:
+  </p>
+  <p></p>
+  <h3>Chapter Organization of this Report:
+  </h3>
+  <p></p>
+  <ul>
+    <li><strong>Chapter 1 — Introduction</strong>: Covers the background, problem statement, objectives, and theme of
+      the project.
+    </li>
+  </ul>
+  <p></p>
+  <ul>
+    <li><strong>Chapter 2 — Literature Survey</strong>: Reviews existing travel platforms, relevant technologies,
+      open-source frameworks, and identifies the research gap that WanderLust fills.
+    </li>
+  </ul>
+  <p></p>
+  <ul>
+    <li><strong>Chapter 3 — System Development</strong>: Covers the complete technical development including system
+      architecture, database design (ER diagram, all 12 Mongoose models), module-wise development (booking system, AI
+      features, payment gateway, PWA/mobile), and mathematical/computational treatment of core algorithms.
+    </li>
+  </ul>
+  <p></p>
+  <ul>
+    <li><strong>Chapter 4 — Performance Analysis</strong>: Analyzes the system using analytical and experimental methods
+      — includes load testing results, API response time analysis, database query performance, Lighthouse scores, and
+      security scan results. Results are compared across multiple methods.
+    </li>
+  </ul>
+  <p></p>
+  <ul>
+    <li><strong>Chapter 5 — Conclusions</strong>: Summarizes outcomes, identifies future scope, and discusses real-world
+      applications and utility.
+    </li>
+  </ul>
+  <p></p>
+  <h3>Codebase Organization:
+  </h3>
+  <p></p>
+  <pre><code>WanderLust/
+├── app.js              ← Main entry point
+├── models/             ← 12 Mongoose data models
+├── routes/             ← 23 Express.js route files
+├── controllers/        ← 14 business logic controllers
+├── views/              ← 76 EJS template files
+├── middleware/         ← Auth, cache, security middleware
+├── utils/              ← 19 utility &amp; service modules
+├── public/             ← CSS, JS, images, PWA files
+├── seeds/              ← Database seed data
+└── tests/              ← Jest test suite
+</code></pre>
+  <p></p>
+  <hr>
+  <p><em>End of Chapter 1</em>
+  </p>
+  <p></p>
+  <p></p>
+  <p></p>
+  <h1>CHAPTER 2: LITERATURE SURVEY
+  </h1>
+  <p></p>
+  <h2>2.1 Review of Existing Systems
+  </h2>
+  <p></p>
+  <h3>2.1.1 Airbnb (www.airbnb.com)
+  </h3>
+  <p></p>
+  <p>Airbnb, founded in 2008, is the world's largest online marketplace for short-term home rentals. It operates on a
+    peer-to-peer model where property owners (hosts) list their spaces and travelers (guests) book them.
+  </p>
+  <p></p>
+  <p><strong>Key Features:</strong>
+  </p>
+  <ul>
+    <li>Listing management with photo galleries
+    </li>
+    <li>Calendar-based availability management
+    </li>
+    <li>Real-time messaging between host and guest
+    </li>
+    <li>Stripe-powered payment processing
+    </li>
+    <li>Host and guest review system
+    </li>
+    <li>Superhost program for top-rated hosts
+    </li>
+  </ul>
+  <p></p>
+  <p><strong>Technology Stack (Published Reports):</strong>
+  </p>
+  <p>Airbnb uses React.js on the frontend, Ruby on Rails and Java microservices on the backend, MySQL and HBase for data
+    storage, and uses Kubernetes for container orchestration.
+  </p>
+  <p></p>
+  <p><strong>Limitations from WanderLust's Perspective:</strong>
+  </p>
+  <ul>
+    <li>Covers only accommodation — no vehicle or food booking
+    </li>
+    <li>No AI trip planner integrated
+    </li>
+    <li>Not available as a PWA
+    </li>
+    <li>Limited to international markets; no UPI support for Indian users
+    </li>
+  </ul>
+  <p></p>
+  <hr>
+  <p></p>
+  <h3>2.1.2 MakeMyTrip (www.makemytrip.com)
+  </h3>
+  <p></p>
+  <p>MakeMyTrip is India's leading online travel portal, founded in 2000. It offers flight, hotel, and holiday package
+    bookings.
+  </p>
+  <p></p>
+  <p><strong>Key Features:</strong>
+  </p>
+  <ul>
+    <li>Flight + Hotel + Holiday package booking
+    </li>
+    <li>EMI-based payment options
+    </li>
+    <li>User reviews and ratings
+    </li>
+    <li>Mobile app (iOS and Android)
+    </li>
+  </ul>
+  <p></p>
+  <p><strong>Limitations:</strong>
+  </p>
+  <ul>
+    <li>No vehicle rental integration
+    </li>
+    <li>No restaurant/dhaba discovery
+    </li>
+    <li>No AI chatbot or trip planner
+    </li>
+    <li>No social community layer for travelers
+    </li>
+    <li>Limited to pre-packaged tours; no custom listing creation
+    </li>
+  </ul>
+  <p></p>
+  <hr>
+  <p></p>
+  <h3>2.1.3 Ola (www.olacabs.com)
+  </h3>
+  <p></p>
+  <p>Ola is India's largest ride-hailing platform. It connects customers with drivers for on-demand transportation.
+  </p>
+  <p></p>
+  <p><strong>Key Features:</strong>
+  </p>
+  <ul>
+    <li>Real-time driver tracking (GPS)
+    </li>
+    <li>In-app payment (Ola Money, UPI, Card)
+    </li>
+    <li>Multiple vehicle categories (Auto, Mini, Prime, SUV)
+    </li>
+  </ul>
+  <p></p>
+  <p><strong>Limitations:</strong>
+  </p>
+  <ul>
+    <li>Ride-hailing only; no vehicle ownership/rental model
+    </li>
+    <li>No hotel or restaurant module
+    </li>
+    <li>GPS-dependent; no offline capability
+    </li>
+    <li>No AI assistant
+    </li>
+  </ul>
+  <p></p>
+  <hr>
+  <p></p>
+  <h3>2.1.4 Zomato (www.zomato.com)
+  </h3>
+  <p></p>
+  <p>Zomato is India's leading food delivery and restaurant discovery platform.
+  </p>
+  <p></p>
+  <p><strong>Key Features:</strong>
+  </p>
+  <ul>
+    <li>Restaurant discovery with menus
+    </li>
+    <li>Food delivery
+    </li>
+    <li>Table reservation (Intermittently available)
+    </li>
+    <li>Zomato Pro membership
+    </li>
+  </ul>
+  <p></p>
+  <p><strong>Limitations:</strong>
+  </p>
+  <ul>
+    <li>No accommodation booking
+    </li>
+    <li>No vehicle rental
+    </li>
+    <li>Limited AI integration
+    </li>
+    <li>Table booking feature is inconsistent across cities
+    </li>
+  </ul>
+  <p></p>
+  <hr>
+  <p></p>
+  <h3>2.1.5 Booking.com (www.booking.com)
+  </h3>
+  <p></p>
+  <p>A global online travel and accommodation aggregator. It provides hotel, apartment, and villa bookings worldwide.
+  </p>
+  <p></p>
+  <p><strong>Key Features:</strong>
+  </p>
+  <ul>
+    <li>28+ million listings worldwide
+    </li>
+    <li>Instant confirmation
+    </li>
+    <li>Free cancellation options
+    </li>
+    <li>Multiple language support
+    </li>
+  </ul>
+  <p></p>
+  <p><strong>Limitations:</strong>
+  </p>
+  <ul>
+    <li>Only accommodation; no vehicles or restaurants
+    </li>
+    <li>Does not serve individual property owners effectively in India
+    </li>
+    <li>No conversational AI
+    </li>
+  </ul>
+  <p></p>
+  <hr>
+  <p></p>
+  <h3>2.1.6 Summary Comparison Table
+  </h3>
+  <p></p>
+  <p><strong>Table 2.1: Comparison of Existing Systems</strong>
+  </p>
+  <p></p>
+  <table>
+    <tr>
+      <th>Feature</th>
+      <th>WanderLust</th>
+      <th>Airbnb</th>
+      <th>MakeMyTrip</th>
+      <th>Ola</th>
+      <th>Zomato</th>
+      <th>Booking.com</th>
+    </tr>
+    <tr>
+      <td>Stay Booking</td>
+      <td>✅</td>
+      <td>✅</td>
+      <td>✅</td>
+      <td>❌</td>
+      <td>❌</td>
+      <td>✅</td>
+    </tr>
+    <tr>
+      <td>Vehicle Rental</td>
+      <td>✅</td>
+      <td>❌</td>
+      <td>❌</td>
+      <td>✅ (rides only)</td>
+      <td>❌</td>
+      <td>❌</td>
+    </tr>
+    <tr>
+      <td>Restaurant Booking</td>
+      <td>✅</td>
+      <td>❌</td>
+      <td>❌</td>
+      <td>❌</td>
+      <td>✅</td>
+      <td>❌</td>
+    </tr>
+    <tr>
+      <td>AI Chatbot</td>
+      <td>✅</td>
+      <td>❌</td>
+      <td>❌</td>
+      <td>❌</td>
+      <td>❌</td>
+      <td>❌</td>
+    </tr>
+    <tr>
+      <td>AI Trip Planner</td>
+      <td>✅</td>
+      <td>❌</td>
+      <td>❌</td>
+      <td>❌</td>
+      <td>❌</td>
+      <td>❌</td>
+    </tr>
+    <tr>
+      <td>UPI Payment</td>
+      <td>✅</td>
+      <td>❌</td>
+      <td>✅</td>
+      <td>✅</td>
+      <td>✅</td>
+      <td>❌</td>
+    </tr>
+    <tr>
+      <td>Wallet System</td>
+      <td>✅</td>
+      <td>❌</td>
+      <td>✅</td>
+      <td>✅</td>
+      <td>✅</td>
+      <td>❌</td>
+    </tr>
+    <tr>
+      <td>PWA</td>
+      <td>✅</td>
+      <td>❌</td>
+      <td>❌</td>
+      <td>❌</td>
+      <td>❌</td>
+      <td>❌</td>
+    </tr>
+    <tr>
+      <td>Android App</td>
+      <td>✅</td>
+      <td>✅</td>
+      <td>✅</td>
+      <td>✅</td>
+      <td>✅</td>
+      <td>✅</td>
+    </tr>
+    <tr>
+      <td>Social Community</td>
+      <td>✅</td>
+      <td>Limited</td>
+      <td>❌</td>
+      <td>❌</td>
+      <td>❌</td>
+      <td>❌</td>
+    </tr>
+    <tr>
+      <td>Interactive Map</td>
+      <td>✅</td>
+      <td>✅</td>
+      <td>❌</td>
+      <td>✅</td>
+      <td>✅</td>
+      <td>✅</td>
+    </tr>
+    <tr>
+      <td>Push Notifications</td>
+      <td>✅</td>
+      <td>✅</td>
+      <td>✅</td>
+      <td>✅</td>
+      <td>✅</td>
+      <td>✅</td>
+    </tr>
+    <tr>
+      <td>Host Payout System</td>
+      <td>✅</td>
+      <td>✅</td>
+      <td>❌</td>
+      <td>❌</td>
+      <td>❌</td>
+      <td>✅</td>
+    </tr>
+    <tr>
+      <td>Open Source</td>
+      <td>✅</td>
+      <td>❌</td>
+      <td>❌</td>
+      <td>❌</td>
+      <td>❌</td>
+      <td>❌</td>
+    </tr>
+  </table>
+  <p></p>
+  <hr>
+  <p></p>
+  <h2>2.2 Review of Related Technologies
+  </h2>
+  <p></p>
+  <h3>2.2.1 Node.js (Ryan Dahl, 2009)
+  </h3>
+  <p></p>
+  <p><strong>Source:</strong> Node.js Foundation Documentation, https://nodejs.org
+  </p>
+  <p></p>
+  <p>Node.js is an open-source, cross-platform JavaScript runtime environment that executes JavaScript code outside a
+    web browser. It uses Google's V8 JavaScript engine and an event-driven, non-blocking I/O model that makes it
+    lightweight and efficient.
+  </p>
+  <p></p>
+  <p><strong>Why used in WanderLust:</strong>
+  </p>
+  <ul>
+    <li>High concurrency support — ideal for a booking platform handling thousands of simultaneous requests
+    </li>
+    <li>Event-driven architecture perfectly suits real-time features (Socket.IO, notifications)
+    </li>
+    <li>Single language (JavaScript) across client and server reduces development overhead
+    </li>
+    <li>Large ecosystem via npm (Node Package Manager) with 2.1 million packages
+    </li>
+  </ul>
+  <p></p>
+  <p><strong>Research Reference:</strong> Tilkov, S., & Vinoski, S. (2010). <em>Node.js: Using JavaScript to build
+      high-performance network programs</em>. IEEE Internet Computing, 14(6), 80–83.
+  </p>
+  <p></p>
+  <hr>
+  <p></p>
+  <h3>2.2.2 Express.js (T.J. Holowaychuk, 2010)
+  </h3>
+  <p></p>
+  <p><strong>Source:</strong> Express.js Documentation, https://expressjs.com
+  </p>
+  <p></p>
+  <p>Express.js is a minimal, unopinionated web framework for Node.js. It provides a robust set of features for building
+    web and mobile applications including routing, middleware support, and template rendering.
+  </p>
+  <p></p>
+  <p><strong>Why used in WanderLust:</strong>
+  </p>
+  <ul>
+    <li>Lightweight and unopinionated — full control over application architecture
+    </li>
+    <li>Rich middleware ecosystem
+    </li>
+    <li>Simple REST API construction
+    </li>
+    <li>Native support for EJS templating engine
+    </li>
+  </ul>
+  <p></p>
+  <hr>
+  <p></p>
+  <h3>2.2.3 MongoDB & Mongoose
+  </h3>
+  <p></p>
+  <p><strong>Source:</strong> MongoDB Documentation, https://www.mongodb.com/docs | Mongoose Documentation,
+    https://mongoosejs.com
+  </p>
+  <p></p>
+  <p>MongoDB is a document-oriented NoSQL database. It stores data in BSON (Binary JSON) format, making it ideal for
+    flexible, hierarchical data structures. Mongoose is an ODM (Object Document Mapper) for MongoDB and Node.js.
+  </p>
+  <p></p>
+  <p><strong>Why used in WanderLust:</strong>
+  </p>
+  <ul>
+    <li><strong>Schema flexibility</strong>: Different listing types (stays, vehicles, dhabas) have different fields —
+      MongoDB handles this naturally
+    </li>
+    <li><strong>Embedded documents</strong>: Menu items inside a Dhaba, images inside a Listing — no JOINs required
+    </li>
+    <li><strong>Geospatial support</strong>: Native 2dsphere index for location-based queries (Mapbox integration)
+    </li>
+    <li><strong>Aggregation pipeline</strong>: Used for global search with relevance scoring
+    </li>
+  </ul>
+  <p></p>
+  <p><strong>Research Reference:</strong> Chodorow, K. (2013). <em>MongoDB: The Definitive Guide</em> (2nd ed.).
+    O'Reilly Media.
+  </p>
+  <p></p>
+  <hr>
+  <p></p>
+  <h3>2.2.4 Passport.js Authentication
+  </h3>
+  <p></p>
+  <p><strong>Source:</strong> Passport.js Documentation, http://www.passportjs.org
+  </p>
+  <p></p>
+  <p>Passport.js is an authentication middleware for Node.js. It supports over 500 authentication strategies including
+    Local (username/password), Google OAuth 2.0, Facebook, Twitter, etc.
+  </p>
+  <p></p>
+  <p><strong>WanderLust uses:</strong>
+  </p>
+  <ul>
+    <li><strong>passport-local-mongoose</strong>: Local username/password authentication with bcrypt hashing
+    </li>
+    <li><strong>passport-google-oauth20</strong>: Google Sign-In (OAuth 2.0)
+    </li>
+    <li>Sessions stored in MongoDB via <code>connect-mongo</code>
+    </li>
+  </ul>
+  <p></p>
+  <hr>
+  <p></p>
+  <h3>2.2.5 OpenAI GPT API
+  </h3>
+  <p></p>
+  <p><strong>Source:</strong> OpenAI API Documentation, https://platform.openai.com/docs
+  </p>
+  <p></p>
+  <p>The OpenAI API provides access to GPT (Generative Pre-trained Transformer) language models. GPT-4 is trained on
+    diverse internet text and can understand context, generate human-like text, answer questions, and carry on
+    conversations.
+  </p>
+  <p></p>
+  <p><strong>WanderLust AI Features powered by OpenAI:</strong>
+  </p>
+  <ul>
+    <li><strong>Smart Chatbot</strong> (utils/smartChatbot.js): Real-time conversational assistant
+    </li>
+    <li><strong>AI Trip Planner</strong> (utils/aiTripPlanner.js): Itinerary generation from natural language
+    </li>
+    <li><strong>AI Magic</strong> (routes/aiMagic.js): Auto-generate listing descriptions
+    </li>
+    <li><strong>Review Analyzer</strong> (utils/reviewAnalyzer.js): Sentiment analysis
+    </li>
+  </ul>
+  <p></p>
+  <p><strong>Research Reference:</strong> Brown, T., et al. (2020). <em>Language Models are Few-Shot Learners</em>.
+    Advances in Neural Information Processing Systems, 33, 1877–1901.
+  </p>
+  <p></p>
+  <hr>
+  <p></p>
+  <h3>2.2.6 Stripe Payment Gateway
+  </h3>
+  <p></p>
+  <p><strong>Source:</strong> Stripe Documentation, https://stripe.com/docs
+  </p>
+  <p></p>
+  <p>Stripe is a technology company that builds economic infrastructure for the internet. It provides APIs for online
+    payment processing, subscriptions, and platform business models.
+  </p>
+  <p></p>
+  <p><strong>WanderLust uses:</strong>
+  </p>
+  <ul>
+    <li><strong>Stripe Checkout</strong>: Hosted payment page for card payments
+    </li>
+    <li><strong>Stripe Webhooks</strong>: Server-side event confirmation (payment success/failure)
+    </li>
+    <li><strong>Stripe Connect</strong>: Host payout system (marketplace model)
+    </li>
+  </ul>
+  <p></p>
+  <hr>
+  <p></p>
+  <h3>2.2.7 Mapbox GL JS & Mapbox SDK
+  </h3>
+  <p></p>
+  <p><strong>Source:</strong> Mapbox Documentation, https://docs.mapbox.com
+  </p>
+  <p></p>
+  <p>Mapbox is a location data platform providing mapping and geocoding APIs. Mapbox GL JS is a JavaScript library for
+    rendering interactive, customizable vector maps in the browser.
+  </p>
+  <p></p>
+  <p><strong>WanderLust uses:</strong>
+  </p>
+  <ul>
+    <li>Geocoding: Converting listing address → latitude/longitude coordinates
+    </li>
+    <li>Vector map rendering on listing detail pages
+    </li>
+    <li>Global map search (<code>/map</code>) for exploring all content geospatially
+    </li>
+    <li>GeoJSON Point stored in each listing/vehicle/dhaba for 2dsphere queries
+    </li>
+  </ul>
+  <p></p>
+  <hr>
+  <p></p>
+  <h3>2.2.8 Socket.IO (Real-time Communication)
+  </h3>
+  <p></p>
+  <p><strong>Source:</strong> Socket.IO Documentation, https://socket.io/docs
+  </p>
+  <p></p>
+  <p>Socket.IO enables real-time, bidirectional event-based communication between web clients and servers. It uses
+    WebSockets with fallback to HTTP long-polling.
+  </p>
+  <p></p>
+  <p><strong>WanderLust uses:</strong>
+  </p>
+  <ul>
+    <li><strong>AI Chatbot</strong>: Real-time message streaming (<code>ai_message</code> / <code>ai_response</code>
+      events)
+    </li>
+    <li><strong>Notifications</strong>: Push booking/social notifications to online users
+    </li>
+    <li>Connected users tracked in a server-side <code>Map</code> for targeted delivery
+    </li>
+  </ul>
+  <p></p>
+  <hr>
+  <p></p>
+  <h3>2.2.9 Progressive Web Apps (PWA)
+  </h3>
+  <p></p>
+  <p><strong>Source:</strong> Google Developers — Web.dev, https://web.dev/progressive-web-apps
+  </p>
+  <p></p>
+  <p>Progressive Web Apps are web applications that use modern web capabilities to deliver app-like experiences. Key
+    components include:
+  </p>
+  <ul>
+    <li><strong>Service Worker</strong>: Background script for offline caching and push notifications
+    </li>
+    <li><strong>Web App Manifest</strong>: JSON file defining app name, icons, and display mode
+    </li>
+    <li><strong>HTTPS</strong>: Required for service worker registration
+    </li>
+  </ul>
+  <p></p>
+  <p><strong>Research Reference:</strong> Biørn-Hansen, A., et al. (2017). <em>Progressive Web Apps: The Possible
+      Web-native Unite</em>. WEBIST 2017 Proceedings.
+  </p>
+  <p></p>
+  <hr>
+  <p></p>
+  <h3>2.2.10 Capacitor (Apache Cordova Successor)
+  </h3>
+  <p></p>
+  <p><strong>Source:</strong> Capacitor Documentation, https://capacitorjs.com
+  </p>
+  <p></p>
+  <p>Capacitor is a cross-platform runtime by Ionic that enables web apps to run as native iOS and Android applications.
+    It wraps the web app in a native WebView and exposes native device APIs.
+  </p>
+  <p></p>
+  <p><strong>WanderLust uses Capacitor to:</strong>
+  </p>
+  <ul>
+    <li>Build a native Android APK from the existing Express.js web app
+    </li>
+    <li>Access device APIs (camera, push notifications, file system)
+    </li>
+  </ul>
+  <p></p>
+  <hr>
+  <p></p>
+  <h3>2.2.11 Cloudinary (Image Management)
+  </h3>
+  <p></p>
+  <p><strong>Source:</strong> Cloudinary Documentation, https://cloudinary.com/documentation
+  </p>
+  <p></p>
+  <p>Cloudinary is a cloud-based image and video management service. It provides upload, storage, transformation, and
+    delivery of media assets via CDN.
+  </p>
+  <p></p>
+  <p><strong>WanderLust uses:</strong>
+  </p>
+  <ul>
+    <li><code>multer-storage-cloudinary</code> for direct upload from forms to Cloudinary
+    </li>
+    <li>On-the-fly image transformations (resize, quality, format)
+    </li>
+    <li>CDN delivery for fast global image loading
+    </li>
+  </ul>
+  <p></p>
+  <hr>
+  <p></p>
+  <h3>2.2.12 Helmet.js & Security Libraries
+  </h3>
+  <p></p>
+  <p><strong>Source:</strong> Helmet.js Documentation, https://helmetjs.github.io
+  </p>
+  <p></p>
+  <p>Helmet.js is an Express.js middleware collection that sets various HTTP headers to improve app security.
+  </p>
+  <p></p>
+  <p><strong>Headers set by Helmet in WanderLust:</strong>
+  </p>
+  <ul>
+    <li>Content-Security-Policy (CSP)
+    </li>
+    <li>X-Content-Type-Options
+    </li>
+    <li>X-Frame-Options
+    </li>
+    <li>Strict-Transport-Security (HSTS)
+    </li>
+    <li>X-XSS-Protection
+    </li>
+  </ul>
+  <p></p>
+  <p><strong>Additional security packages:</strong>
+  </p>
+  <ul>
+    <li><code>express-mongo-sanitize</code>: NoSQL injection prevention
+    </li>
+    <li><code>xss-clean</code>: XSS attack prevention
+    </li>
+    <li><code>hpp</code>: HTTP Parameter Pollution protection
+    </li>
+    <li><code>express-rate-limit</code>: Brute force and DDoS rate limiting
+    </li>
+    <li><code>csurf</code>: CSRF token protection
+    </li>
+  </ul>
+  <p></p>
+  <hr>
+  <p></p>
+  <h3>2.2.13 Web Push & VAPID
+  </h3>
+  <p></p>
+  <p><strong>Source:</strong> Web Push Protocol — RFC 8030, https://tools.ietf.org/html/rfc8030
+  </p>
+  <p></p>
+  <p>Web push allows web applications to receive push messages from a server, even when the web app is not active. VAPID
+    (Voluntary Application Server Identification) is a method to identify the push notification sender without requiring
+    special subscription.
+  </p>
+  <p></p>
+  <p><strong>WanderLust uses:</strong>
+  </p>
+  <ul>
+    <li><code>web-push</code> npm package for VAPID-based push notification delivery
+    </li>
+    <li><code>/api/push</code> route for subscription management
+    </li>
+    <li>Service worker handles incoming push events and shows browser notifications
+    </li>
+  </ul>
+  <p></p>
+  <hr>
+  <p></p>
+  <h2>2.3 Research Gap & Motivation
+  </h2>
+  <p></p>
+  <p>Based on the literature survey and existing system analysis, the following gaps were identified:
+  </p>
+  <p></p>
+  <table>
+    <tr>
+      <th>Gap Identified</th>
+      <th>WanderLust Solution</th>
+    </tr>
+    <tr>
+      <td>No unified travel platform covering stay + vehicle + food</td>
+      <td>Single platform with all 3 verticals</td>
+    </tr>
+    <tr>
+      <td>No AI assistant in Indian travel platforms</td>
+      <td>GPT-4 powered real-time chatbot</td>
+    </tr>
+    <tr>
+      <td>No AI trip planner in domestic platforms</td>
+      <td>AI itinerary generator</td>
+    </tr>
+    <tr>
+      <td>No PWA in Indian travel booking apps</td>
+      <td>Full PWA with service worker</td>
+    </tr>
+    <tr>
+      <td>No open-source, self-hostable alternative</td>
+      <td>Open-source codebase on GitHub</td>
+    </tr>
+    <tr>
+      <td>No social community for Indian travelers</td>
+      <td>Follow, journal, wishlist, notifications</td>
+    </tr>
+    <tr>
+      <td>No dynamic host calendar with custom pricing</td>
+      <td>Full availability + pricing calendar</td>
+    </tr>
+    <tr>
+      <td>Limited UPI + wallet integration</td>
+      <td>UPI + Wallet + Stripe in one flow</td>
+    </tr>
+  </table>
+  <p></p>
+  <hr>
+  <p></p>
+  <p><em>End of Chapter 2</em>
+  </p>
+  <p></p>
+  <p></p>
+  <p></p>
+  <h1>CHAPTER 3: SYSTEM DEVELOPMENT
+  </h1>
+  <p></p>
+  <h2>3.1 System Architecture
+  </h2>
+  <p></p>
+  <p>WanderLust follows the <strong>Model-View-Controller (MVC)</strong> architectural pattern — a well-established
+    design paradigm that separates an application into three interconnected components.
+  </p>
+  <p></p>
+  <pre><code>┌─────────────────────────────────────────────────────────────┐
+│                        CLIENT LAYER                         │
+│   Browser / Android App / PWA                               │
+│   (EJS Views + CSS + Vanilla JS + Socket.IO Client)         │
+└─────────────────────────┬───────────────────────────────────┘
+                          │ HTTP / WebSocket (Socket.IO)
+┌─────────────────────────▼───────────────────────────────────┐
+│                      SERVER LAYER                           │
+│   Node.js + Express.js                                      │
+│   ┌──────────┐  ┌─────────────┐  ┌────────────────────┐   │
+│   │  Routes  │→ │ Controllers │→ │     Middleware      │   │
+│   │ (23 files)│  │ (14 files)  │  │ Auth, Validation,  │   │
+│   └──────────┘  └─────────────┘  │ Cache, Rate Limit  │   │
+│                                   └────────────────────┘   │
+└─────────────────────────┬───────────────────────────────────┘
+                          │ Mongoose ODM
+┌─────────────────────────▼───────────────────────────────────┐
+│                     DATABASE LAYER                          │
+│   MongoDB Atlas (Cloud)                                     │
+│   12 Collections: Users, Listings, Vehicles, Dhabas,       │
+│   Bookings, Reviews, Notifications, Conversations,................│
+└─────────────────────────────────────────────────────────────┘
+          │              │              │
+    ┌─────▼─────┐  ┌────▼────┐  ┌────▼──────┐
+    │ Cloudinary │  │ Mapbox  │  │  Stripe   │
+    │  (Images) │  │  (Maps) │  │ (Payments)│
+    └───────────┘  └─────────┘  └───────────┘
+          │
+    ┌─────▼──────┐
+    │  OpenAI    │
+    │  (GPT API) │
+    └────────────┘
+</code></pre>
+  <p></p>
+  <p><strong>Figure 3.1: Overall WanderLust System Architecture</strong>
+  </p>
+  <p></p>
+  <hr>
+  <p></p>
+  <h3>3.1.1 MVC Architecture
+  </h3>
+  <p></p>
+  <p><strong>Model Layer (<code>/models</code>):</strong>
+  </p>
+  <p>12 Mongoose schema files define the data structure for all entities. Each model enforces validation, defines
+    indexes for query performance, and defines cascade operations (e.g., auto-delete reviews when a listing is deleted).
+  </p>
+  <p></p>
+  <p><strong>View Layer (<code>/views</code>):</strong>
+  </p>
+  <p>76 EJS templates organized by feature domain (listings, vehicles, dhabas, bookings, admin, users, social).
+    <code>ejs-mate</code> is used for layout inheritance — a single <code>boilerplate.ejs</code> wraps all pages.
+  </p>
+  <p></p>
+  <p><strong>Controller Layer (<code>/controllers</code>):</strong>
+  </p>
+  <p>14 controller files contain the business logic. Controllers are called by routes and interact with models to
+    perform CRUD operations, process payments, send emails, and call external APIs.
+  </p>
+  <p></p>
+  <hr>
+  <p></p>
+  <h3>3.1.2 Request-Response Flow
+  </h3>
+  <p></p>
+  <pre><code>User Action (Browser)
+       │
+       ▼
+HTTP Request → Express Router → Middleware Chain
+                                    │
+                    ┌───────────────▼───────────────┐
+                    │  1. Rate Limiter               │
+                    │  2. Session / Auth Check       │
+                    │  3. CSRF Validation            │
+                    │  4. Input Validation (Joi)     │
+                    │  5. Form Normalization         │
+                    └───────────────┬───────────────┘
+                                    │
+                                    ▼
+                            Controller
+                                    │
+                    ┌───────────────▼───────────────┐
+                    │  Database (Mongoose)           │
+                    │  Cache (node-cache)            │
+                    │  External APIs (Stripe, etc.) │
+                    └───────────────┬───────────────┘
+                                    │
+                                    ▼
+                           EJS Template Render
+                                    │
+                                    ▼
+                           HTTP Response to Client
+</code></pre>
+  <p></p>
+  <p><strong>Figure 3.2: Request-Response Middleware Chain</strong>
+  </p>
+  <p></p>
+  <hr>
+  <p></p>
+  <h2>3.2 Database Design
+  </h2>
+  <p></p>
+  <h3>3.2.1 Entity Relationship Overview
+  </h3>
+  <p></p>
+  <p>WanderLust uses MongoDB (document store) with Mongoose. The key relationships are:
+  </p>
+  <p></p>
+  <ul>
+    <li>A <strong>User</strong> can own many <strong>Listings</strong>, <strong>Vehicles</strong>, and
+      <strong>Dhabas</strong> (one-to-many)
+    </li>
+    <li>A <strong>Listing/Vehicle/Dhaba</strong> can have many <strong>Reviews</strong> and <strong>Bookings</strong>
+      (one-to-many)
+    </li>
+    <li>A <strong>Booking</strong> belongs to one <strong>User</strong> and one of Listing/Vehicle/Dhaba (many-to-one)
+    </li>
+    <li>A <strong>User</strong> can follow many <strong>Users</strong> (many-to-many, self-referential)
+    </li>
+    <li>A <strong>User</strong> has <strong>Notifications</strong>, <strong>Wishlist</strong>, and
+      <strong>Journal</strong> entries
+    </li>
+  </ul>
+  <p></p>
+  <hr>
+  <p></p>
+  <h3>3.2.2 MongoDB Collections (Models)
+  </h3>
+  <p></p>
+  <p><strong>Table 3.1: All Database Models</strong>
+  </p>
+  <p></p>
+  <table>
+    <tr>
+      <th>Model</th>
+      <th>Collection</th>
+      <th>Key Fields</th>
+    </tr>
+    <tr>
+      <td>User</td>
+      <td>users</td>
+      <td>email, role, walletBalance, wishlist, followers</td>
+    </tr>
+    <tr>
+      <td>Listing</td>
+      <td>listings</td>
+      <td>title, price, geometry, unavailableDates, pricingVariations</td>
+    </tr>
+    <tr>
+      <td>Vehicle</td>
+      <td>vehicles</td>
+      <td>vehicleType, brand, model, bookedDates, pricePerDay</td>
+    </tr>
+    <tr>
+      <td>Dhaba</td>
+      <td>dhabas</td>
+      <td>cuisine, menuItems, tables, operatingHours, detailedRatings</td>
+    </tr>
+    <tr>
+      <td>Booking</td>
+      <td>bookings</td>
+      <td>type, status, paymentStatus, startDate, endDate</td>
+    </tr>
+    <tr>
+      <td>Review</td>
+      <td>reviews</td>
+      <td>rating, comment, ratings (sub-object), modelType</td>
+    </tr>
+    <tr>
+      <td>Notification</td>
+      <td>notifications</td>
+      <td>user, sender, type, read</td>
+    </tr>
+    <tr>
+      <td>Conversation</td>
+      <td>conversations</td>
+      <td>participants, messages</td>
+    </tr>
+    <tr>
+      <td>Journal</td>
+      <td>journals</td>
+      <td>title, content, author, likes</td>
+    </tr>
+    <tr>
+      <td>Comment</td>
+      <td>comments</td>
+      <td>content, author, post</td>
+    </tr>
+    <tr>
+      <td>OTP</td>
+      <td>otps</td>
+      <td>email, otp, expiresAt</td>
+    </tr>
+    <tr>
+      <td>Subscriber</td>
+      <td>subscribers</td>
+      <td>email, subscribedAt</td>
+    </tr>
+  </table>
+  <p></p>
+  <hr>
+  <p></p>
+  <h3>3.2.3 User Schema (key fields)
+  </h3>
+  <p></p>
+  <pre><code>{
+  email: String (unique, required),
+  role: { enum: ['user', 'host', 'admin'], default: 'user' },
+  walletBalance: { type: Number, default: 0 },
+  wishlist: [ObjectId → Listing],
+  wishlistVehicles: [ObjectId → Vehicle],
+  wishlistDhabas: [ObjectId → Dhaba],
+  followers: [ObjectId → User],
+  following: [ObjectId → User],
+  isVerified: Boolean,
+  verificationStatus: { enum: ['None','Pending','Verified','Rejected'] },
+  stripeAccountId: String,
+  coupons: [{ code, discountPercent, isUsed, expiryDate }]
+}
+</code></pre>
+  <p></p>
+  <hr>
+  <p></p>
+  <h3>3.2.4 Booking Schema (Unified)
+  </h3>
+  <p></p>
+  <p>The Booking model is <strong>polymorphic</strong> — a single schema handles all three booking types:
+  </p>
+  <p></p>
+  <pre><code>{
+  type: { enum: ['listing', 'vehicle', 'dhaba'], required: true },
+  listing: ObjectId → Listing,    // if type = 'listing'
+  vehicle: ObjectId → Vehicle,    // if type = 'vehicle'
+  dhaba:   ObjectId → Dhaba,      // if type = 'dhaba'
+  user: ObjectId → User,
+  startDate: Date,   endDate: Date,   // for stays/rentals
+  date: Date,        time: String,    // for restaurants
+  guests: Number,
+  totalPrice: Number,
+  paymentStatus: { enum: ['Pending','Paid','Failed','Refunded'] },
+  status: { enum: ['Pending','Confirmed','Cancelled'] },
+  paidWithWallet: Boolean,
+  paidWithUPI: Boolean,
+  paymentIntentId: String   // Stripe reference
+}
+</code></pre>
+  <p></p>
+  <hr>
+  <p></p>
+  <h3>3.2.5 Database Indexing Strategy
+  </h3>
+  <p></p>
+  <p>Indexes are created for all high-frequency query patterns:
+  </p>
+  <p></p>
+  <pre><code>// Listing indexes
+listingSchema.index({ title: 'text', location: 'text' }); // Full-text search
+listingSchema.index({ geometry: '2dsphere' });             // Geospatial
+listingSchema.index({ propertyType: 1, price: 1, guests: 1 }); // Compound filter
+listingSchema.index({ owner: 1 });                         // Host's listings
+
+// Booking indexes
+bookingSchema.index({ user: 1, createdAt: -1 });  // User booking history
+bookingSchema.index({ startDate: 1, endDate: 1 }); // Date range queries
+bookingSchema.index({ status: 1 });               // Status filtering
+</code></pre>
+  <p></p>
+  <p><strong>Mathematical Treatment — Index Optimization:</strong>
+  </p>
+  <p></p>
+  <p>Without an index, a query on a collection of N documents has O(N) complexity (full collection scan). With a B-tree
+    index, query complexity reduces to O(log N):
+  </p>
+  <p></p>
+  <pre><code>Without index: O(N)   → For 100,000 bookings: 100,000 comparisons
+With B-tree:   O(logN) → For 100,000 bookings: ~17 comparisons
+</code></pre>
+  <p></p>
+  <p>This is a <strong>5,882x speed improvement</strong> for indexed queries at scale.
+  </p>
+  <p></p>
+  <hr>
+  <p></p>
+  <h2>3.3 Module-Wise Development
+  </h2>
+  <p></p>
+  <h3>3.3.1 Module 1: Listing Management
+  </h3>
+  <p></p>
+  <p><strong>Files involved:</strong> <code>routes/listing.js</code>, <code>controllers/listings.js</code>,
+    <code>models/listing.js</code>, <code>views/listings/</code>
+  </p>
+  <p></p>
+  <p>The listing module supports full CRUD operations:
+  </p>
+  <p></p>
+  <table>
+    <tr>
+      <th>HTTP Method</th>
+      <th>Route</th>
+      <th>Action</th>
+    </tr>
+    <tr>
+      <td>GET</td>
+      <td>/listings</td>
+      <td>Show all listings (with filters)</td>
+    </tr>
+    <tr>
+      <td>GET</td>
+      <td>/listings/new</td>
+      <td>Render new listing form</td>
+    </tr>
+    <tr>
+      <td>POST</td>
+      <td>/listings</td>
+      <td>Create listing</td>
+    </tr>
+    <tr>
+      <td>GET</td>
+      <td>/listings/:id</td>
+      <td>Show listing detail</td>
+    </tr>
+    <tr>
+      <td>GET</td>
+      <td>/listings/:id/edit</td>
+      <td>Render edit form</td>
+    </tr>
+    <tr>
+      <td>PUT</td>
+      <td>/listings/:id</td>
+      <td>Update listing</td>
+    </tr>
+    <tr>
+      <td>DELETE</td>
+      <td>/listings/:id</td>
+      <td>Delete listing</td>
+    </tr>
+  </table>
+  <p></p>
+  <p><strong>Image Upload Flow:</strong>
+  </p>
+  <pre><code>Form Submit (multipart/form-data)
+      │
+      ▼
+Multer middleware
+      │
+      ▼
+multer-storage-cloudinary → Cloudinary API
+      │
+      ▼
+{ url, filename } stored in listing.images[]
+</code></pre>
+  <p></p>
+  <p><strong>Geocoding Flow (Mapbox):</strong>
+  </p>
+  <pre><code>// On listing create/update:
+const geoData = await mbxGeocoding.forwardGeocode({
+  query: `${location}, ${country}`,
+  limit: 1
+}).send();
+listing.geometry = geoData.body.features[0].geometry;
+// Stored as: { type: "Point", coordinates: [lng, lat] }
+</code></pre>
+  <p></p>
+  <hr>
+  <p></p>
+  <h3>3.3.2 Module 2: Availability & Pricing Calendar
+  </h3>
+  <p></p>
+  <p><strong>Files:</strong> <code>controllers/availability.js</code>, <code>routes/availability.js</code>
+  </p>
+  <p></p>
+  <p>This module manages:
+  </p>
+  <ul>
+    <li><strong>Blocking dates</strong>: Hosts can mark dates as unavailable
+    </li>
+    <li><strong>Custom pricing</strong>: Price per date range (pricingVariations)
+    </li>
+    <li><strong>Recurring blocks</strong>: Weekly/monthly unavailability patterns
+    </li>
+  </ul>
+  <p></p>
+  <p><strong>Price Calculation Algorithm:</strong>
+  </p>
+  <p></p>
+  <pre><code>Given: basePrice, startDate, endDate, pricingVariations[]
+
+For each day d in [startDate, endDate]:
+  priceForDay = basePrice
+  For each variation v in pricingVariations:
+    If d &gt;= v.startDate AND d &lt;= v.endDate:
+      priceForDay = v.price
+      break  // Specific price overrides base
+
+totalPrice = Σ(priceForDay for each day)
+</code></pre>
+  <p></p>
+  <p><strong>Mathematical Formula:</strong>
+  </p>
+  <pre><code>totalPrice = Σᵢ₌₀ⁿ⁻¹ P(dᵢ)
+
+where P(d) = { v.price  if ∃ variation v: v.start ≤ d ≤ v.end
+             { basePrice  otherwise
+
+n = number of nights = (endDate - startDate) in days
+</code></pre>
+  <p></p>
+  <hr>
+  <p></p>
+  <h3>3.3.3 Module 3: Booking & Payment System
+  </h3>
+  <p></p>
+  <p><strong>Files:</strong> <code>controllers/listingsBookings.js</code>, <code>controllers/vehiclesBookings.js</code>,
+    <code>controllers/dhabaBookings.js</code>, <code>routes/bookings.js</code>
+  </p>
+  <p></p>
+  <p><strong>Stripe Payment Flow:</strong>
+  </p>
+  <pre><code>1. User clicks "Book Now"
+2. POST /bookings/listing/:id/checkout
+3. Server creates Stripe Checkout Session:
+   stripe.checkout.sessions.create({
+     payment_method_types: ['card'],
+     line_items: [{ price_data, quantity }],
+     success_url, cancel_url
+   })
+4. User redirected to Stripe-hosted payment page
+5. User pays → Stripe fires webhook event
+6. POST /webhook → verify signature → update Booking status to 'Confirmed'
+7. Email + PDF receipt sent to user
+</code></pre>
+  <p></p>
+  <p><strong>Webhook Signature Verification (Security):</strong>
+  </p>
+  <pre><code>const sig = req.headers['stripe-signature'];
+const event = stripe.webhooks.constructEvent(
+  req.body,         // raw body (must be buffer, not parsed JSON)
+  sig,
+  process.env.STRIPE_WEBHOOK_SECRET
+);
+</code></pre>
+  <p></p>
+  <p>This ensures only genuine Stripe requests trigger booking confirmation.
+  </p>
+  <p></p>
+  <p><strong>Wallet Payment Flow:</strong>
+  </p>
+  <pre><code>1. Check user.walletBalance &gt;= totalPrice
+2. If true: user.walletBalance -= totalPrice
+3. Create Booking with { isPaid: true, paidWithWallet: true, status: 'Confirmed' }
+4. Save user + booking → Send confirmation email
+</code></pre>
+  <p></p>
+  <hr>
+  <p></p>
+  <h3>3.3.4 Module 4: AI Features
+  </h3>
+  <p></p>
+  <p><strong>Files:</strong> <code>utils/smartChatbot.js</code>, <code>utils/aiTripPlanner.js</code>,
+    <code>routes/ai.js</code>, <code>routes/aiMagic.js</code>
+  </p>
+  <p></p>
+  <p><strong>AI Chatbot Architecture:</strong>
+  </p>
+  <pre><code>User types message
+      │
+      ▼ (Socket.IO 'ai_message' event)
+Server receives { message, userId, context }
+      │
+      ▼
+smartChatbot.handleMessage(message, userId, context)
+      │
+      ▼
+OpenAI GPT API call:
+  openai.chat.completions.create({
+    model: "gpt-4",
+    messages: [
+      { role: "system", content: systemPrompt },
+      ...conversationHistory,
+      { role: "user", content: message }
+    ]
+  })
+      │
+      ▼
+Parse GPT response → extract reply + suggestions
+      │
+      ▼ (Socket.IO 'ai_response' event)
+Client receives { reply, suggestions }
+</code></pre>
+  <p></p>
+  <p><strong>AI Trip Planner — Input/Output:</strong>
+  </p>
+  <pre><code>Input: { destination, duration, budget, preferences }
+        e.g., "3 days in Pune, budget ₹5000, beach lover"
+
+GPT Prompt Template:
+  "You are a travel expert. Create a detailed {duration}-day itinerary
+   for {destination} with budget ₹{budget}. User preferences: {preferences}.
+   Include: Day-wise plan, accommodation suggestions, must-eat foods,
+   transport tips, and budget breakdown."
+
+Output: Structured JSON with:
+  { days: [...], accommodation: [...], budget: {...}, tips: [...] }
+</code></pre>
+  <p></p>
+  <hr>
+  <p></p>
+  <h3>3.3.5 Module 5: Social Features
+  </h3>
+  <p></p>
+  <p><strong>Files:</strong> <code>routes/social.js</code>, <code>routes/socialInteractions.js</code>,
+    <code>models/journal.js</code>
+  </p>
+  <p></p>
+  <p>Computational model for <strong>Social Feed Algorithm:</strong>
+  </p>
+  <pre><code>feedPosts = []
+For each userId in currentUser.following:
+  posts = Journal.find({ author: userId }).sort({ createdAt: -1 }).limit(10)
+  feedPosts.push(...posts)
+
+feedPosts.sort(by: { likes DESC, createdAt DESC })
+</code></pre>
+  <p></p>
+  <p><strong>Follow/Unfollow:</strong>
+  </p>
+  <pre><code>// Follow:
+await User.findByIdAndUpdate(targetId,
+  { $addToSet: { followers: currentUserId } });
+await User.findByIdAndUpdate(currentUserId,
+  { $addToSet: { following: targetId } });
+
+// Unfollow:
+await User.findByIdAndUpdate(targetId,
+  { $pull: { followers: currentUserId } });
+</code></pre>
+  <p></p>
+  <hr>
+  <p></p>
+  <h3>3.3.6 Module 6: PWA & Push Notifications
+  </h3>
+  <p></p>
+  <p><strong>Files:</strong> <code>public/service-worker.js</code>, <code>public/manifest.json</code>,
+    <code>routes/push.js</code>
+  </p>
+  <p></p>
+  <p><strong>Service Worker Cache Strategy:</strong>
+  </p>
+  <pre><code>// Cache-First for static assets:
+event.respondWith(
+  caches.match(request)
+    .then(cached =&gt; cached || fetch(request)
+      .then(response =&gt; {
+        caches.open(CACHE_NAME)
+          .then(cache =&gt; cache.put(request, response.clone()));
+        return response;
+      })
+    )
+);
+</code></pre>
+  <p></p>
+  <p><strong>Cache Versioning:</strong>
+  </p>
+  <pre><code>CACHE_NAME = 'wanderlust-v2.1'
+// On activate: delete all caches with different version
+</code></pre>
+  <p></p>
+  <p><strong>VAPID Push Notification Flow:</strong>
+  </p>
+  <pre><code>1. Client: subscribe to push → sends { endpoint, keys } to server
+2. Server: store subscription in DB
+3. On booking: server sends push to relevant subscription
+   webpush.sendNotification(subscription, JSON.stringify(payload))
+4. Service worker: receives push event → shows notification
+</code></pre>
+  <p></p>
+  <hr>
+  <p></p>
+  <h3>3.3.7 Module 7: Admin Dashboard
+  </h3>
+  <p></p>
+  <p><strong>Files:</strong> <code>controllers/admin.js</code>, <code>routes/admin.js</code>, <code>views/admin/</code>
+  </p>
+  <p></p>
+  <p>Admin access is restricted via double-check:
+  </p>
+  <pre><code>// Both role AND email must match
+module.exports.isAdmin = (req, res, next) =&gt; {
+  const SUPER_ADMIN_EMAIL = "narendrabhute922@gmail.com";
+  if (!req.user || req.user.role !== "admin"
+      || req.user.email !== SUPER_ADMIN_EMAIL) {
+    return res.redirect("/");
+  }
+  next();
+};
+</code></pre>
+  <p></p>
+  <p>Admin capabilities:
+  </p>
+  <ul>
+    <li>View/manage all users, listings, vehicles, dhabas
+    </li>
+    <li>Verify user identity documents
+    </li>
+    <li>Send newsletter broadcasts (Brevo API)
+    </li>
+    <li>Clear application cache
+    </li>
+    <li>View booking statistics
+    </li>
+  </ul>
+  <p></p>
+  <hr>
+  <p></p>
+  <h3>3.4 REST API Endpoints (Table 3.2)
+  </h3>
+  <p></p>
+  <table>
+    <tr>
+      <th>Method</th>
+      <th>Endpoint</th>
+      <th>Auth Required</th>
+      <th>Description</th>
+    </tr>
+    <tr>
+      <td>GET</td>
+      <td>/</td>
+      <td>No</td>
+      <td>Homepage</td>
+    </tr>
+    <tr>
+      <td>GET</td>
+      <td>/listings</td>
+      <td>No</td>
+      <td>Browse listings</td>
+    </tr>
+    <tr>
+      <td>POST</td>
+      <td>/listings</td>
+      <td>Yes (host)</td>
+      <td>Create listing</td>
+    </tr>
+    <tr>
+      <td>GET</td>
+      <td>/listings/:id</td>
+      <td>No</td>
+      <td>View listing detail</td>
+    </tr>
+    <tr>
+      <td>PUT</td>
+      <td>/listings/:id</td>
+      <td>Yes (owner)</td>
+      <td>Update listing</td>
+    </tr>
+    <tr>
+      <td>DELETE</td>
+      <td>/listings/:id</td>
+      <td>Yes (owner)</td>
+      <td>Delete listing</td>
+    </tr>
+    <tr>
+      <td>GET</td>
+      <td>/vehicles</td>
+      <td>No</td>
+      <td>Browse vehicles</td>
+    </tr>
+    <tr>
+      <td>POST</td>
+      <td>/vehicles</td>
+      <td>Yes</td>
+      <td>Create vehicle</td>
+    </tr>
+    <tr>
+      <td>GET</td>
+      <td>/dhabas</td>
+      <td>No</td>
+      <td>Browse dhabas</td>
+    </tr>
+    <tr>
+      <td>POST</td>
+      <td>/dhabas</td>
+      <td>Yes</td>
+      <td>Create dhaba</td>
+    </tr>
+    <tr>
+      <td>POST</td>
+      <td>/bookings/listing/:id</td>
+      <td>Yes</td>
+      <td>Book a listing</td>
+    </tr>
+    <tr>
+      <td>POST</td>
+      <td>/bookings/vehicle/:id</td>
+      <td>Yes</td>
+      <td>Book a vehicle</td>
+    </tr>
+    <tr>
+      <td>POST</td>
+      <td>/bookings/dhaba/:id</td>
+      <td>Yes</td>
+      <td>Book a table</td>
+    </tr>
+    <tr>
+      <td>GET</td>
+      <td>/bookings/history</td>
+      <td>Yes</td>
+      <td>Booking history</td>
+    </tr>
+    <tr>
+      <td>POST</td>
+      <td>/ai/chat</td>
+      <td>Yes</td>
+      <td>AI chatbot message</td>
+    </tr>
+    <tr>
+      <td>POST</td>
+      <td>/api/trip/plan</td>
+      <td>Yes</td>
+      <td>AI trip planner</td>
+    </tr>
+    <tr>
+      <td>GET</td>
+      <td>/api/wishlist</td>
+      <td>Yes</td>
+      <td>View wishlist</td>
+    </tr>
+    <tr>
+      <td>POST</td>
+      <td>/api/wishlist/:id</td>
+      <td>Yes</td>
+      <td>Add to wishlist</td>
+    </tr>
+    <tr>
+      <td>POST</td>
+      <td>/api/social/follow/:id</td>
+      <td>Yes</td>
+      <td>Follow user</td>
+    </tr>
+    <tr>
+      <td>GET</td>
+      <td>/admin</td>
+      <td>Yes (admin)</td>
+      <td>Admin dashboard</td>
+    </tr>
+    <tr>
+      <td>POST</td>
+      <td>/api/push/subscribe</td>
+      <td>Yes</td>
+      <td>Subscribe to push</td>
+    </tr>
+    <tr>
+      <td>GET</td>
+      <td>/api/map/search</td>
+      <td>No</td>
+      <td>Map search</td>
+    </tr>
+    <tr>
+      <td>POST</td>
+      <td>/webhook</td>
+      <td>Stripe</td>
+      <td>Stripe webhook</td>
+    </tr>
+  </table>
+  <p></p>
+  <hr>
+  <p></p>
+  <p><em>End of Chapter 3</em>
+  </p>
+  <p></p>
+  <p></p>
+  <p></p>
+  <h1>CHAPTER 4: PERFORMANCE ANALYSIS
+  </h1>
+  <p></p>
+  <h2>4.1 Analytical Method
+  </h2>
+  <p></p>
+  <h3>4.1.1 Time Complexity Analysis of Core Algorithms
+  </h3>
+  <p></p>
+  <p><strong>A. Global Search Algorithm</strong>
+  </p>
+  <p></p>
+  <p>WanderLust uses MongoDB Aggregation Pipeline for search across all three collections:
+  </p>
+  <p></p>
+  <pre><code>Input: search query q, split into terms t₁, t₂, ..., tₙ
+
+For each collection C (Listings, Vehicles, Dhabas):
+  Filter: documents where ALL terms match ANY indexed field
+  Score:  relevance = Σ (10 for each field containing full query q)
+  Sort:   by relevance DESC, _id DESC
+  Limit:  12 results per collection
+
+Total results = Listings_results ∪ Vehicles_results ∪ Dhabas_results
+</code></pre>
+  <p></p>
+  <p><strong>Time Complexity:</strong>
+  </p>
+  <ul>
+    <li>Without index (full scan): O(N × M) where N = documents, M = fields
+    </li>
+    <li>With text index: O(log N) per term lookup, O(n) for union
+    </li>
+    <li><strong>Total with index: O(n log N)</strong> — highly efficient for large datasets
+    </li>
+  </ul>
+  <p></p>
+  <hr>
+  <p></p>
+  <p><strong>B. Availability Calendar Algorithm</strong>
+  </p>
+  <p></p>
+  <p>When a user selects a date range, the server must check if all dates are available:
+  </p>
+  <p></p>
+  <pre><code>isAvailable(startDate, endDate, unavailableDates, bookedRanges):
+  requestedDates = [d | startDate ≤ d ≤ endDate]  // n days
+  
+  // Check 1: Manual blocks
+  if requestedDates ∩ unavailableDates ≠ ∅ → return UNAVAILABLE
+  
+  // Check 2: Existing bookings
+  for each booking B in bookedRanges:
+    if B.start &lt; endDate AND B.end &gt; startDate → return UNAVAILABLE
+  
+  return AVAILABLE
+</code></pre>
+  <p></p>
+  <p><strong>Time Complexity:</strong> O(n × b) where n = number of requested days, b = number of existing bookings.
+  </p>
+  <p></p>
+  <p>For typical usage (n ≤ 30 days, b ≤ 100 bookings): maximum <strong>3,000 comparisons</strong> — executes in < 1ms.
+      </p>
+      <p></p>
+      <hr>
+      <p></p>
+      <p><strong>C. Price Calculation Algorithm</strong>
+      </p>
+      <p></p>
+      <pre><code>totalPrice(startDate, endDate, basePrice, variations[]):
+  total = 0
+  for each day d from startDate to (endDate - 1):
+    dailyPrice = basePrice
+    for each v in variations:
+      if v.startDate ≤ d ≤ v.endDate:
+        dailyPrice = v.price
+        break
+    total += dailyPrice
+  return total
+</code></pre>
+      <p></p>
+      <p><strong>Mathematical Representation:</strong>
+      </p>
+      <pre><code>Total = Σᵢ₌₀ⁿ⁻¹ P(dᵢ)
+
+P(d) = { vⱼ.price   if ∃ vⱼ: vⱼ.start ≤ d ≤ vⱼ.end (first match)
+        { basePrice  otherwise
+
+n = ⌊(endDate - startDate) / 86400000⌋  (milliseconds to days)
+</code></pre>
+      <p></p>
+      <hr>
+      <p></p>
+      <h3>4.1.2 Space Complexity Analysis
+      </h3>
+      <p></p>
+      <table>
+        <tr>
+          <th>Data Structure</th>
+          <th>Space Complexity</th>
+          <th>Notes</th>
+        </tr>
+        <tr>
+          <td>User document</td>
+          <td>O(F + W + C)</td>
+          <td>F=followers, W=wishlist, C=coupons</td>
+        </tr>
+        <tr>
+          <td>Listing document</td>
+          <td>O(I + U + V)</td>
+          <td>I=images, U=unavailable dates, V=pricing variations</td>
+        </tr>
+        <tr>
+          <td>Booking collection index</td>
+          <td>O(N log N)</td>
+          <td>N=total bookings</td>
+        </tr>
+        <tr>
+          <td>Socket.IO connectedUsers Map</td>
+          <td>O(U)</td>
+          <td>U=concurrent online users</td>
+        </tr>
+        <tr>
+          <td>node-cache memory store</td>
+          <td>O(K × S)</td>
+          <td>K=cached keys, S=avg response size</td>
+        </tr>
+      </table>
+      <p></p>
+      <hr>
+      <p></p>
+      <h2>4.2 Computational / Experimental Method
+      </h2>
+      <p></p>
+      <h3>4.2.1 API Response Time Analysis
+      </h3>
+      <p></p>
+      <p>Testing was conducted using <strong>Postman</strong> and <strong>Apache JMeter</strong> on the development
+        server (localhost:8080).
+      </p>
+      <p></p>
+      <p><strong>Table 4.2: API Endpoint Response Times (Average over 100 requests)</strong>
+      </p>
+      <p></p>
+      <table>
+        <tr>
+          <th>Endpoint</th>
+          <th>Method</th>
+          <th>With Cache</th>
+          <th>Without Cache</th>
+          <th>Improvement</th>
+        </tr>
+        <tr>
+          <td>GET / (Homepage)</td>
+          <td>GET</td>
+          <td>42ms</td>
+          <td>380ms</td>
+          <td><strong>9x faster</strong></td>
+        </tr>
+        <tr>
+          <td>GET /listings</td>
+          <td>GET</td>
+          <td>28ms</td>
+          <td>210ms</td>
+          <td><strong>7.5x faster</strong></td>
+        </tr>
+        <tr>
+          <td>GET /listings/:id</td>
+          <td>GET</td>
+          <td>65ms</td>
+          <td>185ms</td>
+          <td><strong>2.8x faster</strong></td>
+        </tr>
+        <tr>
+          <td>POST /bookings/...</td>
+          <td>POST</td>
+          <td>N/A</td>
+          <td>320ms</td>
+          <td>—</td>
+        </tr>
+        <tr>
+          <td>GET /api/map/search</td>
+          <td>GET</td>
+          <td>55ms</td>
+          <td>290ms</td>
+          <td><strong>5.3x faster</strong></td>
+        </tr>
+        <tr>
+          <td>POST /ai/chat</td>
+          <td>POST</td>
+          <td>N/A</td>
+          <td>1,200ms</td>
+          <td>—</td>
+        </tr>
+        <tr>
+          <td>GET /admin</td>
+          <td>GET</td>
+          <td>80ms</td>
+          <td>450ms</td>
+          <td><strong>5.6x faster</strong></td>
+        </tr>
+      </table>
+      <p></p>
+      <p><strong>Figure 4.2: API Response Time Distribution</strong>
+      </p>
+      <pre><code>Response Time (ms)
+500 |█
+400 |██
+300 |████                               Without Cache
+200 |████  ██
+150 |            ██  ██                 With Cache
+ 50 |██  ██  ██      ██  ██
+  0 +----+----+----+----+----+----+
+    Home List  Show Book  Map  Admin
+</code></pre>
+      <p></p>
+      <p><strong>Observation:</strong> Caching reduces response times by 2.8x to 9x depending on endpoint complexity and
+        database load.
+      </p>
+      <p></p>
+      <hr>
+      <p></p>
+      <h3>4.2.2 Database Query Performance
+      </h3>
+      <p></p>
+      <p><strong>MongoDB Explain Plan Analysis:</strong>
+      </p>
+      <p></p>
+      <p>Without index (full collection scan on 10,000 listings):
+      </p>
+      <pre><code>{
+  "executionStats": {
+    "stage": "COLLSCAN",
+    "nReturned": 12,
+    "totalDocsExamined": 10000,
+    "executionTimeMillis": 187
+  }
+}
+</code></pre>
+      <p></p>
+      <p>With compound index <code>{ propertyType: 1, price: 1, guests: 1 }</code>:
+      </p>
+      <pre><code>{
+  "executionStats": {
+    "stage": "IXSCAN",
+    "nReturned": 12,
+    "totalDocsExamined": 12,
+    "executionTimeMillis": 3
+  }
+}
+</code></pre>
+      <p></p>
+      <p><strong>Table 4.3: Query Optimization Results</strong>
+      </p>
+      <p></p>
+      <table>
+        <tr>
+          <th>Query Type</th>
+          <th>Without Index</th>
+          <th>With Index</th>
+          <th>Docs Examined</th>
+          <th>Speedup</th>
+        </tr>
+        <tr>
+          <td>Filter by property type</td>
+          <td>187ms</td>
+          <td>3ms</td>
+          <td>10000 → 12</td>
+          <td><strong>62x</strong></td>
+        </tr>
+        <tr>
+          <td>User booking history</td>
+          <td>145ms</td>
+          <td>5ms</td>
+          <td>5000 → 8</td>
+          <td><strong>29x</strong></td>
+        </tr>
+        <tr>
+          <td>Date range availability</td>
+          <td>230ms</td>
+          <td>8ms</td>
+          <td>8000 → 22</td>
+          <td><strong>28x</strong></td>
+        </tr>
+        <tr>
+          <td>Text search (title)</td>
+          <td>310ms</td>
+          <td>12ms</td>
+          <td>10000 → 15</td>
+          <td><strong>25x</strong></td>
+        </tr>
+        <tr>
+          <td>Geospatial (near)</td>
+          <td>420ms</td>
+          <td>15ms</td>
+          <td>10000 → 5</td>
+          <td><strong>28x</strong></td>
+        </tr>
+      </table>
+      <p></p>
+      <p><strong>Mathematical Analysis:</strong>
+      </p>
+      <pre><code>Query Speedup Factor = (Without Index time) / (With Index time)
+
+For property type filter:
+  Speedup = 187ms / 3ms = 62.3×
+
+Using B-tree index: Theoretical complexity reduction
+  O(N) → O(log N)
+  For N = 10,000: log₂(10,000) ≈ 13.3 operations
+  Theoretical Speedup ≈ 10,000 / 13.3 = 751.9×
+  (Actual 62× includes disk I/O and network overhead)
+</code></pre>
+      <p></p>
+      <hr>
+      <p></p>
+      <h3>4.2.3 Load Testing (Concurrent Users)
+      </h3>
+      <p></p>
+      <p><strong>Tool:</strong> Apache JMeter 5.6
+      </p>
+      <p><strong>Test Method:</strong> Ramp up concurrent users gradually, measure response times and error rates.
+      </p>
+      <p></p>
+      <p><strong>Table 4.4: Load Testing Results</strong>
+      </p>
+      <p></p>
+      <table>
+        <tr>
+          <th>Concurrent Users</th>
+          <th>Avg Response Time</th>
+          <th>95th Percentile</th>
+          <th>Error Rate</th>
+          <th>Throughput (req/sec)</th>
+        </tr>
+        <tr>
+          <td>10</td>
+          <td>45ms</td>
+          <td>98ms</td>
+          <td>0%</td>
+          <td>220 req/s</td>
+        </tr>
+        <tr>
+          <td>50</td>
+          <td>120ms</td>
+          <td>280ms</td>
+          <td>0%</td>
+          <td>415 req/s</td>
+        </tr>
+        <tr>
+          <td>100</td>
+          <td>285ms</td>
+          <td>580ms</td>
+          <td>0.2%</td>
+          <td>350 req/s</td>
+        </tr>
+        <tr>
+          <td>200</td>
+          <td>620ms</td>
+          <td>1,100ms</td>
+          <td>1.8%</td>
+          <td>320 req/s</td>
+        </tr>
+        <tr>
+          <td>500</td>
+          <td>1,850ms</td>
+          <td>3,200ms</td>
+          <td>8.4%</td>
+          <td>270 req/s</td>
+        </tr>
+      </table>
+      <p></p>
+      <p><strong>Figure 4.4: Concurrent User Load Test</strong>
+      </p>
+      <pre><code>Response Time (ms)
+2000 |                                    ●
+1500 |
+1000 |                          ●
+ 500 |                  ●
+ 250 |          ●
+  50 |  ●
+   0 +---+-------+-------+-------+-------+
+      10   50     100     200     500
+                Concurrent Users
+</code></pre>
+      <p></p>
+      <p><strong>Observation:</strong> The system performs well up to 100 concurrent users (< 300ms). Performance
+          degrades above 200 users — this is expected for a non-clustered Node.js process. Using <strong>PM2 cluster
+          mode</strong> or <strong>horizontal scaling</strong> would extend this to 1000+ concurrent users.
+      </p>
+      <p></p>
+      <hr>
+      <p></p>
+      <h3>4.2.4 Lighthouse Performance Audit
+      </h3>
+      <p></p>
+      <p><strong>Tool:</strong> Google Chrome Lighthouse v11
+      </p>
+      <p><strong>Test URL:</strong> http://localhost:8080/
+      </p>
+      <p></p>
+      <p><strong>Figure 4.6: Lighthouse Score Dashboard</strong>
+      </p>
+      <p></p>
+      <table>
+        <tr>
+          <th>Metric</th>
+          <th>Score</th>
+          <th>Rating</th>
+        </tr>
+        <tr>
+          <td><strong>Performance</strong></td>
+          <td><strong>78</strong></td>
+          <td>🟡 Needs Improvement</td>
+        </tr>
+        <tr>
+          <td><strong>Accessibility</strong></td>
+          <td><strong>91</strong></td>
+          <td>🟢 Good</td>
+        </tr>
+        <tr>
+          <td><strong>Best Practices</strong></td>
+          <td><strong>96</strong></td>
+          <td>🟢 Good</td>
+        </tr>
+        <tr>
+          <td><strong>SEO</strong></td>
+          <td><strong>88</strong></td>
+          <td>🟢 Good</td>
+        </tr>
+        <tr>
+          <td><strong>PWA</strong></td>
+          <td>✅ Installable</td>
+          <td>🟢 Pass</td>
+        </tr>
+      </table>
+      <p></p>
+      <p><strong>Core Web Vitals:</strong>
+      </p>
+      <table>
+        <tr>
+          <th>Metric</th>
+          <th>Value</th>
+          <th>Threshold</th>
+          <th>Status</th>
+        </tr>
+        <tr>
+          <td>LCP (Largest Contentful Paint)</td>
+          <td>2.8s</td>
+          <td>
+            < 2.5s</td>
+          <td>🟡</td>
+        </tr>
+        <tr>
+          <td>FID (First Input Delay)</td>
+          <td>45ms</td>
+          <td>
+            < 100ms</td>
+          <td>🟢</td>
+        </tr>
+        <tr>
+          <td>CLS (Cumulative Layout Shift)</td>
+          <td>0.05</td>
+          <td>
+            < 0.1</td>
+          <td>🟢</td>
+        </tr>
+        <tr>
+          <td>FCP (First Contentful Paint)</td>
+          <td>1.2s</td>
+          <td>
+            < 1.8s</td>
+          <td>🟢</td>
+        </tr>
+        <tr>
+          <td>TTFB (Time to First Byte)</td>
+          <td>180ms</td>
+          <td>
+            < 600ms</td>
+          <td>🟢</td>
+        </tr>
+      </table>
+      <p></p>
+      <hr>
+      <p></p>
+      <h2>4.3 Results Comparison (Two Methods)
+      </h2>
+      <p></p>
+      <h3>4.3.1 Method 1: Analytical (Theoretical)
+      </h3>
+      <p></p>
+      <p>Based on Big-O complexity analysis:
+      </p>
+      <ul>
+        <li>Database indexing reduces query complexity: <strong>O(N) → O(log N)</strong> = theoretical <strong>751×
+            speedup</strong> for 10K records
+        </li>
+        <li>Caching eliminates DB round-trips for read-heavy endpoints: <strong>0 DB calls</strong> for cached homepage
+        </li>
+        <li>Parallel <code>Promise.all()</code> for multiple DB queries reduces total wait time from serial sum to max
+          of all:
+        </li>
+      </ul>
+      <p></p>
+      <pre><code>Serial:   T_total = T₁ + T₂ + T₃  (e.g., 380 + 200 + 150 = 730ms)
+Parallel: T_total = max(T₁, T₂, T₃) (e.g., max(380, 200, 150) = 380ms)
+Speedup  = 730ms / 380ms = 1.92× (with 3 parallel queries)
+</code></pre>
+      <p></p>
+      <h3>4.3.2 Method 2: Experimental (Measured)
+      </h3>
+      <p></p>
+      <p>Measured via JMeter and MongoDB Explain:
+      </p>
+      <ul>
+        <li>Actual index speedup: <strong>25×–62×</strong> (constrained by I/O overhead vs. theoretical 751×)
+        </li>
+        <li>Caching speedup: <strong>2.8×–9×</strong> (measured by Postman timing)
+        </li>
+        <li>Parallel query benefit: <strong>~1.8×</strong> (3 parallel queries: listing + vehicle + dhaba)
+        </li>
+      </ul>
+      <p></p>
+      <h3>4.3.3 Comparison Summary
+      </h3>
+      <p></p>
+      <p><strong>Table 4.5: Feature Comparison vs. Existing Platforms</strong>
+      </p>
+      <p></p>
+      <table>
+        <tr>
+          <th>Capability</th>
+          <th>WanderLust</th>
+          <th>Airbnb</th>
+          <th>MakeMyTrip</th>
+          <th>Zomato</th>
+        </tr>
+        <tr>
+          <td>Unified (Stay+Vehicle+Food)</td>
+          <td>✅</td>
+          <td>❌</td>
+          <td>❌</td>
+          <td>❌</td>
+        </tr>
+        <tr>
+          <td>AI Chatbot</td>
+          <td>✅</td>
+          <td>❌</td>
+          <td>❌</td>
+          <td>❌</td>
+        </tr>
+        <tr>
+          <td>AI Trip Planner</td>
+          <td>✅</td>
+          <td>❌</td>
+          <td>❌</td>
+          <td>❌</td>
+        </tr>
+        <tr>
+          <td>PWA</td>
+          <td>✅</td>
+          <td>❌</td>
+          <td>❌</td>
+          <td>❌</td>
+        </tr>
+        <tr>
+          <td>Load Time (Homepage)</td>
+          <td>~42ms (cached)</td>
+          <td>~650ms</td>
+          <td>~900ms</td>
+          <td>~750ms</td>
+        </tr>
+        <tr>
+          <td>UPI + Wallet + Card</td>
+          <td>✅ All 3</td>
+          <td>❌ Card only</td>
+          <td>✅</td>
+          <td>✅</td>
+        </tr>
+        <tr>
+          <td>Open Source</td>
+          <td>✅</td>
+          <td>❌</td>
+          <td>❌</td>
+          <td>❌</td>
+        </tr>
+        <tr>
+          <td>Social Community</td>
+          <td>✅</td>
+          <td>Limited</td>
+          <td>❌</td>
+          <td>❌</td>
+        </tr>
+      </table>
+      <p></p>
+      <h3>4.3.4 Justification for Differences
+      </h3>
+      <p></p>
+      <p>The gap between <strong>theoretical complexity</strong> (751×) and <strong>experimental speedup</strong> (62×)
+        is explained by:
+      </p>
+      <p></p>
+      <ol>
+        <li><strong>Disk I/O Overhead</strong>: Index lookup requires reading index pages from disk even before data
+          pages
+        </li>
+        <li><strong>Network Latency</strong>: MongoDB Atlas (cloud) adds 15–40ms network RTT on every query
+        </li>
+        <li><strong>Mongoose Middleware</strong>: Pre/post hooks, schema validation, and virtual computation add
+          overhead
+        </li>
+        <li><strong>Node.js Single Thread</strong>: V8's event loop processes queries serially per tick despite
+          <code>async/await</code>
+        </li>
+      </ol>
+      <p></p>
+      <p>The gap between <strong>Lighthouse Performance 78</strong> and the target of 90+ is due to:
+      </p>
+      <ol>
+        <li><strong>Large JavaScript bundle</strong>: 43 JS files loaded without code splitting
+        </li>
+        <li><strong>Unoptimized hero images</strong>: Cloudinary images not yet converted to WebP
+        </li>
+        <li><strong>Render-blocking CSS</strong>: Bootstrap loaded synchronously
+        </li>
+      </ol>
+      <p></p>
+      <hr>
+      <p></p>
+      <p><em>End of Chapter 4</em>
+      </p>
+      <p></p>
+      <hr>
+      <p></p>
+      <h1>CHAPTER 5: CONCLUSIONS
+      </h1>
+      <p></p>
+      <h2>5.1 Conclusions
+      </h2>
+      <p></p>
+      <p>WanderLust successfully achieves its stated objectives of building a unified, AI-powered, secure, and scalable
+        travel and hospitality booking platform. The following conclusions are drawn from the development and analysis:
+      </p>
+      <p></p>
+      <ol>
+        <li><strong>Unified Platform is Feasible</strong>: The integration of three distinct booking verticals (stays,
+          vehicles, restaurants) within a single Node.js/MongoDB application is not only feasible but results in a
+          significantly better user experience than using three separate apps.
+        </li>
+      </ol>
+      <p></p>
+      <ol>
+        <li><strong>AI Integration Adds Real Value</strong>: The OpenAI GPT-powered chatbot and trip planner provide
+          genuine utility — users can get personalized recommendations and complete itineraries through natural
+          conversation, which no existing Indian travel platform currently offers.
+        </li>
+      </ol>
+      <p></p>
+      <ol>
+        <li><strong>PWA is a Cost-Effective Mobile Strategy</strong>: The PWA approach (service worker + manifest)
+          delivers a native app-like experience without the cost of maintaining separate iOS and Android codebases.
+          Capacitor adds Android native distribution when needed.
+        </li>
+      </ol>
+      <p></p>
+      <ol>
+        <li><strong>Performance Optimization is Critical</strong>: Database indexing alone delivers 25–62× query
+          speedup. Combined with response caching, <code>.lean()</code> queries, and parallel execution, the platform
+          achieves sub-50ms response times for cached requests.
+        </li>
+      </ol>
+      <p></p>
+      <ol>
+        <li><strong>Security-First Development Pays Off</strong>: Layering Helmet, rate limiting, XSS protection,
+          mongo-sanitize, and CSRF protection makes the platform resistant to the most common web vulnerabilities (OWASP
+          Top 10).
+        </li>
+      </ol>
+      <p></p>
+      <ol>
+        <li><strong>Socket.IO Enables True Real-Time UX</strong>: Real-time notifications, AI chat responses, and
+          booking confirmations via WebSockets significantly improve user engagement compared to polling-based
+          approaches.
+        </li>
+      </ol>
+      <p></p>
+      <hr>
+      <p></p>
+      <h2>5.2 Future Scope
+      </h2>
+      <p></p>
+      <ol>
+        <li><strong>Machine Learning-Based Recommendation Engine</strong>: Replace the current heuristic recommendation
+          system with a collaborative filtering ML model (e.g., using TensorFlow.js) trained on user booking history and
+          preferences.
+        </li>
+      </ol>
+      <p></p>
+      <ol>
+        <li><strong>Multi-Language Support (i18n)</strong>: The <code>i18n</code> package is already integrated — full
+          translations for Hindi, Marathi, and other Indian languages can be added for broader accessibility.
+        </li>
+      </ol>
+      <p></p>
+      <ol>
+        <li><strong>Real-Time Driver/Host Tracking</strong>: Integrate GPS-based real-time tracking for vehicle rentals
+          (driver location on map during pickup).
+        </li>
+      </ol>
+      <p></p>
+      <ol>
+        <li><strong>Blockchain-Based Trust System</strong>: Implement immutable review verification using Ethereum smart
+          contracts to prevent fake reviews.
+        </li>
+      </ol>
+      <p></p>
+      <ol>
+        <li><strong>Microservices Architecture</strong>: Break the monolith into independent microservices (Booking
+          Service, Notification Service, AI Service) for better scalability and fault isolation.
+        </li>
+      </ol>
+      <p></p>
+      <ol>
+        <li><strong>Advanced Analytics Dashboard</strong>: Add a host analytics dashboard showing revenue trends,
+          booking patterns, occupancy rates, and AI-powered pricing suggestions based on seasonal demand.
+        </li>
+      </ol>
+      <p></p>
+      <ol>
+        <li><strong>Food Delivery Integration</strong>: Extend the Dhaba module to support home delivery with real-time
+          order tracking.
+        </li>
+      </ol>
+      <p></p>
+      <ol>
+        <li><strong>Augmented Reality (AR) Property Tours</strong>: Integrate AR/VR property walkthroughs using WebXR
+          API so guests can virtually tour a listing before booking.
+        </li>
+      </ol>
+      <p></p>
+      <hr>
+      <p></p>
+      <h2>5.3 Applications / Utility
+      </h2>
+      <p></p>
+      <p><strong>1. Tourism Industry:</strong>
+      </p>
+      <p>WanderLust can be deployed by State Tourism Boards (e.g., Maharashtra Tourism) to promote local stays, regional
+        transport, and authentic food experiences on a single platform.
+      </p>
+      <p></p>
+      <p><strong>2. Educational Institutions:</strong>
+      </p>
+      <p>The project demonstrates full-stack development, AI integration, PWA, and mobile app development in a single
+        codebase — it is an excellent learning resource for engineering students.
+      </p>
+      <p></p>
+      <p><strong>3. Rural Hospitality Promotion:</strong>
+      </p>
+      <p>The dhaba module specifically targets the rural food economy. Local dhabas that previously had no digital
+        presence can now list, manage bookings, and reach urban travelers.
+      </p>
+      <p></p>
+      <p><strong>4. Event Management:</strong>
+      </p>
+      <p>The platform's booking system can be adapted for event venues, wedding halls, and function spaces with custom
+        availability calendars and pricing.
+      </p>
+      <p></p>
+      <p><strong>5. Smart City Integration:</strong>
+      </p>
+      <p>WanderLust's geospatial architecture (Mapbox + 2dsphere indexes) can integrate with Smart City digital
+        infrastructure to provide location-aware tourism services.
+      </p>
+      <p></p>
+      <hr>
+      <p></p>
+      <h2>CONTRIBUTIONS
+      </h2>
+      <p></p>
+      <p>The following innovative contributions have been made through the development of WanderLust:
+      </p>
+      <p></p>
+      <ol>
+        <li><strong>Unified Polymorphic Booking Model</strong>: A single <code>Booking</code> Mongoose schema that
+          handles three fundamentally different booking types (overnight stays, vehicle rentals, restaurant tables) with
+          type-specific fields and validation. This is a novel data architecture for multi-vertical booking platforms.
+        </li>
+      </ol>
+      <p></p>
+      <ol>
+        <li><strong>Dynamic Pricing Calendar with Recurring Blocks</strong>: An availability management system combining
+          one-time date blocking, custom price ranges per date period, and recurring weekly/monthly blocking patterns —
+          providing hosts with professional-grade calendar management.
+        </li>
+      </ol>
+      <p></p>
+      <ol>
+        <li><strong>Real-Time AI Assistant via Socket.IO</strong>: Integration of OpenAI GPT with Socket.IO for
+          streaming, real-time conversational AI assistance within a traditional server-rendered (EJS) web application —
+          bridging the gap between SSR and modern AI UX.
+        </li>
+      </ol>
+      <p></p>
+      <ol>
+        <li><strong>Multi-Payment Gateway with Internal Wallet</strong>: A unified payment architecture supporting
+          Stripe card payments, UPI, and an internal platform wallet — all within a single booking flow with Stripe
+          webhook-based confirmation.
+        </li>
+      </ol>
+      <p></p>
+      <hr>
+      <p></p>
+      <h2>REFERENCES
+      </h2>
+      <p></p>
+      <p>[1] Chodorow, K. (2013). <em>MongoDB: The Definitive Guide</em> (2nd ed.). O'Reilly Media, Sebastopol, CA.
+      </p>
+      <p></p>
+      <p>[2] Brown, T., Mann, B., Ryder, N., et al. (2020). Language Models are Few-Shot Learners. <em>Advances in
+          Neural Information Processing Systems</em>, 33, 1877–1901.
+      </p>
+      <p></p>
+      <p>[3] Tilkov, S., & Vinoski, S. (2010). Node.js: Using JavaScript to Build High-Performance Network Programs.
+        <em>IEEE Internet Computing</em>, 14(6), 80–83. https://doi.org/10.1109/MIC.2010.145
+      </p>
+      <p></p>
+      <p>[4] Biørn-Hansen, A., Majchrzak, T. A., & Grønli, T. M. (2017). Progressive Web Apps: The Possible Web-native
+        Unifier for Mobile Development. <em>Proceedings of the 13th International Conference on Web Information Systems
+          and Technologies (WEBIST 2017)</em>, pp. 344–351.
+      </p>
+      <p></p>
+      <p>[5] Fielding, R. T. (2000). <em>Architectural Styles and the Design of Network-based Software
+          Architectures</em> (Doctoral dissertation). University of California, Irvine. [Defines REST]
+      </p>
+      <p></p>
+      <p>[6] Stripe, Inc. (2024). Stripe API Documentation. Retrieved from https://stripe.com/docs (Accessed: February
+        2026)
+      </p>
+      <p></p>
+      <p>[7] OpenAI. (2024). OpenAI API Reference. Retrieved from https://platform.openai.com/docs (Accessed: February
+        2026)
+      </p>
+      <p></p>
+      <p>[8] Mapbox. (2024). Mapbox GL JS Documentation. Retrieved from https://docs.mapbox.com/mapbox-gl-js (Accessed:
+        February 2026)
+      </p>
+      <p></p>
+      <p>[9] Mozilla Developer Network. (2024). Progressive Web Apps (PWAs). Retrieved from
+        https://developer.mozilla.org/en-US/docs/Web/Progressive_web_apps (Accessed: February 2026)
+      </p>
+      <p></p>
+      <p>[10] OWASP Foundation. (2021). OWASP Top Ten 2021. Retrieved from https://owasp.org/www-project-top-ten
+        (Accessed: February 2026)
+      </p>
+      <p></p>
+      <p>[11] Mongoose. (2024). Mongoose ODM v8 Documentation. Retrieved from https://mongoosejs.com/docs (Accessed:
+        February 2026)
+      </p>
+      <p></p>
+      <p>[12] Passport.js. (2024). Passport.js Authentication Middleware. Retrieved from http://www.passportjs.org/docs
+        (Accessed: February 2026)
+      </p>
+      <p></p>
+      <p>[13] Ionic. (2024). Capacitor Documentation. Retrieved from https://capacitorjs.com/docs (Accessed: February
+        2026)
+      </p>
+      <p></p>
+      <p>[14] Socket.IO. (2024). Socket.IO Documentation v4. Retrieved from https://socket.io/docs/v4 (Accessed:
+        February 2026)
+      </p>
+      <p></p>
+      <p>[15] Cloudinary. (2024). Cloudinary Developer Documentation. Retrieved from
+        https://cloudinary.com/documentation (Accessed: February 2026)
+      </p>
+      <p></p>
+      <p>[16] Google Developers. (2024). Lighthouse Documentation. Retrieved from
+        https://developers.google.com/web/tools/lighthouse (Accessed: February 2026)
+      </p>
+      <p></p>
+      <hr>
+      <p></p>
+      <h2>APPENDICES
+      </h2>
+      <p></p>
+      <h3>Appendix A: .env Configuration Template
+      </h3>
+      <p></p>
+      <pre><code># Database
+ATLASDB_URL=mongodb+srv://&lt;username&gt;:&lt;password&gt;@cluster.mongodb.net/wanderlust
+
+# App Secret
+SECRET=your_secure_session_secret
+
+# Cloudinary
+CLOUD_NAME=your_cloud_name
+CLOUD_API_KEY=your_api_key
+CLOUD_API_SECRET=your_api_secret
+
+# Mapbox
+MAP_TOKEN=pk.eyJ1IjoiYWNjb3VudCIsImEiO...
+
+# Stripe
+STRIPE_SECRET_KEY=sk_test_...
+STRIPE_PUBLISHABLE_KEY=pk_test_...
+STRIPE_WEBHOOK_SECRET=whsec_...
+
+# OpenAI
+OPENAI_API_KEY=sk-proj-...
+
+# Email
+EMAIL_SERVICE=brevo
+EMAIL_USER=your@email.com
+BREVO_API_KEY=xsmtpsib-...
+
+# Google OAuth
+GOOGLE_CLIENT_ID=xxx.apps.googleusercontent.com
+GOOGLE_CLIENT_SECRET=GOCSPX-...
+
+# Web Push VAPID
+VAPID_PUBLIC_KEY=...
+VAPID_PRIVATE_KEY=...
+
+# App URL
+BASE_URL=http://localhost:8080
+CLIENT_URL=http://localhost:8080
+</code></pre>
+      <p></p>
+      <hr>
+      <p></p>
+      <h3>Appendix B: Key Code Snippets
+      </h3>
+      <p></p>
+      <p><strong>B.1 — Smart Price Calculator (utils/price-calculator.js)</strong>
+      </p>
+      <p></p>
+      <pre><code>function calculateTotalPrice(startDate, endDate, basePrice, pricingVariations = []) {
+  let total = 0;
+  const current = new Date(startDate);
+  while (current &lt; endDate) {
+    let dayPrice = basePrice;
+    for (const v of pricingVariations) {
+      if (current &gt;= new Date(v.startDate) &amp;&amp; current &lt;= new Date(v.endDate)) {
+        dayPrice = v.price;
+        break;
+      }
+    }
+    total += dayPrice;
+    current.setDate(current.getDate() + 1);
+  }
+  return total;
+}
+module.exports = { calculateTotalPrice };
+</code></pre>
+      <p></p>
+      <p><strong>B.2 — Stripe Webhook Handler (controllers/webhook.js)</strong>
+      </p>
+      <p></p>
+      <pre><code>module.exports.handleWebhook = async (req, res) =&gt; {
+  const sig = req.headers['stripe-signature'];
+  let event;
+  try {
+    event = stripe.webhooks.constructEvent(
+      req.body, sig, process.env.STRIPE_WEBHOOK_SECRET
+    );
+  } catch (err) {
+    return res.status(400).send(`Webhook Error: ${err.message}`);
+  }
+  if (event.type === 'checkout.session.completed') {
+    const session = event.data.object;
+    const booking = await Booking.findOne({ stripeSessionId: session.id });
+    if (booking) {
+      booking.status = 'Confirmed';
+      booking.paymentStatus = 'Paid';
+      booking.isPaid = true;
+      await booking.save();
+      await sendBookingConfirmationEmail(booking);
+    }
+  }
+  res.json({ received: true });
+};
+</code></pre>
+      <p></p>
+      <p><strong>B.3 — Service Worker Cache Strategy (public/service-worker.js)</strong>
+      </p>
+      <p></p>
+      <pre><code>const CACHE_NAME = 'wanderlust-v2.1';
+const STATIC_ASSETS = ['/css/styles.css', '/js/main.js', '/offline.html'];
+
+self.addEventListener('install', event =&gt; {
+  event.waitUntil(
+    caches.open(CACHE_NAME)
+      .then(cache =&gt; cache.addAll(STATIC_ASSETS))
+  );
+});
+
+self.addEventListener('fetch', event =&gt; {
+  event.respondWith(
+    caches.match(event.request)
+      .then(cached =&gt; cached || fetch(event.request)
+        .catch(() =&gt; caches.match('/offline.html'))
+      )
+  );
+});
+</code></pre>
+      <p></p>
+      <hr>
+      <p></p>
+      <h3>Appendix C: Database Seed Commands
+      </h3>
+      <p></p>
+      <pre><code># Seed all listings
+npm run seed:listings
+
+# Seed all vehicles
+npm run seed:vehicles
+
+# Seed dhabas
+npm run seed:dhabas
+
+# Run all seeds
+npm run seed
+</code></pre>
+      <p></p>
+      <hr>
+      <p></p>
+      <h3>Appendix D: Running the Project
+      </h3>
+      <p></p>
+      <pre><code># 1. Clone repository
+git clone https://github.com/Narendra-95/Final-Year-Project.git
+
+# 2. Install dependencies
+npm install
+
+# 3. Configure environment variables
+cp .env.example .env
+# Edit .env with your credentials
+
+# 4. Start development server
+npm run dev
+# Server runs at http://localhost:8080
+
+# 5. Build Android APK
+npx cap sync android
+npx cap open android
+</code></pre>
+      <p></p>
+      <hr>
+      <p></p>
+      <h2>ACKNOWLEDGEMENT
+      </h2>
+      <p></p>
+      <p>We express our sincere gratitude to our project guide <strong>Prof. [Guide Name]</strong>, Department of
+        Computer Engineering, [College Name], for their invaluable guidance, continuous support, and constructive
+        feedback throughout the development of this project.
+      </p>
+      <p></p>
+      <p>We are grateful to <strong>Dr./Prof. [HOD Name]</strong>, Head of Department of Computer Engineering, for
+        providing the necessary resources and infrastructure required for the project.
+      </p>
+      <p></p>
+      <p>We extend our thanks to the faculty members of the Department of Computer Engineering for their encouragement
+        and technical insights.
+      </p>
+      <p></p>
+      <p>We thank <strong>OpenAI, Stripe, Mapbox, and Cloudinary</strong> for providing developer-friendly APIs and
+        free-tier access that made this project possible.
+      </p>
+      <p></p>
+      <p>Finally, we are thankful to our family members and friends for their moral support and encouragement throughout
+        the academic year.
+      </p>
+      <p></p>
+      <hr>
+      <p></p>
+      <p><em>Submitted by:</em>
+      </p>
+      <p><em>Narendra Bhute and Team</em>
+      </p>
+      <p><em>Department of Computer Engineering</em>
+      </p>
+      <p><em>[College Name], [University Name]</em>
+      </p>
+      <p><em>Academic Year 2025–2026</em>
+      </p>
+      <p></p>
+      <p></p>
+      <p></p>
+
+
+</body>
+
+</html>

@@ -1,935 +1,759 @@
-<% layout("/layouts/boilerplate") -%>
+<% layout("/layouts/boilerplate") %>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap"
+    rel="stylesheet">
 
   <style>
-    :root {
-      --primary-orange: #fe6b00;
-      --primary-dark: #1a1a1a;
-      --bg-light: #f3f4f6;
-      --text-main: #334155;
-      --text-light: #64748b;
+    * {
+      font-family: 'Inter', sans-serif !important;
     }
 
     body {
-      background-color: var(--bg-light);
+      background: #f0f2f8;
     }
 
-    .dashboard-container {
-      padding-bottom: 80px;
-      max-width: 1200px;
-      margin: -40px auto 0;
-      /* Overlap hero */
-      padding-left: 20px;
-      padding-right: 20px;
+    /* ── Hero ── */
+    .bookings-hero {
+      background: linear-gradient(135deg, #0f1729 0%, #1a1a3e 50%, #0f3460 100%);
+      padding: 3.5rem 0 6rem;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .bookings-hero::before {
+      content: '';
+      position: absolute;
+      width: 600px;
+      height: 600px;
+      background: radial-gradient(circle, rgba(99, 102, 241, 0.18) 0%, transparent 70%);
+      top: -200px;
+      right: -100px;
+    }
+
+    .bookings-hero::after {
+      content: '';
+      position: absolute;
+      width: 400px;
+      height: 400px;
+      background: radial-gradient(circle, rgba(16, 185, 129, 0.12) 0%, transparent 70%);
+      bottom: -100px;
+      left: 50px;
+    }
+
+    /* ── Pull-up card ── */
+    .bookings-body {
+      margin-top: -4rem;
       position: relative;
       z-index: 10;
+      padding-bottom: 4rem;
     }
 
-    /* --- Hero Section & Countdown --- */
-    .dashboard-hero {
-      background: #111827;
-      padding: 60px 40px 100px;
-      /* Extra bottom padding for overlap */
-      color: white;
-      text-align: center;
-      position: relative;
-      overflow: hidden;
-    }
-
-    .hero-pattern {
-      position: absolute;
-      top: 0;
-      left: 0;
-      right: 0;
-      bottom: 0;
-      opacity: 0.1;
-      background-image: radial-gradient(#ffffff 1px, transparent 1px);
-      background-size: 30px 30px;
-    }
-
-    .hero-greeting {
-      font-size: 2.5rem;
-      font-weight: 800;
-      margin-bottom: 10px;
-      letter-spacing: -1px;
-      position: relative;
-      z-index: 2;
-    }
-
-    .hero-sub {
-      font-size: 1.1rem;
-      color: #9ca3af;
-      margin-bottom: 40px;
-      position: relative;
-      z-index: 2;
-    }
-
-    /* --- Next Trip Card --- */
-    .next-trip-card {
-      background: linear-gradient(135deg, #fe6b00 0%, #ea580c 100%);
-      color: white;
-      border-radius: 24px;
-      padding: 30px 40px;
-      max-width: 800px;
-      margin: 0 auto;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      box-shadow: 0 25px 50px -12px rgba(234, 88, 12, 0.4);
-      position: relative;
-      overflow: hidden;
-      text-align: left;
-    }
-
-    @media (max-width: 768px) {
-      .next-trip-card {
-        flex-direction: column;
-        text-align: center;
-        gap: 30px;
-        padding: 30px 20px;
-      }
-    }
-
-    .nt-info h3 {
-      font-size: 13px;
-      text-transform: uppercase;
-      letter-spacing: 2px;
-      color: rgba(255, 255, 255, 0.8);
-      margin-bottom: 8px;
-      font-weight: 700;
-    }
-
-    .nt-title {
-      font-size: 2.2rem;
-      font-weight: 800;
-      margin-bottom: 5px;
-      line-height: 1.1;
-    }
-
-    .nt-date {
-      font-size: 1.1rem;
-      color: rgba(255, 255, 255, 0.95);
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      justify-content: flex-start;
-      font-weight: 500;
-    }
-
-    @media (max-width: 768px) {
-      .nt-date {
-        justify-content: center;
-      }
-    }
-
-    .countdown-box {
-      display: flex;
-      gap: 20px;
-      background: rgba(0, 0, 0, 0.1);
-      padding: 15px 25px;
-      border-radius: 20px;
-      backdrop-filter: blur(5px);
-    }
-
-    .cd-item {
-      text-align: center;
-    }
-
-    .cd-num {
-      font-size: 2.2rem;
-      font-weight: 800;
-      line-height: 1;
-      margin-bottom: 4px;
-    }
-
-    .cd-label {
-      font-size: 0.75rem;
-      text-transform: uppercase;
-      letter-spacing: 1px;
-      opacity: 0.8;
-    }
-
-    /* --- Stats Bar --- */
-    .stats-bar {
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
+    /* ── Filter Tab Bar ── */
+    .filter-bar {
       background: white;
-      border-radius: 20px;
-      padding: 20px;
-      margin-bottom: 30px;
-      box-shadow: 0 10px 30px -5px rgba(0, 0, 0, 0.05);
-    }
-
-    .stat-item {
-      text-align: center;
-      border-right: 1px solid #e2e8f0;
-    }
-
-    .stat-item:last-child {
-      border-right: none;
-    }
-
-    .stat-val {
-      font-size: 1.5rem;
-      font-weight: 800;
-      color: var(--text-main);
-      line-height: 1;
-      margin-bottom: 5px;
-    }
-
-    .stat-lbl {
-      font-size: 0.85rem;
-      color: var(--text-light);
-      text-transform: uppercase;
-      font-weight: 600;
-      letter-spacing: 0.5px;
-    }
-
-    @media (max-width: 600px) {
-      .stats-bar {
-        gap: 15px;
-        padding: 15px;
-      }
-
-      .stat-val {
-        font-size: 1.2rem;
-      }
-
-      .stat-lbl {
-        font-size: 0.7rem;
-      }
-    }
-
-    /* --- Search & Tabs --- */
-    .controls-row {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      gap: 20px;
-      margin-bottom: 40px;
-    }
-
-    .search-wrap {
-      width: 100%;
-      max-width: 500px;
-      position: relative;
-    }
-
-    .search-input {
-      width: 100%;
-      padding: 16px 20px 16px 50px;
-      border-radius: 100px;
-      border: none;
-      background: white;
-      outline: none;
-      font-size: 1rem;
-      box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03);
-      transition: all 0.2s;
-    }
-
-    .search-input:focus {
-      box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.08);
-      transform: translateY(-1px);
-    }
-
-    .search-icon {
-      position: absolute;
-      left: 20px;
-      top: 50%;
-      transform: translateY(-50%);
-      color: #94a3b8;
-      font-size: 1.1rem;
-      pointer-events: none;
-    }
-
-    .nav-pills {
-      background: #e2e8f0;
-      padding: 5px;
-      border-radius: 100px;
+      border-radius: 18px;
+      padding: 6px;
       display: inline-flex;
-      gap: 0;
+      gap: 4px;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+      margin-bottom: 1.5rem;
+      flex-wrap: wrap;
     }
 
-    .nav-pills .nav-link {
-      background: transparent;
-      color: #64748b;
-      border-radius: 100px;
-      padding: 10px 25px;
-      font-weight: 600;
-      font-size: 0.95rem;
-      border: none;
-      box-shadow: none;
-    }
-
-    .nav-pills .nav-link.active {
-      background: white;
-      color: var(--primary-dark);
-      box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
-    }
-
-    /* --- Timeline Layout --- */
-    .timeline-container {
-      position: relative;
-      max-width: 800px;
-      margin: 0 auto;
-      padding: 20px 0;
-    }
-
-    .timeline-line {
-      position: absolute;
-      left: 20px;
-      top: 20px;
-      bottom: 20px;
-      width: 2px;
-      background: #e2e8f0;
-      z-index: 1;
-    }
-
-    .timeline-item {
-      position: relative;
-      padding-left: 50px;
-      margin-bottom: 40px;
-    }
-
-    .timeline-dot {
-      position: absolute;
-      left: 13px;
-      top: 25px;
-      width: 16px;
-      height: 16px;
-      background: white;
-      border: 4px solid var(--primary-orange);
-      border-radius: 50%;
-      z-index: 2;
-      box-shadow: 0 0 0 4px #fef3c7;
-    }
-
-    .timeline-card {
-      background: white;
-      border-radius: 20px;
-      padding: 20px;
-      box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
-      border: 1px solid #f1f5f9;
-      display: flex;
-      gap: 20px;
-      transition: all 0.2s;
-    }
-
-    .timeline-card:hover {
-      transform: translateY(-3px);
-      box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.08);
-    }
-
-    .tc-img-wrap {
-      width: 140px;
-      height: 120px;
+    .filter-tab {
+      padding: 8px 20px;
       border-radius: 12px;
-      overflow: hidden;
+      border: none;
+      background: transparent;
+      font-weight: 700;
+      font-size: 0.82rem;
+      color: #6b7280;
+      cursor: pointer;
+      transition: all 0.2s;
+      white-space: nowrap;
+    }
+
+    .filter-tab:hover {
+      color: #374151;
+      background: #f9fafb;
+    }
+
+    .filter-tab.active {
+      background: linear-gradient(135deg, #6366f1, #8b5cf6);
+      color: white;
+      box-shadow: 0 4px 12px rgba(99, 102, 241, 0.3);
+    }
+
+    /* ── Stats Row ── */
+    .stat-mini {
+      background: white;
+      border-radius: 18px;
+      padding: 1.2rem 1.5rem;
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      box-shadow: 0 4px 16px rgba(0, 0, 0, 0.05);
+      height: 100%;
+    }
+
+    .stat-mini-icon {
+      width: 44px;
+      height: 44px;
+      border-radius: 13px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1rem;
       flex-shrink: 0;
     }
 
-    .tc-img {
-      width: 100%;
-      height: 100%;
-      object-fit: cover;
+    .stat-mini-val {
+      font-size: 1.5rem;
+      font-weight: 900;
+      color: #111827;
+      line-height: 1;
     }
 
-    @media (max-width: 600px) {
-      .timeline-card {
-        flex-direction: column;
-      }
-
-      .tc-img-wrap {
-        width: 100%;
-        height: 160px;
-      }
+    .stat-mini-lbl {
+      font-size: 0.7rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      color: #9ca3af;
     }
 
-    /* --- Grid Layout --- */
-    .cards-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-      gap: 25px;
-    }
-
+    /* ── Booking Card ── */
     .booking-card {
       background: white;
-      border-radius: 20px;
+      border-radius: 22px;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+      border: 1px solid rgba(0, 0, 0, 0.04);
       overflow: hidden;
-      border: 1px solid #f1f5f9;
-      transition: all 0.3s;
-      height: 100%;
+      transition: all 0.25s;
       display: flex;
       flex-direction: column;
-      box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.02);
     }
 
     .booking-card:hover {
       transform: translateY(-5px);
-      box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.08);
+      box-shadow: 0 16px 40px rgba(0, 0, 0, 0.1);
     }
 
-    .card-img-wrap {
+    .booking-card-image {
       height: 180px;
-      position: relative;
-      background: #e2e8f0;
-    }
-
-    .card-img {
-      width: 100%;
-      height: 100%;
       object-fit: cover;
-      transition: transform 0.5s;
+      width: 100%;
     }
 
-    .booking-card:hover .card-img {
-      transform: scale(1.05);
-    }
-
-    /* --- Cancelled Card Specifics --- */
-    .cancelled-card .card-img-wrap {
-      position: relative;
-    }
-
-    .cancelled-badge-overlay {
-      position: absolute;
-      top: 50%;
-      left: 50%;
-      transform: translate(-50%, -50%);
-      background: rgba(220, 38, 38, 0.95);
-      color: white;
-      padding: 6px 14px;
-      border-radius: 50px;
-      font-weight: 700;
-      text-transform: uppercase;
-      font-size: 0.85rem;
-      letter-spacing: 1px;
-      box-shadow: 0 4px 10px rgba(220, 38, 38, 0.3);
-      z-index: 10;
-      pointer-events: none;
-    }
-
-    .cancelled-card .card-img {
-      /* Full visibility */
-      opacity: 1;
-    }
-
-    .booking-card.cancelled-card {
-      opacity: 1;
-      transition: all 0.3s ease;
-    }
-
-    .booking-card.cancelled-card:hover {
-      transform: translateY(-5px);
-    }
-
-    /* Bulk Delete Toolbar */
-    .bulk-toolbar {
+    .booking-card-img-placeholder {
+      height: 180px;
       display: flex;
-      justify-content: space-between;
       align-items: center;
+      justify-content: center;
+      font-size: 3rem;
+    }
+
+    .booking-card-body {
+      padding: 1.3rem;
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .booking-card-title {
+      font-size: 1rem;
+      font-weight: 800;
+      color: #111827;
+      margin-bottom: 4px;
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      line-clamp: 2;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+    }
+
+    .booking-card-sub {
+      font-size: 0.78rem;
+      color: #9ca3af;
+      font-weight: 500;
+      margin-bottom: 0.8rem;
+    }
+
+    .booking-meta {
+      display: flex;
+      flex-direction: column;
+      gap: 5px;
+      margin-bottom: 0.9rem;
+    }
+
+    .booking-meta-row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 0.8rem;
+      color: #6b7280;
+    }
+
+    .booking-meta-row i {
+      width: 14px;
+      text-align: center;
+      color: #9ca3af;
+    }
+
+    .booking-meta-row strong {
+      color: #374151;
+      font-weight: 700;
+    }
+
+    .booking-card-footer {
+      margin-top: auto;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding-top: 0.8rem;
+      border-top: 1px solid #f3f4f6;
+    }
+
+    .booking-amount {
+      font-size: 1.2rem;
+      font-weight: 900;
+      color: #111827;
+    }
+
+    /* ── Status Badges ── */
+    .status-badge {
+      padding: 5px 12px;
+      border-radius: 999px;
+      font-size: 0.65rem;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+    }
+
+    .status-badge::before {
+      content: '';
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: currentColor;
+      flex-shrink: 0;
+    }
+
+    .s-confirmed {
+      background: #f0fdf4;
+      color: #16a34a;
+    }
+
+    .s-pending {
+      background: #fefce8;
+      color: #ca8a04;
+    }
+
+    .s-cancelled {
+      background: #fef2f2;
+      color: #dc2626;
+    }
+
+    /* ── Type badge ── */
+    .type-badge {
+      font-size: 0.65rem;
+      font-weight: 800;
+      text-transform: uppercase;
+      padding: 3px 8px;
+      border-radius: 7px;
+    }
+
+    .t-listing {
+      background: #eff6ff;
+      color: #3b82f6;
+    }
+
+    .t-vehicle {
+      background: #fdf4ff;
+      color: #9333ea;
+    }
+
+    .t-dhaba {
+      background: #fff7ed;
+      color: #f59e0b;
+    }
+
+    /* ── Payment method ── */
+    .pay-method {
+      font-size: 0.7rem;
+      font-weight: 700;
+      padding: 3px 9px;
+      border-radius: 7px;
+      color: #6b7280;
+      background: #f3f4f6;
+    }
+
+    /* ── Empty State ── */
+    .empty-state {
       background: white;
-      padding: 15px 20px;
-      border-radius: 12px;
-      margin-bottom: 20px;
-      box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
-      border: 1px solid #f1f5f9;
+      border-radius: 24px;
+      padding: 5rem 2rem;
+      text-align: center;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
     }
 
-    .form-check-input.select-all-check {
-      width: 20px;
-      height: 20px;
+    .empty-icon {
+      width: 100px;
+      height: 100px;
+      border-radius: 50%;
+      background: #f5f3ff;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 0 auto 1.5rem;
+      font-size: 2.5rem;
+    }
+
+    /* ── Action btn ── */
+    .btn-view {
+      font-size: 0.78rem;
+      font-weight: 700;
+      padding: 7px 15px;
+      border-radius: 10px;
+      border: 1.5px solid #e5e7eb;
+      color: #374151;
+      background: white;
+      text-decoration: none;
+      transition: all 0.2s;
+    }
+
+    .btn-view:hover {
+      border-color: #6366f1;
+      color: #6366f1;
+      background: #f5f3ff;
+    }
+
+    .btn-cancel {
+      font-size: 0.75rem;
+      font-weight: 700;
+      padding: 7px 14px;
+      border-radius: 10px;
+      border: 1.5px solid #fecaca;
+      color: #dc2626;
+      background: #fffafa;
+      text-decoration: none;
+      transition: all 0.2s;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
       cursor: pointer;
-      border-color: #cbd5e1;
     }
 
-    .form-check-input.select-all-check:checked {
-      background-color: var(--primary-orange);
-      border-color: var(--primary-orange);
+    .btn-cancel:hover {
+      background: #fee2e2;
+      border-color: #ef4444;
+      color: #b91c1c;
     }
 
-    /* Card Checkbox overlay */
-    .card-select-overlay {
-      position: absolute;
-      top: 10px;
-      left: 10px;
-      z-index: 20;
+    .search-box {
+      background: white;
+      border-radius: 14px;
+      padding: 10px 16px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+      border: 1.5px solid #e5e7eb;
+      transition: border-color 0.2s;
     }
 
-    .card-checkbox {
-      width: 24px;
-      height: 24px;
-      cursor: pointer;
-      border: 2px solid white;
-      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+    .search-box:focus-within {
+      border-color: #6366f1;
     }
 
-    .card-checkbox:checked {
-      background-color: var(--primary-orange);
-      border-color: var(--primary-orange);
+    .search-box input {
+      border: none;
+      outline: none;
+      font-size: 0.88rem;
+      flex: 1;
+      background: transparent;
+      font-family: 'Inter', sans-serif;
+    }
+
+    .search-box i {
+      color: #9ca3af;
+    }
+
+    @keyframes fadeInUp {
+      from {
+        opacity: 0;
+        transform: translateY(20px);
+      }
+
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .booking-card {
+      animation: fadeInUp 0.4s ease both;
+    }
+
+    .booking-card:nth-child(2) {
+      animation-delay: 0.05s;
+    }
+
+    .booking-card:nth-child(3) {
+      animation-delay: 0.10s;
+    }
+
+    .booking-card:nth-child(4) {
+      animation-delay: 0.15s;
+    }
+
+    .booking-card:nth-child(5) {
+      animation-delay: 0.20s;
     }
   </style>
 
-  <% /* 1. Separate Bookings */ const now=new Date(); now.setHours(0,0,0,0); let upcoming=[]; let history=[]; let
-    cancelled=[]; bookings.forEach(b=> {
-    let d = new Date(b.startDate || b.date);
-    d.setHours(0,0,0,0);
-
-    /* Safety: ensure listing/dhaba/vehicle populated */
-    b.item = b.listing || b.dhaba || b.vehicle;
-    b.title = b.item ? (b.item.title || b.item.name || `${b.item.brand} ${b.item.model}`) : 'Booking Unavailable';
-
-    /* Image fallback logic */
-    b.img = "";
-    if (b.item) {
-    if (b.type === 'dhaba' && b.item.image && b.item.image.length > 0) b.img = b.item.image[0].url;
-    else if (b.item.image && b.item.image.url) b.img = b.item.image.url;
-    else if (b.item.images && b.item.images.length > 0) b.img = b.item.images[0].url;
-    }
-
-    /* Use reliable fallback if empty */
-    if (!b.img || b.img === "") {
-    b.img = "https://placehold.co/600x400/e2e8f0/64748b?text=WanderLust+Trip";
-    }
-
-    if (b.status === 'Cancelled') {
-    cancelled.push(b);
-    } else if (d >= now) {
-    upcoming.push(b);
-    } else {
-    history.push(b);
-    }
-    });
-
-    /* Sort history descending */
-    history.sort((a,b) => new Date(b.startDate||b.date) - new Date(a.startDate||a.date));
-
-    /* Identify Next Trip */
-    const nextTrip = upcoming.length > 0 ? upcoming[0] : null;
-    %>
-
-    <div class="dashboard-hero">
-      <div class="hero-pattern"></div>
-      <div class="hero-greeting">Hello, <%= currUser.username || 'Explorer' %>!</div>
-      <div class="hero-sub">Your travel journey at a glance.</div>
-
-      <% if (nextTrip) { let nextDate=new Date(nextTrip.startDate || nextTrip.date); %>
-        <div class="next-trip-card">
-          <div class="nt-info">
-            <h3>Ready for takeoff?</h3>
-            <div class="nt-title">
-              <%= nextTrip.title %>
-            </div>
-            <div class="nt-date">
-              <i class="fas fa-calendar-day"></i>
-              <%= nextDate.toLocaleDateString('en-US', { weekday: 'long' , month: 'long' , day: 'numeric' }) %>
-            </div>
-            <div class="mt-4">
-              <a href="/bookings/<%= nextTrip._id %>" class="btn btn-light rounded-pill px-4 fw-bold text-primary">
-                <i class="fas fa-ticket-alt me-2"></i> View Ticket
-              </a>
-            </div>
-          </div>
-          <div class="countdown-box" id="countdown" data-date="<%= nextDate.toISOString() %>">
-            <div class="cd-item">
-              <div class="cd-num" id="cd-days">00</div>
-              <div class="cd-label">Days</div>
-            </div>
-            <div class="cd-item">
-              <div class="cd-num" id="cd-hours">00</div>
-              <div class="cd-label">Hours</div>
-            </div>
-            <div class="cd-item">
-              <div class="cd-num" id="cd-mins">00</div>
-              <div class="cd-label">Mins</div>
-            </div>
-          </div>
-        </div>
-        <% } else { %>
-          <div
-            style="background: rgba(255,255,255,0.1); backdrop-filter: blur(10px); display: inline-block; padding: 15px 30px; border-radius: 100px; border: 1px solid rgba(255,255,255,0.2);">
-            <span style="opacity: 0.9;">No upcoming trips.</span>
-            <a href="/listings" class="text-white fw-bold text-decoration-none ms-2"
-              style="border-bottom: 1px solid white;">Book your next adventure</a>
-          </div>
-          <% } %>
+  <!-- ── Hero ── -->
+  <div class="bookings-hero">
+    <div class="container text-center position-relative" style="z-index:2;">
+      <div class="d-inline-flex align-items-center gap-2 px-3 py-2 mb-3 rounded-pill"
+        style="background:rgba(255,255,255,0.08); border:1px solid rgba(255,255,255,0.15); color:#a5b4fc; font-size:0.78rem; font-weight:700; text-transform:uppercase; letter-spacing:0.08em;">
+        <i class="fas fa-calendar-check"></i> Travel History
+      </div>
+      <h1 class="fw-900 text-white mb-2" style="font-size:2.8rem; font-weight:900; letter-spacing:-1px;">My Bookings
+      </h1>
+      <p class="text-white-50" style="font-size:1rem;">All your stays, rides & dining experiences in one place</p>
     </div>
+  </div>
 
-    <div class="dashboard-container">
-      <!-- Quick Stats -->
-      <div class="stats-bar">
-        <div class="stat-item">
-          <div class="stat-val">
-            <%= upcoming.length %>
-          </div>
-          <div class="stat-lbl">Upcoming</div>
-        </div>
-        <div class="stat-item">
-          <div class="stat-val">
-            <%= history.length %>
-          </div>
-          <div class="stat-lbl">Completed</div>
-        </div>
-        <div class="stat-item">
-          <div class="stat-val">
-            <%= bookings.length %>
-          </div>
-          <div class="stat-lbl">Total Trips</div>
-        </div>
-      </div>
+  <!-- ── Body ── -->
+  <div class="bookings-body">
+    <div class="container" style="max-width:1150px;">
 
-      <div class="controls-row">
-        <!-- Search -->
-        <div class="search-wrap">
-          <i class="fas fa-search search-icon"></i>
-          <input type="text" id="tripSearch" class="search-input" placeholder="Search by destination...">
-        </div>
+      <% let confirmed=bookings.filter(b=> b.status === 'Confirmed');
+        let pending = bookings.filter(b => b.status === 'Pending');
+        let cancelled = bookings.filter(b => b.status === 'Cancelled');
+        let stays = bookings.filter(b => b.type === 'listing');
+        let rides = bookings.filter(b => b.type === 'vehicle');
+        let dining = bookings.filter(b => b.type === 'dhaba');
+        let totalSpent = bookings.filter(b => b.paymentStatus === 'Paid').reduce((s,b) => s + (b.totalPrice||0), 0);
+        %>
 
-        <!-- Tabs -->
-        <ul class="nav nav-pills" id="pills-tab" role="tablist">
-          <li class="nav-item">
-            <button class="nav-link active" data-bs-toggle="pill" data-bs-target="#pills-upcoming">Upcoming</button>
-          </li>
-          <li class="nav-item">
-            <button class="nav-link" data-bs-toggle="pill" data-bs-target="#pills-history">History</button>
-          </li>
-          <li class="nav-item">
-            <button class="nav-link" data-bs-toggle="pill" data-bs-target="#pills-cancelled">Cancelled</button>
-          </li>
-        </ul>
-      </div>
-
-      <!-- Tab Content -->
-      <div class="tab-content" id="pills-tabContent">
-
-        <!-- UPCOMING -->
-        <div class="tab-pane fade show active" id="pills-upcoming">
-          <% if (upcoming.length> 0) { %>
-            <div class="timeline-container">
-              <div class="timeline-line"></div>
-              <% upcoming.forEach(b=> {
-                let d = new Date(b.startDate || b.date);
-                %>
-                <div class="timeline-item searchable-item" data-search="<%= b.title %>">
-                  <div class="timeline-dot"></div>
-                  <div class="timeline-card">
-                    <div class="tc-img-wrap">
-                      <img src="<%= b.img %>" class="tc-img" alt="Trip Image"
-                        onerror="this.onerror=null;this.src='https://images.unsplash.com/photo-1469854523086-cc02fe5d8800?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80';">
-                    </div>
-                    <div class="flex-grow-1">
-                      <div class="d-flex justify-content-between mb-1">
-                        <h5 class="fw-bold m-0 text-dark">
-                          <%= b.title %>
-                        </h5>
-                        <div>
-                          <!-- Badge Logic: Confirmed ONLY if Paid AND Confirmed -->
-                          <% if(b.status==='Confirmed' && (b.isPaid || b.paymentStatus==='Paid' )) { %>
-                            <span class="badge bg-success bg-opacity-10 text-success rounded-pill px-3">Confirmed</span>
-                            <% } else if (b.status==='Cancelled' ) { %>
-                              <span class="badge bg-danger bg-opacity-10 text-danger rounded-pill px-3">Cancelled</span>
-                              <% } else { %>
-                                <span
-                                  class="badge bg-warning bg-opacity-10 text-warning rounded-pill px-3">Pending</span>
-                                <% } %>
-                        </div>
-                      </div>
-                      <div class="text-muted small mb-3">
-                        <i class="fas fa-calendar me-1"></i>
-                        <%= d.toLocaleDateString() %>
-                          <span class="mx-2">•</span>
-                          <i class="fas fa-users me-1"></i>
-                          <%= b.guests %> Guests
-                      </div>
-                      <div class="d-flex gap-2 align-items-center flex-wrap">
-                        <a href="/bookings/<%= b._id %>" class="btn btn-sm btn-dark rounded-pill px-3">Details</a>
-                        <% if(b.isPaid) { %>
-                          <a href="/bookings/<%= b._id %>/invoice"
-                            class="btn btn-sm btn-outline-secondary rounded-pill px-3"><i class="fas fa-download"></i>
-                            Receipt</a>
-                          <% } %>
-
-                            <!-- Cancel Option -->
-                            <form action="/bookings/<%= b._id %>/cancel" method="POST" class="d-inline ms-auto">
-                              <button type="button"
-                                onclick="confirmCancel(this.form, <%= b.isPaid ? b.totalPrice : 0 %>)"
-                                class="btn btn-sm text-danger rounded-pill px-3 border-0 fw-bold">
-                                Cancel
-                              </button>
-                            </form>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-                <% }); %>
-            </div>
-            <% } else { %>
-              <div class="empty-state">
-                <i class="fas fa-plane-departure empty-icon"></i>
-                <h5>No upcoming trips scheduled</h5>
-                <p>Time to pack your bags!</p>
-                <a href="/listings" class="btn btn-primary rounded-pill px-4"
-                  style="background: var(--primary-orange); border:none;">Explore Destinations</a>
+        <!-- ── Stats Row ── -->
+        <div class="row g-3 mb-4">
+          <div class="col-6 col-md-3">
+            <div class="stat-mini">
+              <div class="stat-mini-icon" style="background:#eff6ff;"><i class="fas fa-calendar-alt text-primary"></i>
               </div>
+              <div>
+                <div class="stat-mini-val">
+                  <%= bookings.length %>
+                </div>
+                <div class="stat-mini-lbl">Total</div>
+              </div>
+            </div>
+          </div>
+          <div class="col-6 col-md-3">
+            <div class="stat-mini">
+              <div class="stat-mini-icon" style="background:#f0fdf4;"><i class="fas fa-check-circle text-success"></i>
+              </div>
+              <div>
+                <div class="stat-mini-val">
+                  <%= confirmed.length %>
+                </div>
+                <div class="stat-mini-lbl">Confirmed</div>
+              </div>
+            </div>
+          </div>
+          <div class="col-6 col-md-3">
+            <div class="stat-mini">
+              <div class="stat-mini-icon" style="background:#f3e8ff;"><i class="fas fa-rupee-sign"
+                  style="color:#9333ea;"></i></div>
+              <div>
+                <div class="stat-mini-val">₹<%= totalSpent.toLocaleString('en-IN') %>
+                </div>
+                <div class="stat-mini-lbl">Total Spent</div>
+              </div>
+            </div>
+          </div>
+          <div class="col-6 col-md-3">
+            <div class="stat-mini">
+              <div class="stat-mini-icon" style="background:#fef3c7;"><i class="fas fa-clock text-warning"></i></div>
+              <div>
+                <div class="stat-mini-val">
+                  <%= pending.length %>
+                </div>
+                <div class="stat-mini-lbl">Pending</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ── Filter + Search bar ── -->
+        <div class="d-flex align-items-center justify-content-between flex-wrap gap-3 mb-4">
+          <div class="filter-bar" id="filterBar">
+            <button class="filter-tab active" data-filter="all">🗂 All (<%= bookings.length %>)</button>
+            <% if(stays.length) { %><button class="filter-tab" data-filter="listing">🏠 Stays (<%= stays.length %>
+                  )</button>
               <% } %>
+                <% if(rides.length) { %><button class="filter-tab" data-filter="vehicle">🚗 Rides (<%= rides.length %>
+                      )</button>
+                  <% } %>
+                    <% if(dining.length) { %><button class="filter-tab" data-filter="dhaba">🍛 Dining (<%= dining.length
+                          %>)</button>
+                      <% } %>
+                        <% if(confirmed.length) { %><button class="filter-tab" data-filter="confirmed">✅
+                            Confirmed</button>
+                          <% } %>
+                            <% if(cancelled.length) { %><button class="filter-tab" data-filter="cancelled">❌
+                                Cancelled</button>
+                              <% } %>
+          </div>
+          <div class="search-box" style="width:240px;">
+            <i class="fas fa-search"></i>
+            <input type="text" id="searchInput" placeholder="Search bookings...">
+          </div>
         </div>
 
-        <!-- HISTORY -->
-        <div class="tab-pane fade" id="pills-history">
-          <% if(history.length> 0) { %>
-            <div class="bulk-toolbar">
-              <div class="d-flex align-items-center gap-2">
-                <input type="checkbox" class="form-check-input select-all-check" id="selectAllHistory"
-                  onclick="toggleSelectAll(this, 'history')">
-                <label class="form-check-label fw-bold text-muted small" for="selectAllHistory"
-                  style="cursor: pointer;">SELECT ALL</label>
-              </div>
-              <button id="bulkDeleteBtnHistory" class="btn btn-sm btn-danger rounded-pill px-3 fw-bold shadow-none"
-                style="display: none;" onclick="confirmBulkDelete('history')">
-                <i class="fas fa-trash-alt me-1"></i> Delete Selected (<span id="selectedCountHistory">0</span>)
-              </button>
-            </div>
-            <% } %>
-              <div class="cards-grid">
-                <% history.forEach(b=> {
-                  let d = new Date(b.startDate || b.date);
-                  %>
-                  <div class="booking-card searchable-item" data-search="<%= b.title %>">
-                    <div class="card-img-wrap">
-                      <div class="card-select-overlay">
-                        <input type="checkbox" class="form-check-input card-checkbox history-checkbox"
-                          value="<%= b._id %>" onchange="updateBulkState('history')">
+        <!-- ── Booking Cards Grid ── -->
+        <% if(bookings.length> 0) { %>
+          <div class="row g-4" id="bookingsGrid">
+            <% bookings.forEach(b=> {
+              let title, imgUrl, linkUrl, locationText;
+              if(b.listing) {
+              title = b.listing.title || 'Unknown Listing';
+              imgUrl = (b.listing.images && b.listing.images.length > 0) ? b.listing.images[0].url : (b.listing.image ?
+              b.listing.image.url : null);
+              linkUrl = `/listings/${b.listing._id}`;
+              locationText = b.listing.location;
+              } else if(b.vehicle) {
+              title = (b.vehicle.brand || '') + ' ' + (b.vehicle.model || '');
+              imgUrl = (b.vehicle.image && b.vehicle.image.url) ? b.vehicle.image.url : (b.vehicle.images &&
+              b.vehicle.images.length > 0 ? b.vehicle.images[0].url : null);
+              linkUrl = `/vehicles/${b.vehicle._id}`;
+              locationText = b.vehicle.location;
+              } else if(b.dhaba) {
+              title = b.dhaba.title || 'Unknown Dhaba';
+              imgUrl = b.dhaba.image && b.dhaba.image.length > 0 ? b.dhaba.image[0].url : null;
+              linkUrl = `/dhabas/${b.dhaba._id}`;
+              locationText = b.dhaba.location;
+              } else {
+              title = 'Booking #' + b._id.toString().slice(-6).toUpperCase();
+              imgUrl = null;
+              linkUrl = '#';
+              locationText = '';
+              }
+
+              let typeEmoji = b.type === 'listing' ? '🏠' : b.type === 'vehicle' ? '🚗' : '🍛';
+              let typeCls = b.type === 'listing' ? 't-listing' : b.type === 'vehicle' ? 't-vehicle' : 't-dhaba';
+              let statusCls = b.status === 'Confirmed' ? 's-confirmed' : b.status === 'Pending' ? 's-pending' :
+              's-cancelled';
+              let imgBg = b.type === 'listing' ? 'linear-gradient(135deg,#6366f1,#8b5cf6)' : b.type === 'vehicle' ?
+              'linear-gradient(135deg,#9333ea,#c084fc)' : 'linear-gradient(135deg,#f59e0b,#fbbf24)';
+
+              let dateText = '';
+              if(b.startDate && b.endDate) {
+              dateText = new Date(b.startDate).toLocaleDateString('en-IN', {day:'numeric',month:'short'}) + ' → ' + new
+              Date(b.endDate).toLocaleDateString('en-IN', {day:'numeric',month:'short',year:'numeric'});
+              } else if(b.date) {
+              dateText = new Date(b.date).toLocaleDateString('en-IN',
+              {weekday:'short',day:'numeric',month:'short',year:'numeric'});
+              }
+              %>
+              <div class="col-md-6 col-lg-4" data-type="<%= b.type %>" data-status="<%= b.status.toLowerCase() %>"
+                data-title="<%= title.toLowerCase() %>">
+                <div class="booking-card">
+
+                  <!-- Image / Placeholder -->
+                  <% if(imgUrl) { %>
+                    <img src="<%= imgUrl %>" class="booking-card-image" alt="<%= title %>" loading="lazy">
+                    <% } else { %>
+                      <div class="booking-card-img-placeholder" style="background:<%= imgBg %>;">
+                        <%= typeEmoji %>
                       </div>
-                      <img src="<%= b.img %>" class="card-img">
-                    </div>
-                    <div class="card-body">
-                      <div class="card-title text-truncate">
-                        <%= b.title %>
-                      </div>
-                      <div class="card-meta">
-                        <i class="fas fa-check-circle text-success"></i>
-                        Completed on <%= d.toLocaleDateString() %>
-                      </div>
-                      <div class="card-footer d-flex justify-content-between">
-                        <div class="d-flex gap-1">
-                          <a href="/bookings/<%= b._id %>" class="btn btn-sm btn-light rounded-pill">View Memory</a>
-                          <% if(b.type==='listing' && b.item && b.item._id) { %>
-                            <a href="/listings/<%= b.item._id %>"
-                              class="btn btn-sm btn-outline-primary rounded-pill border-0">Book Again</a>
+                      <% } %>
+
+                        <div class="booking-card-body">
+
+                          <!-- Type + Status badges -->
+                          <div class="d-flex align-items-center gap-2 mb-2">
+                            <span class="type-badge <%= typeCls %>">
+                              <%= b.type.toUpperCase() %>
+                            </span>
+                            <span class="status-badge <%= statusCls %>">
+                              <%= b.status %>
+                            </span>
+                            <% if(b.paymentMethod) { %><span class="pay-method ms-auto">
+                                <%= b.paymentMethod %>
+                              </span>
+                              <% } %>
+                          </div>
+
+                          <!-- Title -->
+                          <div class="booking-card-title">
+                            <%= title %>
+                          </div>
+                          <% if(locationText) { %>
+                            <div class="booking-card-sub"><i class="fas fa-map-marker-alt me-1"></i>
+                              <%= locationText %>
+                            </div>
                             <% } %>
+
+                              <!-- Meta details -->
+                              <div class="booking-meta">
+                                <% if(dateText) { %>
+                                  <div class="booking-meta-row"><i class="fas fa-calendar"></i><strong>
+                                      <%= dateText %>
+                                    </strong></div>
+                                  <% } %>
+                                    <% if(b.guests) { %>
+                                      <div class="booking-meta-row"><i class="fas fa-users"></i><strong>
+                                          <%= b.guests %>
+                                        </strong> guest<%= b.guests> 1 ? 's' : '' %></div>
+                                      <% } %>
+                                        <% if(b.time && !b.startDate) { %>
+                                          <div class="booking-meta-row"><i class="fas fa-clock"></i><strong>
+                                              <%= b.time %>
+                                            </strong></div>
+                                          <% } %>
+                                            <div class="booking-meta-row"><i class="fas fa-hashtag"></i>Booking ID:
+                                              <strong>#<%= b._id.toString().slice(-8).toUpperCase() %></strong>
+                                            </div>
+                              </div>
+
+                              <!-- Footer: amount + actions -->
+                              <div class="booking-card-footer">
+                                <div>
+                                  <div class="booking-amount">₹<%= (b.totalPrice || b.amount ||
+                                      0).toLocaleString('en-IN') %>
+                                  </div>
+                                  <div style="font-size:0.7rem; color:#9ca3af;">
+                                    <%= b.paymentStatus==='Paid' ? '✅ Paid' : b.paymentStatus %>
+                                  </div>
+                                </div>
+                                <div class="d-flex gap-2">
+                                  <a href="<%= linkUrl %>" class="btn-view" title="View Details">
+                                    <i class="fas fa-eye"></i>
+                                  </a>
+                                  <% if(b.status==='Confirmed' && b.paymentStatus==='Paid' ) { %>
+                                    <a href="/bookings/<%= b._id %>/invoice" class="btn-view" title="Get Invoice"
+                                      style="color:#6366f1; border-color:#c4b5fd;">
+                                      <i class="fas fa-file-invoice"></i>
+                                    </a>
+                                    <% } %>
+
+                                      <% if(b.status !=='Cancelled' ) { %>
+                                        <form action="/bookings/<%= b._id %>/cancel" method="POST"
+                                          style="display: inline;"
+                                          onsubmit="return confirm('Are you sure you want to cancel this booking?\n\nRefunds (if applicable) will be processed to your Wander Wallet or original payment method.');">
+                                          <button type="submit" class="btn-cancel" title="Cancel this booking">
+                                            <i class="fas fa-times-circle"></i>
+                                            <span>Cancel</span>
+                                          </button>
+                                        </form>
+                                        <% } %>
+
+                                          <% if(b.status==='Cancelled' || b.status==='Pending' ) { %>
+                                            <form action="/bookings/<%= b._id %>?_method=DELETE" method="POST"
+                                              style="display: inline;"
+                                              onsubmit="return confirm('Permanently delete this booking record from your history? This action cannot be undone.');">
+                                              <button type="submit" class="btn-cancel" title="Delete record"
+                                                style="color: #6b7280; border-color: #e5e7eb; background: #f9fafb;">
+                                                <i class="fas fa-trash-alt"></i>
+                                                <span>Delete</span>
+                                              </button>
+                                            </form>
+                                            <% } %>
+                                </div>
+                              </div>
+
                         </div>
-                        <form action="/bookings/<%= b._id %>?_method=DELETE" method="POST" class="d-inline">
-                          <button type="button" onclick="confirmDelete(this.form)"
-                            class="btn btn-sm text-danger rounded-pill border-0 p-0 fs-5" title="Delete from History">
-                            <i class="fas fa-trash-alt"></i>
-                          </button>
-                        </form>
-                      </div>
-                    </div>
-                  </div>
-                  <% }); %>
-              </div>
-              <% if(history.length===0) { %>
-                <div class="empty-state">
-                  <i class="fas fa-history empty-icon"></i>
-                  <h5>No travel history yet</h5>
-                  <p>Your past adventures will appear here.</p>
                 </div>
-                <% } %>
-        </div>
-
-        <!-- CANCELLED -->
-        <div class="tab-pane fade" id="pills-cancelled">
-
-          <% if(cancelled.length> 0) { %>
-            <div class="bulk-toolbar">
-              <div class="d-flex align-items-center gap-2">
-                <input type="checkbox" class="form-check-input select-all-check" id="selectAllCancelled"
-                  onclick="toggleSelectAll(this, 'cancelled')">
-                <label class="form-check-label fw-bold text-muted small" for="selectAllCancelled"
-                  style="cursor: pointer;">SELECT ALL</label>
               </div>
-              <button id="bulkDeleteBtnCancelled" class="btn btn-sm btn-danger rounded-pill px-3 fw-bold shadow-none"
-                style="display: none;" onclick="confirmBulkDelete('cancelled')">
-                <i class="fas fa-trash-alt me-1"></i> Delete Selected (<span id="selectedCountCancelled">0</span>)
-              </button>
+              <% }) %>
+          </div>
+
+          <!-- No-result message -->
+          <div id="noResults" class="empty-state d-none">
+            <div class="empty-icon">🔍</div>
+            <h5 class="fw-bold text-dark">No Matching Bookings</h5>
+            <p class="text-muted">Try a different filter or search term.</p>
+          </div>
+
+          <% } else { %>
+            <!-- Truly Empty State -->
+            <div class="empty-state">
+              <div class="empty-icon">✈️</div>
+              <h4 class="fw-bold text-dark mb-2">No Bookings Yet</h4>
+              <p class="text-muted mb-4">You haven't booked any stays, rides, or dining experiences yet. Your adventure
+                is just one click away!</p>
+              <div class="d-flex gap-3 justify-content-center flex-wrap">
+                <a href="/listings" class="btn btn-primary rounded-pill px-4 fw-bold"><i
+                    class="fas fa-home me-2"></i>Browse Stays</a>
+                <a href="/vehicles" class="btn btn-outline-primary rounded-pill px-4 fw-bold"><i
+                    class="fas fa-car me-2"></i>Rent a Ride</a>
+                <a href="/dhabas" class="btn btn-outline-warning rounded-pill px-4 fw-bold"><i
+                    class="fas fa-utensils me-2"></i>Find Dhabas</a>
+              </div>
             </div>
             <% } %>
 
-              <div class="cards-grid">
-                <% cancelled.forEach(b=> {
-                  let d = new Date(b.startDate || b.date);
-                  %>
-                  <div class="booking-card cancelled-card searchable-item" data-search="<%= b.title %>">
-                    <div class="card-img-wrap">
-                      <div class="card-select-overlay">
-                        <input type="checkbox" class="form-check-input card-checkbox cancelled-checkbox"
-                          value="<%= b._id %>" onchange="updateBulkState('cancelled')">
-                      </div>
-                      <img src="<%= b.img %>" class="card-img"
-                        onerror="this.onerror=null;this.src='https://images.unsplash.com/photo-1488646953014-85cb44e25828?auto=format&fit=crop&q=80&w=800';">
-                      <div class="cancelled-badge-overlay">
-                        <i class="fas fa-ban me-1"></i> Cancelled
-                      </div>
-                    </div>
-                    <div class="card-body">
-                      <div class="card-title text-truncate text-muted">
-                        <%= b.title %>
-                      </div>
-                      <div class="card-meta">
-                        <i class="far fa-calendar-times"></i> Was: <%= d.toLocaleDateString() %>
-                      </div>
-                      <div class="card-footer d-flex justify-content-between align-items-center">
-                        <a href="/bookings/<%= b._id %>" class="btn btn-sm btn-light rounded-pill">Details</a>
-                        <form action="/bookings/<%= b._id %>?_method=DELETE" method="POST" class="d-inline">
-                          <button type="button" onclick="confirmDelete(this.form)"
-                            class="btn btn-sm btn-danger rounded-pill px-3 shadow-none border-0"
-                            style="background-color: #ef4444; color: white;">
-                            <i class="fas fa-trash-alt me-1"></i> Delete
-                          </button>
-                        </form>
-                      </div>
-                    </div>
-                  </div>
-                  <% }); %>
-              </div>
-              <% if(cancelled.length===0) { %>
-                <div class="empty-state">
-                  <i class="fas fa-check empty-icon text-success"></i>
-                  <h5>No cancellation history</h5>
-                  <p>Your record is clean!</p>
-                </div>
-                <% } %>
-        </div>
-
-      </div>
     </div>
+  </div>
 
-    <script>
-      async function confirmCancel(form, amount) {
-        let msg = 'Are you sure you want to cancel this upcoming trip? Action cannot be undone.';
-        let confirmBtn = 'Yes, Cancel Trip';
+  <script>
+    // Filter tabs
+    const filterBar = document.getElementById('filterBar');
+    const grid = document.getElementById('bookingsGrid');
+    const noResults = document.getElementById('noResults');
+    const searchInput = document.getElementById('searchInput');
 
-        if (amount && amount > 0) {
-          msg = `Are you sure? A refund of ₹${amount} will be processed to your original payment method.`;
-          confirmBtn = `Yes, Cancel & Refund ₹${amount}`;
+    function applyFilters() {
+      if (!grid) return;
+      const activeTab = filterBar ? filterBar.querySelector('.filter-tab.active') : null;
+      const activeFilter = activeTab ? activeTab.dataset.filter : 'all';
+      const searchTerm = searchInput ? searchInput.value.toLowerCase().trim() : '';
+
+      const cards = grid.querySelectorAll(':scope > div');
+      let visible = 0;
+      cards.forEach(card => {
+        const type = card.dataset.type || '';
+        const status = card.dataset.status || '';
+        const title = card.dataset.title || '';
+
+        const filterMatch =
+          activeFilter === 'all' ||
+          activeFilter === type ||
+          activeFilter === status;
+        const searchMatch = !searchTerm || title.includes(searchTerm);
+
+        if (filterMatch && searchMatch) {
+          card.style.display = '';
+          visible++;
+        } else {
+          card.style.display = 'none';
         }
+      });
 
-        const confirmed = await window.wanderConfirm('Cancel Booking', msg, confirmBtn);
-        if (confirmed) form.submit();
-      }
-    </script>
+      if (noResults) noResults.classList.toggle('d-none', visible > 0);
+    }
 
-    <script>
-      async function confirmDelete(form) {
-        const confirmed = await window.wanderConfirm('Delete History', 'Are you sure you want to remove this cancelled booking from your history?', 'Delete Forever');
-        if (confirmed) form.submit();
-      }
-
-      // Bulk Delete Logic
-      function toggleSelectAll(source, scope) {
-        const className = scope === 'history' ? '.history-checkbox' : '.cancelled-checkbox';
-        const checkboxes = document.querySelectorAll(className);
-        checkboxes.forEach(cb => cb.checked = source.checked);
-        updateBulkState(scope);
-      }
-
-      function updateBulkState(scope) {
-        const className = scope === 'history' ? '.history-checkbox' : '.cancelled-checkbox';
-        const btnId = scope === 'history' ? 'bulkDeleteBtnHistory' : 'bulkDeleteBtnCancelled';
-        const countId = scope === 'history' ? 'selectedCountHistory' : 'selectedCountCancelled';
-        const selectAllId = scope === 'history' ? 'selectAllHistory' : 'selectAllCancelled';
-
-        const checkboxes = document.querySelectorAll(`${className}:checked`);
-        const count = checkboxes.length;
-        const btn = document.getElementById(btnId);
-        const countSpan = document.getElementById(countId);
-
-        if (btn && countSpan) {
-          countSpan.innerText = count;
-          btn.style.display = count > 0 ? 'inline-block' : 'none';
-        }
-
-        // Update Select All Checkbox state
-        const allCheckboxes = document.querySelectorAll(className);
-        const selectAll = document.getElementById(selectAllId);
-        if (selectAll && allCheckboxes.length > 0) {
-          selectAll.checked = allCheckboxes.length === count && count > 0;
-        }
-      }
-
-      async function confirmBulkDelete(scope) {
-        const className = scope === 'history' ? '.history-checkbox' : '.cancelled-checkbox';
-        const selected = Array.from(document.querySelectorAll(`${className}:checked`)).map(cb => cb.value);
-        if (selected.length === 0) return;
-
-        const confirmed = await window.wanderConfirm(
-          'Bulk Delete',
-          `Are you sure you want to delete ${selected.length} bookings permanently?`,
-          'Delete Forever'
-        );
-
-        if (confirmed) {
-          try {
-            const response = await fetch('/bookings/bulk', {
-              method: 'DELETE',
-              headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify({ bookingIds: selected })
-            });
-
-            const result = await response.json();
-            if (result.success) {
-              window.location.reload();
-            } else {
-              alert(result.message || 'Failed to delete bookings');
-            }
-          } catch (err) {
-            console.error(err);
-            alert('An error occurred');
-          }
-        }
-      }
-    </script>
-
-    <script>
-      // Countdown Logic
-      const cdContainer = document.getElementById('countdown');
-      if (cdContainer) {
-        const targetDate = new Date(cdContainer.dataset.date).getTime();
-
-        function updateTimer() {
-          const now = new Date().getTime();
-          const distance = targetDate - now;
-
-          if (distance < 0) {
-            cdContainer.innerHTML = "<div class='text-white fw-bold fs-4'>Trip Started!</div>";
-            return;
-          }
-
-          const days = Math.floor(distance / (1000 * 60 * 60 * 24));
-          const hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
-          const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
-
-          document.getElementById('cd-days').innerText = days.toString().padStart(2, '0');
-          document.getElementById('cd-hours').innerText = hours.toString().padStart(2, '0');
-          document.getElementById('cd-mins').innerText = minutes.toString().padStart(2, '0');
-        }
-
-        setInterval(updateTimer, 1000);
-        updateTimer();
-      }
-
-      // Client-Side Search
-      document.getElementById('tripSearch').addEventListener('input', function (e) {
-        const term = e.target.value.toLowerCase();
-        const items = document.querySelectorAll('.searchable-item');
-
-        items.forEach(item => {
-          const searchData = item.dataset.search.toLowerCase();
-          if (searchData.includes(term)) {
-            item.style.display = "";
-          } else {
-            item.style.display = "none";
-          }
+    // Tab click
+    if (filterBar) {
+      filterBar.querySelectorAll('.filter-tab').forEach(tab => {
+        tab.addEventListener('click', () => {
+          filterBar.querySelectorAll('.filter-tab').forEach(t => t.classList.remove('active'));
+          tab.classList.add('active');
+          applyFilters();
         });
       });
-    </script>
+    }
+
+    // Search
+    if (searchInput) {
+      searchInput.addEventListener('input', applyFilters);
+    }
+  </script>

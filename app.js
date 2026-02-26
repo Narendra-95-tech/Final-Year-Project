@@ -202,6 +202,7 @@ app.use(helmet({
         "https://api.mapbox.com",
         "https://cdn.socket.io",
         "https://maps.googleapis.com",
+        "https://checkout.razorpay.com",  // Razorpay Checkout
         "blob:" // Required for Mapbox workers
       ],
       styleSrc: [
@@ -233,7 +234,10 @@ app.use(helmet({
         "http:",
         "wss:",
         "ws:",
-        "*.stripe.com"
+        "*.stripe.com",
+        "https://api.razorpay.com",        // Razorpay API
+        "https://checkout.razorpay.com",   // Razorpay Checkout
+        "https://lumberjack.razorpay.com", // Razorpay logging
       ],
       fontSrc: [
         "'self'",
@@ -248,7 +252,7 @@ app.use(helmet({
       scriptSrcAttr: ["'unsafe-inline'"],
       objectSrc: ["'none'"],
       mediaSrc: ["'self'"],
-      frameSrc: ["'self'", "https://js.stripe.com"],
+      frameSrc: ["'self'", "https://js.stripe.com", "https://checkout.razorpay.com", "https://api.razorpay.com"],
       upgradeInsecureRequests: null, // Don't force HTTPS on localhost
       formAction: ["'self'", "*.stripe.com"], // Allow forms to submit to self and Stripe
     },

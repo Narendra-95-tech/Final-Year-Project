@@ -13,8 +13,10 @@ router.post("/onboarding", isLoggedIn, payoutsController.createConnectAccount);
 // We treat this same as "createConnectAccount" or "renderDashboard" really, 
 // as createConnectAccount handles the link generation if it's missing or re-calls it.
 // Simpler: Just redirect back to dashboard which checks status.
-router.get("/onboarding", isLoggedIn, (req, res) => {
-    res.redirect("/payouts/dashboard");
-});
+// Update Payout UPI
+router.post("/update-upi", isLoggedIn, payoutsController.updateUPI);
+
+// Connect Bank Account
+router.post("/connect-bank", isLoggedIn, payoutsController.connectBank);
 
 module.exports = router;

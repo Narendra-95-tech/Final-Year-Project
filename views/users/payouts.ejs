@@ -1,162 +1,823 @@
 <% layout("/layouts/boilerplate") %>
 
-    <div class="row mt-5">
-        <div class="col-8 offset-2">
-            <h3 class="fw-bold mb-4">Payout Settings</h3>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap"
+        rel="stylesheet">
 
-            <div class="card shadow-sm border-0 rounded-4 p-4">
-                <div class="d-flex align-items-center justify-content-between mb-4">
-                    <div>
-                        <h5 class="fw-bold"><i class="fab fa-stripe text-primary fa-lg me-2"></i>Stripe Connect</h5>
-                        <p class="text-muted mb-0 small">Get paid directly to your bank account securely.</p>
+    <style>
+        * {
+            font-family: 'Inter', sans-serif;
+        }
+
+        body {
+            background: #0d0d1a;
+        }
+
+        /* ── Page Background ── */
+        .payout-page {
+            min-height: 100vh;
+            background: linear-gradient(160deg, #0d0d1a 0%, #0f1729 50%, #101525 100%);
+            padding: 2rem 0 4rem;
+            position: relative;
+            overflow-x: hidden;
+        }
+
+        .payout-page::before {
+            content: '';
+            position: fixed;
+            width: 700px;
+            height: 700px;
+            background: radial-gradient(circle, rgba(99, 102, 241, 0.12) 0%, transparent 70%);
+            top: -200px;
+            right: -200px;
+            pointer-events: none;
+        }
+
+        .payout-page::after {
+            content: '';
+            position: fixed;
+            width: 500px;
+            height: 500px;
+            background: radial-gradient(circle, rgba(16, 185, 129, 0.1) 0%, transparent 70%);
+            bottom: -100px;
+            left: -100px;
+            pointer-events: none;
+        }
+
+        /* ── Hero Banner ── */
+        .hero-banner {
+            background: linear-gradient(135deg, rgba(99, 102, 241, 0.18) 0%, rgba(16, 185, 129, 0.12) 100%);
+            border: 1px solid rgba(99, 102, 241, 0.2);
+            border-radius: 28px;
+            padding: 2.5rem 3rem;
+            margin-bottom: 2.5rem;
+            backdrop-filter: blur(20px);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .hero-banner::before {
+            content: '';
+            position: absolute;
+            width: 300px;
+            height: 300px;
+            background: radial-gradient(circle, rgba(99, 102, 241, 0.2) 0%, transparent 70%);
+            top: -80px;
+            right: -80px;
+        }
+
+        .hero-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: rgba(16, 185, 129, 0.15);
+            border: 1px solid rgba(16, 185, 129, 0.3);
+            color: #6ee7b7;
+            padding: 0.4rem 1rem;
+            border-radius: 999px;
+            font-size: 0.75rem;
+            font-weight: 700;
+            letter-spacing: 0.05em;
+            text-transform: uppercase;
+            margin-bottom: 1rem;
+        }
+
+        .hero-badge::before {
+            content: '';
+            width: 8px;
+            height: 8px;
+            background: #34d399;
+            border-radius: 50%;
+            animation: pulse-dot 1.5s infinite;
+        }
+
+        @keyframes pulse-dot {
+
+            0%,
+            100% {
+                opacity: 1;
+                transform: scale(1);
+            }
+
+            50% {
+                opacity: 0.5;
+                transform: scale(0.8);
+            }
+        }
+
+        .hero-title {
+            font-size: 2.5rem;
+            font-weight: 900;
+            color: white;
+            line-height: 1.1;
+            margin-bottom: 0.5rem;
+        }
+
+        .hero-sub {
+            color: rgba(255, 255, 255, 0.5);
+            font-size: 1rem;
+        }
+
+        /* ── Stat Cards ── */
+        .stat-card {
+            background: rgba(255, 255, 255, 0.04);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 22px;
+            padding: 1.6rem;
+            backdrop-filter: blur(20px);
+            transition: all 0.3s ease;
+            height: 100%;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .stat-card::after {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.03), transparent);
+            pointer-events: none;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-6px);
+            border-color: rgba(99, 102, 241, 0.4);
+            background: rgba(255, 255, 255, 0.07);
+        }
+
+        .stat-icon-wrap {
+            width: 52px;
+            height: 52px;
+            border-radius: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2rem;
+            margin-bottom: 1rem;
+        }
+
+        .stat-lbl {
+            font-size: 0.68rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            color: rgba(255, 255, 255, 0.4);
+            margin-bottom: 0.4rem;
+        }
+
+        .stat-val {
+            font-size: 2rem;
+            font-weight: 800;
+            color: white;
+            line-height: 1;
+        }
+
+        .stat-note {
+            font-size: 0.78rem;
+            color: rgba(255, 255, 255, 0.4);
+            margin-top: 0.5rem;
+        }
+
+        /* ── Section Card ── */
+        .section-card {
+            background: rgba(255, 255, 255, 0.04);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 22px;
+            padding: 2rem;
+            backdrop-filter: blur(15px);
+            margin-bottom: 1.5rem;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .section-title {
+            font-size: 1rem;
+            font-weight: 700;
+            color: white;
+            margin-bottom: 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .section-title span.badge-sm {
+            background: rgba(99, 102, 241, 0.2);
+            color: #a5b4fc;
+            font-size: 0.65rem;
+            font-weight: 800;
+            padding: 3px 8px;
+            border-radius: 6px;
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+        }
+
+        /* ── Bank Card ── */
+        .bank-card-connected {
+            background: linear-gradient(135deg, #059669 0%, #10b981 60%, #34d399 100%);
+            border-radius: 22px;
+            padding: 2rem;
+            color: white;
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 20px 50px rgba(16, 185, 129, 0.4);
+        }
+
+        .bank-card-connected::before {
+            content: '';
+            position: absolute;
+            width: 250px;
+            height: 250px;
+            background: rgba(255, 255, 255, 0.08);
+            border-radius: 50%;
+            top: -80px;
+            right: -80px;
+        }
+
+        .bank-card-connected::after {
+            content: '\f19c';
+            font-family: 'Font Awesome 5 Free';
+            font-weight: 900;
+            position: absolute;
+            font-size: 10rem;
+            bottom: -30px;
+            right: -10px;
+            opacity: 0.07;
+            color: white;
+        }
+
+        .bank-card-chip {
+            width: 45px;
+            height: 35px;
+            background: linear-gradient(135deg, #fde68a, #f59e0b);
+            border-radius: 8px;
+            margin-bottom: 1.5rem;
+            position: relative;
+        }
+
+        .bank-card-chip::after {
+            content: '';
+            position: absolute;
+            left: 50%;
+            top: 50%;
+            transform: translate(-50%, -50%);
+            width: 30px;
+            height: 22px;
+            border: 1.5px solid rgba(0, 0, 0, 0.15);
+            border-radius: 4px;
+        }
+
+        .bank-number {
+            letter-spacing: 0.25em;
+            font-size: 1.1rem;
+            font-weight: 700;
+            margin-bottom: 1.5rem;
+            opacity: 0.95;
+        }
+
+        /* ── Bank Form ── */
+        .bank-form-box {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.07);
+            border-radius: 18px;
+            padding: 1.5rem;
+        }
+
+        .bank-form-box .form-label {
+            color: rgba(255, 255, 255, 0.5);
+            font-size: 0.72rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+        }
+
+        .bank-form-box .form-control {
+            background: rgba(255, 255, 255, 0.06);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            color: white;
+            border-radius: 12px;
+            padding: 0.75rem 1rem;
+            font-weight: 600;
+        }
+
+        .bank-form-box .form-control::placeholder {
+            color: rgba(255, 255, 255, 0.25);
+        }
+
+        .bank-form-box .form-control:focus {
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.3);
+            border-color: rgba(99, 102, 241, 0.5);
+            background: rgba(255, 255, 255, 0.08);
+            color: white;
+        }
+
+        /* ── Earnings Table ── */
+        .et {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .et th {
+            font-size: 0.65rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            color: rgba(255, 255, 255, 0.35);
+            padding: 0.8rem 1rem;
+            text-align: left;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+        }
+
+        .et td {
+            padding: 1.1rem 1rem;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+            font-size: 0.88rem;
+            color: rgba(255, 255, 255, 0.8);
+            vertical-align: middle;
+        }
+
+        .et tr:last-child td {
+            border-bottom: none;
+        }
+
+        .et tr:hover td {
+            background: rgba(255, 255, 255, 0.03);
+        }
+
+        .type-pill {
+            padding: 0.3rem 0.7rem;
+            border-radius: 8px;
+            font-size: 0.65rem;
+            font-weight: 800;
+            letter-spacing: 0.05em;
+            text-transform: uppercase;
+        }
+
+        /* ── Split Visualizer ── */
+        .split-bar {
+            background: rgba(255, 255, 255, 0.06);
+            border-radius: 16px;
+            padding: 1.5rem;
+            margin-top: 1.5rem;
+        }
+
+        .split-track {
+            height: 12px;
+            border-radius: 99px;
+            background: rgba(255, 255, 255, 0.08);
+            overflow: hidden;
+            display: flex;
+            margin: 1rem 0;
+        }
+
+        .split-fill-host {
+            background: linear-gradient(90deg, #10b981, #34d399);
+            height: 100%;
+            border-radius: 99px 0 0 99px;
+            width: 90%;
+            transition: width 1.5s ease;
+        }
+
+        .split-fill-platform {
+            background: linear-gradient(90deg, #f59e0b, #fbbf24);
+            height: 100%;
+            width: 10%;
+        }
+
+        /* ── Step Flow ── */
+        .step-flow {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+
+        .step-item {
+            display: flex;
+            gap: 14px;
+            align-items: flex-start;
+        }
+
+        .step-num {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.75rem;
+            font-weight: 800;
+            flex-shrink: 0;
+        }
+
+        .step-connector {
+            width: 1px;
+            height: 24px;
+            background: rgba(255, 255, 255, 0.1);
+            margin-left: 15px;
+        }
+
+        /* ── Empty state ── */
+        .empty-earn {
+            text-align: center;
+            padding: 3rem;
+        }
+
+        /* ── Btn ── */
+        .btn-connect {
+            background: linear-gradient(135deg, #6366f1, #8b5cf6);
+            color: white;
+            border: none;
+            border-radius: 14px;
+            padding: 0.9rem 1.5rem;
+            font-weight: 700;
+            font-size: 0.9rem;
+            letter-spacing: 0.02em;
+            width: 100%;
+            transition: all 0.25s;
+            box-shadow: 0 8px 20px rgba(99, 102, 241, 0.35);
+        }
+
+        .btn-connect:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 14px 30px rgba(99, 102, 241, 0.5);
+            color: white;
+        }
+
+        .btn-disconnect {
+            background: rgba(239, 68, 68, 0.15);
+            border: 1px solid rgba(239, 68, 68, 0.3);
+            color: #fca5a5;
+            border-radius: 10px;
+            padding: 0.5rem 1rem;
+            font-size: 0.8rem;
+            font-weight: 600;
+        }
+
+        .btn-disconnect:hover {
+            background: rgba(239, 68, 68, 0.25);
+            color: #fca5a5;
+        }
+    </style>
+
+    <div class="payout-page">
+        <div class="container" style="max-width:1200px; position:relative; z-index:1;">
+
+            <!-- ── Hero ── -->
+            <div class="hero-banner">
+                <div class="row align-items-center">
+                    <div class="col-lg-7">
+                        <div class="hero-badge"><i class="fas fa-shield-alt"></i> WanderLust Verified Host Gateway</div>
+                        <h1 class="hero-title">💳 Payout <span
+                                style="background:linear-gradient(135deg,#6366f1,#34d399);-webkit-background-clip:text;-webkit-text-fill-color:transparent;">Control
+                                Center</span></h1>
+                        <p class="hero-sub">Real-time earnings tracking · Direct bank settlements · Automated 90/10
+                            revenue split</p>
                     </div>
-                    <% if(user.payoutsEnabled) { %>
-                        <span class="badge bg-success rounded-pill px-3 py-2">Active</span>
-                        <% } else { %>
-                            <span class="badge bg-warning text-dark rounded-pill px-3 py-2">Action Required</span>
-                            <% } %>
+                    <div class="col-lg-5 text-lg-end mt-3 mt-lg-0">
+                        <div class="d-inline-flex flex-column text-end p-3 rounded-4"
+                            style="background:rgba(255,255,255,0.05); border:1px solid rgba(255,255,255,0.08);">
+                            <div class="small text-white-50 mb-1">NET EARNINGS (YOUR 90%)</div>
+                            <div style="font-size:3rem; font-weight:900; color:white; line-height:1;">
+                                ₹<span id="earningsCounter" data-target="<%= netEarnings %>">0</span>
+                            </div>
+                            <div class="small text-success mt-1"><i class="fas fa-arrow-up me-1"></i> From <%=
+                                    totalBookings %> confirmed bookings</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ── 4 KPI Cards ── -->
+            <div class="row g-3 mb-4">
+                <div class="col-md-3 col-6">
+                    <div class="stat-card">
+                        <div class="stat-icon-wrap" style="background:rgba(99,102,241,0.15);"><i
+                                class="fas fa-rupee-sign" style="color:#818cf8;"></i></div>
+                        <div class="stat-lbl">Gross Revenue</div>
+                        <div class="stat-val">₹<%= totalEarned.toLocaleString('en-IN') %>
+                        </div>
+                        <div class="stat-note">All bookings combined</div>
+                    </div>
+                </div>
+                <div class="col-md-3 col-6">
+                    <div class="stat-card">
+                        <div class="stat-icon-wrap" style="background:rgba(16,185,129,0.15);"><i class="fas fa-wallet"
+                                style="color:#34d399;"></i></div>
+                        <div class="stat-lbl">Your Earnings (90%)</div>
+                        <div class="stat-val">₹<%= netEarnings.toLocaleString('en-IN') %>
+                        </div>
+                        <div class="stat-note" style="color:#34d399;"><i class="fas fa-arrow-up me-1"></i> Direct to
+                            your bank</div>
+                    </div>
+                </div>
+                <div class="col-md-3 col-6">
+                    <div class="stat-card">
+                        <div class="stat-icon-wrap" style="background:rgba(245,158,11,0.15);"><i class="fas fa-building"
+                                style="color:#fbbf24;"></i></div>
+                        <div class="stat-lbl">Platform Fee (10%)</div>
+                        <div class="stat-val">₹<%= platformFee.toLocaleString('en-IN') %>
+                        </div>
+                        <div class="stat-note">WanderLust Commission</div>
+                    </div>
+                </div>
+                <div class="col-md-3 col-6">
+                    <div class="stat-card">
+                        <div class="stat-icon-wrap" style="background:rgba(239,68,68,0.15);"><i class="fas fa-clock"
+                                style="color:#f87171;"></i></div>
+                        <div class="stat-lbl">Pending</div>
+                        <div class="stat-val">₹<%= pendingAmount.toLocaleString('en-IN') %>
+                        </div>
+                        <div class="stat-note">
+                            <%= pendingBookings.length %> awaiting settlement
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="row g-4">
+
+                <!-- LEFT COL: History + Split -->
+                <div class="col-lg-7">
+
+                    <!-- Transactions Table -->
+                    <div class="section-card">
+                        <div class="section-title">
+                            <i class="fas fa-receipt" style="color:#818cf8;"></i>
+                            Payout History
+                            <span class="badge-sm">
+                                <%= totalBookings %> entries
+                            </span>
+                        </div>
+
+                        <% if(earnedBookings.length> 0) { %>
+                            <div class="table-responsive">
+                                <table class="et">
+                                    <thead>
+                                        <tr>
+                                            <th>Property / Service</th>
+                                            <th>Type</th>
+                                            <th>Total Paid</th>
+                                            <th>Your 90%</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <% earnedBookings.forEach(b=> {
+                                            let itemTitle = b.listing ? b.listing.title : (b.vehicle ? (b.vehicle.brand
+                                            + ' ' + b.vehicle.model) : (b.dhaba ? b.dhaba.title : 'N/A'));
+                                            let yourCut = Math.round((b.totalPrice || 0) * 0.90);
+                                            let typeColor = b.type==='listing' ? '#6366f1' : b.type==='vehicle' ?
+                                            '#9333ea' : '#f59e0b';
+                                            let typeBg = b.type==='listing' ? 'rgba(99,102,241,0.15)' :
+                                            b.type==='vehicle' ? 'rgba(147,51,234,0.15)' : 'rgba(245,158,11,0.15)';
+                                            %>
+                                            <tr>
+                                                <td>
+                                                    <div class="fw-bold text-white">
+                                                        <%= itemTitle %>
+                                                    </div>
+                                                    <div
+                                                        style="font-size:0.72rem; color:rgba(255,255,255,0.35); margin-top:2px;">
+                                                        <%= new Date(b.createdAt).toLocaleDateString('en-IN',
+                                                            {year:'numeric',month:'short',day:'numeric'}) %>
+                                                    </div>
+                                                </td>
+                                                <td><span class="type-pill"
+                                                        style="background:<%= typeBg %>; color:<%= typeColor %>;">
+                                                        <%= b.type %>
+                                                    </span></td>
+                                                <td class="fw-bold" style="color:rgba(255,255,255,0.8);">₹<%=
+                                                        (b.totalPrice||0).toLocaleString('en-IN') %>
+                                                </td>
+                                                <td class="fw-bold" style="color:#34d399;">
+                                                    ₹<%= yourCut.toLocaleString('en-IN') %>
+                                                        <div class="mt-1"><span class="badge rounded-pill px-2"
+                                                                style="font-size:0.55rem; background:rgba(52,211,153,0.15); color:#6ee7b7;">TRANSFERRED</span>
+                                                        </div>
+                                                </td>
+                                            </tr>
+                                            <% }) %>
+                                    </tbody>
+                                </table>
+                            </div>
+                            <% } else { %>
+                                <div class="empty-earn">
+                                    <div
+                                        style="width:80px; height:80px; background:rgba(255,255,255,0.04); border-radius:50%; display:flex; align-items:center; justify-content:center; margin:0 auto 1.5rem;">
+                                        <i class="fas fa-chart-line fa-2x" style="color:rgba(255,255,255,0.2);"></i>
+                                    </div>
+                                    <p style="color:rgba(255,255,255,0.3); font-size:0.9rem;">No payouts yet. Start
+                                        hosting and earn from your listings!</p>
+                                </div>
+                                <% } %>
+
+                                    <!-- Revenue Splitter Visual -->
+                                    <div class="split-bar">
+                                        <div class="d-flex justify-content-between align-items-center mb-2">
+                                            <div
+                                                style="font-size:0.8rem; font-weight:700; color:rgba(255,255,255,0.6);">
+                                                Automated Revenue Split</div>
+                                            <div
+                                                style="font-size:0.8rem; font-weight:700; color:rgba(255,255,255,0.4);">
+                                                Total: ₹<%= totalEarned.toLocaleString('en-IN') %>
+                                            </div>
+                                        </div>
+                                        <div class="split-track">
+                                            <div class="split-fill-host"></div>
+                                            <div class="split-fill-platform"></div>
+                                        </div>
+                                        <div class="d-flex justify-content-between">
+                                            <div>
+                                                <span
+                                                    style="display:inline-block; width:12px; height:12px; border-radius:3px; background:linear-gradient(90deg,#10b981,#34d399); margin-right:6px;"></span>
+                                                <span style="color:#34d399; font-size:0.8rem; font-weight:700;">Your
+                                                    Bank: 90% — ₹<%= netEarnings.toLocaleString('en-IN') %></span>
+                                            </div>
+                                            <div>
+                                                <span
+                                                    style="display:inline-block; width:12px; height:12px; border-radius:3px; background:linear-gradient(90deg,#f59e0b,#fbbf24); margin-right:6px;"></span>
+                                                <span
+                                                    style="color:#fbbf24; font-size:0.8rem; font-weight:700;">WanderLust:
+                                                    10% — ₹<%= platformFee.toLocaleString('en-IN') %></span>
+                                            </div>
+                                        </div>
+                                    </div>
+                    </div>
                 </div>
 
-                <hr>
+                <!-- RIGHT COL: Bank Setup -->
+                <div class="col-lg-5">
 
-                <!-- Active Dashboard -->
-                <% if(user.payoutsEnabled) { %>
-                    <div class="row g-4">
-                        <!-- Balance Card -->
-                        <div class="col-md-6">
-                            <div
-                                class="card bg-primary text-white border-0 rounded-4 shadow h-100 overflow-hidden position-relative">
-                                <div class="card-body p-4 position-relative z-1">
-                                    <h6 class="text-white-50 mb-3 text-uppercase fw-bold ls-1">Available Balance</h6>
-                                    <h2 class="display-4 fw-bold mb-0">
-                                        <%= balance ? balance.currency : 'INR' %>
-                                            <%= balance ? balance.available.toLocaleString() : '0.00' %>
-                                    </h2>
-                                    <p class="mb-0 text-white-50 mt-2">
-                                        + <%= balance ? balance.currency : 'INR' %>
-                                            <%= balance ? balance.pending.toLocaleString() : '0.00' %> pending
-                                    </p>
-                                </div>
-                                <!-- Deco Circle -->
-                                <div class="position-absolute rounded-circle bg-white opacity-10"
-                                    style="width: 200px; height: 200px; top: -50px; right: -50px;"></div>
-                            </div>
+                    <!-- Bank Card / Form -->
+                    <div class="section-card">
+                        <div class="section-title">
+                            <i class="fas fa-university" style="color:#34d399;"></i>
+                            Bank Account
+                            <% if(user.bankDetails && user.bankDetails.isVerified) { %>
+                                <span
+                                    style="font-size:0.65rem; background:rgba(52,211,153,0.15); color:#6ee7b7; padding:3px 8px; border-radius:6px; font-weight:800; margin-left:auto;">✓
+                                    CONNECTED</span>
+                                <% } else { %>
+                                    <span
+                                        style="font-size:0.65rem; background:rgba(239,68,68,0.15); color:#fca5a5; padding:3px 8px; border-radius:6px; font-weight:800; margin-left:auto;">NOT
+                                        CONNECTED</span>
+                                    <% } %>
                         </div>
 
-                        <!-- External Account Card -->
-                        <div class="col-md-6">
-                            <div class="card border-0 rounded-4 shadow h-100 bg-light">
-                                <div
-                                    class="card-body p-4 d-flex flex-column justify-content-center align-items-center text-center">
-                                    <% if(externalAccount) { %>
-                                        <div class="mb-3">
-                                            <i
-                                                class="fas <%= externalAccount.is_bank ? 'fa-university' : 'fa-credit-card' %> fa-3x text-secondary"></i>
+                        <% if(user.bankDetails && user.bankDetails.isVerified) { %>
+                            <!-- CONNECTED STATE → Premium Bank Card -->
+                            <div class="bank-card-connected mb-4">
+                                <div class="bank-card-chip"></div>
+                                <div class="bank-number">**** **** **** <%= user.bankDetails.accountNumber.slice(-4) %>
+                                </div>
+                                <div class="d-flex justify-content-between align-items-end">
+                                    <div>
+                                        <div
+                                            style="font-size:0.65rem; opacity:0.7; text-transform:uppercase; letter-spacing:0.08em;">
+                                            Account Holder</div>
+                                        <div style="font-weight:800; font-size:1rem;">
+                                            <%= user.bankDetails.accountHolderName.toUpperCase() %>
                                         </div>
-                                        <h5 class="fw-bold mb-1">
-                                            <%= externalAccount.brand %>
-                                        </h5>
-                                        <p class="text-muted mb-3">•••• •••• •••• <%= externalAccount.last4 %>
-                                        </p>
-                                        <span
-                                            class="badge bg-success bg-opacity-10 text-success rounded-pill px-3">Active</span>
-                                        <% } else { %>
-                                            <p class="text-muted mb-0">No external account details fetched.</p>
-                                            <% } %>
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- Recent Payouts -->
-                        <div class="col-12">
-                            <div class="card border-0 rounded-4 shadow-sm p-4">
-                                <h5 class="fw-bold mb-4">Recent Payouts</h5>
-                                <% if(payouts && payouts.length> 0) { %>
-                                    <div class="table-responsive">
-                                        <table class="table table-hover align-middle">
-                                            <thead class="table-light">
-                                                <tr>
-                                                    <th scope="col" class="border-0 rounded-start">Amount</th>
-                                                    <th scope="col" class="border-0">Status</th>
-                                                    <th scope="col" class="border-0">Date</th>
-                                                    <th scope="col" class="border-0 rounded-end">Arrival Date</th>
-                                                </tr>
-                                            </thead>
-                                            <tbody>
-                                                <% payouts.forEach(payout=> { %>
-                                                    <tr>
-                                                        <td class="fw-bold">
-                                                            <%= payout.currency.toUpperCase() %>
-                                                                <%= (payout.amount / 100).toLocaleString() %>
-                                                        </td>
-                                                        <td>
-                                                            <% if(payout.status==='paid' ) { %>
-                                                                <span
-                                                                    class="badge bg-success bg-opacity-10 text-success rounded-pill px-3">Paid</span>
-                                                                <% } else if(payout.status==='pending' ||
-                                                                    payout.status==='in_transit' ) { %>
-                                                                    <span
-                                                                        class="badge bg-warning bg-opacity-10 text-warning rounded-pill px-3">Processing</span>
-                                                                    <% } else { %>
-                                                                        <span
-                                                                            class="badge bg-danger bg-opacity-10 text-danger rounded-pill px-3">
-                                                                            <%= payout.status %>
-                                                                        </span>
-                                                                        <% } %>
-                                                        </td>
-                                                        <td class="text-muted small">
-                                                            <%= new Date(payout.created * 1000).toLocaleDateString() %>
-                                                        </td>
-                                                        <td class="text-muted small">
-                                                            <%= new Date(payout.arrival_date *
-                                                                1000).toLocaleDateString() %>
-                                                        </td>
-                                                    </tr>
-                                                    <% }) %>
-                                            </tbody>
-                                        </table>
                                     </div>
-                                    <% } else { %>
-                                        <div class="text-center py-5 text-muted">
-                                            <i class="fas fa-receipt fa-2x mb-3 opacity-50"></i>
-                                            <p class="mb-0">No recent payouts found.</p>
+                                    <div class="text-end">
+                                        <div
+                                            style="font-size:0.65rem; opacity:0.7; text-transform:uppercase; letter-spacing:0.08em;">
+                                            Bank</div>
+                                        <div style="font-weight:800;">
+                                            <%= user.bankDetails.bankName %>
                                         </div>
-                                        <% } %>
+                                    </div>
+                                </div>
                             </div>
-                        </div>
-
-                        <!-- Links -->
-                        <div class="col-12 text-center mt-2">
-                            <% if(loginLink) { %>
-                                <a href="<%= loginLink.url %>" target="_blank"
-                                    class="btn btn-outline-dark rounded-pill px-4 fw-bold">
-                                    <i class="fas fa-external-link-alt me-2"></i> View Full Stripe Dashboard
-                                </a>
+                            <div class="d-flex justify-content-between align-items-center mb-4 p-3 rounded-3"
+                                style="background:rgba(52,211,153,0.08); border:1px solid rgba(52,211,153,0.15);">
+                                <div style="font-size:0.82rem; color:#6ee7b7;"><i
+                                        class="fas fa-check-circle me-2"></i>Ready to receive payouts</div>
+                                <button class="btn-disconnect btn"
+                                    onclick="document.getElementById('relink-form').classList.toggle('d-none')">Change</button>
+                            </div>
+                            <div id="relink-form" class="d-none">
+                                <form action="/payouts/connect-bank" method="POST" class="bank-form-box">
+                                    <div class="mb-3"><label class="form-label">Account Holder Name</label><input
+                                            type="text" name="holderName" class="form-control" placeholder="Full name"
+                                            required></div>
+                                    <div class="mb-3"><label class="form-label">Bank Name</label><input type="text"
+                                            name="bankName" class="form-control" placeholder="HDFC / ICICI / SBI"
+                                            required></div>
+                                    <div class="mb-3"><label class="form-label">Account Number</label><input
+                                            type="password" name="accountNumber" class="form-control"
+                                            placeholder="Account Number" required></div>
+                                    <div class="row g-2 mb-3">
+                                        <div class="col-6"><label class="form-label">IFSC Code</label><input type="text"
+                                                name="ifscCode" class="form-control" placeholder="HDFC0001234" required>
+                                        </div>
+                                        <div class="col-6 d-flex align-items-end"><button type="submit"
+                                                class="btn-connect btn">Update</button></div>
+                                    </div>
+                                </form>
+                            </div>
+                            <% } else { %>
+                                <!-- NOT CONNECTED → Onboarding Form -->
+                                <div class="text-center p-4 mb-4 rounded-4"
+                                    style="background:rgba(99,102,241,0.06); border:1px dashed rgba(99,102,241,0.2);">
+                                    <div
+                                        style="width:64px; height:64px; background:rgba(99,102,241,0.12); border-radius:20px; display:flex; align-items:center; justify-content:center; margin:0 auto 1rem; font-size:1.5rem; color:#818cf8;">
+                                        <i class="fas fa-link-slash"></i>
+                                    </div>
+                                    <h6 style="color:white; font-weight:800;">No Bank Linked</h6>
+                                    <p style="color:rgba(255,255,255,0.45); font-size:0.82rem; margin-bottom:0;">Connect
+                                        your bank account to start receiving direct payouts from WanderLust.</p>
+                                </div>
+                                <form action="/payouts/connect-bank" method="POST" class="bank-form-box">
+                                    <div class="mb-3"><label class="form-label">Account Holder Name <span
+                                                style="color:#f87171;">*</span></label><input type="text"
+                                            name="holderName" class="form-control" placeholder="e.g. Narendra Bhute"
+                                            required></div>
+                                    <div class="mb-3"><label class="form-label">Bank Name <span
+                                                style="color:#f87171;">*</span></label><input type="text"
+                                            name="bankName" class="form-control" placeholder="e.g. HDFC Bank" required>
+                                    </div>
+                                    <div class="mb-3"><label class="form-label">Account Number <span
+                                                style="color:#f87171;">*</span></label><input type="password"
+                                            name="accountNumber" class="form-control" placeholder="Enter account number"
+                                            required></div>
+                                    <div class="mb-4">
+                                        <label class="form-label">IFSC Code <span
+                                                style="color:#f87171;">*</span></label>
+                                        <input type="text" name="ifscCode" class="form-control"
+                                            placeholder="e.g. HDFC0001234" required>
+                                    </div>
+                                    <button type="submit" class="btn-connect btn"><i
+                                            class="fas fa-link me-2"></i>Connect Bank & Enable Payouts</button>
+                                </form>
                                 <% } %>
+                    </div>
+
+                    <!-- How Settlement Works -->
+                    <div class="section-card">
+                        <div class="section-title"><i class="fas fa-route" style="color:#818cf8;"></i> Settlement Flow
+                        </div>
+                        <div class="step-flow">
+                            <div class="step-item">
+                                <div class="step-num" style="background:rgba(99,102,241,0.2); color:#818cf8;">1</div>
+                                <div>
+                                    <div style="color:white; font-size:0.88rem; font-weight:700;">Guest Pays</div>
+                                    <div style="color:rgba(255,255,255,0.4); font-size:0.78rem;">Full amount via
+                                        Razorpay/UPI/Card</div>
+                                </div>
+                            </div>
+                            <div class="step-connector ms-1"></div>
+                            <div class="step-item">
+                                <div class="step-num" style="background:rgba(245,158,11,0.2); color:#fbbf24;">2</div>
+                                <div>
+                                    <div style="color:white; font-size:0.88rem; font-weight:700;">Platform Splits</div>
+                                    <div style="color:rgba(255,255,255,0.4); font-size:0.78rem;">10% WanderLust fee is
+                                        auto-deducted</div>
+                                </div>
+                            </div>
+                            <div class="step-connector ms-1"></div>
+                            <div class="step-item">
+                                <div class="step-num" style="background:rgba(16,185,129,0.2); color:#34d399;">3</div>
+                                <div>
+                                    <div style="color:white; font-size:0.88rem; font-weight:700;">You Receive 90%</div>
+                                    <div style="color:rgba(255,255,255,0.4); font-size:0.78rem;">Direct bank transfer
+                                        within T+2 days</div>
+                                </div>
+                            </div>
                         </div>
                     </div>
 
-                    <!-- Setup State -->
-                    <% } else { %>
-                        <div class="text-center py-5">
-                            <img src="https://images.unsplash.com/photo-1563013544-824ae1b704d3?auto=format&fit=crop&q=80&w=200"
-                                class="rounded-circle mb-3 shadow-sm"
-                                style="width: 100px; height: 100px; object-fit: cover;">
-                            <h5 class="mb-2">Setup Payouts to Receive Money</h5>
-                            <p class="text-muted w-75 mx-auto mb-4">To receive payments from your listings, you need to
-                                connect your bank account via Stripe. It allows for secure transfers and automated
-                                payouts.
-                            </p>
-
-                            <form action="/payouts/onboarding" method="POST"
-                                onsubmit="const btn = this.querySelector('button'); btn.innerHTML='<i class=\'fas fa-spinner fa-spin me-2\'></i> Redirecting...'; setTimeout(() => btn.disabled=true, 100);">
-                                <button class="btn btn-primary btn-lg rounded-pill px-5 fw-bold hover-elevate">
-                                    <i class="fas fa-university me-2"></i> Connect Bank Account
-                                </button>
-                            </form>
-                            <p class="small text-muted mt-3"><i class="fas fa-lock me-1"></i> Secured by Stripe</p>
-                        </div>
-                        <% } %>
-            </div>
-        </div>
+                </div><!-- end right col -->
+            </div><!-- end row -->
+        </div><!-- end container -->
     </div>
+
+    <script>
+        // Animated counter for earnings
+        const el = document.getElementById('earningsCounter');
+        if (el) {
+            const target = parseInt(el.dataset.target || 0);
+            let curr = 0;
+            const step = Math.ceil(target / 80);
+            const timer = setInterval(() => {
+                curr = Math.min(curr + step, target);
+                el.textContent = curr.toLocaleString('en-IN');
+                if (curr >= target) clearInterval(timer);
+            }, 15);
+        }
+
+        // Animate split bars on load
+        window.addEventListener('load', () => {
+            const host = document.querySelector('.split-fill-host');
+            const platform = document.querySelector('.split-fill-platform');
+            if (host && platform) {
+                host.style.width = '0%';
+                platform.style.width = '0%';
+                setTimeout(() => {
+                    host.style.transition = 'width 1.5s ease';
+                    platform.style.transition = 'width 1.5s ease 0.5s';
+                    host.style.width = '90%';
+                    platform.style.width = '10%';
+                }, 200);
+            }
+        });
+    </script>

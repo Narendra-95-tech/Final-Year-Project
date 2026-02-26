@@ -1,128 +1,134 @@
-const stripe = require("stripe")(process.env.STRIPE_SECRET_KEY);
 const User = require("../models/user");
+const Booking = require("../models/booking");
+const Listing = require("../models/listing.js");
+const Vehicle = require("../models/vehicle.js");
+const Dhaba = require("../models/dhaba.js");
 const wrapAsync = require("../utils/wrapAsync");
 
-// 1. Create a Connect Account (Express)
-// 1. Create a Connect Account (Express)
-module.exports.createConnectAccount = wrapAsync(async (req, res) => {
-    console.log("-> Starting Payout Onboarding for User:", req.user._id);
-    const user = await User.findById(req.user._id);
+// Render Payout / Earnings Dashboard
+module.exports.renderDashboard = wrapAsync(async (req, res) => {
+    const userId = req.user._id;
 
-    try {
-        // Function to create a new account
-        const createAccount = async () => {
-            return await stripe.accounts.create({
-                type: 'express',
-                country: 'IN', // Set to India for this user base
-                email: user.email,
-                capabilities: {
-                    transfers: { requested: true },
-                },
-                business_type: 'individual',
-                business_profile: {
-                    url: `https://wanderlust.com/users/${user._id}`, // Mock URL
-                },
-            });
-        };
+    // 1. Find all listings/vehicles/dhabas owned by this user
+    const [listings, vehicles, dhabas] = await Promise.all([
+        Listing.find({ owner: userId }).select('_id title'),
+        require("../models/vehicle").find({ owner: userId }).select('_id brand model'),
+        require("../models/dhaba").find({ owner: userId }).select('_id title')
+    ]);
 
-        // If no account ID, create one
-        if (!user.stripeAccountId) {
-            const account = await createAccount();
-            user.stripeAccountId = account.id;
-            await user.save();
-        }
+    const listingIds = listings.map(l => l._id);
+    const vehicleIds = vehicles.map(v => v._id);
+    const dhabaIds = dhabas.map(d => d._id);
 
-        // Try creating the link
-        let accountLink;
-        try {
-            accountLink = await stripe.accountLinks.create({
-                account: user.stripeAccountId,
-                refresh_url: `${req.protocol}://${req.get("host")}/payouts/onboarding`,
-                return_url: `${req.protocol}://${req.get("host")}/payouts/dashboard`,
-                type: 'account_onboarding',
-            });
-        } catch (linkError) {
-            // If account not found (e.g. deleted on Stripe dashboard), create a new one
-            if (linkError.code === 'account_invalid') {
-                console.log("Stripe Account Invalid! Creating a new one...");
-                const account = await createAccount();
-                user.stripeAccountId = account.id;
-                await user.save();
+    // 2. Fetch all PAID bookings for those items (earnings)
+    const earnedBookings = await Booking.find({
+        $or: [
+            { listing: { $in: listingIds } },
+            { vehicle: { $in: vehicleIds } },
+            { dhaba: { $in: dhabaIds } }
+        ],
+        paymentStatus: 'Paid',
+        status: 'Confirmed'
+    })
+        .populate('listing', 'title image')
+        .populate('vehicle', 'brand model image')
+        .populate('dhaba', 'title image')
+        .populate('user', 'username email fullName')
+        .sort({ createdAt: -1 });
 
-                // Retry link creation
-                accountLink = await stripe.accountLinks.create({
-                    account: user.stripeAccountId,
-                    refresh_url: `${req.protocol}://${req.get("host")}/payouts/onboarding`,
-                    return_url: `${req.protocol}://${req.get("host")}/payouts/dashboard`,
-                    type: 'account_onboarding',
-                });
-            } else {
-                throw linkError;
-            }
-        }
+    // 3. Pending bookings (confirmed but payment pending — e.g., UPI manual pending review)
+    const pendingBookings = await Booking.find({
+        $or: [
+            { listing: { $in: listingIds } },
+            { vehicle: { $in: vehicleIds } },
+            { dhaba: { $in: dhabaIds } }
+        ],
+        status: 'Confirmed',
+        paymentStatus: 'Pending'
+    })
+        .populate('listing', 'title')
+        .populate('vehicle', 'brand model')
+        .populate('dhaba', 'title')
+        .populate('user', 'username email fullName');
 
-        res.redirect(accountLink.url);
+    // 4. Calculate stats
+    const totalEarned = earnedBookings.reduce((sum, b) => sum + (b.totalPrice || 0), 0);
+    const platformFee = Math.round(totalEarned * 0.10); // 10% platform commission
+    const netEarnings = totalEarned - platformFee;
+    const pendingAmount = pendingBookings.reduce((sum, b) => sum + (b.totalPrice || 0), 0);
 
-    } catch (err) {
-        console.error("Stripe Onboarding Error:", err);
-        req.flash("error", "Failed to initialize payout setup: " + err.message);
-        res.redirect("/payouts/dashboard");
-    }
+    // 5. Monthly breakdown (last 6 months)
+    const sixMonthsAgo = new Date();
+    sixMonthsAgo.setMonth(sixMonthsAgo.getMonth() - 6);
+    const monthlyData = {};
+
+    earnedBookings
+        .filter(b => new Date(b.createdAt) >= sixMonthsAgo)
+        .forEach(b => {
+            const month = new Date(b.createdAt).toLocaleString('en-IN', { month: 'short', year: '2-digit' });
+            monthlyData[month] = (monthlyData[month] || 0) + (b.totalPrice || 0);
+        });
+
+    // 6. Breakdown by type
+    const byType = {
+        listing: earnedBookings.filter(b => b.type === 'listing').reduce((s, b) => s + (b.totalPrice || 0), 0),
+        vehicle: earnedBookings.filter(b => b.type === 'vehicle').reduce((s, b) => s + (b.totalPrice || 0), 0),
+        dhaba: earnedBookings.filter(b => b.type === 'dhaba').reduce((s, b) => s + (b.totalPrice || 0), 0),
+    };
+
+    res.render("users/payouts", {
+        user: req.user,
+        earnedBookings: earnedBookings.slice(0, 10), // last 10 for table
+        pendingBookings,
+        totalEarned,
+        platformFee,
+        netEarnings,
+        pendingAmount,
+        monthlyData,
+        byType,
+        totalBookings: earnedBookings.length,
+        hasListings: listings.length > 0 || vehicles.length > 0 || dhabas.length > 0
+    });
 });
 
-// 2. Render Payout Dashboard
-module.exports.renderDashboard = wrapAsync(async (req, res) => {
-    const user = await User.findById(req.user._id);
-    let balance = null;
-    let payouts = [];
-    let loginLink = null;
-    let externalAccount = null;
-
-    if (user.stripeAccountId) {
-        const account = await stripe.accounts.retrieve(user.stripeAccountId);
-        user.payoutsEnabled = account.payouts_enabled;
-        await user.save();
-
-        if (user.payoutsEnabled) {
-            try {
-                // 1. Create Login Link
-                loginLink = await stripe.accounts.createLoginLink(user.stripeAccountId);
-
-                // 2. Fetch Balance
-                const balanceObj = await stripe.balance.retrieve({
-                    stripeAccount: user.stripeAccountId
-                });
-                // Simplify balance structure for the view
-                balance = {
-                    available: balanceObj.available[0].amount / 100, // Assuming USD/INR base currency matches
-                    pending: balanceObj.pending[0].amount / 100,
-                    currency: balanceObj.available[0].currency.toUpperCase()
-                };
-
-                // 3. Fetch Recent Payouts
-                const payoutsObj = await stripe.payouts.list({
-                    limit: 5
-                }, {
-                    stripeAccount: user.stripeAccountId
-                });
-                payouts = payoutsObj.data;
-
-                // 4. Get External Account (Bank/Card) info if available
-                if (account.external_accounts && account.external_accounts.data.length > 0) {
-                    const ext = account.external_accounts.data[0];
-                    externalAccount = {
-                        brand: ext.bank_name || ext.brand || 'Bank Account',
-                        last4: ext.last4,
-                        is_bank: ext.object === 'bank_account'
-                    };
-                }
-
-            } catch (err) {
-                console.error("Stripe Dashboard Error:", err);
-                // Don't crash the page if Stripe API fails, just show what we can
-            }
-        }
+// Update Payout UPI
+module.exports.updateUPI = wrapAsync(async (req, res) => {
+    const { upiId } = req.body;
+    if (!upiId) {
+        req.flash("error", "UPI ID cannot be empty");
+        return res.redirect("/payouts/dashboard");
     }
 
-    res.render("users/payouts", { user, loginLink, balance, payouts, externalAccount });
+    await User.findByIdAndUpdate(req.user._id, { payoutUPI: upiId });
+    req.flash("success", "Payout UPI ID updated successfully! 💸");
+    res.redirect("/payouts/dashboard");
+});
+
+// Connect Bank Account
+module.exports.connectBank = wrapAsync(async (req, res) => {
+    const { holderName, accountNumber, ifscCode, bankName } = req.body;
+
+    if (!holderName || !accountNumber || !ifscCode) {
+        req.flash("error", "Please fill all required bank details");
+        return res.redirect("/payouts/dashboard");
+    }
+
+    const bankDetails = {
+        accountHolderName: holderName,
+        accountNumber: accountNumber,
+        ifscCode: ifscCode,
+        bankName: bankName || "Connected Bank",
+        isVerified: true,
+        connectedAt: new Date()
+    };
+
+    await User.findByIdAndUpdate(req.user._id, { bankDetails });
+    req.flash("success", "Bank Account connected successfully! You're now ready for direct payouts. 🏦✨");
+    res.redirect("/payouts/dashboard");
+});
+
+// Stub: kept for backward compat
+module.exports.createConnectAccount = wrapAsync(async (req, res) => {
+    req.flash("info", "Earnings are tracked automatically when guests pay for your listings.");
+    res.redirect("/payouts/dashboard");
 });

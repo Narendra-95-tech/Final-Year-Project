@@ -319,67 +319,470 @@
                   </div>
           </div>
 
-          <div class="card-body border-top">
+          <div class="payment-methods-section">
             <% if (!booking.isPaid) { %>
-              <div class="text-center">
-                <h5 class="mb-3">Payment Options</h5>
-                <p class="text-muted mb-4">Choose your preferred payment method to complete the booking</p>
 
-                <div class="row g-3">
-                  <div class="col-md-12">
-                    <div
-                      class="wallet-option mb-3 <%= currUser.walletBalance < booking.totalPrice ? 'insufficient' : '' %>"
-                      id="walletOption">
-                      <div class="d-flex justify-content-between align-items-center mb-2">
-                        <span class="fw-bold"><i class="fas fa-wallet text-warning me-2"></i>WanderLust Wallet</span>
-                        <span class="badge bg-light text-dark border">Balance: ₹<%= (currUser.walletBalance ||
-                            0).toLocaleString() %></span>
-                      </div>
-                      <% if (currUser.walletBalance>= booking.totalPrice) { %>
-                        <p class="small text-muted mb-3">Instant confirmation using your wallet funds.</p>
-                        <button onclick="payWithWallet()" class="btn btn-warning w-100 py-3 fw-bold" id="payWalletBtn">
-                          Confirm with Wallet
-                        </button>
-                        <% } else { %>
-                          <p class="small text-danger mb-0">Insufficient balance. Need ₹<%= (booking.totalPrice -
-                              currUser.walletBalance).toLocaleString() %> more.</p>
-                          <a href="/trust/wallet" class="btn btn-sm btn-outline-warning mt-2 rounded-pill">Top up
-                            Wallet</a>
-                          <% } %>
-                    </div>
-                  </div>
+              <style>
+                .payment-methods-section {
+                  padding: 2rem;
+                }
 
-                  <div class="col-md-6">
-                    <button class="btn btn-primary w-100 py-3" onclick="processPayment()">
-                      <i class="fas fa-credit-card me-2"></i>
-                      Pay with Card
-                    </button>
+                .pm-header {
+                  text-align: center;
+                  margin-bottom: 2rem;
+                }
+
+                .pm-header h5 {
+                  font-size: 1.4rem;
+                  font-weight: 700;
+                  color: #1a1a2e;
+                  margin-bottom: 0.3rem;
+                }
+
+                .pm-header p {
+                  color: #6b7280;
+                  font-size: 0.95rem;
+                }
+
+                /* ── Payment Method Cards ── */
+                .pm-card {
+                  background: #fff;
+                  border: 2px solid #e5e7eb;
+                  border-radius: 18px;
+                  padding: 1.25rem 1.5rem;
+                  margin-bottom: 1rem;
+                  cursor: pointer;
+                  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+                  position: relative;
+                  overflow: hidden;
+                }
+
+                .pm-card::before {
+                  content: '';
+                  position: absolute;
+                  top: 0;
+                  left: 0;
+                  width: 4px;
+                  height: 100%;
+                  background: transparent;
+                  transition: background 0.25s;
+                }
+
+                .pm-card:hover {
+                  border-color: #fe6b00;
+                  box-shadow: 0 8px 30px rgba(254, 107, 0, 0.12);
+                  transform: translateY(-2px);
+                }
+
+                .pm-card:hover::before {
+                  background: #fe6b00;
+                }
+
+                .pm-card.disabled-card {
+                  opacity: 0.6;
+                  cursor: not-allowed;
+                }
+
+                .pm-card.disabled-card:hover {
+                  transform: none;
+                  border-color: #e5e7eb;
+                  box-shadow: none;
+                }
+
+                .pm-card.disabled-card:hover::before {
+                  background: transparent;
+                }
+
+                /* ── Razorpay CTA ── */
+                .razorpay-cta {
+                  background: linear-gradient(135deg, #072654 0%, #1a3a8a 50%, #0f2048 100%);
+                  border-radius: 18px;
+                  padding: 1.75rem;
+                  margin-bottom: 1rem;
+                  position: relative;
+                  overflow: hidden;
+                  cursor: pointer;
+                  transition: transform 0.25s, box-shadow 0.25s;
+                }
+
+                .razorpay-cta::after {
+                  content: '';
+                  position: absolute;
+                  top: -50%;
+                  right: -30px;
+                  width: 200px;
+                  height: 200px;
+                  background: rgba(255, 255, 255, 0.05);
+                  border-radius: 50%;
+                }
+
+                .razorpay-cta:hover {
+                  transform: translateY(-3px);
+                  box-shadow: 0 20px 50px rgba(7, 38, 84, 0.35);
+                }
+
+                .rzp-logo-area {
+                  display: flex;
+                  align-items: center;
+                  gap: 12px;
+                  margin-bottom: 1rem;
+                }
+
+                .rzp-icon-wrap {
+                  width: 48px;
+                  height: 48px;
+                  background: rgba(255, 255, 255, 0.12);
+                  border-radius: 12px;
+                  display: flex;
+                  align-items: center;
+                  justify-content: center;
+                  backdrop-filter: blur(4px);
+                }
+
+                .rzp-title {
+                  color: #fff;
+                  font-size: 1.1rem;
+                  font-weight: 700;
+                  margin: 0;
+                  line-height: 1.2;
+                }
+
+                .rzp-subtitle {
+                  color: rgba(255, 255, 255, 0.65);
+                  font-size: 0.8rem;
+                  margin: 0;
+                }
+
+                .rzp-amount-badge {
+                  background: rgba(255, 255, 255, 0.15);
+                  border: 1px solid rgba(255, 255, 255, 0.25);
+                  border-radius: 12px;
+                  padding: 0.5rem 1rem;
+                  color: #fff;
+                  font-size: 1.5rem;
+                  font-weight: 800;
+                  letter-spacing: -0.5px;
+                  display: inline-block;
+                  margin-bottom: 1rem;
+                  backdrop-filter: blur(4px);
+                }
+
+                .rzp-pay-btn {
+                  background: linear-gradient(135deg, #3395ff, #1a7de6);
+                  border: none;
+                  border-radius: 12px;
+                  color: #fff;
+                  font-size: 1rem;
+                  font-weight: 700;
+                  padding: 0.85rem 2rem;
+                  width: 100%;
+                  cursor: pointer;
+                  transition: all 0.2s;
+                  letter-spacing: 0.3px;
+                  position: relative;
+                  z-index: 1;
+                }
+
+                .rzp-pay-btn:hover {
+                  background: linear-gradient(135deg, #1a7de6, #0f5fbf);
+                  transform: translateY(-1px);
+                  box-shadow: 0 8px 24px rgba(26, 125, 230, 0.4);
+                }
+
+                .rzp-pay-btn:disabled {
+                  opacity: 0.7;
+                  cursor: not-allowed;
+                  transform: none;
+                }
+
+                /* Method Pills */
+                .method-pills {
+                  display: flex;
+                  gap: 0.5rem;
+                  flex-wrap: wrap;
+                  margin-top: 0.75rem;
+                  position: relative;
+                  z-index: 1;
+                }
+
+                .method-pill {
+                  background: rgba(255, 255, 255, 0.1);
+                  border: 1px solid rgba(255, 255, 255, 0.2);
+                  border-radius: 100px;
+                  padding: 3px 12px;
+                  color: rgba(255, 255, 255, 0.85);
+                  font-size: 0.75rem;
+                  font-weight: 500;
+                  display: flex;
+                  align-items: center;
+                  gap: 5px;
+                }
+
+                /* Wallet Card */
+                .wallet-pm-card {
+                  background: linear-gradient(135deg, #fff9f0, #fff5e6);
+                  border-color: #ffd08a;
+                }
+
+                .wallet-pm-card:hover {
+                  border-color: #f59e0b;
+                  box-shadow: 0 8px 30px rgba(245, 158, 11, 0.15);
+                }
+
+                .wallet-pm-card:hover::before {
+                  background: #f59e0b;
+                }
+
+                .wallet-balance-badge {
+                  background: linear-gradient(135deg, #f59e0b, #d97706);
+                  color: #fff;
+                  border-radius: 100px;
+                  padding: 4px 12px;
+                  font-size: 0.8rem;
+                  font-weight: 700;
+                }
+
+                .wallet-confirm-btn {
+                  background: linear-gradient(135deg, #f59e0b, #d97706);
+                  border: none;
+                  border-radius: 12px;
+                  color: #fff;
+                  font-weight: 700;
+                  padding: 0.75rem 1.5rem;
+                  width: 100%;
+                  font-size: 0.95rem;
+                  cursor: pointer;
+                  transition: all 0.2s;
+                  margin-top: 0.75rem;
+                }
+
+                .wallet-confirm-btn:hover {
+                  background: linear-gradient(135deg, #d97706, #b45309);
+                  transform: translateY(-1px);
+                  box-shadow: 0 8px 20px rgba(217, 119, 6, 0.35);
+                }
+
+                /* UPI Card */
+                .upi-pm-card {
+                  background: #f8faff;
+                  border-color: #c7d2fe;
+                }
+
+                .upi-pm-card:hover {
+                  border-color: #6366f1;
+                  box-shadow: 0 8px 30px rgba(99, 102, 241, 0.1);
+                }
+
+                .upi-pm-card:hover::before {
+                  background: #6366f1;
+                }
+
+                .upi-pay-btn {
+                  background: linear-gradient(135deg, #6366f1, #4f46e5);
+                  border: none;
+                  border-radius: 12px;
+                  color: #fff;
+                  font-weight: 700;
+                  padding: 0.75rem;
+                  width: 100%;
+                  cursor: pointer;
+                  transition: all 0.2s;
+                  margin-top: 0.75rem;
+                  font-size: 0.9rem;
+                }
+
+                .upi-pay-btn:hover {
+                  background: linear-gradient(135deg, #4f46e5, #3730a3);
+                  transform: translateY(-1px);
+                  box-shadow: 0 8px 20px rgba(79, 70, 229, 0.35);
+                }
+
+                /* Trust Strip */
+                .trust-strip {
+                  display: flex;
+                  justify-content: center;
+                  align-items: center;
+                  gap: 1.5rem;
+                  flex-wrap: wrap;
+                  margin-top: 1.5rem;
+                  padding: 1rem 1.25rem;
+                  background: linear-gradient(135deg, #f0fdf4, #dcfce7);
+                  border-radius: 14px;
+                  border: 1px solid #bbf7d0;
+                }
+
+                .trust-item {
+                  display: flex;
+                  align-items: center;
+                  gap: 6px;
+                  font-size: 0.8rem;
+                  color: #166534;
+                  font-weight: 600;
+                }
+
+                .trust-item i {
+                  color: #16a34a;
+                  font-size: 0.9rem;
+                }
+
+                .pm-divider {
+                  text-align: center;
+                  position: relative;
+                  margin: 1rem 0;
+                }
+
+                .pm-divider::before {
+                  content: '';
+                  position: absolute;
+                  top: 50%;
+                  left: 0;
+                  right: 0;
+                  height: 1px;
+                  background: #e5e7eb;
+                }
+
+                .pm-divider span {
+                  background: #fff;
+                  padding: 0 12px;
+                  color: #9ca3af;
+                  font-size: 0.8rem;
+                  font-weight: 600;
+                  position: relative;
+                  z-index: 1;
+                }
+              </style>
+
+              <!-- ═══ PAYMENT OPTIONS ═══ -->
+              <div class="pm-header">
+                <h5>Choose Payment Method</h5>
+                <p>All transactions are secured with 256-bit SSL encryption</p>
+              </div>
+
+              <!-- ── 1. RAZORPAY (Primary) ── -->
+              <div class="razorpay-cta" onclick="payWithRazorpay()">
+                <div class="rzp-logo-area">
+                  <div class="rzp-icon-wrap">
+                    <img src="https://razorpay.com/favicon.png" alt="Razorpay" style="width:26px;height:26px;">
                   </div>
-                  <div class="col-md-6">
-                    <button class="btn btn-outline-primary w-100 py-3" onclick="payWithUPI()">
-                      <i class="fas fa-mobile-alt me-2"></i>
-                      Pay with UPI
-                    </button>
+                  <div>
+                    <p class="rzp-title">Pay with Razorpay</p>
+                    <p class="rzp-subtitle">India's most trusted payment platform</p>
+                  </div>
+                  <div class="ms-auto">
+                    <span
+                      style="background:rgba(255,255,255,0.15);color:#fff;border-radius:6px;padding:3px 8px;font-size:0.7rem;font-weight:700;border:1px solid rgba(255,255,255,0.2);">RECOMMENDED</span>
                   </div>
                 </div>
 
-                <div class="mt-4 p-3 bg-light rounded">
-                  <h6 class="mb-2">💳 Secure Payment</h6>
-                  <p class="small text-muted mb-0">
-                    Your payment information is encrypted and secure. We accept all major credit cards and UPI payments.
-                  </p>
+                <div class="rzp-amount-badge">
+                  ₹<%= booking.totalPrice.toLocaleString('en-IN') %>
+                </div>
+
+                <button class="rzp-pay-btn" id="razorpayBtn" onclick="event.stopPropagation(); payWithRazorpay()">
+                  <i class="fas fa-bolt me-2"></i>Pay Now — Instant Confirmation
+                </button>
+
+                <div class="method-pills">
+                  <span class="method-pill"><i class="fas fa-credit-card"></i> Cards</span>
+                  <span class="method-pill"><i class="fas fa-mobile-alt"></i> UPI</span>
+                  <span class="method-pill"><i class="fas fa-university"></i> NetBanking</span>
+                  <span class="method-pill"><i class="fas fa-wallet"></i> Wallets</span>
+                  <span class="method-pill"><i class="fas fa-lock"></i> 256-bit SSL</span>
                 </div>
               </div>
+
+              <div class="pm-divider"><span>OR PAY USING OTHER OPTIONS</span></div>
+
+              <!-- ── 2. WANDERLUST WALLET ── -->
+              <div
+                class="pm-card wallet-pm-card <%= currUser.walletBalance < booking.totalPrice ? 'disabled-card' : '' %>">
+                <div class="d-flex justify-content-between align-items-center mb-2">
+                  <div class="d-flex align-items-center gap-2">
+                    <div
+                      style="width:38px;height:38px;background:linear-gradient(135deg,#f59e0b,#d97706);border-radius:10px;display:flex;align-items:center;justify-content:center;">
+                      <i class="fas fa-wallet text-white"></i>
+                    </div>
+                    <div>
+                      <div class="fw-bold" style="color:#1a1a2e;">WanderLust Wallet</div>
+                      <div class="small text-muted">Instant · No extra charges</div>
+                    </div>
+                  </div>
+                  <span class="wallet-balance-badge">₹<%= (currUser.walletBalance || 0).toLocaleString('en-IN') %>
+                  </span>
+                </div>
+                <% if (currUser.walletBalance>= booking.totalPrice) { %>
+                  <button onclick="payWithWallet()" class="wallet-confirm-btn" id="payWalletBtn">
+                    <i class="fas fa-check-circle me-2"></i>Pay ₹<%= booking.totalPrice.toLocaleString('en-IN') %> with
+                      Wallet
+                  </button>
+                  <% } else { %>
+                    <div class="d-flex justify-content-between align-items-center mt-2">
+                      <p class="small text-danger mb-0"><i class="fas fa-exclamation-circle me-1"></i>Need ₹<%=
+                          (booking.totalPrice - currUser.walletBalance).toLocaleString('en-IN') %> more</p>
+                      <a href="/trust/wallet" class="btn btn-sm btn-outline-warning rounded-pill">Top Up →</a>
+                    </div>
+                    <% } %>
+              </div>
+
+              <!-- ── 3. UPI via Razorpay (Auto-detect) ── -->
+              <div class="pm-card upi-pm-card">
+                <div class="d-flex align-items-center gap-2 mb-1">
+                  <div
+                    style="width:38px;height:38px;background:linear-gradient(135deg,#6366f1,#4f46e5);border-radius:10px;display:flex;align-items:center;justify-content:center;">
+                    <i class="fas fa-mobile-alt text-white"></i>
+                  </div>
+                  <div>
+                    <div class="fw-bold" style="color:#1a1a2e;">Pay via UPI</div>
+                    <div class="small text-muted">GPay · PhonePe · Paytm · Any UPI App</div>
+                  </div>
+                  <div class="ms-auto">
+                    <span class="badge bg-success-subtle text-success border border-success"
+                      style="font-size:0.7rem;">AUTO DETECT</span>
+                  </div>
+                </div>
+                <!-- Primary: Razorpay UPI (auto-detects payment) -->
+                <button onclick="payWithRazorpayUPI()" class="upi-pay-btn">
+                  <i class="fas fa-bolt me-2"></i>Pay via UPI (Auto Confirm)
+                </button>
+                <!-- Secondary: Manual QR fallback -->
+                <button onclick="payWithUPI()" class="btn btn-link w-100 text-muted small mt-2"
+                  style="font-size: 0.8rem;">
+                  <i class="fas fa-qrcode me-1"></i> Or scan QR manually
+                </button>
+              </div>
+
+              <!-- ── TRUST STRIP ── -->
+              <div class="trust-strip">
+                <div class="trust-item">
+                  <i class="fas fa-shield-alt"></i>
+                  <span>256-bit SSL Secured</span>
+                </div>
+                <div class="trust-item">
+                  <i class="fas fa-lock"></i>
+                  <span>PCI DSS Compliant</span>
+                </div>
+                <div class="trust-item">
+                  <i class="fas fa-undo"></i>
+                  <span>Instant Refunds</span>
+                </div>
+                <div class="trust-item">
+                  <i class="fas fa-headset"></i>
+                  <span>24/7 Support</span>
+                </div>
+              </div>
+
               <% } else { %>
                 <div class="text-center py-4">
                   <div class="mb-3">
-                    <i class="fas fa-check-circle fa-4x text-success"></i>
+                    <div
+                      style="width:80px;height:80px;background:linear-gradient(135deg,#22c55e,#16a34a);border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto 1rem;">
+                      <i class="fas fa-check text-white" style="font-size:2rem;"></i>
+                    </div>
                   </div>
-                  <h4 class="text-success mb-3">Payment Successful!</h4>
-                  <p class="text-muted mb-4">Your booking has been confirmed and payment has been processed
-                    successfully.</p>
-                  <a href="/bookings" class="btn btn-primary">
-                    <i class="fas fa-arrow-left me-2"></i>Back to My Bookings
+                  <h4 class="fw-bold" style="color:#16a34a;">Payment Successful!</h4>
+                  <p class="text-muted mb-4">Your booking has been confirmed. Check your email for details.</p>
+                  <a href="/bookings" class="btn btn-primary rounded-pill px-4">
+                    <i class="fas fa-arrow-left me-2"></i>View My Bookings
                   </a>
                 </div>
                 <% } %>
@@ -388,6 +791,7 @@
       </div>
     </div>
   </div>
+
 
   <!-- Modal and Overlay for Professional Wallet Flow -->
 
@@ -416,72 +820,124 @@
         <div class="modal-body">
           <div class="upi-header">
             <h4>Scan & Pay</h4>
-            <p>Use any UPI app to make the payment</p>
+            <p>Scan the QR code with any UPI app to pay</p>
           </div>
 
-          <div class="qr-container">
-            <img
-              src="https://api.qrserver.com/v1/create-qr-code/?size=250x250&data=upi://pay?pa=wanderlust@upi&pn=WanderLust&am=<%= booking.totalPrice %>&cu=INR"
-              alt="UPI QR Code" class="qr-code-img">
-            <div class="payment-amount-display">₹<%= booking.totalPrice.toLocaleString("en-IN") %>
+          <!-- STEP 1: Scan & Pay -->
+          <div id="upiStep1">
+            <div class="qr-container">
+              <img
+                src="https://api.qrserver.com/v1/create-qr-code/?size=250x250&data=upi://pay?pa=narendrabhute922@axl&pn=Narendra%20Bhute&am=<%= booking.totalPrice %>&cu=INR"
+                alt="UPI QR Code" class="qr-code-img">
+              <div class="payment-amount-display">₹<%= booking.totalPrice.toLocaleString("en-IN") %>
+              </div>
+              <div class="merchant-name">
+                <i class="fas fa-store-alt"></i> Narendra Bhute
+              </div>
+              <!-- Timer Badge -->
+              <div class="position-absolute top-0 end-0 m-3 badge bg-light text-dark border">
+                ⏱️ <span id="upiTimer">05:00</span>
+              </div>
             </div>
-            <div class="merchant-name">
-              <i class="fas fa-store-alt"></i> WanderLust Payments
+
+            <div class="text-center mb-3">
+              <span class="text-muted small fw-bold">OR PAY WITH APP</span>
             </div>
 
-            <!-- Timer Badge -->
-            <div class="position-absolute top-0 end-0 m-3 badge bg-light text-dark border">
-              ⏱️ <span id="upiTimer">05:00</span>
+            <!-- Quick Intent Links (Mobile Optimized) -->
+            <div class="upi-apps-grid">
+              <a href="tez://upi/pay?pa=narendrabhute922@axl&pn=Narendra%20Bhute&am=<%= booking.totalPrice %>&cu=INR"
+                class="upi-app-btn">
+                <i class="fab fa-google-pay upi-app-icon" style="color: #4285F4;"></i> Google Pay
+              </a>
+              <a href="phonepe://pay?pa=narendrabhute922@axl&pn=Narendra%20Bhute&am=<%= booking.totalPrice %>&cu=INR"
+                class="upi-app-btn">
+                <span class="upi-app-icon fw-bold" style="color: #6739b7;">Pe</span> PhonePe
+              </a>
+              <a href="paytmmp://pay?pa=narendrabhute922@axl&pn=Narendra%20Bhute&am=<%= booking.totalPrice %>&cu=INR"
+                class="upi-app-btn">
+                <span class="upi-app-icon fw-bold" style="color: #00baf2;">Pay</span> Paytm
+              </a>
+              <a href="upi://pay?pa=narendrabhute922@axl&pn=Narendra%20Bhute&am=<%= booking.totalPrice %>&cu=INR"
+                class="upi-app-btn">
+                <i class="fas fa-mobile-alt upi-app-icon"></i> Other UPI
+              </a>
             </div>
-          </div>
 
-          <div class="text-center mb-3">
-            <span class="text-muted small fw-bold">OR PAY WITH APP</span>
-          </div>
+            <!-- UPI ID Copy -->
+            <div class="upi-id-container">
+              <span class="upi-id-label">UPI ID:</span>
+              <span class="upi-id-value">narendrabhute922@axl</span>
+              <button class="copy-btn" onclick="copyUpiId()" title="Copy UPI ID">
+                <i class="far fa-copy"></i>
+              </button>
+            </div>
 
-          <!-- Quick Intent Links (Mobile Optimized) -->
-          <div class="upi-apps-grid">
-            <a href="tez://upi/pay?pa=wanderlust@upi&pn=WanderLust&am=<%= booking.totalPrice %>&cu=INR"
-              class="upi-app-btn">
-              <i class="fab fa-google-pay upi-app-icon" style="color: #4285F4;"></i> Google Pay
-            </a>
-            <a href="phonepe://pay?pa=wanderlust@upi&pn=WanderLust&am=<%= booking.totalPrice %>&cu=INR"
-              class="upi-app-btn">
-              <span class="upi-app-icon fw-bold" style="color: #6739b7;">Pe</span> PhonePe
-            </a>
-            <a href="paytmmp://pay?pa=wanderlust@upi&pn=WanderLust&am=<%= booking.totalPrice %>&cu=INR"
-              class="upi-app-btn">
-              <span class="upi-app-icon fw-bold" style="color: #00baf2;">Pay</span> Paytm
-            </a>
-            <a href="upi://pay?pa=wanderlust@upi&pn=WanderLust&am=<%= booking.totalPrice %>&cu=INR" class="upi-app-btn">
-              <i class="fas fa-mobile-alt upi-app-icon"></i> Other UPI
-            </a>
-          </div>
+            <!-- ✅ BIG CLEAR CTA after scanning -->
+            <div class="alert alert-warning border-warning d-flex align-items-center gap-3 mb-3"
+              style="border-radius: 14px; border-width: 2px !important;">
+              <i class="fas fa-info-circle fa-lg text-warning"></i>
+              <div class="small">
+                <strong>After paying</strong> from your UPI app, tap the button below to confirm your booking.
+              </div>
+            </div>
 
-          <!-- UPI ID Copy -->
-          <div class="upi-id-container">
-            <span class="upi-id-label">UPI ID:</span>
-            <span class="upi-id-value">wanderlust@upi</span>
-            <button class="copy-btn" onclick="copyUpiId()" title="Copy UPI ID">
-              <i class="far fa-copy"></i>
+            <button onclick="showUpiStep2()" class="btn btn-success w-100 py-3 rounded-pill fw-bold shadow-sm"
+              style="font-size: 1.1rem;">
+              <i class="fas fa-check-circle me-2"></i> I Have Paid — Confirm Booking
             </button>
           </div>
 
-          <!-- UTR Input -->
-          <div class="mb-4">
-            <label for="utrInput" class="form-label small fw-bold text-muted">ENTER PAYMENT REFERENCE (UTR)</label>
-            <input type="text" class="form-control form-control-lg text-center fw-bold bg-light border-0" id="utrInput"
-              placeholder="e.g. 321456789012" maxlength="12" style="letter-spacing: 2px;">
-            <div id="utrError" class="text-danger small mt-2 d-none">
-              <i class="fas fa-exclamation-circle me-1"></i> Please enter a valid reference number
+          <!-- STEP 2: Enter UTR & Confirm -->
+          <div id="upiStep2" style="display:none;">
+            <div class="text-center mb-4">
+              <div class="mb-3">
+                <span class="badge bg-success-subtle text-success border border-success px-3 py-2 rounded-pill">
+                  <i class="fas fa-check-circle me-1"></i> Payment Done
+                </span>
+              </div>
+              <h5 class="fw-bold">Enter Your Transaction ID</h5>
+              <p class="text-muted small">Open your UPI app → Go to transaction history → Copy the 12-digit
+                UTR/Reference number</p>
             </div>
-          </div>
 
-          <!-- Confirmation -->
-          <button id="verifyUpiBtn" onclick="verifyUPIPayment()"
-            class="btn btn-dark w-100 py-3 rounded-pill fw-bold shadow-sm" style="background: #2b2b2b;">
-            <i class="fas fa-check-circle me-2"></i>I have completed the payment
-          </button>
+            <!-- Visual guide -->
+            <div class="d-flex gap-2 mb-4 p-3 bg-light rounded-3 align-items-center">
+              <div class="text-center" style="min-width: 48px;">
+                <i class="fas fa-mobile-alt fa-2x text-primary"></i>
+              </div>
+              <div class="small text-muted">
+                <strong class="text-dark">Where to find it?</strong><br>
+                Google Pay: <em>Transaction History → Tap payment → UPI Ref No</em><br>
+                PhonePe: <em>History → Transaction ID</em>
+              </div>
+            </div>
+
+            <!-- UTR Input -->
+            <div class="mb-4">
+              <label for="utrInput" class="form-label small fw-bold text-muted">ENTER UTR / TRANSACTION REFERENCE
+                NUMBER</label>
+              <input type="text" class="form-control form-control-lg text-center fw-bold bg-light border-0"
+                id="utrInput" placeholder="e.g. 321456789012" maxlength="16"
+                style="letter-spacing: 2px; font-size: 1.3rem;">
+              <div id="utrError" class="text-danger small mt-2 d-none">
+                <i class="fas fa-exclamation-circle me-1"></i> Please enter your transaction reference number
+              </div>
+              <div class="text-muted small mt-2 text-center">Usually 12 digits. Found in your UPI app's payment history.
+              </div>
+            </div>
+
+            <!-- Confirm Button -->
+            <button id="verifyUpiBtn" onclick="verifyUPIPayment()"
+              class="btn btn-dark w-100 py-3 rounded-pill fw-bold shadow-sm mb-3"
+              style="background: linear-gradient(135deg, #1a1a2e, #16213e); font-size: 1.05rem;">
+              <i class="fas fa-lock me-2"></i> Verify & Confirm My Booking
+            </button>
+
+            <button onclick="showUpiStep1()" class="btn btn-link w-100 text-muted small">
+              <i class="fas fa-arrow-left me-1"></i> Go back to QR code
+            </button>
+          </div>
 
           <div class="payment-timer">
             <div class="timer-dots">
@@ -498,7 +954,7 @@
 
   <script>
     function copyUpiId() {
-      navigator.clipboard.writeText("wanderlust@upi");
+      navigator.clipboard.writeText("narendrabhute922@axl");
       const btn = document.querySelector('.copy-btn');
       const originalIcon = btn.innerHTML;
       btn.innerHTML = '<i class="fas fa-check text-success"></i>';
@@ -754,13 +1210,23 @@
     }
 
     // ... UPI Functions (Kept as is or referenced if separate) ...
+    function showUpiStep2() {
+      document.getElementById('upiStep1').style.display = 'none';
+      document.getElementById('upiStep2').style.display = 'block';
+      setTimeout(() => document.getElementById('utrInput').focus(), 200);
+    }
+
+    function showUpiStep1() {
+      document.getElementById('upiStep2').style.display = 'none';
+      document.getElementById('upiStep1').style.display = 'block';
+    }
+
     function payWithUPI() {
       if (upiModal) upiModal.show();
     }
 
     // ... Verify UPI Function (Kept as is) ...
     async function verifyUPIPayment() {
-      // (Existing Logic from previous steps)
       const utrInput = document.getElementById('utrInput');
       const utrError = document.getElementById('utrError');
       const overlay = document.getElementById('upiOverlay');
@@ -768,7 +1234,7 @@
       const phoneAnim = document.getElementById('phoneAnim');
       const successCheck = document.getElementById('successCheck');
 
-      if (!utrInput) return; // safety
+      if (!utrInput) return;
 
       const utrValue = utrInput.value.trim();
       if (utrValue.length < 4) {
@@ -778,12 +1244,16 @@
       }
       utrError.classList.add('d-none');
 
+      // 1. Start the 'Perfect' Verification Flow
       overlay.classList.add('active');
-      statusText.textContent = "Verifying Transaction...";
-
-      await new Promise(r => setTimeout(r, 2000));
+      statusText.innerHTML = '<i class="fas fa-shield-alt me-2"></i> Securing Transaction...';
 
       try {
+        // Step A: Initial verification delay for effect
+        await new Promise(r => setTimeout(r, 1500));
+        statusText.innerHTML = '<i class="fas fa-university me-2"></i> Verifying with Bank...';
+
+        // Step B: Call Backend
         const response = await fetch('/bookings/<%= booking._id %>/pay-upi', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
@@ -793,55 +1263,222 @@
         const data = await response.json();
 
         if (data.success) {
+          // 🎊 THE WOW MOMENT
+          statusText.innerHTML = '<i class="fas fa-check-double text-success me-2"></i> Verified by Systems';
+
+          await new Promise(r => setTimeout(r, 800));
+
           phoneAnim.style.display = 'none';
           successCheck.classList.add('show');
-          statusText.textContent = "Payment Verified!";
+          statusText.innerHTML = '<span class="text-success" style="font-size: 1.5rem;">Payment Successful!</span><br><span class="small text-muted">Generating your receipt...</span>';
 
-          await new Promise(r => setTimeout(r, 1000));
-          window.location.href = data.redirectUrl;
+          // Add a minor celebration pulse
+          successCheck.style.animation = 'heartbeat 0.5s ease-in-out';
+
+          // Final delay to let user enjoy the success
+          await new Promise(r => setTimeout(r, 2000));
+
+          // Redirect with success flag
+          window.location.href = data.redirectUrl + '?payment=success';
         } else {
           overlay.classList.remove('active');
-          alert(data.message || 'Payment verification failed');
+          alert(data.message || 'Payment verification failed. Please check your UTR.');
         }
       } catch (error) {
         console.error('UPI Error:', error);
         overlay.classList.remove('active');
-        alert('Something went wrong. Please try again.');
+        alert('Network error. Please try again.');
       }
     }
 
-    // Card Payment (Keep existing simple for now or refactor similarly)
-    async function processPayment() {
-      // ... (Existing Process Payment Logic) ...
-      const btn = document.querySelector('button[onclick="processPayment()"]');
-      // ... existing code ...
-      // Re-implement basic fetch for Stripe here or ensure it's preserved if not replaced.
-      // For brevity in this replacement block, I'll ensure the key existing logic is preserved.
+    // ─── Razorpay Payment ────────────────────────────────────
+    async function payWithRazorpay() {
+      const btn = document.getElementById('razorpayBtn');
+      if (btn) btn.disabled = true;
 
       const overlay = document.getElementById('paymentOverlay');
       const loadingState = document.getElementById('paymentLoadingState');
-
-      if (btn) btn.disabled = true;
-
       overlay.style.display = 'flex';
-      loadingState.querySelector('h3').textContent = "Redirecting to Stripe...";
+      if (loadingState) loadingState.querySelector('h3').textContent = 'Preparing payment...';
 
       try {
-        const response = await fetch('/bookings/create-checkout-session', {
+        // Step 1: Create Razorpay order on backend
+        const res = await fetch('/bookings/razorpay/create-order', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ bookingId: '<%= booking._id %>' })
         });
-        const data = await response.json();
-        if (data.success && data.url) {
-          window.location.href = data.url;
-        } else {
-          throw new Error(data.message);
-        }
+        const data = await res.json();
+
+        if (!data.success) throw new Error(data.message || 'Failed to create order');
+
+        overlay.style.display = 'none';
+        if (btn) btn.disabled = false;
+
+        // Step 2: Open Razorpay checkout popup
+        const options = {
+          key: data.keyId,
+          amount: data.amount,
+          currency: data.currency,
+          name: 'WanderLust',
+          description: 'Booking Payment',
+          image: '/img/logo.png',
+          order_id: data.orderId,
+          prefill: {
+            name: data.prefill.name,
+            email: data.prefill.email,
+            contact: data.prefill.contact
+          },
+          theme: { color: '#FE6B00' },
+          handler: async function (response) {
+            // Step 3: Verify payment signature on backend
+            overlay.style.display = 'flex';
+            if (loadingState) loadingState.querySelector('h3').textContent = 'Verifying payment...';
+
+            try {
+              const verifyRes = await fetch('/bookings/razorpay/verify-payment', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                  razorpay_order_id: response.razorpay_order_id,
+                  razorpay_payment_id: response.razorpay_payment_id,
+                  razorpay_signature: response.razorpay_signature,
+                  bookingId: data.bookingId
+                })
+              });
+              const verifyData = await verifyRes.json();
+
+              if (verifyData.success) {
+                // Show success animation
+                const successState = document.getElementById('paymentSuccessState');
+                if (loadingState) loadingState.style.display = 'none';
+                if (successState) successState.style.display = 'block';
+                setTimeout(() => { window.location.href = verifyData.redirectUrl; }, 1500);
+              } else {
+                overlay.style.display = 'none';
+                alert('Payment verification failed: ' + verifyData.message);
+              }
+            } catch (e) {
+              overlay.style.display = 'none';
+              alert('Verification error: ' + e.message);
+            }
+          },
+          modal: {
+            ondismiss: function () {
+              if (btn) btn.disabled = false;
+              overlay.style.display = 'none';
+            }
+          }
+        };
+
+        const rzp = new Razorpay(options);
+        rzp.on('payment.failed', function (response) {
+          overlay.style.display = 'none';
+          if (btn) btn.disabled = false;
+          alert('Payment failed: ' + response.error.description);
+        });
+        rzp.open();
+
       } catch (e) {
         overlay.style.display = 'none';
         if (btn) btn.disabled = false;
-        alert("Payment Error: " + e.message);
+        alert('Error: ' + e.message);
+      }
+    }
+    // ─── Razorpay UPI (Auto-detect payment) ────────────────────
+    async function payWithRazorpayUPI() {
+      const btn = document.querySelector('[onclick="payWithRazorpayUPI()"]');
+      if (btn) { btn.disabled = true; btn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Preparing UPI...'; }
+
+      const overlay = document.getElementById('paymentOverlay');
+      const loadingState = document.getElementById('paymentLoadingState');
+      overlay.style.display = 'flex';
+      if (loadingState) loadingState.querySelector('h3').textContent = 'Loading UPI...';
+
+      try {
+        // Create Razorpay order (same backend as card payments)
+        const res = await fetch('/bookings/razorpay/create-order', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ bookingId: '<%= booking._id %>' })
+        });
+        const data = await res.json();
+        if (!data.success) throw new Error(data.message || 'Order creation failed');
+
+        overlay.style.display = 'none';
+        if (btn) { btn.disabled = false; btn.innerHTML = '<i class="fas fa-bolt me-2"></i>Pay via UPI (Auto Confirm)'; }
+
+        // Open Razorpay with UPI pre-selected
+        const options = {
+          key: data.keyId,
+          amount: data.amount,
+          currency: data.currency,
+          name: 'WanderLust',
+          description: 'Booking Payment',
+          image: '/img/logo.png',
+          order_id: data.orderId,
+          prefill: {
+            name: data.prefill.name,
+            email: data.prefill.email,
+            contact: data.prefill.contact
+          },
+          method: 'upi',           // ← Pre-select UPI tab
+          theme: { color: '#6366f1' },
+          handler: async function (response) {
+            // Auto-triggered when guest pays — verify & confirm booking
+            overlay.style.display = 'flex';
+            if (loadingState) loadingState.querySelector('h3').textContent = 'Confirming booking...';
+
+            try {
+              const verifyRes = await fetch('/bookings/razorpay/verify-payment', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                  razorpay_order_id: response.razorpay_order_id,
+                  razorpay_payment_id: response.razorpay_payment_id,
+                  razorpay_signature: response.razorpay_signature,
+                  bookingId: data.bookingId
+                })
+              });
+              const verifyData = await verifyRes.json();
+
+              if (verifyData.success) {
+                const successState = document.getElementById('paymentSuccessState');
+                if (loadingState) loadingState.style.display = 'none';
+                if (successState) successState.style.display = 'block';
+                setTimeout(() => { window.location.href = verifyData.redirectUrl; }, 1500);
+              } else {
+                overlay.style.display = 'none';
+                alert('Verification failed: ' + verifyData.message);
+              }
+            } catch (e) {
+              overlay.style.display = 'none';
+              alert('Error: ' + e.message);
+            }
+          },
+          modal: {
+            ondismiss: function () {
+              if (btn) { btn.disabled = false; btn.innerHTML = '<i class="fas fa-bolt me-2"></i>Pay via UPI (Auto Confirm)'; }
+              overlay.style.display = 'none';
+            }
+          }
+        };
+
+        const rzp = new Razorpay(options);
+        rzp.on('payment.failed', function (response) {
+          overlay.style.display = 'none';
+          if (btn) { btn.disabled = false; btn.innerHTML = '<i class="fas fa-bolt me-2"></i>Pay via UPI (Auto Confirm)'; }
+          alert('UPI Payment failed: ' + response.error.description);
+        });
+        rzp.open();
+
+      } catch (e) {
+        overlay.style.display = 'none';
+        if (btn) { btn.disabled = false; btn.innerHTML = '<i class="fas fa-bolt me-2"></i>Pay via UPI (Auto Confirm)'; }
+        alert('Error: ' + e.message);
       }
     }
   </script>
+
+  <!-- Razorpay Checkout Script -->
+  <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
