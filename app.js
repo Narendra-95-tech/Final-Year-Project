@@ -422,19 +422,18 @@ const sessionConfig = {
   store,
   name: 'wanderlust.sid',
   secret: process.env.SECRET || 'thisshouldbeabettersecret!',
-  resave: true,
-  saveUninitialized: true,    // Force a session to be created to ensure the cookie is set
+  resave: false,               // Standard for connect-mongo
+  saveUninitialized: false,    // Standard for passport
   rolling: true,
   proxy: true,
   cookie: {
     httpOnly: true,
-    secure: true,              // Required for sameSite: 'none'
-    sameSite: isProduction ? 'none' : 'lax', // Use 'none' for Render subdomains
+    secure: isProduction || !!process.env.RENDER,
+    sameSite: 'lax',            // More reliable for same-site requests
     maxAge: 7 * 24 * 60 * 60 * 1000,
   },
 };
 
-app.use(cookieParser(sessionConfig.secret));
 app.use(session(sessionConfig));
 app.use(flash());
 
@@ -483,7 +482,7 @@ app.use((req, res, next) => {
   // Debug: Log if API request is unauthenticated on Render
   if (!!process.env.RENDER && req.originalUrl.includes('razorpay') && !req.isAuthenticated()) {
     console.warn(`[Session Alert] Unauthenticated Razorpay request: ${req.method} ${req.originalUrl}`);
-    console.warn(`[Session Alert] Cookies: ${JSON.stringify(req.cookies || 'None')}`);
+    console.warn(`[Session Alert] User Object Exists? ${!!req.user}`);
     console.warn(`[Session Alert] Session ID: ${req.sessionID}`);
   }
 

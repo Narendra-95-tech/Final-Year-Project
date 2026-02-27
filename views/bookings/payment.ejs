@@ -1243,7 +1243,11 @@
 
         const response = await fetch('/bookings/<%= booking._id %>/pay-wallet', {
           method: 'POST',
-          headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+          headers: {
+            'Content-Type': 'application/json',
+            'Accept': 'application/json',
+            'X-Requested-With': 'XMLHttpRequest'
+          },
           credentials: 'include'
         });
 
@@ -1319,7 +1323,11 @@
         // Step B: Call Backend
         const response = await fetch('/bookings/<%= booking._id %>/pay-upi', {
           method: 'POST',
-          headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+          headers: {
+            'Content-Type': 'application/json',
+            'Accept': 'application/json',
+            'X-Requested-With': 'XMLHttpRequest'
+          },
           credentials: 'include',
           body: JSON.stringify({ paymentReference: utrValue })
         });
@@ -1376,7 +1384,11 @@
         // Step 1: Create Razorpay order on backend
         const res = await fetch('/bookings/razorpay/create-order', {
           method: 'POST',
-          headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+          headers: {
+            'Content-Type': 'application/json',
+            'Accept': 'application/json',
+            'X-Requested-With': 'XMLHttpRequest'
+          },
           credentials: 'include',
           body: JSON.stringify({ bookingId: '<%= booking._id %>' })
         });
@@ -1417,7 +1429,11 @@
             try {
               const verifyRes = await fetch('/bookings/razorpay/verify-payment', {
                 method: 'POST',
-                headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+                headers: {
+                  'Content-Type': 'application/json',
+                  'Accept': 'application/json',
+                  'X-Requested-With': 'XMLHttpRequest'
+                },
                 credentials: 'include',
                 body: JSON.stringify({
                   razorpay_order_id: response.razorpay_order_id,
@@ -1486,7 +1502,11 @@
         // Create Razorpay order (same backend as card payments)
         const res = await fetch('/bookings/razorpay/create-order', {
           method: 'POST',
-          headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+          headers: {
+            'Content-Type': 'application/json',
+            'Accept': 'application/json',
+            'X-Requested-With': 'XMLHttpRequest'
+          },
           credentials: 'include',
           body: JSON.stringify({ bookingId: '<%= booking._id %>' })
         });
@@ -1528,7 +1548,11 @@
             try {
               const verifyRes = await fetch('/bookings/razorpay/verify-payment', {
                 method: 'POST',
-                headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+                headers: {
+                  'Content-Type': 'application/json',
+                  'Accept': 'application/json',
+                  'X-Requested-With': 'XMLHttpRequest'
+                },
                 credentials: 'include',
                 body: JSON.stringify({
                   razorpay_order_id: response.razorpay_order_id,
