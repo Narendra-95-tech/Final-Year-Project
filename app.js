@@ -459,6 +459,8 @@ passport.deserializeUser(async (id, done) => {
 
 // Session diagnostic endpoint (AFTER session/passport middleware)
 app.get('/debug/session', (req, res) => {
+  const rzpKey = process.env.RAZORPAY_KEY_ID || '';
+  const rzpSecret = process.env.RAZORPAY_KEY_SECRET || '';
   res.json({
     isAuthenticated: req.isAuthenticated(),
     hasUser: !!req.user,
@@ -469,7 +471,14 @@ app.get('/debug/session', (req, res) => {
     env: {
       NODE_ENV: process.env.NODE_ENV || 'not set',
       RENDER: process.env.RENDER || 'not set',
-      RAZORPAY_KEY_SET: !!process.env.RAZORPAY_KEY_ID,
+    },
+    razorpay: {
+      key_set: !!rzpKey,
+      key_preview: rzpKey ? rzpKey.substring(0, 12) + '...' + rzpKey.slice(-4) : 'NOT SET',
+      key_is_live: rzpKey.startsWith('rzp_live_'),
+      key_is_test: rzpKey.startsWith('rzp_test_'),
+      secret_set: !!rzpSecret,
+      secret_length: rzpSecret.length,
     },
     cookieConfig: {
       secure: sessionConfig.cookie.secure,

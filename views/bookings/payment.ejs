@@ -1393,15 +1393,30 @@
           body: JSON.stringify({ bookingId: '<%= booking._id %>' })
         });
         const rzpCreateContentType = res.headers.get('content-type') || '';
-        if (!res.ok || !rzpCreateContentType.includes('application/json')) {
+
+        // If response is not JSON, it could be a real session issue (HTML login page)
+        if (!rzpCreateContentType.includes('application/json')) {
           overlay.style.display = 'none';
           if (btn) btn.disabled = false;
           showSessionExpired();
           return;
         }
+
         const data = await res.json();
 
-        if (!data.success) throw new Error(data.message || 'Failed to create order');
+        // If server returned an error, show the actual error message - NOT the session dialog
+        if (!res.ok || !data.success) {
+          overlay.style.display = 'none';
+          if (btn) btn.disabled = false;
+          const errMsg = data.message || 'Payment gateway error. Please try again.';
+          // Only show session expired if it's actually a session/auth issue
+          if (res.status === 401 && errMsg.toLowerCase().includes('log in')) {
+            showSessionExpired();
+          } else {
+            alert('Payment Error: ' + errMsg);
+          }
+          return;
+        }
 
         overlay.style.display = 'none';
         if (btn) btn.disabled = false;
@@ -1510,12 +1525,23 @@
           credentials: 'include',
           body: JSON.stringify({ bookingId: '<%= booking._id %>' })
         });
-        // Guard: server may return HTML login page if session expired on Render
         const rzpUpiCreateContentType = res.headers.get('content-type') || '';
         if (!rzpUpiCreateContentType.includes('application/json')) {
           overlay.style.display = 'none';
           if (btn) { btn.disabled = false; btn.innerHTML = '<i class="fas fa-bolt me-2"></i>Pay via UPI (Auto Confirm)'; }
           showSessionExpired();
+          return;
+        }
+        const upiData = await res.json();
+        if (!res.ok || !upiData.success) {
+          overlay.style.display = 'none';
+          if (btn) { btn.disabled = false; btn.innerHTML = '<i class="fas fa-bolt me-2"></i>Pay via UPI (Auto Confirm)'; }
+          const errMsg = upiData.message || 'Payment gateway error. Please try again.';
+          if (res.status === 401 && errMsg.toLowerCase().includes('log in')) {
+            showSessionExpired();
+          } else {
+            alert('Payment Error: ' + errMsg);
+          }
           return;
         }
         const data = await res.json();
