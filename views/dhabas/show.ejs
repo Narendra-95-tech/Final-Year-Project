@@ -939,6 +939,7 @@
             const availabilityRes = await fetch(`/bookings/dhabas/<%= dhaba._id %>/availability`, {
               method: "POST",
               headers: { "Content-Type": "application/json" },
+              credentials: 'include',
               body: JSON.stringify({ date, time })
             });
             const availability = await availabilityRes.json();
@@ -947,22 +948,33 @@
               return;
             }
 
-            const bookingRes = await fetch(`/bookings/dhabas/<%= dhaba._id %>/book`, {
+            const bookingRes = await fetch(`/bookings/initiate`, {
               method: "POST",
-              headers: { "Content-Type": "application/json" },
-              credentials: 'same-origin',
-              body: JSON.stringify({ date, time, guests, message })
+              headers: {
+                "Content-Type": "application/json",
+                "Accept": "application/json"
+              },
+              credentials: 'include',
+              body: JSON.stringify({
+                type: 'dhaba',
+                dhabaId: '<%= dhaba._id %>',
+                date,
+                time,
+                guests,
+                message,
+                totalPrice: perGuestPrice * guests
+              })
             });
 
             const bookingPayload = await bookingRes.json();
-            if (!bookingRes.ok) {
-              setFeedback("error", bookingPayload.error || "Booking failed. Try again.");
+            if (!bookingRes.ok || !bookingPayload.success) {
+              setFeedback("error", bookingPayload.message || "Booking failed. Try again.");
               return;
             }
 
             // Redirect to Confirm and Pay page
             setFeedback("success", "Booking initiated. Redirecting to payment options...");
-            window.location.href = `/bookings/${bookingPayload.bookingId}/confirm`;
+            window.location.href = bookingPayload.redirectUrl;
           } catch (err) {
             console.error(err);
             setFeedback("error", "Unexpected error while booking. Please retry.");
