@@ -13,11 +13,16 @@ function isApiRequest(req) {
         req.originalUrl.startsWith('/api/') ||
         req.headers['content-type']?.includes('application/json') ||
         req.method === 'DELETE' ||
-        // social, wishlist, bookings fetch calls that forget to set Accept header
+        // Razorpay payment routes
+        req.originalUrl.startsWith('/bookings/razorpay/') ||
+        req.originalUrl.endsWith('/pay-wallet') ||
+        req.originalUrl.endsWith('/pay-upi') ||
+        // social, wishlist, bookings fetch calls
         req.originalUrl.startsWith('/social/journal') ||
         req.originalUrl.startsWith('/api/social') ||
         req.originalUrl.startsWith('/api/wishlist') ||
-        req.originalUrl.startsWith('/bookings/create-checkout-session')
+        req.originalUrl.startsWith('/bookings/create-checkout-session') ||
+        req.originalUrl.startsWith('/bookings/initiate')
     );
 }
 

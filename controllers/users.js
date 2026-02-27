@@ -446,6 +446,9 @@ module.exports.resendOTP = async (req, res) => {
 };
 
 module.exports.renderLoginForm = (req, res) => {
+  if (req.query.redirect) {
+    req.session.redirectUrl = req.query.redirect;
+  }
   res.render("users/login.ejs")
 };
 

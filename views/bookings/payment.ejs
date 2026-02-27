@@ -1062,7 +1062,7 @@
   <!-- 3. Professional Processing Overlay (Global) -->
   <div id="paymentOverlay"
     style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(255,255,255,0.98); z-index: 9999; align-items: center; justify-content: center; flex-direction: column;">
-    <!-- Different states can be managed nicely here -->
+    <!-- Loading State -->
     <div id="paymentLoadingState" class="text-center">
       <div class="payment-loader mb-4">
         <div class="spinner-grow text-warning" role="status"
@@ -1072,16 +1072,39 @@
         <div class="spinner-grow text-warning" role="status"
           style="width: 3rem; height: 3rem; animation-delay: 0.4s; animation-duration: 0.8s;"></div>
       </div>
-      <h3 class="fw-bold text-dark animate-pulse">Processing...</h3>
+      <h3 class="fw-bold text-dark animate-pulse">Preparing payment...</h3>
       <p class="text-muted">Securely contacting server</p>
     </div>
 
+    <!-- Success State -->
     <div id="paymentSuccessState" class="text-center" style="display: none;">
       <div class="mb-4">
         <i class="fas fa-check-circle text-success" style="font-size: 5rem;"></i>
       </div>
       <h3 class="fw-bold text-success">Payment Successful!</h3>
       <p class="text-muted">Redirecting you to your booking...</p>
+    </div>
+
+    <!-- Session Expired State -->
+    <div id="paymentSessionExpiredState" class="text-center" style="display: none;">
+      <div
+        style="background: #fff; border-radius: 20px; padding: 2.5rem 2rem; box-shadow: 0 20px 60px rgba(0,0,0,0.15); max-width: 380px; width: 90%;">
+        <div
+          style="width:80px;height:80px;background:linear-gradient(135deg,#FF385C,#E00B41);border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto 1.2rem;">
+          <i class="fas fa-lock" style="font-size:2rem;color:#fff;"></i>
+        </div>
+        <h4 class="fw-bold mb-2" style="color:#1a1a2e;">Session Refreshing</h4>
+        <p class="text-muted mb-4" style="font-size:0.9rem;">Your session needs a refresh. Click below to
+          re-authenticate and continue your payment.</p>
+        <a id="sessionExpiredLoginBtn" href="/login" class="btn btn-danger w-100 py-3 rounded-pill fw-bold mb-3"
+          style="background:linear-gradient(135deg,#FF385C,#E00B41);border:none;font-size:1rem;">
+          <i class="fas fa-sign-in-alt me-2"></i> Re-authenticate & Continue
+        </a>
+        <button onclick="location.reload()" class="btn btn-outline-secondary w-100 py-2 rounded-pill"
+          style="font-size:0.9rem;">
+          <i class="fas fa-redo me-2"></i> Retry Payment
+        </button>
+      </div>
     </div>
   </div>
 
@@ -1112,6 +1135,40 @@
 
   <script>
     let upiModal, walletModal;
+
+    // ─── Session Keep-Alive Ping ─────────────────────────────────
+    // Pings the server every 4 minutes to keep the session alive
+    // while the user is on the payment page.
+    (function keepSessionAlive() {
+      setInterval(async function () {
+        try {
+          await fetch('/health', { credentials: 'same-origin' });
+          console.log('✅ Session keep-alive ping sent');
+        } catch (e) { /* ignore */ }
+      }, 4 * 60 * 1000); // every 4 minutes
+    })();
+
+    // ─── Session Expired Handler ─────────────────────────────────
+    // Shows a beautiful overlay instead of a browser alert()
+    function showSessionExpired() {
+      const overlay = document.getElementById('paymentOverlay');
+      const loadingState = document.getElementById('paymentLoadingState');
+      const successState = document.getElementById('paymentSuccessState');
+      const expiredState = document.getElementById('paymentSessionExpiredState');
+
+      // Hide other states, show expired state
+      if (loadingState) loadingState.style.display = 'none';
+      if (successState) successState.style.display = 'none';
+      if (expiredState) expiredState.style.display = 'block';
+
+      // Set the login button to come back to this page after login
+      const loginBtn = document.getElementById('sessionExpiredLoginBtn');
+      if (loginBtn) {
+        loginBtn.href = '/login?redirect=' + encodeURIComponent(window.location.pathname);
+      }
+
+      overlay.style.display = 'flex';
+    }
 
     document.addEventListener('DOMContentLoaded', function () {
       const upiEl = document.getElementById('upiModal');
@@ -1186,7 +1243,8 @@
 
         const response = await fetch('/bookings/<%= booking._id %>/pay-wallet', {
           method: 'POST',
-          headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' }
+          headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+          credentials: 'same-origin'
         });
 
         // Guard: server may return HTML login page if session expired
@@ -1265,6 +1323,7 @@
         const response = await fetch('/bookings/<%= booking._id %>/pay-upi', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+          credentials: 'same-origin',
           body: JSON.stringify({ paymentReference: utrValue })
         });
 
@@ -1272,8 +1331,7 @@
         const upiPayContentType = response.headers.get('content-type') || '';
         if (!upiPayContentType.includes('application/json')) {
           overlay.classList.remove('active');
-          alert('Session expired. Please log in again.');
-          window.location.href = '/login';
+          showSessionExpired();
           return;
         }
         const data = await response.json();
@@ -1322,6 +1380,7 @@
         const res = await fetch('/bookings/razorpay/create-order', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+          credentials: 'same-origin',
           body: JSON.stringify({ bookingId: '<%= booking._id %>' })
         });
         // Guard: server may return HTML login page if session expired on Render
@@ -1329,8 +1388,7 @@
         if (!rzpCreateContentType.includes('application/json')) {
           overlay.style.display = 'none';
           if (btn) btn.disabled = false;
-          alert('Session expired. Please log in again.');
-          window.location.href = '/login';
+          showSessionExpired();
           return;
         }
         const data = await res.json();
@@ -1364,6 +1422,7 @@
               const verifyRes = await fetch('/bookings/razorpay/verify-payment', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+                credentials: 'same-origin',
                 body: JSON.stringify({
                   razorpay_order_id: response.razorpay_order_id,
                   razorpay_payment_id: response.razorpay_payment_id,
@@ -1375,8 +1434,7 @@
               const rzpVerifyContentType = verifyRes.headers.get('content-type') || '';
               if (!rzpVerifyContentType.includes('application/json')) {
                 overlay.style.display = 'none';
-                alert('Session expired during verification. Please log in again.');
-                window.location.href = '/login';
+                showSessionExpired();
                 return;
               }
               const verifyData = await verifyRes.json();
@@ -1433,6 +1491,7 @@
         const res = await fetch('/bookings/razorpay/create-order', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+          credentials: 'same-origin',
           body: JSON.stringify({ bookingId: '<%= booking._id %>' })
         });
         // Guard: server may return HTML login page if session expired on Render
@@ -1440,8 +1499,7 @@
         if (!rzpUpiCreateContentType.includes('application/json')) {
           overlay.style.display = 'none';
           if (btn) { btn.disabled = false; btn.innerHTML = '<i class="fas fa-bolt me-2"></i>Pay via UPI (Auto Confirm)'; }
-          alert('Session expired. Please log in again.');
-          window.location.href = '/login';
+          showSessionExpired();
           return;
         }
         const data = await res.json();
@@ -1475,6 +1533,7 @@
               const verifyRes = await fetch('/bookings/razorpay/verify-payment', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+                credentials: 'same-origin',
                 body: JSON.stringify({
                   razorpay_order_id: response.razorpay_order_id,
                   razorpay_payment_id: response.razorpay_payment_id,
@@ -1486,8 +1545,7 @@
               const rzpUpiVerifyContentType = verifyRes.headers.get('content-type') || '';
               if (!rzpUpiVerifyContentType.includes('application/json')) {
                 overlay.style.display = 'none';
-                alert('Session expired during verification. Please log in again.');
-                window.location.href = '/login';
+                showSessionExpired();
                 return;
               }
               const verifyData = await verifyRes.json();
