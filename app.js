@@ -346,6 +346,33 @@ app.get('/health', (req, res) => {
   res.status(200).json({ status: 'OK', timestamp: new Date().toISOString() });
 });
 
+// Session diagnostic endpoint - helps debug session issues on Render
+app.get('/debug/session', (req, res) => {
+  res.json({
+    isAuthenticated: req.isAuthenticated(),
+    hasUser: !!req.user,
+    userId: req.user ? req.user._id : null,
+    sessionID: req.sessionID,
+    sessionExists: !!req.session,
+    sessionCookie: req.session ? req.session.cookie : null,
+    headers: {
+      cookie: req.headers.cookie ? 'Present (length: ' + req.headers.cookie.length + ')' : 'MISSING',
+      origin: req.headers.origin || 'none',
+      referer: req.headers.referer || 'none',
+    },
+    env: {
+      NODE_ENV: process.env.NODE_ENV,
+      RENDER: process.env.RENDER || 'not set',
+      isProduction: process.env.NODE_ENV === 'production',
+    },
+    cookieConfig: {
+      secure: sessionConfig ? sessionConfig.cookie.secure : 'unknown',
+      sameSite: sessionConfig ? sessionConfig.cookie.sameSite : 'unknown',
+      name: sessionConfig ? sessionConfig.name : 'unknown',
+    }
+  });
+});
+
 // Configure CORS
 const allowedOrigins = [
   'http://localhost:3000',
