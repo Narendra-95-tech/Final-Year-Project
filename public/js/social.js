@@ -13,7 +13,10 @@ document.addEventListener('DOMContentLoaded', function () {
             const postId = likeBtn.dataset.postId;
             try {
                 // Correct path is /api/social/like/:id
-                const response = await fetch(`/api/social/like/${postId}`, { method: 'POST' });
+                const response = await fetch(`/api/social/like/${postId}`, {
+                    method: 'POST',
+                    headers: { 'Accept': 'application/json', 'Content-Type': 'application/json' }
+                });
                 const data = await response.json();
 
                 if (data.success) {
@@ -50,7 +53,7 @@ document.addEventListener('DOMContentLoaded', function () {
             try {
                 const response = await fetch(`/social/journal/${postId}/comments`, {
                     method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
+                    headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
                     body: JSON.stringify({ content })
                 });
                 const data = await response.json();
@@ -84,7 +87,7 @@ document.addEventListener('DOMContentLoaded', function () {
                 try {
                     const response = await fetch(`/social/journal/${postId}`, {
                         method: 'DELETE',
-                        headers: { 'Content-Type': 'application/json' }
+                        headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' }
                     });
                     const data = await response.json();
 

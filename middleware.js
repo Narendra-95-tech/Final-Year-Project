@@ -5,6 +5,22 @@ const Review = require("./models/review");
 const ExpressError = require("./utils/ExpressError.js");
 const { listingSchema, vehicleSchema, dhabaSchema, reviewSchema } = require("./schema.js");
 
+// Helper: detect if this request expects JSON (AJAX / fetch / API)
+function isApiRequest(req) {
+    return (
+        req.xhr ||
+        req.headers.accept?.includes('application/json') ||
+        req.originalUrl.startsWith('/api/') ||
+        req.headers['content-type']?.includes('application/json') ||
+        req.method === 'DELETE' ||
+        // social, wishlist, bookings fetch calls that forget to set Accept header
+        req.originalUrl.startsWith('/social/journal') ||
+        req.originalUrl.startsWith('/api/social') ||
+        req.originalUrl.startsWith('/api/wishlist') ||
+        req.originalUrl.startsWith('/bookings/create-checkout-session')
+    );
+}
+
 module.exports.isLoggedIn = (req, res, next) => {
     if (!req.isAuthenticated()) {
         req.session.redirectUrl = req.originalUrl;
@@ -21,8 +37,8 @@ module.exports.isLoggedIn = (req, res, next) => {
 
         req.flash("error", message);
 
-        // Handle AJAX/JSON requests
-        if (req.xhr || req.headers.accept?.includes('application/json') || req.originalUrl.startsWith('/api/') || req.headers['content-type'] === 'application/json') {
+        // Handle AJAX/JSON requests — return JSON, not HTML redirect
+        if (isApiRequest(req)) {
             return res.status(401).json({
                 success: false,
                 message: message,
@@ -55,7 +71,7 @@ module.exports.saveRedirectUrl = (req, res, next) => {
 module.exports.isEmailVerified = (req, res, next) => {
     if (req.user && !req.user.isVerified) {
         // Handle AJAX/JSON requests
-        if (req.xhr || req.headers.accept?.includes('application/json') || req.originalUrl.startsWith('/api/') || req.headers['content-type'] === 'application/json') {
+        if (isApiRequest(req)) {
             return res.status(403).json({
                 success: false,
                 message: "Please verify your email to continue.",

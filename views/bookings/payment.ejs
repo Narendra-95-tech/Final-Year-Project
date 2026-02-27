@@ -1186,9 +1186,17 @@
 
         const response = await fetch('/bookings/<%= booking._id %>/pay-wallet', {
           method: 'POST',
-          headers: { 'Content-Type': 'application/json' }
+          headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' }
         });
 
+        // Guard: server may return HTML login page if session expired
+        const walletContentType = response.headers.get('content-type') || '';
+        if (!walletContentType.includes('application/json')) {
+          overlay.style.display = 'none';
+          alert('Session expired. Please log in again.');
+          window.location.href = '/login';
+          return;
+        }
         const data = await response.json();
 
         if (data.success) {
@@ -1256,10 +1264,18 @@
         // Step B: Call Backend
         const response = await fetch('/bookings/<%= booking._id %>/pay-upi', {
           method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
+          headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
           body: JSON.stringify({ paymentReference: utrValue })
         });
 
+        // Guard: server may return HTML login page if session expired
+        const upiPayContentType = response.headers.get('content-type') || '';
+        if (!upiPayContentType.includes('application/json')) {
+          overlay.classList.remove('active');
+          alert('Session expired. Please log in again.');
+          window.location.href = '/login';
+          return;
+        }
         const data = await response.json();
 
         if (data.success) {
@@ -1305,9 +1321,18 @@
         // Step 1: Create Razorpay order on backend
         const res = await fetch('/bookings/razorpay/create-order', {
           method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
+          headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
           body: JSON.stringify({ bookingId: '<%= booking._id %>' })
         });
+        // Guard: server may return HTML login page if session expired on Render
+        const rzpCreateContentType = res.headers.get('content-type') || '';
+        if (!rzpCreateContentType.includes('application/json')) {
+          overlay.style.display = 'none';
+          if (btn) btn.disabled = false;
+          alert('Session expired. Please log in again.');
+          window.location.href = '/login';
+          return;
+        }
         const data = await res.json();
 
         if (!data.success) throw new Error(data.message || 'Failed to create order');
@@ -1338,7 +1363,7 @@
             try {
               const verifyRes = await fetch('/bookings/razorpay/verify-payment', {
                 method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
+                headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
                 body: JSON.stringify({
                   razorpay_order_id: response.razorpay_order_id,
                   razorpay_payment_id: response.razorpay_payment_id,
@@ -1346,6 +1371,14 @@
                   bookingId: data.bookingId
                 })
               });
+              // Guard: server may return HTML if session expired
+              const rzpVerifyContentType = verifyRes.headers.get('content-type') || '';
+              if (!rzpVerifyContentType.includes('application/json')) {
+                overlay.style.display = 'none';
+                alert('Session expired during verification. Please log in again.');
+                window.location.href = '/login';
+                return;
+              }
               const verifyData = await verifyRes.json();
 
               if (verifyData.success) {
@@ -1399,9 +1432,18 @@
         // Create Razorpay order (same backend as card payments)
         const res = await fetch('/bookings/razorpay/create-order', {
           method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
+          headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
           body: JSON.stringify({ bookingId: '<%= booking._id %>' })
         });
+        // Guard: server may return HTML login page if session expired on Render
+        const rzpUpiCreateContentType = res.headers.get('content-type') || '';
+        if (!rzpUpiCreateContentType.includes('application/json')) {
+          overlay.style.display = 'none';
+          if (btn) { btn.disabled = false; btn.innerHTML = '<i class="fas fa-bolt me-2"></i>Pay via UPI (Auto Confirm)'; }
+          alert('Session expired. Please log in again.');
+          window.location.href = '/login';
+          return;
+        }
         const data = await res.json();
         if (!data.success) throw new Error(data.message || 'Order creation failed');
 
@@ -1432,7 +1474,7 @@
             try {
               const verifyRes = await fetch('/bookings/razorpay/verify-payment', {
                 method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
+                headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
                 body: JSON.stringify({
                   razorpay_order_id: response.razorpay_order_id,
                   razorpay_payment_id: response.razorpay_payment_id,
@@ -1440,6 +1482,14 @@
                   bookingId: data.bookingId
                 })
               });
+              // Guard: server may return HTML if session expired
+              const rzpUpiVerifyContentType = verifyRes.headers.get('content-type') || '';
+              if (!rzpUpiVerifyContentType.includes('application/json')) {
+                overlay.style.display = 'none';
+                alert('Session expired during verification. Please log in again.');
+                window.location.href = '/login';
+                return;
+              }
               const verifyData = await verifyRes.json();
 
               if (verifyData.success) {

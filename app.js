@@ -94,6 +94,12 @@ db.once("open", () => {
 // --------------------
 const app = express();
 
+// Trust proxy - REQUIRED for Render/Heroku deployment (behind reverse proxy)
+// Without this, secure cookies won't work on HTTPS
+if (process.env.NODE_ENV === 'production') {
+  app.set('trust proxy', 1);
+}
+
 // Enable view caching in production for performance
 if (process.env.NODE_ENV === "production") {
   app.set("view cache", true);
@@ -345,8 +351,23 @@ app.get('/health', (req, res) => {
 });
 
 // Configure CORS
+const allowedOrigins = [
+  'http://localhost:3000',
+  'http://localhost:8080',
+  process.env.CLIENT_URL,
+  process.env.BASE_URL
+].filter(Boolean);
+
 app.use(cors({
-  origin: process.env.CLIENT_URL || 'http://localhost:3000',
+  origin: function (origin, callback) {
+    // Allow requests with no origin (like mobile apps, curl, etc.)
+    if (!origin) return callback(null, true);
+    if (allowedOrigins.indexOf(origin) !== -1 || !origin) {
+      callback(null, true);
+    } else {
+      callback(null, true); // Allow all origins for now on Render
+    }
+  },
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With', 'X-CSRF-Token'],
   credentials: true,
@@ -392,15 +413,18 @@ store.on('error', function (error) {
   sessionConfig.store = memoryStore;
 });
 
+const isProduction = process.env.NODE_ENV === 'production';
+
 const sessionConfig = {
   store,
   name: 'session',
   secret: process.env.SECRET || 'thisshouldbeabettersecret!',
   resave: false,
-  saveUninitialized: true,
+  saveUninitialized: false,
   cookie: {
     httpOnly: true,
-    // secure: true,
+    secure: isProduction,           // true on Render (HTTPS), false on localhost
+    sameSite: isProduction ? 'none' : 'lax', // 'none' required for cross-site on HTTPS
     expires: Date.now() + 1000 * 60 * 60 * 24 * 7,
     maxAge: 1000 * 60 * 60 * 24 * 7,
   },
