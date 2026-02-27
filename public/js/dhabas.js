@@ -9,7 +9,7 @@ class DhabaBookingSystem {
     this.guests = 2;
     this.orderItems = [];
     this.taxRate = 0.05;
-    
+
     this.init();
   }
 
@@ -71,12 +71,12 @@ class DhabaBookingSystem {
 
   selectTable(tableType, price) {
     this.selectedTable = { type: tableType, price };
-    
+
     document.querySelectorAll('.table-type-card').forEach(card => {
       card.classList.remove('selected');
     });
     event.target.closest('.table-type-card').classList.add('selected');
-    
+
     this.updatePriceCalculation();
   }
 
@@ -103,7 +103,7 @@ class DhabaBookingSystem {
 
   addToCart(item) {
     const existingItem = this.orderItems.find(i => i.id === item.id);
-    
+
     if (existingItem) {
       existingItem.quantity++;
     } else {
@@ -259,7 +259,7 @@ class DhabaBookingSystem {
 // Menu filtering
 function filterMenu(category) {
   const items = document.querySelectorAll('.menu-item-card');
-  
+
   document.querySelectorAll('.menu-category-btn').forEach(btn => {
     btn.classList.remove('active');
   });
@@ -287,7 +287,7 @@ function displayDetailedRatings(ratings) {
   return categories.map(cat => {
     const rating = ratings[cat] || 0;
     const stars = '★'.repeat(Math.floor(rating)) + '☆'.repeat(5 - Math.floor(rating));
-    
+
     return `
       <div class="rating-item">
         <div class="rating-label">${labels[cat]}</div>
@@ -336,7 +336,14 @@ function initDhabaMap(lat, lng, dhabaName) {
 // Find nearby dhabas
 async function findNearbyDhabas(lat, lng, radius = 5000) {
   try {
-    const response = await fetch(`/dhabas/nearby?lat=${lat}&lng=${lng}&radius=${radius}`);
+    const response = await fetch(`/dhabas/nearby?lat=${lat}&lng=${lng}&radius=${radius}`, {
+      headers: { 'Accept': 'application/json' }
+    });
+    // Guard: if server returned HTML (e.g. login redirect), don't try to parse as JSON
+    const contentType = response.headers.get('content-type') || '';
+    if (!response.ok || !contentType.includes('application/json')) {
+      throw new Error('Server returned non-JSON response');
+    }
     const data = await response.json();
     return data.dhabas;
   } catch (error) {
@@ -351,12 +358,17 @@ async function processDhabaBooking(dhabaId, bookingData) {
     // First create the booking
     const bookingResponse = await fetch(`/bookings/dhabas/${dhabaId}/book`, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
       body: JSON.stringify(bookingData)
     });
 
+    // Guard: check content type before parsing as JSON
+    const bookingContentType = bookingResponse.headers.get('content-type') || '';
+    if (!bookingContentType.includes('application/json')) {
+      throw new Error('Server returned HTML instead of JSON — you may need to log in.');
+    }
     const bookingResult = await bookingResponse.json();
-    
+
     if (!bookingResponse.ok) {
       throw new Error(bookingResult.error || 'Failed to create booking');
     }
@@ -364,14 +376,19 @@ async function processDhabaBooking(dhabaId, bookingData) {
     // Then create Stripe checkout session using the booking ID
     const checkoutResponse = await fetch('/bookings/create-checkout-session', {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
       body: JSON.stringify({
         bookingId: bookingResult.bookingId
       })
     });
 
+    // Guard: check content type before parsing as JSON
+    const checkoutContentType = checkoutResponse.headers.get('content-type') || '';
+    if (!checkoutContentType.includes('application/json')) {
+      throw new Error('Checkout server returned HTML instead of JSON.');
+    }
     const checkoutResult = await checkoutResponse.json();
-    
+
     if (!checkoutResponse.ok) {
       throw new Error(checkoutResult.error || 'Payment setup failed');
     }
@@ -388,12 +405,12 @@ async function processDhabaBooking(dhabaId, bookingData) {
 }
 
 // Initialize
-document.addEventListener('DOMContentLoaded', function() {
+document.addEventListener('DOMContentLoaded', function () {
   window.dhabaBookingSystem = new DhabaBookingSystem();
 
   const checkoutBtn = document.getElementById('checkout-btn');
   if (checkoutBtn) {
-    checkoutBtn.addEventListener('click', async function() {
+    checkoutBtn.addEventListener('click', async function () {
       const validation = window.dhabaBookingSystem.validateBooking();
       if (!validation.valid) {
         showNotification(validation.message, 'error');
@@ -402,7 +419,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
       const bookingData = window.dhabaBookingSystem.getBookingData();
       console.log('Booking Data:', bookingData);
-      
+
       const dhabaId = document.getElementById('dhaba-id')?.value;
       if (!dhabaId) {
         showNotification('Dhaba ID not found', 'error');
@@ -420,7 +437,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
   const closeCartBtn = document.getElementById('close-cart-btn');
   if (closeCartBtn) {
-    closeCartBtn.addEventListener('click', function() {
+    closeCartBtn.addEventListener('click', function () {
       document.getElementById('order-cart').classList.remove('active');
     });
   }
@@ -443,7 +460,7 @@ function showNotification(message, type = 'info') {
       <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"></button>
     </div>
   `;
-  
+
   const container = document.querySelector('.position-fixed.top-0.end-0');
   if (container) {
     container.appendChild(toast);

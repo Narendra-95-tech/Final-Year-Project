@@ -57,8 +57,17 @@ class AvailabilityCalendar {
 
     async fetchBookings() {
         try {
-            const response = await fetch(`/${this.type}s/${this.itemId}/bookings`);
-            if (!response.ok) throw new Error('Failed to fetch bookings');
+            const response = await fetch(`/${this.type}s/${this.itemId}/bookings`, {
+                headers: { 'Accept': 'application/json' }
+            });
+            if (!response.ok) {
+                // Server may have redirected to login page (HTML) - handle gracefully
+                const contentType = response.headers.get('content-type') || '';
+                if (!contentType.includes('application/json')) {
+                    throw new Error('Server returned non-JSON response (possibly redirected to login)');
+                }
+                throw new Error('Failed to fetch bookings');
+            }
             this.bookedDates = await response.json();
         } catch (error) {
             console.error('Error fetching bookings:', error);
@@ -92,7 +101,7 @@ class AvailabilityCalendar {
         }
 
         this.updateTotalPrice();
-        
+
         // Open booking modal
         const bookingModal = new bootstrap.Modal(document.getElementById(this.bookingModalId));
         bookingModal.show();
@@ -124,7 +133,7 @@ class AvailabilityCalendar {
     initializeWebSocket() {
         // Set up WebSocket connection for real-time updates
         const ws = new WebSocket(window.location.origin.replace(/^http/, 'ws'));
-        
+
         ws.onmessage = async (event) => {
             const data = JSON.parse(event.data);
             if (data.type === `${this.type}_booking` && data.itemId === this.itemId) {
@@ -147,7 +156,7 @@ class AvailabilityCalendar {
         const startDateInput = document.getElementById(this.startDateId);
         const endDateInput = document.getElementById(this.endDateId);
         const amountDisplay = document.getElementById(this.amountDisplayId);
-        
+
         if (!startDateInput || !endDateInput || !amountDisplay) return;
 
         const start = new Date(startDateInput.value);

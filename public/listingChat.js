@@ -41,32 +41,38 @@ document.addEventListener("DOMContentLoaded", () => {
     // Send message
     sendBtn.addEventListener("click", sendMessage);
     input.addEventListener("keypress", (e) => {
-      if(e.key === "Enter") sendMessage();
+      if (e.key === "Enter") sendMessage();
     });
 
-    async function sendMessage(){
+    async function sendMessage() {
       const msg = input.value.trim();
-      if(!msg) return;
+      if (!msg) return;
 
       addMessage("user", msg);
       input.value = "";
 
-      try{
+      try {
         const res = await fetch(`/chat/listing/${listingId}`, {
           method: "POST",
-          headers: { "Content-Type": "application/json" },
+          headers: { "Content-Type": "application/json", "Accept": "application/json" },
           body: JSON.stringify({ message: msg })
         });
 
+        // Guard: if server returned HTML (e.g. login redirect), don't try to parse as JSON
+        const contentType = res.headers.get('content-type') || '';
+        if (!contentType.includes('application/json')) {
+          throw new Error('Server returned non-JSON response');
+        }
+
         const data = await res.json();
         addMessage("bot", data.reply);
-      } catch(err){
+      } catch (err) {
         console.error(err);
         addMessage("bot", "Sorry, something went wrong.");
       }
     }
 
-    function addMessage(sender, text){
+    function addMessage(sender, text) {
       const msgDiv = document.createElement("div");
       msgDiv.classList.add("message", sender);
       msgDiv.textContent = text;
