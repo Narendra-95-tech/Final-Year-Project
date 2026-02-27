@@ -56,8 +56,8 @@
   <!-- Socket.IO - Realtime Communication -->
   <script src="/socket.io/socket.io.js"></script>
 
-  <meta name="user-logged-in" content="<%= currUser ? 'true' : 'false' %>">
-  <meta name="user-id" content="<%= currUser ? currUser._id : '' %>">
+  <meta name="user-logged-in" content="<%= typeof currUser !== 'undefined' && currUser ? 'true' : 'false' %>">
+  <meta name="user-id" content="<%= typeof currUser !== 'undefined' && currUser ? currUser._id : '' %>">
   <meta name="map-token" content="<%= typeof mapToken !== 'undefined' ? mapToken : '' %>">
 
   <!-- Favicon -->

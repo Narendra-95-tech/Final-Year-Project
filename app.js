@@ -346,32 +346,7 @@ app.get('/health', (req, res) => {
   res.status(200).json({ status: 'OK', timestamp: new Date().toISOString() });
 });
 
-// Session diagnostic endpoint - helps debug session issues on Render
-app.get('/debug/session', (req, res) => {
-  res.json({
-    isAuthenticated: req.isAuthenticated(),
-    hasUser: !!req.user,
-    userId: req.user ? req.user._id : null,
-    sessionID: req.sessionID,
-    sessionExists: !!req.session,
-    sessionCookie: req.session ? req.session.cookie : null,
-    headers: {
-      cookie: req.headers.cookie ? 'Present (length: ' + req.headers.cookie.length + ')' : 'MISSING',
-      origin: req.headers.origin || 'none',
-      referer: req.headers.referer || 'none',
-    },
-    env: {
-      NODE_ENV: process.env.NODE_ENV,
-      RENDER: process.env.RENDER || 'not set',
-      isProduction: process.env.NODE_ENV === 'production',
-    },
-    cookieConfig: {
-      secure: sessionConfig ? sessionConfig.cookie.secure : 'unknown',
-      sameSite: sessionConfig ? sessionConfig.cookie.sameSite : 'unknown',
-      name: sessionConfig ? sessionConfig.name : 'unknown',
-    }
-  });
-});
+
 
 // Configure CORS
 const allowedOrigins = [
@@ -483,6 +458,28 @@ passport.deserializeUser(async (id, done) => {
   } catch (error) {
     done(error, null);
   }
+});
+
+// Session diagnostic endpoint (AFTER session/passport middleware)
+app.get('/debug/session', (req, res) => {
+  res.json({
+    isAuthenticated: req.isAuthenticated(),
+    hasUser: !!req.user,
+    userId: req.user ? req.user._id : null,
+    sessionID: req.sessionID,
+    sessionExists: !!req.session,
+    cookieHeader: req.headers.cookie ? 'Present (length: ' + req.headers.cookie.length + ')' : 'MISSING',
+    env: {
+      NODE_ENV: process.env.NODE_ENV || 'not set',
+      RENDER: process.env.RENDER || 'not set',
+      RAZORPAY_KEY_SET: !!process.env.RAZORPAY_KEY_ID,
+    },
+    cookieConfig: {
+      secure: sessionConfig.cookie.secure,
+      sameSite: sessionConfig.cookie.sameSite,
+      name: sessionConfig.name,
+    }
+  });
 });
 
 // --------------------
@@ -942,8 +939,37 @@ app.use((err, req, res, next) => {
 
   console.error(`Error [${req.method} ${req.originalUrl}]:`, err.message);
 
+  const { statusCode = 500, message = 'Something went wrong!' } = err;
+
+  // Detect if this is an API/AJAX request that expects JSON
+  const isJsonRequest = (
+    req.originalUrl.startsWith('/api') ||
+    req.originalUrl.includes('/razorpay/') ||
+    req.originalUrl.includes('/pay-wallet') ||
+    req.originalUrl.includes('/pay-upi') ||
+    req.originalUrl.includes('/create-checkout-session') ||
+    req.originalUrl.includes('/bookings/initiate') ||
+    req.xhr ||
+    req.headers.accept?.includes('application/json') ||
+    req.headers['content-type']?.includes('application/json') ||
+    req.headers['x-requested-with'] === 'XMLHttpRequest' ||
+    req.method === 'DELETE'
+  );
+
+  // Return JSON for API/AJAX requests
+  if (isJsonRequest) {
+    return res.status(statusCode).json({
+      success: false,
+      error: message
+    });
+  }
+
   // Handle ExpressError specifically
   if (err instanceof ExpressError) {
+    // Ensure currUser is always defined for rendering
+    if (typeof res.locals.currUser === 'undefined') {
+      res.locals.currUser = req.user || null;
+    }
     return res.status(err.statusCode).render('error', {
       title: 'Error',
       message: err.message
@@ -969,15 +995,9 @@ app.use((err, req, res, next) => {
     return res.redirect('back');
   }
 
-  // Handle other errors
-  const { statusCode = 500, message = 'Something went wrong!' } = err;
-
-  // If the request is an API request, return JSON
-  if (req.originalUrl.startsWith('/api')) {
-    return res.status(statusCode).json({
-      success: false,
-      error: message
-    });
+  // Ensure currUser is always defined before rendering any page
+  if (typeof res.locals.currUser === 'undefined') {
+    res.locals.currUser = req.user || null;
   }
 
   // Otherwise, render an error page
