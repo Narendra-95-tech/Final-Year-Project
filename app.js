@@ -53,9 +53,6 @@ const otpRouter = require("./routes/otp");
 // --------------------  
 // Database Connection
 // --------------------
-// --------------------  
-// Database Connection
-// --------------------
 const dbUrl = process.env.ATLASDB_URL;
 
 if (!dbUrl) {
@@ -358,18 +355,25 @@ const allowedOrigins = [
 
 app.use(cors({
   origin: function (origin, callback) {
-    // Allow requests with no origin (like mobile apps, curl, etc.)
     if (!origin) return callback(null, true);
-    if (allowedOrigins.indexOf(origin) !== -1 || !origin) {
+
+    // Normalize origins by removing trailing slashes
+    const normalizedOrigin = origin.replace(/\/$/, '');
+    const isAllowed = allowedOrigins.some(ao => {
+      if (!ao) return false;
+      return ao.replace(/\/$/, '') === normalizedOrigin;
+    });
+
+    if (isAllowed || origin.includes('onrender.com')) {
       callback(null, true);
     } else {
-      callback(null, true); // Allow all origins for now on Render
+      callback(null, true);
     }
   },
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With', 'X-CSRF-Token'],
   credentials: true,
-  optionsSuccessStatus: 200 // Some legacy browsers choke on 204
+  optionsSuccessStatus: 200
 }));
 
 // ==========================================
@@ -415,17 +419,17 @@ const isProduction = process.env.NODE_ENV === 'production';
 
 const sessionConfig = {
   store,
-  name: 'session',
+  name: 'wanderlust.sid',      // Unique session name
   secret: process.env.SECRET || 'thisshouldbeabettersecret!',
-  resave: true,                // Forces session to be saved back to the session store
-  saveUninitialized: true,     // Forces a session that is "uninitialized" to be saved to the store
-  rolling: true,               // Forces the session identifier cookie to be set on every response
-  proxy: true,                 // trust the reverse proxy (Render)
+  resave: true,
+  saveUninitialized: false,    // Better for passport
+  rolling: true,
+  proxy: true,
   cookie: {
     httpOnly: true,
-    secure: isProduction,
-    sameSite: isProduction ? 'none' : 'lax',
-    maxAge: 7 * 24 * 60 * 60 * 1000,
+    secure: isProduction || !!process.env.RENDER, // Force secure on Render
+    sameSite: 'lax',                               // Safer for onrender subdomains
+    maxAge: 7 * 24 * 60 * 60 * 1000,               // 7 days
   },
 };
 
@@ -472,6 +476,13 @@ app.use((req, res, next) => {
     res.set('Cache-Control', 'no-store, no-cache, must-revalidate, private');
     res.set('Pragma', 'no-cache');
     res.set('Expires', '0');
+  }
+
+  // Debug: Log if API request is unauthenticated on Render
+  if (!!process.env.RENDER && req.originalUrl.includes('razorpay') && !req.isAuthenticated()) {
+    console.warn(`[Session Alert] Unauthenticated Razorpay request: ${req.method} ${req.originalUrl}`);
+    console.warn(`[Session Alert] Cookies: ${JSON.stringify(req.cookies || 'None')}`);
+    console.warn(`[Session Alert] Session ID: ${req.sessionID}`);
   }
 
   next();
