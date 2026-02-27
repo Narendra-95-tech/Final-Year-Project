@@ -1142,7 +1142,7 @@
     (function keepSessionAlive() {
       setInterval(async function () {
         try {
-          await fetch('/health', { credentials: 'same-origin' });
+          await fetch('/health', { credentials: 'include' });
           console.log('✅ Session keep-alive ping sent');
         } catch (e) { /* ignore */ }
       }, 4 * 60 * 1000); // every 4 minutes
@@ -1247,12 +1247,9 @@
           credentials: 'include'
         });
 
-        // Guard: server may return HTML login page if session expired
-        const walletContentType = response.headers.get('content-type') || '';
-        if (!walletContentType.includes('application/json')) {
+        if (!response.ok || !walletContentType.includes('application/json')) {
           overlay.style.display = 'none';
-          alert('Session expired. Please log in again.');
-          window.location.href = '/login';
+          showSessionExpired();
           return;
         }
         const data = await response.json();
@@ -1323,7 +1320,7 @@
         const response = await fetch('/bookings/<%= booking._id %>/pay-upi', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
-          credentials: 'same-origin',
+          credentials: 'include',
           body: JSON.stringify({ paymentReference: utrValue })
         });
 
@@ -1380,12 +1377,11 @@
         const res = await fetch('/bookings/razorpay/create-order', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
-          credentials: 'same-origin',
+          credentials: 'include',
           body: JSON.stringify({ bookingId: '<%= booking._id %>' })
         });
-        // Guard: server may return HTML login page if session expired on Render
         const rzpCreateContentType = res.headers.get('content-type') || '';
-        if (!rzpCreateContentType.includes('application/json')) {
+        if (!res.ok || !rzpCreateContentType.includes('application/json')) {
           overlay.style.display = 'none';
           if (btn) btn.disabled = false;
           showSessionExpired();
@@ -1422,7 +1418,7 @@
               const verifyRes = await fetch('/bookings/razorpay/verify-payment', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
-                credentials: 'same-origin',
+                credentials: 'include',
                 body: JSON.stringify({
                   razorpay_order_id: response.razorpay_order_id,
                   razorpay_payment_id: response.razorpay_payment_id,
@@ -1491,7 +1487,7 @@
         const res = await fetch('/bookings/razorpay/create-order', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
-          credentials: 'same-origin',
+          credentials: 'include',
           body: JSON.stringify({ bookingId: '<%= booking._id %>' })
         });
         // Guard: server may return HTML login page if session expired on Render
@@ -1533,7 +1529,7 @@
               const verifyRes = await fetch('/bookings/razorpay/verify-payment', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
-                credentials: 'same-origin',
+                credentials: 'include',
                 body: JSON.stringify({
                   razorpay_order_id: response.razorpay_order_id,
                   razorpay_payment_id: response.razorpay_payment_id,

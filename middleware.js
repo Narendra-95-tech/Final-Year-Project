@@ -7,22 +7,22 @@ const { listingSchema, vehicleSchema, dhabaSchema, reviewSchema } = require("./s
 
 // Helper: detect if this request expects JSON (AJAX / fetch / API)
 function isApiRequest(req) {
+    // If headers explicitly ask for JSON, it's an API request
+    if (req.xhr || req.headers.accept?.includes('application/json') || req.headers['content-type']?.includes('application/json')) {
+        return true;
+    }
+
+    // Specific URL patterns that are known to be fetch/API calls
+    const url = req.originalUrl;
     return (
-        req.xhr ||
-        req.headers.accept?.includes('application/json') ||
-        req.originalUrl.startsWith('/api/') ||
-        req.headers['content-type']?.includes('application/json') ||
-        req.method === 'DELETE' ||
-        // Razorpay payment routes
-        req.originalUrl.startsWith('/bookings/razorpay/') ||
-        req.originalUrl.endsWith('/pay-wallet') ||
-        req.originalUrl.endsWith('/pay-upi') ||
-        // social, wishlist, bookings fetch calls
-        req.originalUrl.startsWith('/social/journal') ||
-        req.originalUrl.startsWith('/api/social') ||
-        req.originalUrl.startsWith('/api/wishlist') ||
-        req.originalUrl.startsWith('/bookings/create-checkout-session') ||
-        req.originalUrl.startsWith('/bookings/initiate')
+        url.startsWith('/api/') ||
+        url.includes('/razorpay/') ||
+        url.includes('/pay-wallet') ||
+        url.includes('/pay-upi') ||
+        url.includes('/social/journal') ||
+        url.includes('/create-checkout-session') ||
+        url.includes('/bookings/initiate') ||
+        req.method === 'DELETE'
     );
 }
 

@@ -417,14 +417,15 @@ const sessionConfig = {
   store,
   name: 'session',
   secret: process.env.SECRET || 'thisshouldbeabettersecret!',
-  resave: false,
-  saveUninitialized: false,
-  proxy: true, // Required for trust proxy to work with cookies
+  resave: true,                // Forces session to be saved back to the session store
+  saveUninitialized: true,     // Forces a session that is "uninitialized" to be saved to the store
+  rolling: true,               // Forces the session identifier cookie to be set on every response
+  proxy: true,                 // trust the reverse proxy (Render)
   cookie: {
     httpOnly: true,
-    secure: isProduction,           // true on Render (HTTPS)
-    sameSite: isProduction ? 'none' : 'lax', // 'none' required for .onrender.com subdomains
-    maxAge: 7 * 24 * 60 * 60 * 1000,   // 7 days
+    secure: isProduction,
+    sameSite: isProduction ? 'none' : 'lax',
+    maxAge: 7 * 24 * 60 * 60 * 1000,
   },
 };
 
