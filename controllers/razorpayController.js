@@ -49,7 +49,21 @@ exports.createOrder = wrapAsync(async (req, res) => {
         },
     };
 
-    const order = await razorpay.orders.create(options);
+    let order;
+    try {
+        order = await razorpay.orders.create(options);
+    } catch (razorpayError) {
+        // Razorpay SDK errors have a different structure than standard JS errors
+        console.error('❌ Razorpay API Error:', JSON.stringify(razorpayError, null, 2));
+        const errorMsg = razorpayError?.error?.description
+            || razorpayError?.message
+            || 'Razorpay order creation failed. Check API keys.';
+        const errorCode = razorpayError?.statusCode || 500;
+        return res.status(errorCode === 401 ? 500 : errorCode).json({
+            success: false,
+            message: `Payment gateway error: ${errorMsg}`
+        });
+    }
 
     // Save order ID to booking for later verification
     booking.razorpayOrderId = order.id;
