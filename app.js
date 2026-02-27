@@ -12,6 +12,7 @@ const methodOverride = require("method-override");
 const ejsMate = require("ejs-mate");
 const session = require("express-session");
 const MongoStore = require("connect-mongo");
+const cookieParser = require("cookie-parser");
 // Cloudinary config remains in cloudConfig.js
 const flash = require("connect-flash");
 const passport = require("passport");
@@ -419,20 +420,21 @@ const isProduction = process.env.NODE_ENV === 'production';
 
 const sessionConfig = {
   store,
-  name: 'wanderlust.sid',      // Unique session name
+  name: 'wanderlust.sid',
   secret: process.env.SECRET || 'thisshouldbeabettersecret!',
   resave: true,
-  saveUninitialized: false,    // Better for passport
+  saveUninitialized: true,    // Force a session to be created to ensure the cookie is set
   rolling: true,
   proxy: true,
   cookie: {
     httpOnly: true,
-    secure: isProduction || !!process.env.RENDER, // Force secure on Render
-    sameSite: 'lax',                               // Safer for onrender subdomains
-    maxAge: 7 * 24 * 60 * 60 * 1000,               // 7 days
+    secure: true,              // Required for sameSite: 'none'
+    sameSite: isProduction ? 'none' : 'lax', // Use 'none' for Render subdomains
+    maxAge: 7 * 24 * 60 * 60 * 1000,
   },
 };
 
+app.use(cookieParser(sessionConfig.secret));
 app.use(session(sessionConfig));
 app.use(flash());
 
