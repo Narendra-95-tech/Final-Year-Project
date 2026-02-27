@@ -3,10 +3,10 @@ const crypto = require("crypto");
 const Booking = require("../models/booking");
 const wrapAsync = require("../utils/wrapAsync");
 
-// Initialize Razorpay instance
+// Initialize Razorpay instance with trimmed keys to prevent newline/space issues
 const razorpay = new Razorpay({
-    key_id: process.env.RAZORPAY_KEY_ID,
-    key_secret: process.env.RAZORPAY_KEY_SECRET,
+    key_id: (process.env.RAZORPAY_KEY_ID || "").trim(),
+    key_secret: (process.env.RAZORPAY_KEY_SECRET || "").trim(),
 });
 
 // ─────────────────────────────────────────────────────────────
@@ -76,7 +76,7 @@ exports.createOrder = wrapAsync(async (req, res) => {
         orderId: order.id,
         amount: order.amount,
         currency: order.currency,
-        keyId: process.env.RAZORPAY_KEY_ID,
+        keyId: (process.env.RAZORPAY_KEY_ID || "").trim(),
         bookingId: booking._id,
         prefill: {
             name: req.user.username || req.user.name || "",
