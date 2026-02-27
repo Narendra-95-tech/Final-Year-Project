@@ -95,10 +95,8 @@ db.once("open", () => {
 const app = express();
 
 // Trust proxy - REQUIRED for Render/Heroku deployment (behind reverse proxy)
-// Without this, secure cookies won't work on HTTPS
-if (process.env.NODE_ENV === 'production') {
-  app.set('trust proxy', 1);
-}
+// This MUST be set before session middleware
+app.set('trust proxy', 1);
 
 // Enable view caching in production for performance
 if (process.env.NODE_ENV === "production") {
@@ -421,12 +419,12 @@ const sessionConfig = {
   secret: process.env.SECRET || 'thisshouldbeabettersecret!',
   resave: false,
   saveUninitialized: false,
+  proxy: true, // Required for trust proxy to work with cookies
   cookie: {
     httpOnly: true,
-    secure: isProduction,           // true on Render (HTTPS), false on localhost
-    sameSite: isProduction ? 'none' : 'lax', // 'none' required for cross-site on HTTPS
-    expires: Date.now() + 1000 * 60 * 60 * 24 * 7,
-    maxAge: 1000 * 60 * 60 * 24 * 7,
+    secure: isProduction,           // true on Render (HTTPS)
+    sameSite: isProduction ? 'none' : 'lax', // 'none' required for .onrender.com subdomains
+    maxAge: 7 * 24 * 60 * 60 * 1000,   // 7 days
   },
 };
 
