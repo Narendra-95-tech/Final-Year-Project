@@ -367,7 +367,8 @@ app.use(cors({
     if (isAllowed || origin.includes('onrender.com')) {
       callback(null, true);
     } else {
-      callback(null, true);
+      // ✅ FIXED: Actually reject disallowed origins
+      callback(new Error('CORS: Origin not allowed - ' + origin));
     }
   },
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
@@ -458,7 +459,13 @@ passport.deserializeUser(async (id, done) => {
 });
 
 // Session diagnostic endpoint (AFTER session/passport middleware)
-app.get('/debug/session', (req, res) => {
+// ⚠️ PROTECTED: Admin only - contains sensitive Razorpay & session info
+app.get('/debug/session', (req, res, next) => {
+  if (!req.isAuthenticated() || !req.user || req.user.role !== 'admin') {
+    return res.status(403).json({ error: 'Forbidden' });
+  }
+  next();
+}, (req, res) => {
   const rzpKey = process.env.RAZORPAY_KEY_ID || '';
   const rzpSecret = process.env.RAZORPAY_KEY_SECRET || '';
   res.json({
@@ -598,7 +605,13 @@ app.get("/map-search-demo", (req, res) => {
 });
 
 // Debug route to check database
-app.get('/debug/database', async (req, res) => {
+// ⚠️ PROTECTED: Admin only - exposes all user emails and usernames
+app.get('/debug/database', (req, res, next) => {
+  if (!req.isAuthenticated() || !req.user || req.user.role !== 'admin') {
+    return res.status(403).json({ error: 'Forbidden' });
+  }
+  next();
+}, async (req, res) => {
   try {
     const User = require("./models/user");
     const users = await User.find({});
@@ -625,7 +638,13 @@ app.get('/test', (req, res) => {
 });
 
 // DEBUG: Check Cloudinary Config (Safe View)
-app.get('/debug/cloudinary', (req, res) => {
+// ⚠️ PROTECTED: Admin only - reveals partial Cloudinary credentials
+app.get('/debug/cloudinary', (req, res, next) => {
+  if (!req.isAuthenticated() || !req.user || req.user.role !== 'admin') {
+    return res.status(403).json({ error: 'Forbidden' });
+  }
+  next();
+}, (req, res) => {
   const secret = process.env.CLOUD_API_SECRET || "";
   const key = process.env.CLOUD_API_KEY || "";
 
@@ -648,7 +667,13 @@ app.get('/debug/cloudinary', (req, res) => {
 });
 
 // TEMPORARY DEBUG ROUTE for Email
-app.get('/debug/email', async (req, res) => {
+// ⚠️ PROTECTED: Admin only - can trigger email sends from your account
+app.get('/debug/email', (req, res, next) => {
+  if (!req.isAuthenticated() || !req.user || req.user.role !== 'admin') {
+    return res.status(403).json({ error: 'Forbidden' });
+  }
+  next();
+}, async (req, res) => {
   const { transporter } = require('./utils/emailService');
 
   // 0. TCP Connectivity Test

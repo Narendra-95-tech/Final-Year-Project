@@ -26,7 +26,19 @@ router.route("/verify-otp")
   .get(userController.renderVerifyOTPForm)
   .post(wrapAsync(userController.verifyOTP));
 
-router.post("/resend-otp", wrapAsync(userController.resendOTP));
+// ✅ SECURITY FIX: Added isLoggedIn + rate limiting to prevent email bombing via resend-otp
+const { authLimiter } = require('../app') || {};
+router.post("/resend-otp", (req, res, next) => {
+  // Rate limit: max 5 resend attempts per 15 minutes
+  const rateLimit = require('express-rate-limit');
+  const resendLimiter = rateLimit({
+    windowMs: 15 * 60 * 1000,
+    max: 5,
+    message: 'Too many OTP resend attempts. Please wait 15 minutes.',
+    keyGenerator: (req) => req.ip
+  });
+  resendLimiter(req, res, next);
+}, wrapAsync(userController.resendOTP));
 
 // Password Reset Routes
 router.route("/forgot-password")

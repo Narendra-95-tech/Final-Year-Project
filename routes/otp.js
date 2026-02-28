@@ -8,13 +8,15 @@ const { isLoggedIn } = require('../middleware');
  * POST /api/otp/send
  */
 router.post('/send', isLoggedIn, async (req, res) => {
-    const { email, purpose } = req.body;
-    const targetEmail = email || req.user.email;
+    // ✅ SECURITY FIX: Always send OTP to the logged-in user's own email only.
+    // Never allow sending to an arbitrary email — prevents email bombing.
+    const targetEmail = req.user.email;
 
     if (!targetEmail) {
-        return res.status(400).json({ success: false, message: 'Email is required' });
+        return res.status(400).json({ success: false, message: 'Email not found on your account' });
     }
 
+    const { purpose } = req.body;
     const result = await sendOTP(targetEmail, purpose);
     if (result.success) {
         res.json(result);

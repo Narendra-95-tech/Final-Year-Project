@@ -11,6 +11,9 @@ const storage = new CloudinaryStorage({
   cloudinary,
   params: {
     folder: "Wanderlust_DEV",
+    // ✅ SECURITY FIX: Only allow safe image formats — blocks SVG/HTML file uploads
+    allowed_formats: ["jpg", "jpeg", "png", "webp", "gif"],
+    resource_type: "image",
   }
 });
 

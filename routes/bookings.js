@@ -49,12 +49,15 @@ const MERCHANT_NAME = "WanderLust Booking";
 // Centralized Initiate Route (Used by Listing/Vehicle/Dhaba Booking Widgets)
 router.post("/initiate", isLoggedIn, isEmailVerified, async (req, res) => {
   try {
-    const { type, listingId, vehicleId, dhabaId, startDate, endDate, date, time, guests, totalPrice, message } = req.body;
+    const { type, listingId, vehicleId, dhabaId, startDate, endDate, date, time, guests, message } = req.body;
 
     // Basic validation
     if (!type) {
       return res.status(400).json({ success: false, message: "Booking type is required" });
     }
+
+    // ✅ SECURITY FIX: Recalculate price SERVER-SIDE — never trust frontend price!
+    let serverCalculatedPrice = 0;
 
     let bookingData = {
       user: req.user._id,
@@ -63,42 +66,56 @@ router.post("/initiate", isLoggedIn, isEmailVerified, async (req, res) => {
       type: type,
       guests: guests || 1,
       message: message || '',
-      amount: totalPrice, // Trusted from frontend for initialization, but should ideally be recalculated
-      totalPrice: totalPrice
     };
 
     // Specific logic per type
     if (type === 'listing') {
       if (!listingId || !startDate || !endDate) return res.status(400).json({ success: false, message: 'Missing fields for listing booking' });
-      bookingData.listing = listingId;
-      bookingData.startDate = new Date(startDate);
-      bookingData.endDate = new Date(endDate);
-
-      // Add to user/listing later or now? Usually simpler to just save Booking.
-      // Syncing arrays (listing.bookings) usually happens on confirmation or here.
-      // Let's do it here to reserve the slot (conceptually).
       const listing = await Listing.findById(listingId);
       if (!listing) throw new Error('Listing not found');
       if (listing.owner.equals(req.user._id)) throw new Error('Cannot book your own listing');
 
+      // ✅ Calculate price from DB, not from user input
+      const start = new Date(startDate);
+      const end = new Date(endDate);
+      const nights = Math.max(1, Math.ceil((end - start) / (1000 * 60 * 60 * 24)));
+      serverCalculatedPrice = listing.price * nights;
+
+      bookingData.listing = listingId;
+      bookingData.startDate = start;
+      bookingData.endDate = end;
+
     } else if (type === 'vehicle') {
       if (!vehicleId || !startDate || !endDate) return res.status(400).json({ success: false, message: 'Missing fields for vehicle booking' });
-      bookingData.vehicle = vehicleId;
-      bookingData.startDate = new Date(startDate);
-      bookingData.endDate = new Date(endDate);
-
       const vehicle = await Vehicle.findById(vehicleId);
       if (!vehicle) throw new Error('Vehicle not found');
 
+      // ✅ Calculate price from DB
+      const start = new Date(startDate);
+      const end = new Date(endDate);
+      const days = Math.max(1, Math.ceil((end - start) / (1000 * 60 * 60 * 24)));
+      serverCalculatedPrice = (vehicle.pricePerDay || vehicle.price) * days;
+
+      bookingData.vehicle = vehicleId;
+      bookingData.startDate = start;
+      bookingData.endDate = end;
+
     } else if (type === 'dhaba') {
       if (!dhabaId || !date || !time) return res.status(400).json({ success: false, message: 'Missing fields for dhaba booking' });
+      const dhaba = await Dhaba.findById(dhabaId);
+      if (!dhaba) throw new Error('Dhaba not found');
+
+      // ✅ Use dhaba's price * guests from DB
+      serverCalculatedPrice = dhaba.price * (parseInt(guests) || 1);
+
       bookingData.dhaba = dhabaId;
       bookingData.date = new Date(date);
       bookingData.time = time;
-
-      const dhaba = await Dhaba.findById(dhabaId);
-      if (!dhaba) throw new Error('Dhaba not found');
     }
+
+    // ✅ Always use the server-calculated price
+    bookingData.amount = serverCalculatedPrice;
+    bookingData.totalPrice = serverCalculatedPrice;
 
     const booking = new Booking(bookingData);
     await booking.save();
@@ -239,6 +256,16 @@ router.post("/:id/pay-wallet", isLoggedIn, async (req, res) => {
       .populate('user');
     if (!booking) return res.status(404).json({ success: false, message: "Booking not found" });
 
+    // ✅ SECURITY FIX: Only the booking owner can pay with wallet
+    if (!booking.user || booking.user._id.toString() !== req.user._id.toString()) {
+      return res.status(403).json({ success: false, message: "Unauthorized: This is not your booking" });
+    }
+
+    // ✅ Prevent double-payment
+    if (booking.isPaid || booking.status === 'Confirmed') {
+      return res.status(400).json({ success: false, message: "This booking is already paid" });
+    }
+
     // Real Wallet Logic
     const user = await User.findById(req.user._id);
 
@@ -290,16 +317,29 @@ router.post("/:id/pay-upi", isLoggedIn, async (req, res) => {
 
     if (!booking) return res.status(404).json({ success: false, message: "Booking not found" });
 
-    // In valid manual flow, we record the UTR
-    if (!paymentReference) {
-      return res.status(400).json({ success: false, message: "Payment Reference (UTR) is required" });
+    // ✅ SECURITY: Only the booking owner can pay for it
+    if (!booking.user || booking.user._id.toString() !== req.user._id.toString()) {
+      return res.status(403).json({ success: false, message: "Unauthorized: This is not your booking" });
     }
 
-    booking.paymentStatus = 'Paid';
-    booking.isPaid = true;
-    booking.status = 'Confirmed';
+    // ✅ Prevent double-payment
+    if (booking.isPaid || booking.status === 'Confirmed') {
+      return res.status(400).json({ success: false, message: "This booking is already paid" });
+    }
+
+    // ✅ SECURITY: Validate UTR format (UPI reference is 12 digits)
+    if (!paymentReference || !/^[A-Za-z0-9]{8,35}$/.test(paymentReference.trim())) {
+      return res.status(400).json({ success: false, message: "Invalid Payment Reference (UTR). Please enter the correct UTR from your UPI app." });
+    }
+
+    // ✅ SECURITY FIX: Mark as PENDING VERIFICATION, not instantly Confirmed.
+    // Admin must verify the UTR manually before confirming.
+    // This prevents fake/made-up UTR numbers from bypassing payment.
+    booking.paymentStatus = 'Pending Verification';
+    booking.isPaid = false;  // NOT paid until admin confirms
+    booking.status = 'Pending';  // NOT confirmed until admin verifies
     booking.paymentMethod = 'UPI';
-    booking.paymentId = paymentReference; // Store UTR as the payment ID
+    booking.paymentId = paymentReference.trim(); // Store UTR for admin to verify
     booking.paymentDate = new Date();
 
     await booking.save();
@@ -338,7 +378,12 @@ router.post("/:id/pay-upi", isLoggedIn, async (req, res) => {
       console.error("UPI Notification Error:", e.message);
     }
 
-    res.json({ success: true, redirectUrl: `/bookings/${booking._id}` });
+    res.json({
+      success: true,
+      message: "UPI reference submitted. Your booking is pending admin verification.",
+      status: "Pending Verification",
+      redirectUrl: `/bookings/${booking._id}`
+    });
 
   } catch (e) {
     console.error(e);
@@ -383,8 +428,8 @@ router.get("/:id/invoice", isLoggedIn, async (req, res) => {
       return res.redirect("/bookings");
     }
 
-    // Security: Only owner or admin can download
-    if (!booking.user || (booking.user._id.toString() !== req.user._id.toString() && !req.user.isAdmin)) {
+    // ✅ SECURITY FIX: Use role-based check, not req.user.isAdmin (which doesn't exist)
+    if (!booking.user || (booking.user._id.toString() !== req.user._id.toString() && req.user.role !== 'admin')) {
       req.flash("error", "You do not have permission to download this invoice.");
       return res.redirect("/listings");
     }

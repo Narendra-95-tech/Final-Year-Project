@@ -488,15 +488,17 @@ module.exports.forgotPassword = async (req, res) => {
     const { email } = req.body;
     const user = await User.findOne({ email });
 
+    // ✅ SECURITY FIX: Always show the SAME message whether email exists or not.
+    // This prevents "Account Enumeration" — hackers testing which emails are registered.
     if (!user) {
-      req.flash("error", "No account found with that email address.");
+      req.flash("success", "If an account exists with that email, a reset code has been sent.");
       return res.redirect("/forgot-password");
     }
 
     const { sendOTP } = require('../utils/otpService');
     await sendOTP(email, 'password-reset');
 
-    req.flash("success", "Password reset code sent to your email.");
+    req.flash("success", "If an account exists with that email, a reset code has been sent.");
     res.redirect(`/reset-password?email=${encodeURIComponent(email)}`);
   } catch (err) {
     logger.error("Forgot Password Error: %O", err);

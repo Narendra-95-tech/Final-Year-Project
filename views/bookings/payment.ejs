@@ -1544,7 +1544,8 @@
           }
           return;
         }
-        const data = await res.json();
+        // ✅ FIX: Reuse upiData — do NOT call res.json() again (body stream already read!)
+        const data = upiData;
         if (!data.success) throw new Error(data.message || 'Order creation failed');
 
         overlay.style.display = 'none';
