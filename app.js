@@ -355,7 +355,7 @@ const allowedOrigins = [
 
 app.use(cors({
   origin: function (origin, callback) {
-    if (!origin) return callback(null, true);
+    if (!origin || origin === 'null') return callback(null, true);
 
     // Normalize origins by removing trailing slashes
     const normalizedOrigin = origin.replace(/\/$/, '');
