@@ -462,11 +462,28 @@
       <div class="col-lg-2 col-md-4 col-6">
         <h5 class="footer-heading">Support</h5>
         <ul class="footer-links">
-          <li><a href="#" class="footer-link">Help Center</a></li>
-          <li><a href="#" class="footer-link">Safety</a></li>
-          <li><a href="#" class="footer-link">Cancellation</a></li>
-          <li><a href="#" class="footer-link">Report Issue</a></li>
+          <li><a href="/bookings/my-bookings" class="footer-link">My Bookings</a></li>
+          <li><a href="/trip-planner" class="footer-link">AI Trip Planner</a></li>
+          <li><a href="/map" class="footer-link">Explore Map</a></li>
+          <li><a href="mailto:<%= process.env.EMAIL_USER || 'help@wanderlust.com' %>" class="footer-link">Contact Us</a>
+          </li>
         </ul>
+      </div>
+
+      <!-- Legal -->
+      <div class="col-lg-2 col-md-4 col-6">
+        <h5 class="footer-heading">Legal</h5>
+        <ul class="footer-links">
+          <li><a href="/privacy-policy" class="footer-link">Privacy Policy</a></li>
+          <li><a href="/terms" class="footer-link">Terms of Service</a></li>
+          <li><a href="/sitemap.xml" class="footer-link" target="_blank">Sitemap</a></li>
+        </ul>
+        <div class="mt-3">
+          <span class="footer-link" style="font-size:0.8rem; opacity:0.6;"><i class="fas fa-shield-alt me-1"></i>SSL
+            Secured</span><br>
+          <span class="footer-link" style="font-size:0.8rem; opacity:0.6;"><i class="fas fa-lock me-1"></i>PCI
+            Compliant</span>
+        </div>
       </div>
 
       <!-- Get the App -->
@@ -498,12 +515,14 @@
         <p class="mb-0 text-white-50 small">&copy; <%= new Date().getFullYear() %> WanderLust Pvt Ltd. All rights
             reserved.</p>
         <div class="d-flex align-items-center gap-3 mt-2 text-white-50 small">
-          <a href="#" class="text-reset text-decoration-none hover-white">Privacy</a>
+          <a href="/privacy-policy" class="text-reset text-decoration-none hover-white">Privacy Policy</a>
           <span>•</span>
-          <a href="#" class="text-reset text-decoration-none hover-white">Terms</a>
+          <a href="/terms" class="text-reset text-decoration-none hover-white">Terms of Service</a>
+          <span>•</span>
+          <a href="/sitemap.xml" class="text-reset text-decoration-none hover-white" target="_blank">Sitemap</a>
           <span>•</span>
           <a href="tel:+919860182371" class="text-reset text-decoration-none hover-white"><i
-              class="fas fa-phone-alt me-1"></i> +91 98601 82371</a>
+              class="fas fa-phone-alt me-1"></i>+91 98601 82371</a>
         </div>
       </div>
 
@@ -513,6 +532,7 @@
         <i class="fab fa-cc-mastercard" title="Mastercard"></i>
         <i class="fab fa-cc-amex" title="Amex"></i>
         <i class="fab fa-stripe" title="Stripe"></i>
+        <i class="fab fa-google-pay" title="Google Pay" style="font-size:1.4rem;"></i>
         <i class="fas fa-lock" title="Secure SSL" style="font-size: 1rem; margin-left:10px; opacity:0.7;"></i>
       </div>
     </div>

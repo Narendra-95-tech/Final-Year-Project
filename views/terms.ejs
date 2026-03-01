@@ -1,0 +1,172 @@
+<%- layout('/layouts/boilerplate') %>
+
+    <style>
+        .legal-page {
+            max-width: 840px;
+            margin: 0 auto;
+            padding: 48px 24px 80px;
+            font-family: 'Inter', system-ui, sans-serif;
+            color: #1a1a2e;
+            line-height: 1.8;
+        }
+
+        .legal-page h1 {
+            font-size: 2.2rem;
+            font-weight: 800;
+            background: linear-gradient(135deg, #ff385c, #d90b3e);
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 6px;
+        }
+
+        .legal-page .last-updated {
+            color: #888;
+            font-size: 0.9rem;
+            margin-bottom: 36px;
+        }
+
+        .legal-page h2 {
+            font-size: 1.2rem;
+            font-weight: 700;
+            margin-top: 36px;
+            color: #1a1a2e;
+            border-left: 4px solid #ff385c;
+            padding-left: 12px;
+        }
+
+        .legal-page p,
+        .legal-page li {
+            color: #444;
+            font-size: 0.97rem;
+        }
+
+        .legal-page ul {
+            padding-left: 22px;
+        }
+
+        .legal-page a {
+            color: #ff385c;
+            text-decoration: none;
+        }
+
+        .legal-page a:hover {
+            text-decoration: underline;
+        }
+
+        .legal-divider {
+            border: none;
+            border-top: 1px solid #eee;
+            margin: 32px 0;
+        }
+
+        .highlight-box {
+            background: #fff8f8;
+            border-left: 4px solid #ff385c;
+            padding: 16px 20px;
+            border-radius: 0 8px 8px 0;
+            margin: 20px 0;
+        }
+    </style>
+
+    <div class="legal-page">
+        <h1>Terms of Service</h1>
+        <p class="last-updated">Last Updated: March 1, 2026</p>
+
+        <p>Please read these Terms of Service ("Terms") carefully before using the WanderLust platform operated by
+            <strong>WanderLust Team</strong>.
+        </p>
+        <p>By accessing or using WanderLust, you agree to be bound by these Terms. If you do not agree, please do not
+            use the platform.</p>
+
+        <hr class="legal-divider">
+
+        <h2>1. Acceptance of Terms</h2>
+        <p>By creating an account or making a booking, you confirm that you are at least 18 years old and have the legal
+            authority to enter into this agreement.</p>
+
+        <h2>2. Platform Description</h2>
+        <p>WanderLust is an online marketplace that connects travellers with:</p>
+        <ul>
+            <li><strong>Stays (Listings)</strong> — Short-term accommodation hosted by registered hosts.</li>
+            <li><strong>Vehicles</strong> — Rental vehicles listed by verified vehicle owners.</li>
+            <li><strong>Dhabas</strong> — Local dining experiences listed by dhaba owners.</li>
+        </ul>
+        <p>WanderLust facilitates bookings but is <strong>not</strong> a party to the actual service agreement between
+            guests and hosts.</p>
+
+        <h2>3. User Accounts</h2>
+        <ul>
+            <li>You are responsible for maintaining the confidentiality of your account credentials.</li>
+            <li>You agree to provide accurate and current information when registering.</li>
+            <li>You must notify us immediately of any unauthorized use of your account.</li>
+            <li>One person may not maintain more than one active account.</li>
+        </ul>
+
+        <h2>4. Bookings & Payments</h2>
+        <div class="highlight-box">
+            <strong>All payments are processed securely by Razorpay and Stripe.</strong> WanderLust does not store your
+            card, UPI, or banking credentials.
+        </div>
+        <ul>
+            <li>Booking prices are set by individual hosts and are inclusive of any applicable platform fees.</li>
+            <li>Once a booking is confirmed, a confirmation email with a PDF invoice will be sent to your registered
+                email.</li>
+            <li>Prices are displayed in Indian Rupees (INR) unless stated otherwise.</li>
+        </ul>
+
+        <h2>5. Cancellation & Refund Policy</h2>
+        <ul>
+            <li>Cancellations made at least 24 hours before the check-in date are eligible for a full refund.</li>
+            <li>Refunds are credited to the original payment method within 5–7 business days, or instantly to your
+                WanderLust Wallet.</li>
+            <li>WanderLust reserves the right to modify the cancellation policy for specific listings as indicated on
+                the listing page.</li>
+            <li>No-shows are non-refundable.</li>
+        </ul>
+
+        <h2>6. Host Responsibilities</h2>
+        <ul>
+            <li>Hosts must ensure that their listings are accurately described and legally permitted to be rented.</li>
+            <li>Hosts are responsible for the safety and cleanliness of their property/vehicle/dhaba.</li>
+            <li>WanderLust reserves the right to remove any listing that violates our community standards.</li>
+        </ul>
+
+        <h2>7. Prohibited Conduct</h2>
+        <p>You agree not to:</p>
+        <ul>
+            <li>Use the platform for any unlawful purpose.</li>
+            <li>Post false, misleading, or fraudulent listings or reviews.</li>
+            <li>Attempt to bypass payment systems or conduct fraudulent transactions.</li>
+            <li>Scrape, crawl, or extract platform data without written permission.</li>
+            <li>Harass, threaten, or discriminate against other users.</li>
+        </ul>
+
+        <h2>8. Intellectual Property</h2>
+        <p>All content on WanderLust — including logos, design, and software — is the intellectual property of the
+            WanderLust team. You may not reproduce or distribute any part of the platform without explicit written
+            consent.</p>
+
+        <h2>9. Limitation of Liability</h2>
+        <p>WanderLust is provided "as is." We are not liable for:</p>
+        <ul>
+            <li>Any disputes between guests and hosts.</li>
+            <li>Loss of data or service interruptions.</li>
+            <li>The accuracy of host-submitted information.</li>
+            <li>Any indirect, incidental, or consequential damages arising from use of the platform.</li>
+        </ul>
+
+        <h2>10. Governing Law</h2>
+        <p>These Terms are governed by the laws of India. Any disputes shall be subject to the exclusive jurisdiction of
+            the courts of Maharashtra, India.</p>
+
+        <h2>11. Changes to Terms</h2>
+        <p>We reserve the right to modify these Terms at any time. Continued use of the platform after changes
+            constitutes acceptance of the new Terms.</p>
+
+        <h2>12. Contact Us</h2>
+        <p>For questions about these Terms, reach us at:<br>
+            📧 <a href="mailto:<%= process.env.EMAIL_USER || 'help@wanderlust.com' %>">
+                <%= process.env.EMAIL_USER || 'help@wanderlust.com' %>
+            </a></p>
+    </div>

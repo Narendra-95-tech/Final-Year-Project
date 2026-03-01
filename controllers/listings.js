@@ -107,7 +107,10 @@ module.exports.index = async (req, res) => {
         startDate: startDate || "",
         endDate: endDate || "",
         guests: guests || "",
-        queryParams
+        queryParams,
+        // SEO
+        title: q ? `"${q}" — Stay Listings | WanderLust` : 'Browse All Stays | WanderLust',
+        description: 'Discover unique homestays, villas, cottages and more across India. Book your perfect stay on WanderLust.'
     });
 };
 
@@ -145,7 +148,20 @@ module.exports.showListing = async (req, res) => {
         req.flash("error", "Listing you requested for does not exist!");
         return res.redirect("/listings");
     }
-    res.render("listings/show", { listing, mapToken: process.env.MAP_TOKEN });
+    const ogImg = (listing.images && listing.images[0]) ? listing.images[0].url
+        : (listing.image && listing.image.url ? listing.image.url : null);
+    res.render("listings/show", {
+        listing,
+        mapToken: process.env.MAP_TOKEN,
+        // SEO / Open Graph
+        title: `${listing.title} in ${listing.location} | WanderLust`,
+        description: listing.description
+            ? listing.description.substring(0, 160)
+            : `Book ${listing.title} — a ${listing.propertyType || 'stay'} in ${listing.location}, ${listing.country}. ₹${listing.price}/night.`,
+        ogImage: ogImg,
+        ogType: 'product',
+        keywords: `${listing.title}, ${listing.location}, ${listing.country}, ${listing.propertyType || 'stay'}, book stay india`
+    });
 };
 
 

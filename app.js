@@ -534,8 +534,10 @@ app.use(imageOptimizationMiddleware);
 // Routes
 // --------------------
 const healthRouter = require("./routes/health");
+const sitemapRouter = require("./routes/sitemap");
 
 app.use("/", healthRouter); // Health check endpoints
+app.use("/", sitemapRouter); // Sitemap + SEO
 app.use("/", userRouter);
 app.use("/payouts", require("./routes/payouts.js")); // Payouts Route
 app.use("/listings", listingRouter);
@@ -593,6 +595,21 @@ app.get("/trip-planner", (req, res) => {
   res.render("trip-planner", {
     title: "AI Trip Planner | WanderLust",
     description: "Plan your perfect trip with our AI-powered trip planner. Get personalized travel itineraries, budget estimates, and local recommendations."
+  });
+});
+
+// Legal pages
+app.get("/privacy-policy", (req, res) => {
+  res.render("privacy-policy", {
+    title: "Privacy Policy | WanderLust",
+    description: "Read WanderLust's Privacy Policy to understand how we collect, use and protect your personal information."
+  });
+});
+
+app.get("/terms", (req, res) => {
+  res.render("terms", {
+    title: "Terms of Service | WanderLust",
+    description: "Read the Terms of Service governing your use of WanderLust — the travel booking platform for stays, vehicles, and dhabas."
   });
 });
 
@@ -820,7 +837,7 @@ app.get("/", cacheMiddleware(300), async (req, res) => {
       mapToken: process.env.MAP_TOKEN,
     });
   } catch (err) {
-    console.error(err);
+    logger.error('Error loading homepage: %O', err);
     res.status(500).send("Error loading homepage");
   }
 });
@@ -882,70 +899,9 @@ app.get("/search", async (req, res) => {
   }
 });
 
-// Homepage with all sections
-app.get("/home", async (req, res) => {
-  try {
-    const Listing = require("./models/listing");
-    const Vehicle = require("./models/vehicle");
-    const Dhaba = require("./models/dhaba");
-
-    // Get featured items from each section (Optimized with .lean() and .select())
-    const [featuredListings, featuredVehicles, featuredDhabas, localLegendsRaw] = await Promise.all([
-      Listing.find({}).select('title description image price location country propertyType rating').sort({ createdAt: -1 }).limit(3).lean(),
-      Vehicle.find({}).select('title description image price location vehicleType brand model rating').sort({ createdAt: -1 }).limit(3).lean(),
-      Dhaba.find({}).select('title description image price location cuisine category rating').sort({ createdAt: -1 }).limit(3).lean(),
-      require("./models/user").find({}).select('firstName lastName email avatar').limit(4).lean()
-    ]);
-
-    let localLegends = localLegendsRaw;
-
-    // Augment with legend metadata
-    const legendTitles = ["Superhost Elite", "Safe Traveler", "Flavor Master", "Road King"];
-    localLegends = localLegends.map((user, i) => {
-      const u = { ...user }; // Lean documents are already plain objects, just spread to copy
-
-      // Fixed Personas for "Local Legends" Hall of Fame
-      const personas = [
-        { name: "Narendra", title: "Superhost Elite", color: "2D6A4F" }, // N
-        { name: "Rohan", title: "Safe Traveler", color: "1D3557" },    // R
-        { name: "Rutik", title: "Flavor Master", color: "E63946" },    // R
-        { name: "Aditya", title: "Road King", color: "F1A00A" }        // A
-      ];
-
-      if (i < personas.length) {
-        const p = personas[i];
-        u.firstName = p.name;
-        u.legendTitle = p.title;
-        // Force initials avatar for consistency in the "Hall of Fame"
-        u.avatar = { url: `https://ui-avatars.com/api/?name=${p.name}&background=${p.color}&color=fff&size=128&bold=true&length=1` };
-      } else {
-        u.legendTitle = legendTitles[i % legendTitles.length];
-      }
-
-      u.legendRating = (4.8 + (Math.random() * 0.2)).toFixed(1);
-      u.hostedCount = Math.floor(Math.random() * 50) + 10;
-      return u;
-    });
-
-    // Check for real visual messages
-    const existingSuccessHome = res.locals.success;
-    const hasVisualSuccessHome = existingSuccessHome && existingSuccessHome.length > 0 && existingSuccessHome.some(m => m && m.trim().length > 0);
-
-    if (!hasVisualSuccessHome) {
-      res.locals.success = "Welcome to WanderLust!";
-    }
-
-    res.render("home", {
-      featuredListings,
-      featuredVehicles,
-      featuredDhabas,
-      localLegends,
-      mapToken: process.env.MAP_TOKEN,
-    });
-  } catch (err) {
-    console.error(err);
-    res.render("error", { message: "Error loading homepage" });
-  }
+// /home is an alias — redirect to / to avoid duplicate DB queries
+app.get("/home", (req, res) => {
+  res.redirect(301, "/");
 });
 
 // 404 Handler - Must be after all other routes

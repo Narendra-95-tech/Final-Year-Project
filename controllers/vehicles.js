@@ -154,7 +154,10 @@ module.exports.index = async (req, res) => {
         seats: seats || "",
         startDate: startDate || "",
         endDate: endDate || "",
-        queryString
+        queryString,
+        // SEO
+        title: q ? `"${q}" — Vehicles | WanderLust` : 'Rent Vehicles Across India | WanderLust',
+        description: 'Rent cars, bikes, SUVs and more from trusted owners across India. Affordable vehicle rentals on WanderLust.'
     });
 };
 
@@ -185,7 +188,20 @@ module.exports.showVehicle = async (req, res, next) => {
             return res.redirect("/vehicles");
         }
 
-        res.render("vehicles/show", { vehicle, mapToken: process.env.MAP_TOKEN });
+        const ogImg = (vehicle.images && vehicle.images[0]) ? vehicle.images[0].url
+            : (vehicle.image && vehicle.image.url ? vehicle.image.url : null);
+        res.render("vehicles/show", {
+            vehicle,
+            mapToken: process.env.MAP_TOKEN,
+            // SEO / Open Graph
+            title: `${vehicle.brand} ${vehicle.model} in ${vehicle.location} | WanderLust`,
+            description: vehicle.description
+                ? vehicle.description.substring(0, 160)
+                : `Rent a ${vehicle.year || ''} ${vehicle.brand} ${vehicle.model} in ${vehicle.location}. ₹${vehicle.price}/day on WanderLust.`,
+            ogImage: ogImg,
+            ogType: 'product',
+            keywords: `${vehicle.brand}, ${vehicle.model}, ${vehicle.vehicleType || 'vehicle'}, rent, ${vehicle.location}, india`
+        });
     } catch (err) {
         next(err);
     }

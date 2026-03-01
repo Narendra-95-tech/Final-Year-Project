@@ -64,7 +64,10 @@ module.exports.index = async (req, res) => {
       category: category || "",
       facilities: facilities || [],
       minRating: minRating || "",
-      sort: sort || ""
+      sort: sort || "",
+      // SEO
+      title: q ? `"${q}" — Dhabas | WanderLust` : 'Discover Local Dhabas | WanderLust',
+      description: 'Find authentic local dhabas, restaurants and dining experiences near you. Book a table on WanderLust.'
     });
   } catch (err) {
     console.error(err);
@@ -136,9 +139,20 @@ module.exports.showDhaba = async (req, res) => {
       return res.redirect("/dhabas");
     }
 
+    const ogImg = dhaba.image && Array.isArray(dhaba.image) && dhaba.image[0]
+      ? dhaba.image[0].url
+      : (dhaba.image && dhaba.image.url ? dhaba.image.url : null);
     res.render("dhabas/show", {
       dhaba,
-      mapToken: process.env.MAP_TOKEN
+      mapToken: process.env.MAP_TOKEN,
+      // SEO / Open Graph
+      title: `${dhaba.title} — ${dhaba.cuisine || 'Local Dhaba'} in ${dhaba.location} | WanderLust`,
+      description: dhaba.description
+        ? dhaba.description.substring(0, 160)
+        : `Visit ${dhaba.title}, a popular ${dhaba.cuisine || ''} dhaba in ${dhaba.location}. Book a table on WanderLust.`,
+      ogImage: ogImg,
+      ogType: 'restaurant',
+      keywords: `${dhaba.title}, ${dhaba.cuisine || 'dhaba'}, ${dhaba.location}, local food, book table india`
     });
   } catch (err) {
     console.error(err);

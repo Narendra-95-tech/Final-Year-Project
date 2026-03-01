@@ -27,8 +27,8 @@ function isApiRequest(req) {
 }
 
 module.exports.isLoggedIn = (req, res, next) => {
-    // Diagnostic logging for booking/razorpay routes
-    if (req.originalUrl.includes('/bookings') || req.originalUrl.includes('/razorpay')) {
+    // Diagnostic logging for booking/razorpay routes (dev only)
+    if (process.env.NODE_ENV !== 'production' && (req.originalUrl.includes('/bookings') || req.originalUrl.includes('/razorpay'))) {
         console.log(`[Auth Debug] ${req.method} ${req.originalUrl}`);
         console.log(`[Auth Debug] isAuthenticated: ${req.isAuthenticated()}`);
         console.log(`[Auth Debug] hasUser: ${!!req.user}`);
