@@ -768,7 +768,7 @@ app.get("/", cacheMiddleware(300), async (req, res) => {
 
     // Get featured items from each section (Parallel Execution - Optimized with .lean() and .select())
     const [featuredListings, featuredVehicles, featuredDhabas, localLegendsRaw] = await Promise.all([
-      Listing.find({}).select('title description image price location country propertyType rating').sort({ createdAt: -1 }).limit(3).lean(),
+      Listing.find({}).select('title description image images price location country propertyType rating').sort({ createdAt: -1 }).limit(3).lean(),
       Vehicle.find({}).select('title description image price location vehicleType brand model rating').sort({ createdAt: -1 }).limit(3).lean(),
       Dhaba.find({}).select('title description image price location cuisine category rating').sort({ createdAt: -1 }).limit(3).lean(),
       require("./models/user").find({}).select('firstName lastName email avatar').limit(4).lean()

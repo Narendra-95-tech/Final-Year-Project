@@ -783,3 +783,318 @@
 .mb-5 h4 i {
     font-size: 22px;
 }
+
+/* ==================== CARD IMAGE CAROUSEL ==================== */
+.listing-image-container .carousel-track {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    transition: transform 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
+}
+
+.listing-image-container .carousel-slide {
+    min-width: 100%;
+    height: 100%;
+    flex-shrink: 0;
+}
+
+.listing-image-container .carousel-slide img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.listing-image-container .carousel-arrow {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.92);
+    border: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.18);
+    opacity: 0;
+    transition: all 0.2s ease;
+    z-index: 12;
+    font-size: 11px;
+    color: #222;
+    padding: 0;
+}
+
+.listing-image-container .carousel-arrow.prev {
+    left: 8px;
+}
+
+.listing-image-container .carousel-arrow.next {
+    right: 8px;
+}
+
+.listing-card:hover .carousel-arrow {
+    opacity: 1 !important;
+    visibility: visible !important;
+}
+
+.listing-image-container .carousel-arrow:hover {
+    background: #fff;
+    transform: translateY(-50%) scale(1.12);
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.25);
+}
+
+.listing-image-container .carousel-dots {
+    position: absolute;
+    bottom: 38px;
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    gap: 4px;
+    z-index: 12;
+}
+
+.listing-image-container .carousel-dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.5);
+    transition: all 0.3s ease;
+    cursor: pointer;
+}
+
+.listing-image-container .carousel-dot.active {
+    background: #fff;
+    width: 16px;
+    border-radius: 10px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+}
+
+/* ==================== SKELETON LOADER ==================== */
+.skeleton-card {
+    pointer-events: none;
+}
+
+.skeleton-box,
+.skeleton-line {
+    background: #eee;
+    background: linear-gradient(110deg, #ececec 8%, #f5f5f5 18%, #ececec 33%);
+    background-size: 200% 100%;
+    animation: shimmer 1.5s linear infinite;
+    border-radius: 12px;
+}
+
+.skeleton-box {
+    width: 100%;
+    aspect-ratio: 1 / 1;
+}
+
+.skeleton-line {
+    height: 16px;
+    margin-bottom: 10px;
+}
+
+@keyframes shimmer {
+    to {
+        background-position-x: -200%;
+    }
+}
+
+/* ==================== SHOW MAP FLOATING BUTTON ==================== */
+.show-map-btn {
+    position: fixed !important;
+    bottom: 32px !important;
+    left: 50% !important;
+    transform: translateX(-50%) !important;
+    z-index: 2000 !important;
+    display: inline-flex !important;
+    align-items: center;
+    gap: 8px;
+    background: #222 !important;
+    color: #fff !important;
+    padding: 14px 28px !important;
+    border-radius: 999px !important;
+    font-weight: 700;
+    font-size: 14px;
+    text-decoration: none !important;
+    border: 1px solid rgba(255, 255, 255, 0.2) !important;
+    cursor: pointer;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.45) !important;
+    transition: all 0.3s cubic-bezier(0.2, 0.8, 0.2, 1);
+    animation: map-btn-enter 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+    opacity: 0;
+}
+
+.show-map-btn:hover {
+    background: #000 !important;
+    transform: translateX(-50%) translateY(-4px) scale(1.05) !important;
+    box-shadow: 0 12px 40px rgba(0, 0, 0, 0.55) !important;
+}
+
+/* ==================== SCROLL PROGRESS BAR ==================== */
+.scroll-progress-container {
+    position: fixed;
+    top: 70px;
+    /* Below navbar */
+    left: 0;
+    width: 100%;
+    height: 4px;
+    background: rgba(255, 255, 255, 0.1);
+    z-index: 1000;
+    pointer-events: none;
+}
+
+.scroll-progress-bar {
+    height: 100%;
+    width: 0%;
+    background: linear-gradient(to right, #FF385C, #FF9500);
+    box-shadow: 0 0 10px rgba(255, 56, 92, 0.5);
+    transition: width 0.1s ease;
+}
+
+.show-map-btn i {
+    font-size: 16px;
+}
+
+@keyframes map-btn-enter {
+    from {
+        opacity: 0;
+        transform: translateX(-50%) translateY(30px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateX(-50%) translateY(0);
+    }
+}
+
+/* ==================== STAGGERED CARD ANIMATION ==================== */
+.listing-card {
+    opacity: 0;
+    transform: translateY(20px);
+    animation: card-reveal 0.5s ease forwards;
+}
+
+.listing-card:nth-child(1) {
+    animation-delay: 0.05s;
+}
+
+.listing-card:nth-child(2) {
+    animation-delay: 0.1s;
+}
+
+.listing-card:nth-child(3) {
+    animation-delay: 0.15s;
+}
+
+.listing-card:nth-child(4) {
+    animation-delay: 0.2s;
+}
+
+.listing-card:nth-child(5) {
+    animation-delay: 0.25s;
+}
+
+.listing-card:nth-child(6) {
+    animation-delay: 0.3s;
+}
+
+.listing-card:nth-child(7) {
+    animation-delay: 0.35s;
+}
+
+.listing-card:nth-child(8) {
+    animation-delay: 0.4s;
+}
+
+.listing-card:nth-child(n+9) {
+    animation-delay: 0.45s;
+}
+
+@keyframes card-reveal {
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* ==================== WISHLIST HEART POP ==================== */
+.wishlist-btn.animating {
+    animation: heart-pop-listing 0.45s cubic-bezier(0.17, 0.89, 0.32, 1.49);
+}
+
+@keyframes heart-pop-listing {
+    0% {
+        transform: scale(1);
+    }
+
+    25% {
+        transform: scale(1.4);
+    }
+
+    50% {
+        transform: scale(0.9);
+    }
+
+    75% {
+        transform: scale(1.15);
+    }
+
+    100% {
+        transform: scale(1);
+    }
+}
+
+.wishlist-btn.active i {
+    color: var(--airbnb-red) !important;
+    font-weight: 900;
+}
+
+.wishlist-btn .heart-burst {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    pointer-events: none;
+    z-index: 20;
+}
+
+.wishlist-btn .heart-burst span {
+    position: absolute;
+    width: 4px;
+    height: 4px;
+    border-radius: 50%;
+    background: var(--airbnb-red);
+    animation: burst-p 0.5s ease-out forwards;
+}
+
+@keyframes burst-p {
+    0% {
+        transform: translate(0, 0) scale(1);
+        opacity: 1;
+    }
+
+    100% {
+        transform: translate(var(--tx), var(--ty)) scale(0);
+        opacity: 0;
+    }
+}
+
+/* ==================== PROPERTY TYPE CHIP ==================== */
+.property-type-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    background: rgba(0, 0, 0, 0.05);
+    color: var(--gray-700);
+    padding: 2px 8px;
+    border-radius: 4px;
+    font-size: 11px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.3px;
+    margin-bottom: 4px;
+}

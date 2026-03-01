@@ -5,16 +5,320 @@
     .hero-section {
       position: relative;
       height: 90vh;
-      /* Slightly taller for more impact */
       min-height: 700px;
       display: flex;
       align-items: center;
       justify-content: center;
       color: var(--white);
       text-align: center;
-      background: url('/images/hero-bg.png') center/cover no-repeat;
+      background: #0a0a0a;
       margin-top: -1.5rem;
       overflow: hidden;
+    }
+
+    /* Cinematic Video Background */
+    .hero-video {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      min-width: 100%;
+      min-height: 100%;
+      width: auto;
+      height: auto;
+      transform: translate(-50%, -50%);
+      object-fit: cover;
+      z-index: 0;
+      opacity: 0;
+      transition: opacity 1.5s ease;
+    }
+
+    .hero-video.loaded {
+      opacity: 1;
+    }
+
+    /* Typewriter cursor blink */
+    .typewriter-cursor {
+      display: inline-block;
+      width: 3px;
+      height: 1.6rem;
+      background: #ff9a5c;
+      margin-left: 4px;
+      vertical-align: middle;
+      animation: blink-cursor 0.75s step-end infinite;
+      border-radius: 2px;
+    }
+
+    @keyframes blink-cursor {
+
+      0%,
+      100% {
+        opacity: 1;
+      }
+
+      50% {
+        opacity: 0;
+      }
+    }
+
+    /* ===== ANIMATED STATS COUNTER SECTION ===== */
+    .stats-section {
+      background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+      padding: 4rem 0;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .stats-section::before {
+      content: '';
+      position: absolute;
+      top: -50%;
+      left: -50%;
+      width: 200%;
+      height: 200%;
+      background: radial-gradient(circle at 30% 50%, rgba(253, 126, 20, 0.12) 0%, transparent 50%),
+        radial-gradient(circle at 70% 50%, rgba(139, 92, 246, 0.1) 0%, transparent 50%);
+      animation: stats-bg-move 8s ease-in-out infinite alternate;
+    }
+
+    @keyframes stats-bg-move {
+      from {
+        transform: translate(0, 0);
+      }
+
+      to {
+        transform: translate(2%, 2%);
+      }
+    }
+
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 2rem;
+      position: relative;
+      z-index: 1;
+    }
+
+    @media (max-width: 768px) {
+      .stats-grid {
+        grid-template-columns: repeat(2, 1fr);
+      }
+    }
+
+    @media (max-width: 480px) {
+      .stats-grid {
+        grid-template-columns: 1fr 1fr;
+        gap: 1rem;
+      }
+    }
+
+    .stat-card {
+      text-align: center;
+      padding: 2rem 1rem;
+      border-radius: 20px;
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      backdrop-filter: blur(10px);
+      transition: transform 0.3s ease, background 0.3s ease;
+    }
+
+    .stat-card:hover {
+      transform: translateY(-8px);
+      background: rgba(255, 255, 255, 0.1);
+    }
+
+    .stat-emoji {
+      font-size: 2.5rem;
+      margin-bottom: 0.5rem;
+      display: block;
+      animation: float 3s ease-in-out infinite;
+    }
+
+    .stat-card:nth-child(2) .stat-emoji {
+      animation-delay: 0.5s;
+    }
+
+    .stat-card:nth-child(3) .stat-emoji {
+      animation-delay: 1s;
+    }
+
+    .stat-card:nth-child(4) .stat-emoji {
+      animation-delay: 1.5s;
+    }
+
+    @keyframes float {
+
+      0%,
+      100% {
+        transform: translateY(0);
+      }
+
+      50% {
+        transform: translateY(-8px);
+      }
+    }
+
+    .stat-number {
+      font-size: 3rem;
+      font-weight: 900;
+      background: linear-gradient(135deg, #fd7e14, #ff9a5c);
+      -webkit-background-clip: text;
+      background-clip: text;
+      -webkit-text-fill-color: transparent;
+      line-height: 1;
+      margin: 0.5rem 0 0.25rem;
+      display: block;
+    }
+
+    .stat-label-text {
+      font-size: 0.9rem;
+      color: rgba(255, 255, 255, 0.65);
+      font-weight: 500;
+      letter-spacing: 0.5px;
+    }
+
+    /* ===== AI TRIP PLANNER CTA BANNER ===== */
+    .ai-cta-banner {
+      background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 50%, #9333ea 100%);
+      padding: 5rem 0;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .ai-cta-banner::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background-image:
+        radial-gradient(circle at 20% 50%, rgba(255, 255, 255, 0.08) 0%, transparent 40%),
+        radial-gradient(circle at 80% 50%, rgba(255, 255, 255, 0.05) 0%, transparent 40%);
+    }
+
+    .ai-cta-banner .ai-orb {
+      position: absolute;
+      border-radius: 50%;
+      filter: blur(60px);
+      opacity: 0.3;
+      animation: orb-float 6s ease-in-out infinite alternate;
+    }
+
+    .ai-orb-1 {
+      width: 300px;
+      height: 300px;
+      background: #f0abfc;
+      top: -100px;
+      right: 10%;
+    }
+
+    .ai-orb-2 {
+      width: 200px;
+      height: 200px;
+      background: #a5f3fc;
+      bottom: -80px;
+      left: 5%;
+      animation-delay: 2s;
+    }
+
+    @keyframes orb-float {
+      from {
+        transform: translate(0, 0) scale(1);
+      }
+
+      to {
+        transform: translate(20px, 15px) scale(1.1);
+      }
+    }
+
+    .ai-cta-inner {
+      position: relative;
+      z-index: 2;
+      text-align: center;
+      max-width: 750px;
+      margin: 0 auto;
+      padding: 0 1.5rem;
+    }
+
+    .ai-cta-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      background: rgba(255, 255, 255, 0.15);
+      border: 1px solid rgba(255, 255, 255, 0.25);
+      color: white;
+      padding: 0.4rem 1.2rem;
+      border-radius: 999px;
+      font-size: 0.85rem;
+      font-weight: 600;
+      letter-spacing: 0.5px;
+      margin-bottom: 1.5rem;
+      backdrop-filter: blur(4px);
+    }
+
+    .ai-cta-title {
+      font-size: clamp(2rem, 5vw, 3.25rem);
+      font-weight: 900;
+      color: white;
+      line-height: 1.15;
+      margin-bottom: 1.25rem;
+      letter-spacing: -1px;
+    }
+
+    .ai-cta-subtitle {
+      font-size: 1.15rem;
+      color: rgba(255, 255, 255, 0.8);
+      margin-bottom: 2.5rem;
+      line-height: 1.6;
+    }
+
+    .ai-cta-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.75rem;
+      background: white;
+      color: #4f46e5;
+      padding: 1rem 2.5rem;
+      border-radius: 999px;
+      font-weight: 800;
+      font-size: 1.1rem;
+      text-decoration: none;
+      border: none;
+      cursor: pointer;
+      transition: all 0.3s cubic-bezier(0.2, 0.8, 0.2, 1);
+      box-shadow: 0 8px 30px rgba(0, 0, 0, 0.25);
+    }
+
+    .ai-cta-btn:hover {
+      transform: translateY(-4px) scale(1.03);
+      box-shadow: 0 16px 40px rgba(0, 0, 0, 0.35);
+      color: #4f46e5;
+      text-decoration: none;
+    }
+
+    .ai-cta-btn i {
+      font-size: 1.2rem;
+    }
+
+    .ai-features-row {
+      display: flex;
+      justify-content: center;
+      gap: 2rem;
+      margin-top: 2.5rem;
+      flex-wrap: wrap;
+    }
+
+    .ai-feature-chip {
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+      color: rgba(255, 255, 255, 0.75);
+      font-size: 0.9rem;
+      font-weight: 500;
+    }
+
+    .ai-feature-chip i {
+      color: #a5f3fc;
     }
 
     .hero-overlay {
@@ -709,16 +1013,664 @@
         box-shadow: 0 0 0 0 rgba(255, 165, 0, 0);
       }
     }
+
+    /* ===== HOW IT WORKS SECTION ===== */
+    .how-it-works {
+      padding: 5rem 0;
+      background: linear-gradient(180deg, #fff 0%, #f8fafc 100%);
+    }
+
+    .steps-container {
+      display: flex;
+      justify-content: center;
+      align-items: flex-start;
+      gap: 0;
+      position: relative;
+      max-width: 900px;
+      margin: 0 auto;
+    }
+
+    .step-card {
+      flex: 1;
+      text-align: center;
+      padding: 0 1.5rem;
+      position: relative;
+    }
+
+    .step-icon-wrapper {
+      width: 90px;
+      height: 90px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 0 auto 1.5rem;
+      position: relative;
+      z-index: 2;
+      transition: all 0.4s cubic-bezier(0.2, 0.8, 0.2, 1);
+    }
+
+    .step-card:nth-child(1) .step-icon-wrapper {
+      background: linear-gradient(135deg, #fef3c7, #fcd34d);
+      box-shadow: 0 8px 25px rgba(252, 211, 77, 0.35);
+    }
+
+    .step-card:nth-child(2) .step-icon-wrapper {
+      background: linear-gradient(135deg, #dbeafe, #60a5fa);
+      box-shadow: 0 8px 25px rgba(96, 165, 250, 0.35);
+    }
+
+    .step-card:nth-child(3) .step-icon-wrapper {
+      background: linear-gradient(135deg, #d1fae5, #34d399);
+      box-shadow: 0 8px 25px rgba(52, 211, 153, 0.35);
+    }
+
+    .step-card:hover .step-icon-wrapper {
+      transform: translateY(-8px) scale(1.08);
+    }
+
+    .step-icon-wrapper i {
+      font-size: 2rem;
+      color: #1e293b;
+    }
+
+    .step-number {
+      position: absolute;
+      top: -8px;
+      right: -8px;
+      width: 28px;
+      height: 28px;
+      background: var(--primary-orange);
+      color: white;
+      border-radius: 50%;
+      font-size: 0.8rem;
+      font-weight: 800;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border: 3px solid white;
+      box-shadow: 0 2px 8px rgba(253, 126, 20, 0.4);
+    }
+
+    .step-title {
+      font-size: 1.25rem;
+      font-weight: 700;
+      color: var(--gray-900);
+      margin-bottom: 0.5rem;
+    }
+
+    .step-desc {
+      font-size: 0.9rem;
+      color: var(--gray-500);
+      line-height: 1.6;
+    }
+
+    /* Connecting dashed line */
+    .step-connector {
+      position: absolute;
+      top: 45px;
+      left: calc(50% + 55px);
+      width: calc(100% - 110px);
+      height: 2px;
+      z-index: 1;
+    }
+
+    .step-connector::after {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: repeating-linear-gradient(90deg,
+          var(--gray-300) 0px,
+          var(--gray-300) 8px,
+          transparent 8px,
+          transparent 16px);
+      animation: dash-flow 1.5s linear infinite;
+    }
+
+    @keyframes dash-flow {
+      from {
+        background-position: 0 0;
+      }
+
+      to {
+        background-position: 32px 0;
+      }
+    }
+
+    @media (max-width: 768px) {
+      .steps-container {
+        flex-direction: column;
+        gap: 2.5rem;
+      }
+
+      .step-connector {
+        display: none;
+      }
+    }
+
+    /* ===== CARD CAROUSEL ===== */
+    .card-carousel {
+      position: relative;
+      overflow: hidden;
+      padding-top: 66.67%;
+    }
+
+    .card-carousel .carousel-track {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      display: flex;
+      transition: transform 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
+    }
+
+    .card-carousel .carousel-slide {
+      min-width: 100%;
+      height: 100%;
+    }
+
+    .card-carousel .carousel-slide img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    .card-carousel .carousel-btn {
+      position: absolute;
+      top: 50%;
+      transform: translateY(-50%);
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      background: rgba(255, 255, 255, 0.92);
+      border: none;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.18);
+      opacity: 0;
+      transition: all 0.25s ease;
+      z-index: 5;
+      font-size: 0.75rem;
+      color: #222;
+    }
+
+    .card-carousel .carousel-btn.prev {
+      left: 10px;
+    }
+
+    .card-carousel .carousel-btn.next {
+      right: 10px;
+    }
+
+    .premium-card:hover .carousel-btn {
+      opacity: 1;
+    }
+
+    .card-carousel .carousel-btn:hover {
+      background: #fff;
+      transform: translateY(-50%) scale(1.12);
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
+    }
+
+    /* Dot indicators */
+    .card-carousel .carousel-dots {
+      position: absolute;
+      bottom: 10px;
+      left: 50%;
+      transform: translateX(-50%);
+      display: flex;
+      gap: 5px;
+      z-index: 5;
+    }
+
+    .card-carousel .carousel-dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: rgba(255, 255, 255, 0.55);
+      transition: all 0.3s ease;
+      cursor: pointer;
+    }
+
+    .card-carousel .carousel-dot.active {
+      background: #fff;
+      width: 18px;
+      border-radius: 10px;
+      box-shadow: 0 1px 4px rgba(0, 0, 0, 0.3);
+    }
+
+    /* ===== WISHLIST HEART ANIMATION ===== */
+    .card-wishlist {
+      transition: all 0.2s ease;
+    }
+
+    .card-wishlist.animating {
+      animation: heart-pop 0.45s cubic-bezier(0.17, 0.89, 0.32, 1.49);
+    }
+
+    @keyframes heart-pop {
+      0% {
+        transform: scale(1);
+      }
+
+      25% {
+        transform: scale(1.35);
+      }
+
+      50% {
+        transform: scale(0.9);
+      }
+
+      75% {
+        transform: scale(1.15);
+      }
+
+      100% {
+        transform: scale(1);
+      }
+    }
+
+    .card-wishlist.active i {
+      font-weight: 900;
+      color: #FF385C;
+    }
+
+    /* ===== TESTIMONIALS SECTION ===== */
+    .testimonials-section {
+      padding: 5rem 0;
+      background: linear-gradient(180deg, #f8fafc 0%, #fff 100%);
+      overflow: hidden;
+    }
+
+    .testimonials-track-wrapper {
+      overflow: hidden;
+      position: relative;
+      margin-top: 2rem;
+    }
+
+    .testimonials-track-wrapper::before,
+    .testimonials-track-wrapper::after {
+      content: '';
+      position: absolute;
+      top: 0;
+      bottom: 0;
+      width: 80px;
+      z-index: 2;
+      pointer-events: none;
+    }
+
+    .testimonials-track-wrapper::before {
+      left: 0;
+      background: linear-gradient(to right, #f8fafc, transparent);
+    }
+
+    .testimonials-track-wrapper::after {
+      right: 0;
+      background: linear-gradient(to left, #fff, transparent);
+    }
+
+    .testimonials-track {
+      display: flex;
+      gap: 1.5rem;
+      animation: scroll-testimonials 30s linear infinite;
+      width: max-content;
+    }
+
+    .testimonials-track:hover {
+      animation-play-state: paused;
+    }
+
+    @keyframes scroll-testimonials {
+      0% {
+        transform: translateX(0);
+      }
+
+      100% {
+        transform: translateX(-50%);
+      }
+    }
+
+    .testimonial-card {
+      min-width: 340px;
+      max-width: 340px;
+      background: white;
+      border-radius: 20px;
+      padding: 2rem;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.06);
+      border: 1px solid rgba(0, 0, 0, 0.04);
+      transition: all 0.3s ease;
+      cursor: default;
+    }
+
+    .testimonial-card:hover {
+      transform: translateY(-6px);
+      box-shadow: 0 12px 30px rgba(0, 0, 0, 0.1);
+    }
+
+    .testimonial-stars {
+      color: #fbbf24;
+      font-size: 0.9rem;
+      margin-bottom: 1rem;
+      letter-spacing: 2px;
+    }
+
+    .testimonial-text {
+      font-size: 0.95rem;
+      color: #475569;
+      line-height: 1.7;
+      margin-bottom: 1.25rem;
+      font-style: italic;
+    }
+
+    .testimonial-author {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+    }
+
+    .testimonial-avatar {
+      width: 44px;
+      height: 44px;
+      border-radius: 50%;
+      object-fit: cover;
+      border: 2px solid #f1f5f9;
+    }
+
+    .testimonial-name {
+      font-weight: 700;
+      font-size: 0.9rem;
+      color: #1e293b;
+    }
+
+    .testimonial-role {
+      font-size: 0.78rem;
+      color: #94a3b8;
+    }
+
+    /* ===== EXPLORE MAP TEASER ===== */
+    .map-teaser-section {
+      padding: 5rem 0;
+      background: #0f172a;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .map-teaser-section::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: url('https://api.mapbox.com/styles/v1/mapbox/dark-v11/static/78.9629,20.5937,4,0/1200x400@2x?access_token=pk.placeholder') center/cover no-repeat;
+      opacity: 0.25;
+      filter: blur(2px);
+    }
+
+    .map-teaser-inner {
+      position: relative;
+      z-index: 2;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 3rem;
+    }
+
+    .map-teaser-content {
+      flex: 1;
+    }
+
+    .map-teaser-content h2 {
+      font-size: clamp(1.75rem, 4vw, 2.5rem);
+      font-weight: 800;
+      color: white;
+      margin-bottom: 1rem;
+    }
+
+    .map-teaser-content p {
+      font-size: 1.05rem;
+      color: rgba(255, 255, 255, 0.7);
+      margin-bottom: 2rem;
+      max-width: 500px;
+      line-height: 1.65;
+    }
+
+    .map-teaser-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.75rem;
+      background: linear-gradient(135deg, #fd7e14, #e8690b);
+      color: white;
+      padding: 0.9rem 2rem;
+      border-radius: 999px;
+      font-weight: 700;
+      font-size: 1rem;
+      text-decoration: none;
+      transition: all 0.3s ease;
+      box-shadow: 0 6px 20px rgba(253, 126, 20, 0.35);
+    }
+
+    .map-teaser-btn:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 10px 30px rgba(253, 126, 20, 0.45);
+      color: white;
+    }
+
+    .map-teaser-visual {
+      flex: 0 0 auto;
+      width: 200px;
+      height: 200px;
+      border-radius: 50%;
+      background: rgba(253, 126, 20, 0.1);
+      border: 2px solid rgba(253, 126, 20, 0.3);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+      animation: map-pulse 3s ease-in-out infinite;
+    }
+
+    @keyframes map-pulse {
+
+      0%,
+      100% {
+        box-shadow: 0 0 0 0 rgba(253, 126, 20, 0.2);
+      }
+
+      50% {
+        box-shadow: 0 0 0 20px rgba(253, 126, 20, 0);
+      }
+    }
+
+    .map-teaser-visual i {
+      font-size: 4rem;
+      color: #fd7e14;
+    }
+
+    .map-pin-dot {
+      position: absolute;
+      width: 12px;
+      height: 12px;
+      background: #fd7e14;
+      border-radius: 50%;
+      border: 2px solid white;
+      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
+    }
+
+    .map-pin-dot:nth-child(2) {
+      top: 20%;
+      left: 25%;
+    }
+
+    .map-pin-dot:nth-child(3) {
+      top: 60%;
+      right: 15%;
+    }
+
+    .map-pin-dot:nth-child(4) {
+      bottom: 15%;
+      left: 40%;
+    }
+
+    @media (max-width: 768px) {
+      .map-teaser-inner {
+        flex-direction: column;
+        text-align: center;
+      }
+
+      .map-teaser-content p {
+        margin-left: auto;
+        margin-right: auto;
+      }
+
+      .map-teaser-visual {
+        width: 150px;
+        height: 150px;
+      }
+
+      .map-teaser-visual i {
+        font-size: 3rem;
+      }
+    }
+
+    /* ===== PAGE PRELOADER ===== */
+    .page-preloader {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: linear-gradient(135deg, #0f172a, #1e293b);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      z-index: 99999;
+      transition: opacity 0.6s ease, visibility 0.6s ease;
+    }
+
+    .page-preloader.hidden {
+      opacity: 0;
+      visibility: hidden;
+    }
+
+    .preloader-logo {
+      font-size: 2.5rem;
+      font-weight: 900;
+      color: white;
+      margin-bottom: 1.5rem;
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      animation: preloader-bounce 1s ease-in-out infinite;
+    }
+
+    .preloader-logo i {
+      color: #fd7e14;
+    }
+
+    @keyframes preloader-bounce {
+
+      0%,
+      100% {
+        transform: translateY(0);
+      }
+
+      50% {
+        transform: translateY(-8px);
+      }
+    }
+
+    .preloader-bar {
+      width: 200px;
+      height: 4px;
+      background: rgba(255, 255, 255, 0.1);
+      border-radius: 10px;
+      overflow: hidden;
+    }
+
+    .preloader-bar-fill {
+      height: 100%;
+      width: 0%;
+      background: linear-gradient(90deg, #fd7e14, #ff9a5c);
+      border-radius: 10px;
+      animation: preloader-fill 1.2s ease-out forwards;
+    }
+
+    @keyframes preloader-fill {
+      0% {
+        width: 0%;
+      }
+
+      100% {
+        width: 100%;
+      }
+    }
+
+    /* Burst particles */
+    .heart-burst {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      pointer-events: none;
+      z-index: 20;
+    }
+
+    .heart-burst span {
+      position: absolute;
+      width: 5px;
+      height: 5px;
+      border-radius: 50%;
+      background: #FF385C;
+      animation: burst-particle 0.6s ease-out forwards;
+    }
+
+    @keyframes burst-particle {
+      0% {
+        transform: translate(0, 0) scale(1);
+        opacity: 1;
+      }
+
+      100% {
+        transform: translate(var(--tx), var(--ty)) scale(0);
+        opacity: 0;
+      }
+    }
   </style>
+
+  <!-- ===== PREMIUM PAGE PRELOADER ===== -->
+  <div class="page-preloader" id="pagePreloader">
+    <div class="preloader-logo">
+      <i class="fas fa-compass"></i>
+      WanderLust
+    </div>
+    <div class="preloader-bar">
+      <div class="preloader-bar-fill"></div>
+    </div>
+  </div>
 
   <!-- Hero Section -->
   <section class="hero-section">
+    <!-- Cinematic Video Background -->
+    <video id="hero-video" class="hero-video" autoplay muted loop playsinline poster="/images/hero-bg.png">
+      <source src="https://assets.mixkit.co/videos/preview/mixkit-aerial-view-of-a-mountain-river-1574-large.mp4"
+        type="video/mp4">
+    </video>
+
     <div class="hero-overlay"></div>
     <div class="hero-content" data-aos="fade-up">
       <h1 class="hero-title">
         Experience WanderLust
       </h1>
-      <p class="hero-subtitle">Book unique stays, rent local vehicles, and explore authentic food.</p>
+      <p class="hero-subtitle">
+        <span id="typewriter-text">Book unique stays</span><span class="typewriter-cursor"></span>
+      </p>
 
       <div class="search-tabs" data-aos="fade-up" data-aos-delay="200">
         <button class="search-tab active" data-type="global" onclick="switchSearchTab(this, 'global')">
@@ -831,6 +1783,34 @@
     </div>
   </div>
 
+  <!-- ===== ANIMATED STATS COUNTER SECTION ===== -->
+  <section class="stats-section">
+    <div class="container">
+      <div class="stats-grid">
+        <div class="stat-card" data-aos="fade-up" data-aos-delay="0">
+          <span class="stat-emoji">🏠</span>
+          <span class="stat-number" data-target="500">0</span>
+          <span class="stat-label-text">Premium Stays</span>
+        </div>
+        <div class="stat-card" data-aos="fade-up" data-aos-delay="100">
+          <span class="stat-emoji">🚗</span>
+          <span class="stat-number" data-target="200">0</span>
+          <span class="stat-label-text">Vehicles Available</span>
+        </div>
+        <div class="stat-card" data-aos="fade-up" data-aos-delay="200">
+          <span class="stat-emoji">🍛</span>
+          <span class="stat-number" data-target="150">0</span>
+          <span class="stat-label-text">Authentic Dhabas</span>
+        </div>
+        <div class="stat-card" data-aos="fade-up" data-aos-delay="300">
+          <span class="stat-emoji">⭐</span>
+          <span class="stat-number" data-target="10000">0</span>
+          <span class="stat-label-text">Happy Travelers</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
   <!-- Local Legends (Hall of Fame) Section -->
   <% if (typeof localLegends !=='undefined' && localLegends.length> 0) { %>
     <section class="legends-section">
@@ -921,6 +1901,55 @@
         </div>
       </section>
 
+      <!-- ===== HOW IT WORKS SECTION ===== -->
+      <section class="how-it-works">
+        <div class="container">
+          <div class="text-center mb-5">
+            <h2 class="premium-section-title" data-aos="fade-up">How It Works</h2>
+            <p class="premium-section-subtitle" data-aos="fade-up" data-aos-delay="100">
+              Your perfect trip is just 3 simple steps away.
+            </p>
+          </div>
+
+          <div class="steps-container">
+            <!-- Step 1 -->
+            <div class="step-card" data-aos="fade-up" data-aos-delay="200">
+              <div class="step-icon-wrapper">
+                <i class="fas fa-search"></i>
+                <span class="step-number">1</span>
+              </div>
+              <h4 class="step-title">Search & Discover</h4>
+              <p class="step-desc">Browse stays, vehicles, and food spots. Use our AI to get personalized
+                recommendations.</p>
+              <div class="step-connector"></div>
+            </div>
+
+            <!-- Step 2 -->
+            <div class="step-card" data-aos="fade-up" data-aos-delay="350">
+              <div class="step-icon-wrapper">
+                <i class="fas fa-calendar-check"></i>
+                <span class="step-number">2</span>
+              </div>
+              <h4 class="step-title">Book Instantly</h4>
+              <p class="step-desc">Secure your booking with our safe payment system. Get instant confirmation via email.
+              </p>
+              <div class="step-connector"></div>
+            </div>
+
+            <!-- Step 3 -->
+            <div class="step-card" data-aos="fade-up" data-aos-delay="500">
+              <div class="step-icon-wrapper">
+                <i class="fas fa-plane-departure"></i>
+                <span class="step-number">3</span>
+              </div>
+              <h4 class="step-title">Explore & Enjoy</h4>
+              <p class="step-desc">Pack your bags and create unforgettable memories. Rate your experience to help fellow
+                travelers.</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
       <!-- Storytelling Section / The Complete Road Trip -->
       <section class="story-section">
         <div class="container">
@@ -982,41 +2011,66 @@
           <div class="row g-4">
             <% if (featuredListings && featuredListings.length> 0) { %>
               <% for (let listing of featuredListings) { %>
-                <div class="col-lg-4 col-md-6" data-aos="fade-up">
-                  <a href="/listings/<%= listing._id %>" class="text-decoration-none">
-                    <div class="premium-card">
-                      <div class="card-img-wrapper">
-                        <img
-                          src="<%= listing.image?.url || 'https://images.unsplash.com/photo-1502672260266-1c1ef2d93688?w=800&fit=crop' %>"
-                          alt="<%= listing.title %>">
-                        <span class="card-badge">Top Rated</span>
-                        <div class="card-wishlist" data-id="<%= listing._id %>"
-                          onclick="toggleWishlist(event, '<%= listing._id %>', 'listing')">
-                          <i class="far fa-heart"></i>
-                        </div>
-                      </div>
-                      <div class="premium-card-body">
-                        <div class="card-location">
-                          <i class="fas fa-map-marker-alt"></i>
-                          <%= listing.location %>, <%= listing.country %>
-                        </div>
-                        <h3 class="card-listing-title">
-                          <%= listing.title %>
-                        </h3>
-                        <div class="card-price-wrapper">
-                          <div class="card-price">₹<%= Number(listing.price).toLocaleString("en-IN") %> <span>/
-                                night</span>
+                <% /* Build carousel images array */%>
+                  <% var carouselImages=[]; if (listing.image && listing.image.url) {
+                    carouselImages.push(listing.image.url); } if (listing.images && listing.images.length> 0) {
+                    for (var ci = 0; ci < listing.images.length; ci++) { if (listing.images[ci].url &&
+                      carouselImages.indexOf(listing.images[ci].url)===-1) {
+                      carouselImages.push(listing.images[ci].url); } } } if (carouselImages.length===0) {
+                      carouselImages.push('https://images.unsplash.com/photo-1502672260266-1c1ef2d93688?w=800&fit=crop');
+                      } if (carouselImages.length> 5) { carouselImages = carouselImages.slice(0, 5); }
+                      %>
+                      <div class="col-lg-4 col-md-6" data-aos="fade-up">
+                        <a href="/listings/<%= listing._id %>" class="text-decoration-none">
+                          <div class="premium-card">
+                            <div class="card-carousel" data-card-carousel>
+                              <div class="carousel-track">
+                                <% carouselImages.forEach(imgUrl=> { %>
+                                  <div class="carousel-slide">
+                                    <img src="<%= imgUrl %>" alt="<%= listing.title %>" loading="lazy">
+                                  </div>
+                                  <% }) %>
+                              </div>
+                              <% if (carouselImages.length> 1) { %>
+                                <button class="carousel-btn prev" onclick="slideCard(event, this, -1)"
+                                  aria-label="Previous"><i class="fas fa-chevron-left"></i></button>
+                                <button class="carousel-btn next" onclick="slideCard(event, this, 1)"
+                                  aria-label="Next"><i class="fas fa-chevron-right"></i></button>
+                                <div class="carousel-dots">
+                                  <% carouselImages.forEach((_, i)=> { %>
+                                    <span class="carousel-dot <%= i === 0 ? 'active' : '' %>"
+                                      data-index="<%= i %>"></span>
+                                    <% }) %>
+                                </div>
+                                <% } %>
+                                  <span class="card-badge">Top Rated</span>
+                                  <div class="card-wishlist" data-id="<%= listing._id %>"
+                                    onclick="toggleWishlist(event, '<%= listing._id %>', 'listing')">
+                                    <i class="far fa-heart"></i>
+                                  </div>
+                            </div>
+                            <div class="premium-card-body">
+                              <div class="card-location">
+                                <i class="fas fa-map-marker-alt"></i>
+                                <%= listing.location %>, <%= listing.country %>
+                              </div>
+                              <h3 class="card-listing-title">
+                                <%= listing.title %>
+                              </h3>
+                              <div class="card-price-wrapper">
+                                <div class="card-price">₹<%= Number(listing.price).toLocaleString("en-IN") %> <span>/
+                                      night</span>
+                                </div>
+                                <div class="text-warning small">
+                                  <i class="fas fa-star"></i> 4.9
+                                </div>
+                              </div>
+                            </div>
                           </div>
-                          <div class="text-warning small">
-                            <i class="fas fa-star"></i> 4.9
-                          </div>
-                        </div>
+                        </a>
                       </div>
-                    </div>
-                  </a>
-                </div>
-                <% } %>
-                  <% } %>
+                      <% } %>
+                        <% } %>
           </div>
         </div>
       </section>
@@ -1133,6 +2187,173 @@
         </div>
       </section>
 
+      <!-- ===== AI TRIP PLANNER CTA BANNER ===== -->
+      <section class="ai-cta-banner" data-aos="fade-up">
+        <div class="ai-orb ai-orb-1"></div>
+        <div class="ai-orb ai-orb-2"></div>
+        <div class="container">
+          <div class="ai-cta-inner">
+            <div class="ai-cta-badge">
+              <i class="fas fa-robot"></i>
+              <span>Powered by AI</span>
+            </div>
+            <h2 class="ai-cta-title">Let AI Plan Your<br>Perfect Trip ✨</h2>
+            <p class="ai-cta-subtitle">
+              Tell us your destination, budget & travel dates — our AI will craft a full personalized itinerary with
+              stays, wheels & food stops in seconds.
+            </p>
+            <a href="/ai/trip-planner" class="ai-cta-btn">
+              <i class="fas fa-wand-magic-sparkles"></i>
+              Start Planning for Free
+            </a>
+            <div class="ai-features-row">
+              <div class="ai-feature-chip">
+                <i class="fas fa-check-circle"></i>
+                <span>Personalized Itinerary</span>
+              </div>
+              <div class="ai-feature-chip">
+                <i class="fas fa-check-circle"></i>
+                <span>Budget Estimates</span>
+              </div>
+              <div class="ai-feature-chip">
+                <i class="fas fa-check-circle"></i>
+                <span>Local Recommendations</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ===== TESTIMONIALS SECTION ===== -->
+      <section class="testimonials-section">
+        <div class="container">
+          <div class="text-center">
+            <h2 class="premium-section-title" data-aos="fade-up">What Travelers Say</h2>
+            <p class="premium-section-subtitle" data-aos="fade-up" data-aos-delay="100">
+              Real experiences from real wanderers.
+            </p>
+          </div>
+
+          <div class="testimonials-track-wrapper" data-aos="fade-up" data-aos-delay="200">
+            <div class="testimonials-track" id="testimonialsTrack">
+              <!-- Testimonial 1 -->
+              <div class="testimonial-card">
+                <div class="testimonial-stars"><i class="fas fa-star"></i><i class="fas fa-star"></i><i
+                    class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i></div>
+                <p class="testimonial-text">"WanderLust made our Goa trip so easy. We booked a beach villa, rented a
+                  scooter, and found the best local dhabas — all from one app!"</p>
+                <div class="testimonial-author">
+                  <img src="https://ui-avatars.com/api/?name=Priya+S&background=ff6b81&color=fff&size=88&bold=true"
+                    class="testimonial-avatar" alt="Priya">
+                  <div>
+                    <div class="testimonial-name">Priya Sharma</div>
+                    <div class="testimonial-role">Solo Traveler, Mumbai</div>
+                  </div>
+                </div>
+              </div>
+              <!-- Testimonial 2 -->
+              <div class="testimonial-card">
+                <div class="testimonial-stars"><i class="fas fa-star"></i><i class="fas fa-star"></i><i
+                    class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i></div>
+                <p class="testimonial-text">"The AI trip planner blew my mind! It created a full 5-day Manali itinerary
+                  with budget breakdowns. Saved me hours of research."</p>
+                <div class="testimonial-author">
+                  <img src="https://ui-avatars.com/api/?name=Rahul+K&background=60a5fa&color=fff&size=88&bold=true"
+                    class="testimonial-avatar" alt="Rahul">
+                  <div>
+                    <div class="testimonial-name">Rahul Kumar</div>
+                    <div class="testimonial-role">Adventure Seeker, Delhi</div>
+                  </div>
+                </div>
+              </div>
+              <!-- Testimonial 3 -->
+              <div class="testimonial-card">
+                <div class="testimonial-stars"><i class="fas fa-star"></i><i class="fas fa-star"></i><i
+                    class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star-half-alt"></i></div>
+                <p class="testimonial-text">"Found an amazing heritage haveli in Jaipur through WanderLust. The host was
+                  incredible and the booking process was seamless."</p>
+                <div class="testimonial-author">
+                  <img src="https://ui-avatars.com/api/?name=Anita+M&background=34d399&color=fff&size=88&bold=true"
+                    class="testimonial-avatar" alt="Anita">
+                  <div>
+                    <div class="testimonial-name">Anita Mehra</div>
+                    <div class="testimonial-role">Family Traveler, Pune</div>
+                  </div>
+                </div>
+              </div>
+              <!-- Testimonial 4 -->
+              <div class="testimonial-card">
+                <div class="testimonial-stars"><i class="fas fa-star"></i><i class="fas fa-star"></i><i
+                    class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i></div>
+                <p class="testimonial-text">"Best platform for road trips! I rented a Thar for our Leh-Ladakh trip and
+                  discovered hidden dhabas along the way. 10/10!"</p>
+                <div class="testimonial-author">
+                  <img src="https://ui-avatars.com/api/?name=Vikram+P&background=fbbf24&color=fff&size=88&bold=true"
+                    class="testimonial-avatar" alt="Vikram">
+                  <div>
+                    <div class="testimonial-name">Vikram Patel</div>
+                    <div class="testimonial-role">Road Trip Enthusiast, Ahmedabad</div>
+                  </div>
+                </div>
+              </div>
+              <!-- Testimonial 5 -->
+              <div class="testimonial-card">
+                <div class="testimonial-stars"><i class="fas fa-star"></i><i class="fas fa-star"></i><i
+                    class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i></div>
+                <p class="testimonial-text">"As a host, WanderLust has been a game changer. The dashboard is intuitive
+                  and I've had amazing guests from all over India."</p>
+                <div class="testimonial-author">
+                  <img src="https://ui-avatars.com/api/?name=Deepa+R&background=a78bfa&color=fff&size=88&bold=true"
+                    class="testimonial-avatar" alt="Deepa">
+                  <div>
+                    <div class="testimonial-name">Deepa Rao</div>
+                    <div class="testimonial-role">Superhost, Coorg</div>
+                  </div>
+                </div>
+              </div>
+              <!-- Testimonial 6 -->
+              <div class="testimonial-card">
+                <div class="testimonial-stars"><i class="fas fa-star"></i><i class="fas fa-star"></i><i
+                    class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i></div>
+                <p class="testimonial-text">"The real-time chat with hosts and instant booking confirmation made
+                  everything smooth. This is what travel platforms should be!"</p>
+                <div class="testimonial-author">
+                  <img src="https://ui-avatars.com/api/?name=Arun+J&background=f97316&color=fff&size=88&bold=true"
+                    class="testimonial-avatar" alt="Arun">
+                  <div>
+                    <div class="testimonial-name">Arun Joshi</div>
+                    <div class="testimonial-role">Weekend Explorer, Bangalore</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ===== EXPLORE MAP TEASER ===== -->
+      <section class="map-teaser-section" data-aos="fade-up">
+        <div class="container">
+          <div class="map-teaser-inner">
+            <div class="map-teaser-content">
+              <h2>Explore Everything on the Map 🗺️</h2>
+              <p>See all stays, vehicles, and dhabas plotted on an interactive map. Filter by location, zoom in, and
+                find hidden gems near your next destination.</p>
+              <a href="/map" class="map-teaser-btn">
+                <i class="fas fa-map-marked-alt"></i>
+                Open Interactive Map
+              </a>
+            </div>
+            <div class="map-teaser-visual">
+              <i class="fas fa-globe-asia"></i>
+              <span class="map-pin-dot"></span>
+              <span class="map-pin-dot"></span>
+              <span class="map-pin-dot"></span>
+            </div>
+          </div>
+        </div>
+      </section>
+
       <!-- Final Call to Action -->
       <% if (!currUser) { %>
         <section class="py-5 text-center">
@@ -1209,7 +2430,7 @@
                 mode: "range",
                 minDate: "today",
                 dateFormat: "Y-m-d",
-                disableMobile: "true", // Force native feel if needed, but custom UI is better
+                disableMobile: "true",
                 onChange: function (selectedDates, dateStr, instance) {
                   if (selectedDates.length === 2) {
                     const start = instance.formatDate(selectedDates[0], "Y-m-d");
@@ -1219,6 +2440,193 @@
                   }
                 }
               });
+
+              // ========================================
+              // 1. CINEMATIC VIDEO HERO — Fade in on load
+              // ========================================
+              const heroVideo = document.getElementById('hero-video');
+              if (heroVideo) {
+                heroVideo.addEventListener('canplaythrough', () => {
+                  heroVideo.classList.add('loaded');
+                });
+                // Fallback: fade in after 2s regardless
+                setTimeout(() => heroVideo.classList.add('loaded'), 2000);
+              }
+
+              // ========================================
+              // 2. TYPEWRITER ANIMATION — Subtitle cycling
+              // ========================================
+              const typewriterEl = document.getElementById('typewriter-text');
+              if (typewriterEl) {
+                const phrases = [
+                  'Book unique stays',
+                  'Rent local vehicles',
+                  'Discover authentic Dhabas',
+                  'Plan your trip with AI',
+                  'Explore India your way'
+                ];
+                let phraseIndex = 0;
+                let charIndex = 0;
+                let isDeleting = false;
+                let typingSpeed = 80;
+
+                function typeWriter() {
+                  const currentPhrase = phrases[phraseIndex];
+                  if (isDeleting) {
+                    typewriterEl.textContent = currentPhrase.substring(0, charIndex - 1);
+                    charIndex--;
+                    typingSpeed = 40;
+                  } else {
+                    typewriterEl.textContent = currentPhrase.substring(0, charIndex + 1);
+                    charIndex++;
+                    typingSpeed = 80;
+                  }
+
+                  if (!isDeleting && charIndex === currentPhrase.length) {
+                    // Pause at end of word
+                    typingSpeed = 1800;
+                    isDeleting = true;
+                  } else if (isDeleting && charIndex === 0) {
+                    isDeleting = false;
+                    phraseIndex = (phraseIndex + 1) % phrases.length;
+                    typingSpeed = 400;
+                  }
+                  setTimeout(typeWriter, typingSpeed);
+                }
+                // Start after a small delay so hero is visible
+                setTimeout(typeWriter, 1000);
+              }
+
+              // ========================================
+              // 3. ANIMATED STATS COUNTER
+              // ========================================
+              const statNumbers = document.querySelectorAll('.stat-number[data-target]');
+              let countersStarted = false;
+
+              function animateCounters() {
+                statNumbers.forEach(el => {
+                  const target = parseInt(el.getAttribute('data-target'), 10);
+                  const suffix = target >= 1000 ? 'K+' : '+';
+                  const displayTarget = target >= 1000 ? target / 1000 : target;
+                  const duration = 2000;
+                  const steps = 60;
+                  const increment = displayTarget / steps;
+                  let current = 0;
+                  const timer = setInterval(() => {
+                    current += increment;
+                    if (current >= displayTarget) {
+                      el.textContent = displayTarget + suffix;
+                      clearInterval(timer);
+                    } else {
+                      el.textContent = (target >= 1000
+                        ? current.toFixed(1)
+                        : Math.floor(current)) + suffix;
+                    }
+                  }, duration / steps);
+                });
+              }
+
+              // ========================================
+              // 4. CARD IMAGE CAROUSEL
+              // ========================================
+              window.slideCard = function (e, btn, direction) {
+                e.preventDefault();
+                e.stopPropagation();
+                const carousel = btn.closest('[data-card-carousel]');
+                const track = carousel.querySelector('.carousel-track');
+                const slides = carousel.querySelectorAll('.carousel-slide');
+                const dots = carousel.querySelectorAll('.carousel-dot');
+                const total = slides.length;
+                let current = parseInt(track.dataset.current || '0', 10);
+                current += direction;
+                if (current < 0) current = total - 1;
+                if (current >= total) current = 0;
+                track.style.transform = `translateX(-${current * 100}%)`;
+                track.dataset.current = current;
+                dots.forEach((d, i) => d.classList.toggle('active', i === current));
+              };
+
+              // ========================================
+              // 5. WISHLIST HEART MICRO-ANIMATION
+              // ========================================
+              const originalToggleWishlist = window.toggleWishlist;
+              window.toggleWishlist = function (e, id, type) {
+                e.preventDefault();
+                e.stopPropagation();
+                const heartEl = e.currentTarget;
+
+                // Toggle active state
+                const isNowActive = !heartEl.classList.contains('active');
+                heartEl.classList.toggle('active', isNowActive);
+
+                // Switch icon
+                const icon = heartEl.querySelector('i');
+                if (icon) {
+                  icon.className = isNowActive ? 'fas fa-heart' : 'far fa-heart';
+                }
+
+                // Pop animation
+                heartEl.classList.remove('animating');
+                void heartEl.offsetWidth; // Force reflow
+                heartEl.classList.add('animating');
+                setTimeout(() => heartEl.classList.remove('animating'), 500);
+
+                // Burst particles
+                if (isNowActive) {
+                  const burst = document.createElement('div');
+                  burst.className = 'heart-burst';
+                  for (let i = 0; i < 6; i++) {
+                    const particle = document.createElement('span');
+                    const angle = (i / 6) * 360;
+                    const distance = 15 + Math.random() * 10;
+                    particle.style.setProperty('--tx', `${Math.cos(angle * Math.PI / 180) * distance}px`);
+                    particle.style.setProperty('--ty', `${Math.sin(angle * Math.PI / 180) * distance}px`);
+                    particle.style.background = ['#FF385C', '#ff6b81', '#ff9a5c', '#ffd700'][Math.floor(Math.random() * 4)];
+                    burst.appendChild(particle);
+                  }
+                  heartEl.appendChild(burst);
+                  setTimeout(() => burst.remove(), 700);
+                }
+
+                // Call original handler if exists
+                if (typeof originalToggleWishlist === 'function') {
+                  try { originalToggleWishlist(e, id, type); } catch (err) { }
+                }
+              };
+
+              // Trigger counter when stats section enters viewport
+              const statsSection = document.querySelector('.stats-section');
+              if (statsSection && 'IntersectionObserver' in window) {
+                const observer = new IntersectionObserver((entries) => {
+                  if (entries[0].isIntersecting && !countersStarted) {
+                    countersStarted = true;
+                    animateCounters();
+                    observer.disconnect();
+                  }
+                }, { threshold: 0.3 });
+                observer.observe(statsSection);
+              } else if (statsSection) {
+                animateCounters();
+              }
+
+              // ========================================
+              // 6. PAGE PRELOADER — Dismiss after load
+              // ========================================
+              var preloader = document.getElementById('pagePreloader');
+              if (preloader) {
+                setTimeout(function () {
+                  preloader.classList.add('hidden');
+                  setTimeout(function () { preloader.remove(); }, 600);
+                }, 1300);
+              }
+
+              // ========================================
+              // 7. TESTIMONIALS — Duplicate for seamless infinite scroll
+              // ========================================
+              var track = document.getElementById('testimonialsTrack');
+              if (track) {
+                track.innerHTML = track.innerHTML + track.innerHTML;
+              }
             });
           </script>
 

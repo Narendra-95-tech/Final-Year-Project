@@ -41,6 +41,11 @@
       </section>
       <% } %>
 
+        <!-- Scroll Progress Bar -->
+        <div class="scroll-progress-container">
+          <div class="scroll-progress-bar" id="scrollProgress"></div>
+        </div>
+
         <div class="container">
           <!-- Top Filter Bar (Sticky) -->
           <div class="filters-section animate-fade-in">
@@ -220,6 +225,20 @@
             <% } %>
         </div>
 
+        <!-- Skeleton Loader (Hidden by default, shown via JS if needed or during initial fade) -->
+        <div id="listings-skeleton" class="listings-grid d-none">
+          <% for(let i=0; i<8; i++) { %>
+            <div class="listing-card skeleton-card">
+              <div class="listing-image-container skeleton-box"></div>
+              <div class="listing-info">
+                <div class="skeleton-line w-75"></div>
+                <div class="skeleton-line w-50"></div>
+                <div class="skeleton-line w-25"></div>
+              </div>
+            </div>
+            <% } %>
+        </div>
+
         <!-- Listings Grid -->
         <% if (allListings.length> 0) { %>
           <!-- Trending Section -->
@@ -231,65 +250,76 @@
               </h4>
               <div class="listings-grid">
                 <% for (let t of trendingListings) { %>
-                  <div class="listing-card">
-                    <div class="listing-image-container">
-                      <a href="/listings/<%= t._id %>" style="display: block; width: 100%; height: 100%;">
-                        <img
-                          src="<%= t.image?.url || 'https://images.unsplash.com/photo-1502672260266-1c1ef2d93688?w=400&h=250&fit=crop&crop=center' %>"
-                          class="listing-image" alt="<%= t.title %>">
-                      </a>
-                      <button class="wishlist-btn" data-id="<%= t._id %>"
-                        onclick="toggleWishlist(event, '<%= t._id %>', 'listing')" title="Add to wishlist">
-                        <i class="far fa-heart"></i>
-                      </button>
-                      <div class="price-overlay">
-                        ₹<%= t.price ? Number(t.price).toLocaleString("en-IN") : "N/A" %>
-                      </div>
-                      <% if (t.isTrending) { %>
-                        <div class="trending-badge">TRENDING</div>
-                        <% } %>
-                          <% if (t.reviews && t.reviews.length> 0) {
-                            const avgRating = (t.reviews.reduce((sum, r) => sum + (r.rating || 5), 0) /
-                            t.reviews.length).toFixed(1);
-                            if (avgRating >= 4.8) { %>
-                            <div class="guest-favorite-badge">
-                              <i class="fas fa-medal text-warning"></i> Guest favorite
+                  <% var tImgs=[]; if (t.image && t.image.url) { tImgs.push(t.image.url); } if (t.images &&
+                    t.images.length> 0) {
+                    t.images.forEach(img => { if (img.url && !tImgs.includes(img.url)) tImgs.push(img.url); });
+                    }
+                    if (tImgs.length === 0)
+                    tImgs.push('https://images.unsplash.com/photo-1502672260266-1c1ef2d93688?w=400&h=250&fit=crop&crop=center');
+                    tImgs = tImgs.slice(0, 5);
+                    %>
+                    <div class="listing-card">
+                      <div class="listing-image-container">
+                        <div class="carousel-track" data-listing-carousel>
+                          <% tImgs.forEach(function(imgUrl) { %>
+                            <div class="carousel-slide">
+                              <a href="/listings/<%= t._id %>" style="display:block;width:100%;height:100%">
+                                <img src="<%= imgUrl %>" class="listing-image" alt="<%= t.title %>" loading="lazy">
+                              </a>
                             </div>
-                            <% } %>
+                            <% }) %>
+                        </div>
+                        <% if (tImgs.length> 1) { %>
+                          <button class="carousel-arrow prev" onclick="slideListing(event, this, -1)"><i
+                              class="fas fa-chevron-left"></i></button>
+                          <button class="carousel-arrow next" onclick="slideListing(event, this, 1)"><i
+                              class="fas fa-chevron-right"></i></button>
+                          <div class="carousel-dots">
+                            <% tImgs.forEach(function(_, i) { %>
+                              <span class="carousel-dot <%= i === 0 ? 'active' : '' %>"></span>
+                              <% }) %>
+                          </div>
+                          <% } %>
+                            <button class="wishlist-btn" data-id="<%= t._id %>"
+                              onclick="toggleWishlistAnimated(event, '<%= t._id %>', 'listing')">
+                              <i class="far fa-heart"></i>
+                            </button>
+                            <div class="price-overlay">
+                              ₹<%= t.price ? Number(t.price).toLocaleString("en-IN") : "N/A" %>
+                            </div>
+                            <div class="trending-badge">TRENDING</div>
+                            <% if (t.reviews && t.reviews.length> 0) {
+                              var tAvg = (t.reviews.reduce((sum, r) => sum + (r.rating || 5), 0) /
+                              t.reviews.length).toFixed(1);
+                              %>
                               <div class="rating-badge">
                                 <span class="stars">★</span>
                                 <span>
-                                  <%= avgRating %>
+                                  <%= tAvg %>
                                 </span>
                               </div>
                               <% } %>
-                    </div>
-                    <div class="listing-info">
-                      <h5 class="listing-title">
-                        <%= t.title %>
-                      </h5>
-                      <p class="listing-location">
-                        <i class="fas fa-map-marker-alt me-1"></i>
-                        <%= t.location %>, <%= t.country %>
-                      </p>
-                      <p class="listing-owner">
-                        <i class="fas fa-user me-1"></i>
-                        Hosted by <%= t.owner?.username || 'Unknown' %>
-                      </p>
-                      <div class="listing-actions">
-                        <a href="/listings/<%= t._id %>" class="btn btn-outline-primary flex-fill stretched-link">
-                          <i class="fas fa-eye me-1"></i>View Details
-                        </a>
-                        <% if (currUser && t.owner._id.equals(currUser._id)) { %>
-                          <a href="/listings/<%= t._id %>/edit" class="btn btn-outline-secondary flex-fill ms-2"
-                            style="position: relative; z-index: 2;">
-                            <i class="fas fa-edit me-1"></i>Edit
+                      </div>
+                      <div class="listing-info">
+                        <h5 class="listing-title">
+                          <%= t.title %>
+                        </h5>
+                        <p class="listing-location">
+                          <i class="fas fa-map-marker-alt me-1"></i>
+                          <%= t.location %>, <%= t.country %>
+                        </p>
+                        <p class="listing-owner">
+                          <i class="fas fa-user me-1"></i>
+                          Hosted by <%= t.owner?.username || 'Unknown' %>
+                        </p>
+                        <div class="listing-actions">
+                          <a href="/listings/<%= t._id %>" class="btn btn-outline-primary flex-fill stretched-link">
+                            <i class="fas fa-eye me-1"></i>View Details
                           </a>
-                          <% } %>
+                        </div>
                       </div>
                     </div>
-                  </div>
-                  <% } %>
+                    <% } %>
               </div>
             </div>
             <% } %>
@@ -297,65 +327,97 @@
               <!-- All Listings -->
               <div class="listings-grid">
                 <% for (let listing of allListings) { %>
-                  <div class="listing-card">
-                    <div class="listing-image-container">
-                      <a href="/listings/<%= listing._id %>" style="display: block; width: 100%; height: 100%;">
-                        <img
-                          src="<%= listing.image?.url || 'https://images.unsplash.com/photo-1502672260266-1c1ef2d93688?w=400&h=250&fit=crop&crop=center' %>"
-                          class="listing-image" alt="<%= listing.title %>">
-                      </a>
-                      <button class="wishlist-btn" data-id="<%= listing._id %>"
-                        onclick="toggleWishlist(event, '<%= listing._id %>', 'listing')">
-                        <i class="far fa-heart"></i>
-                      </button>
-                      <div class="price-overlay">
-                        ₹<%= listing.price ? Number(listing.price).toLocaleString("en-IN") : "N/A" %>
-                      </div>
-                      <% if (listing.isTrending) { %>
-                        <div class="trending-badge">TRENDING</div>
-                        <% } %>
-                          <% if (listing.reviews && listing.reviews.length> 0) {
-                            const avgRating = (listing.reviews.reduce((sum, r) => sum + (r.rating || 5), 0) /
-                            listing.reviews.length).toFixed(1);
-                            if (avgRating >= 4.8) { %>
-                            <div class="guest-favorite-badge">
-                              <i class="fas fa-medal text-warning"></i> Guest favorite
+                  <% var cImgs=[]; if (listing.image && listing.image.url) { cImgs.push(listing.image.url); } if
+                    (listing.images && listing.images.length> 0) {
+                    for (var ci = 0; ci < listing.images.length; ci++) { if (listing.images[ci].url &&
+                      cImgs.indexOf(listing.images[ci].url)===-1) { cImgs.push(listing.images[ci].url); } } } if
+                      (cImgs.length===0)
+                      cImgs.push('https://images.unsplash.com/photo-1502672260266-1c1ef2d93688?w=400&h=250&fit=crop&crop=center');
+                      if (cImgs.length> 5) cImgs = cImgs.slice(0, 5);
+                      %>
+                      <div class="listing-card">
+                        <div class="listing-image-container">
+                          <div class="carousel-track" data-listing-carousel>
+                            <% cImgs.forEach(function(imgUrl) { %>
+                              <div class="carousel-slide">
+                                <a href="/listings/<%= listing._id %>" style="display:block;width:100%;height:100%">
+                                  <img src="<%= imgUrl %>" class="listing-image" alt="<%= listing.title %>"
+                                    loading="lazy">
+                                </a>
+                              </div>
+                              <% }) %>
+                          </div>
+                          <% if (cImgs.length> 1) { %>
+                            <button class="carousel-arrow prev" onclick="slideListing(event, this, -1)"><i
+                                class="fas fa-chevron-left"></i></button>
+                            <button class="carousel-arrow next" onclick="slideListing(event, this, 1)"><i
+                                class="fas fa-chevron-right"></i></button>
+                            <div class="carousel-dots">
+                              <% cImgs.forEach(function(_, i) { %>
+                                <span class="carousel-dot <%= i === 0 ? 'active' : '' %>"></span>
+                                <% }) %>
                             </div>
                             <% } %>
-                              <div class="rating-badge">
-                                <span class="stars">★</span>
-                                <span>
-                                  <%= avgRating %>
-                                </span>
+                              <button class="wishlist-btn" data-id="<%= listing._id %>"
+                                onclick="toggleWishlistAnimated(event, '<%= listing._id %>', 'listing')">
+                                <i class="far fa-heart"></i>
+                              </button>
+                              <div class="price-overlay">
+                                ₹<%= listing.price ? Number(listing.price).toLocaleString("en-IN") : "N/A" %>
                               </div>
-                              <% } %>
-                    </div>
-                    <div class="listing-info">
-                      <h5 class="listing-title">
-                        <%= listing.title %>
-                      </h5>
-                      <p class="listing-location">
-                        <i class="fas fa-map-marker-alt me-1"></i>
-                        <%= listing.location %>, <%= listing.country %>
-                      </p>
-                      <p class="listing-owner">
-                        <i class="fas fa-user me-1"></i>
-                        Hosted by <%= listing.owner?.username || 'Unknown' %>
-                      </p>
-                      <div class="listing-actions">
-                        <a href="/listings/<%= listing._id %>" class="btn btn-outline-primary flex-fill stretched-link">
-                          <i class="fas fa-eye me-1"></i>View Details
-                        </a>
-                        <% if (currUser && listing.owner._id.equals(currUser._id)) { %>
-                          <a href="/listings/<%= listing._id %>/edit" class="btn btn-outline-secondary flex-fill ms-2"
-                            style="position: relative; z-index: 2;">
-                            <i class="fas fa-edit me-1"></i>Edit
-                          </a>
-                          <% } %>
+                              <% if (listing.isTrending) { %>
+                                <div class="trending-badge">TRENDING</div>
+                                <% } %>
+                                  <% if (listing.reviews && listing.reviews.length> 0) {
+                                    var avgR = (listing.reviews.reduce(function(sum, r) { return sum + (r.rating || 5);
+                                    }, 0) /
+                                    listing.reviews.length).toFixed(1);
+                                    if (parseFloat(avgR) >= 4.8) { %>
+                                    <div class="guest-favorite-badge">
+                                      <i class="fas fa-medal text-warning"></i> Guest favorite
+                                    </div>
+                                    <% } %>
+                                      <div class="rating-badge">
+                                        <span class="stars">★</span>
+                                        <span>
+                                          <%= avgR %>
+                                        </span>
+                                      </div>
+                                      <% } %>
+                        </div>
+                        <div class="listing-info">
+                          <% if (listing.propertyType) { %>
+                            <span class="property-type-chip">
+                              <%= listing.propertyType %>
+                            </span>
+                            <% } %>
+                              <h5 class="listing-title">
+                                <%= listing.title %>
+                              </h5>
+                              <p class="listing-location">
+                                <i class="fas fa-map-marker-alt me-1"></i>
+                                <%= listing.location %>, <%= listing.country %>
+                              </p>
+                              <p class="listing-owner">
+                                <i class="fas fa-user me-1"></i>
+                                Hosted by <%= listing.owner?.username || 'Unknown' %>
+                              </p>
+                              <div class="listing-actions">
+                                <a href="/listings/<%= listing._id %>"
+                                  class="btn btn-outline-primary flex-fill stretched-link">
+                                  <i class="fas fa-eye me-1"></i>View Details
+                                </a>
+                                <% if (currUser && listing.owner._id.equals(currUser._id)) { %>
+                                  <a href="/listings/<%= listing._id %>/edit"
+                                    class="btn btn-outline-secondary flex-fill ms-2"
+                                    style="position: relative; z-index: 2;">
+                                    <i class="fas fa-edit me-1"></i>Edit
+                                  </a>
+                                  <% } %>
+                              </div>
+                        </div>
                       </div>
-                    </div>
-                  </div>
-                  <% } %>
+                      <% } %>
               </div>
               <% } else { %>
                 <!-- No Results -->
@@ -382,29 +444,101 @@
 
 
                   <script>
+                    document.addEventListener('DOMContentLoaded', function () {
+                      // 1. Scroll Progress Bar
+                      window.addEventListener('scroll', function () {
+                        const winScroll = document.body.scrollTop || document.documentElement.scrollTop;
+                        const height = document.documentElement.scrollHeight - document.documentElement.clientHeight;
+                        const scrolled = (winScroll / height) * 100;
+                        const progressBar = document.getElementById("scrollProgress");
+                        if (progressBar) { progressBar.style.width = scrolled + "%"; }
+                      });
+
+                      // 2. Initial Animation Reveal
+                      const cards = document.querySelectorAll('.listing-card');
+                      cards.forEach((card, index) => {
+                        card.style.animationDelay = (index * 0.05) + 's';
+                      });
+                    });
+
+                    // ========================================
+                    // CARD IMAGE CAROUSEL
+                    // ========================================
+                    function slideListing(e, btn, direction) {
+                      e.preventDefault();
+                      e.stopPropagation();
+                      var container = btn.closest('.listing-image-container');
+                      var track = container.querySelector('.carousel-track');
+                      var slides = container.querySelectorAll('.carousel-slide');
+                      var dots = container.querySelectorAll('.carousel-dot');
+                      var total = slides.length;
+                      var current = parseInt(track.dataset.current || '0', 10);
+                      current += direction;
+                      if (current < 0) current = total - 1;
+                      if (current >= total) current = 0;
+                      track.style.transform = 'translateX(-' + (current * 100) + '%)';
+                      track.dataset.current = current;
+                      for (var i = 0; i < dots.length; i++) {
+                        dots[i].classList.toggle('active', i === current);
+                      }
+                    }
+
+                    // ========================================
+                    // WISHLIST HEART ANIMATION
+                    // ========================================
+                    function toggleWishlistAnimated(e, id, type) {
+                      e.preventDefault();
+                      e.stopPropagation();
+                      var heartEl = e.currentTarget;
+                      var isNowActive = !heartEl.classList.contains('active');
+                      heartEl.classList.toggle('active', isNowActive);
+                      var icon = heartEl.querySelector('i');
+                      if (icon) {
+                        icon.className = isNowActive ? 'fas fa-heart' : 'far fa-heart';
+                      }
+                      heartEl.classList.remove('animating');
+                      void heartEl.offsetWidth;
+                      heartEl.classList.add('animating');
+                      setTimeout(function () { heartEl.classList.remove('animating'); }, 500);
+                      if (isNowActive) {
+                        var burst = document.createElement('div');
+                        burst.className = 'heart-burst';
+                        for (var i = 0; i < 6; i++) {
+                          var particle = document.createElement('span');
+                          var angle = (i / 6) * 360;
+                          var distance = 12 + Math.random() * 8;
+                          particle.style.setProperty('--tx', Math.cos(angle * Math.PI / 180) * distance + 'px');
+                          particle.style.setProperty('--ty', Math.sin(angle * Math.PI / 180) * distance + 'px');
+                          particle.style.background = ['#FF385C', '#ff6b81', '#ff9a5c', '#ffd700'][Math.floor(Math.random() * 4)];
+                          burst.appendChild(particle);
+                        }
+                        heartEl.appendChild(burst);
+                        setTimeout(function () { burst.remove(); }, 600);
+                      }
+                      if (typeof toggleWishlist === 'function') {
+                        try { toggleWishlist(e, id, type); } catch (err) { }
+                      }
+                    }
+
                     // Filter Logic
                     function setCategory(category) {
-                      // Update hidden input
                       document.getElementById('categoryInput').value = category;
-
-                      // Update UI immediately for feel
-                      document.querySelectorAll('.filter-item').forEach(item => {
+                      document.querySelectorAll('.filter-item').forEach(function (item) {
                         item.classList.remove('active');
                       });
                       if (event && event.currentTarget) {
                         event.currentTarget.classList.add('active');
                       }
-
-                      // Submit form
                       document.getElementById('filterForm').submit();
                     }
-
-                    document.addEventListener('DOMContentLoaded', function () {
-                      // Wishlist functionality
-                      // ... existing code ...
-                    });
                   </script>
                   <script src="/js/wishlist-handler.js"></script>
+
+                  <!-- Floating Show Map Button -->
+                  <a href="/map" class="show-map-btn">
+                    <i class="fas fa-map-marked-alt"></i>
+                    Show map
+                  </a>
                   </body>
 
                   </html>

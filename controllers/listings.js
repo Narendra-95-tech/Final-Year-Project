@@ -71,17 +71,20 @@ module.exports.index = async (req, res) => {
     if (q && q.trim().length > 0 && !sort) {
         // Advanced Relevance Scoring using Text Score
         allListings = await Listing.find(filter, { score: { $meta: "textScore" } })
-            .select('title description image price location country propertyType guests bedrooms rating owner')
+            .select('title description image images price location country propertyType guests bedrooms rating owner reviews')
+            .populate('reviews')
             .sort({ score: { $meta: "textScore" } });
     } else {
         allListings = await Listing.find(filter)
-            .select('title description image price location country propertyType guests bedrooms rating owner')
+            .select('title description image images price location country propertyType guests bedrooms rating owner reviews')
+            .populate('reviews')
             .sort(sortOption);
     }
 
     // Compute trending list: items marked as trending first, then highest price
     const trendingListings = await Listing.find({})
-        .select('title image price location rating owner isTrending')
+        .select('title image images price location rating owner isTrending reviews')
+        .populate('reviews')
         .sort({ isTrending: -1, price: -1 })
         .limit(6);
 
