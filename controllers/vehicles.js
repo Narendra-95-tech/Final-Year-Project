@@ -1,6 +1,7 @@
 const Vehicle = require("../models/vehicle");
 const User = require("../models/user");
 const Booking = require("../models/booking");
+const escapeRegex = require("../utils/escapeRegex");
 const mbxGeocoding = require('@mapbox/mapbox-sdk/services/geocoding');
 const mapToken = process.env.MAP_TOKEN;
 const geocodingClient = mbxGeocoding({ accessToken: mapToken });
@@ -13,17 +14,20 @@ module.exports.index = async (req, res) => {
 
     if (q && q.trim().length > 0) {
         const terms = q.trim().split(/\s+/);
-        filter.$and = terms.map(term => ({
-            $or: [
-                { title: new RegExp(term, "i") },
-                { location: new RegExp(term, "i") },
-                { country: new RegExp(term, "i") },
-                { description: new RegExp(term, "i") },
-                { brand: new RegExp(term, "i") },
-                { model: new RegExp(term, "i") },
-                { vehicleType: new RegExp(term, "i") }
-            ]
-        }));
+        filter.$and = terms.map(term => {
+            const safeTerm = escapeRegex(term);
+            return {
+                $or: [
+                    { title: new RegExp(safeTerm, "i") },
+                    { location: new RegExp(safeTerm, "i") },
+                    { country: new RegExp(safeTerm, "i") },
+                    { description: new RegExp(safeTerm, "i") },
+                    { brand: new RegExp(safeTerm, "i") },
+                    { model: new RegExp(safeTerm, "i") },
+                    { vehicleType: new RegExp(safeTerm, "i") }
+                ]
+            };
+        });
     }
 
     if (minPrice || maxPrice) {
@@ -92,17 +96,18 @@ module.exports.index = async (req, res) => {
 
     let allVehicles;
     if (q && q.trim().length > 0 && !sort) {
+        const safeQ = escapeRegex(q.trim());
         allVehicles = await Vehicle.aggregate([
             { $match: filter },
             {
                 $addFields: {
                     relevance: {
                         $add: [
-                            { $cond: [{ $regexMatch: { input: "$title", regex: q.trim(), options: "i" } }, 20, 0] },
-                            { $cond: [{ $regexMatch: { input: "$brand", regex: q.trim(), options: "i" } }, 15, 0] },
-                            { $cond: [{ $regexMatch: { input: "$model", regex: q.trim(), options: "i" } }, 15, 0] },
-                            { $cond: [{ $regexMatch: { input: "$location", regex: q.trim(), options: "i" } }, 10, 0] },
-                            { $cond: [{ $regexMatch: { input: "$country", regex: q.trim(), options: "i" } }, 5, 0] }
+                            { $cond: [{ $regexMatch: { input: "$title", regex: safeQ, options: "i" } }, 20, 0] },
+                            { $cond: [{ $regexMatch: { input: "$brand", regex: safeQ, options: "i" } }, 15, 0] },
+                            { $cond: [{ $regexMatch: { input: "$model", regex: safeQ, options: "i" } }, 15, 0] },
+                            { $cond: [{ $regexMatch: { input: "$location", regex: safeQ, options: "i" } }, 10, 0] },
+                            { $cond: [{ $regexMatch: { input: "$country", regex: safeQ, options: "i" } }, 5, 0] }
                         ]
                     }
                 }

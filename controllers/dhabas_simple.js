@@ -2,6 +2,7 @@ const Dhaba = require("../models/dhaba");
 const Review = require("../models/review");
 const crypto = require("crypto");
 const { cloudinary } = require("../cloudConfig");
+const escapeRegex = require("../utils/escapeRegex");
 
 module.exports.index = async (req, res) => {
   const { q, cuisine, category, sort, minRating, facilities } = req.query;
@@ -9,7 +10,7 @@ module.exports.index = async (req, res) => {
   const filter = {};
 
   if (q && q.trim()) {
-    const regex = new RegExp(q.trim(), "i");
+    const regex = new RegExp(escapeRegex(q.trim()), "i");
     filter.$or = [
       { title: regex },
       { cuisine: regex },

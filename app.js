@@ -120,9 +120,12 @@ io.on('connection', (socket) => {
 
   // Handle user authentication and store socket with user ID
   socket.on('authenticate', (userId) => {
-    if (userId) {
+    // 🔒 SECURITY: Validate userId format before storing (must be valid MongoDB ObjectId)
+    if (userId && typeof userId === 'string' && /^[a-fA-F0-9]{24}$/.test(userId)) {
       connectedUsers.set(userId.toString(), socket.id);
       logger.info(`User ${userId} authenticated on socket ${socket.id}`);
+    } else {
+      logger.warn(`Invalid socket authentication attempt: ${userId} from socket ${socket.id}`);
     }
   });
 
@@ -854,20 +857,26 @@ app.get("/search", async (req, res) => {
     const Vehicle = require("./models/vehicle");
     const Dhaba = require("./models/dhaba");
 
+    const escapeRegex = require('./utils/escapeRegex');
+
     const terms = q.trim().split(/\s+/);
     const buildFilter = (fields) => ({
-      $and: terms.map(term => ({
-        $or: fields.map(field => ({ [field]: new RegExp(term, "i") }))
-      }))
+      $and: terms.map(term => {
+        const safeTerm = escapeRegex(term);
+        return {
+          $or: fields.map(field => ({ [field]: new RegExp(safeTerm, "i") }))
+        };
+      })
     });
 
+    const safeQ = escapeRegex(q.trim());
     const buildPipeline = (fields) => [
       { $match: buildFilter(fields) },
       {
         $addFields: {
           relevance: {
             $add: fields.map(field => ({
-              $cond: [{ $regexMatch: { input: "$" + field, regex: q.trim(), options: "i" } }, 10, 0]
+              $cond: [{ $regexMatch: { input: "$" + field, regex: safeQ, options: "i" } }, 10, 0]
             }))
           }
         }

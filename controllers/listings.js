@@ -1,6 +1,7 @@
 const Listing = require('../models/listing');
 const User = require('../models/user');
 const Booking = require('../models/booking');
+const escapeRegex = require('../utils/escapeRegex');
 const mbxGeocoding = require('@mapbox/mapbox-sdk/services/geocoding');
 const mapToken = process.env.MAP_TOKEN;
 const geocodingClient = mbxGeocoding({ accessToken: mapToken });
@@ -39,8 +40,8 @@ module.exports.index = async (req, res) => {
 
     // Category filter: rely on tags in description/title/location/country keywords for now
     if (category && category.trim()) {
-        const cat = category.trim().toLowerCase();
-        const catRegex = new RegExp(cat.replace(/[-_\s]+/g, ".*"), "i");
+        const cat = escapeRegex(category.trim().toLowerCase());
+        const catRegex = new RegExp(cat, "i");
         filter.$or = (filter.$or || []).concat([
             { title: catRegex },
             { description: catRegex },

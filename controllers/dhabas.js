@@ -2,6 +2,9 @@ const Dhaba = require("../models/dhaba");
 const User = require("../models/user");
 const Review = require("../models/review");
 const crypto = require("crypto");
+const escapeRegex = require("../utils/escapeRegex");
+const mbxGeocoding = require("@mapbox/mapbox-sdk/services/geocoding");
+const mapToken = process.env.MAP_TOKEN;
 
 module.exports.index = async (req, res) => {
   const { q, cuisine, sort } = req.query;
@@ -10,20 +13,23 @@ module.exports.index = async (req, res) => {
 
   if (q && q.trim()) {
     const terms = q.trim().split(/\s+/);
-    filter.$and = terms.map(term => ({
-      $or: [
-        { title: new RegExp(term, "i") },
-        { cuisine: new RegExp(term, "i") },
-        { location: new RegExp(term, "i") },
-        { category: new RegExp(term, "i") },
-        { description: new RegExp(term, "i") },
-        { specialties: new RegExp(term, "i") }
-      ]
-    }));
+    filter.$and = terms.map(term => {
+      const safeTerm = escapeRegex(term);
+      return {
+        $or: [
+          { title: new RegExp(safeTerm, "i") },
+          { cuisine: new RegExp(safeTerm, "i") },
+          { location: new RegExp(safeTerm, "i") },
+          { category: new RegExp(safeTerm, "i") },
+          { description: new RegExp(safeTerm, "i") },
+          { specialties: new RegExp(safeTerm, "i") }
+        ]
+      };
+    });
   }
 
   if (cuisine && cuisine !== 'all' && cuisine.trim()) {
-    const cuisineRegex = new RegExp(cuisine.trim(), "i");
+    const cuisineRegex = new RegExp(escapeRegex(cuisine.trim()), "i");
     filter.cuisine = cuisineRegex;
   }
 
@@ -43,10 +49,10 @@ module.exports.index = async (req, res) => {
           $addFields: {
             relevance: {
               $add: [
-                { $cond: [{ $regexMatch: { input: "$title", regex: q.trim(), options: "i" } }, 20, 0] },
-                { $cond: [{ $regexMatch: { input: "$cuisine", regex: q.trim(), options: "i" } }, 15, 0] },
-                { $cond: [{ $regexMatch: { input: "$location", regex: q.trim(), options: "i" } }, 10, 0] },
-                { $cond: [{ $regexMatch: { input: "$category", regex: q.trim(), options: "i" } }, 5, 0] }
+                { $cond: [{ $regexMatch: { input: "$title", regex: escapeRegex(q.trim()), options: "i" } }, 20, 0] },
+                { $cond: [{ $regexMatch: { input: "$cuisine", regex: escapeRegex(q.trim()), options: "i" } }, 15, 0] },
+                { $cond: [{ $regexMatch: { input: "$location", regex: escapeRegex(q.trim()), options: "i" } }, 10, 0] },
+                { $cond: [{ $regexMatch: { input: "$category", regex: escapeRegex(q.trim()), options: "i" } }, 5, 0] }
               ]
             }
           }
