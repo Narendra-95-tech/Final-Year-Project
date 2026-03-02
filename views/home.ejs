@@ -11,7 +11,7 @@
       justify-content: center;
       color: var(--white);
       text-align: center;
-      background: #0a0a0a;
+      background: #0a0a0a url('/images/hero-bg.png') center/cover no-repeat;
       margin-top: -1.5rem;
       overflow: hidden;
     }
@@ -1644,6 +1644,377 @@
     }
   </style>
 
+  <style>
+    /* ===== HERO PARTICLES ===== */
+    #hero-particles {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      z-index: 1;
+      pointer-events: none;
+      overflow: hidden;
+    }
+
+    .hero-particle {
+      position: absolute;
+      border-radius: 50%;
+      opacity: 0;
+      animation: particle-float linear infinite;
+    }
+
+    @keyframes particle-float {
+      0% {
+        transform: translateY(100vh) scale(0);
+        opacity: 0;
+      }
+
+      10% {
+        opacity: 1;
+      }
+
+      90% {
+        opacity: 0.6;
+      }
+
+      100% {
+        transform: translateY(-20vh) scale(1);
+        opacity: 0;
+      }
+    }
+
+    /* ===== TRENDING DESTINATIONS ===== */
+    .destinations-section {
+      padding: 4rem 0 2rem;
+      background: #fff;
+      overflow: hidden;
+    }
+
+    .destinations-section .section-header {
+      display: flex;
+      align-items: flex-end;
+      justify-content: space-between;
+      margin-bottom: 2rem;
+      padding: 0 1rem;
+    }
+
+    .destinations-track-wrap {
+      position: relative;
+    }
+
+    .destinations-track-wrap::before,
+    .destinations-track-wrap::after {
+      content: '';
+      position: absolute;
+      top: 0;
+      bottom: 0;
+      width: 60px;
+      z-index: 3;
+      pointer-events: none;
+    }
+
+    .destinations-track-wrap::before {
+      left: 0;
+      background: linear-gradient(to right, #fff, transparent);
+    }
+
+    .destinations-track-wrap::after {
+      right: 0;
+      background: linear-gradient(to left, #fff, transparent);
+    }
+
+    .destinations-scroll {
+      display: flex;
+      gap: 1.25rem;
+      overflow-x: auto;
+      padding: 1rem 2rem 1.5rem;
+      scrollbar-width: none;
+      scroll-snap-type: x mandatory;
+      cursor: grab;
+    }
+
+    .destinations-scroll::-webkit-scrollbar {
+      display: none;
+    }
+
+    .dest-card {
+      flex: 0 0 220px;
+      height: 300px;
+      border-radius: 22px;
+      overflow: hidden;
+      position: relative;
+      scroll-snap-align: start;
+      cursor: pointer;
+      transition: transform 0.4s cubic-bezier(0.2, 0.8, 0.2, 1),
+        box-shadow 0.4s ease;
+      box-shadow: 0 8px 25px rgba(0, 0, 0, 0.12);
+    }
+
+    .dest-card:hover {
+      transform: translateY(-8px) scale(1.03);
+      box-shadow: 0 20px 45px rgba(0, 0, 0, 0.2);
+    }
+
+    .dest-card img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      transition: transform 0.6s ease;
+    }
+
+    .dest-card:hover img {
+      transform: scale(1.1);
+    }
+
+    .dest-card-overlay {
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(to top, rgba(0, 0, 0, 0.75) 0%, rgba(0, 0, 0, 0.1) 60%, transparent 100%);
+    }
+
+    .dest-card-body {
+      position: absolute;
+      bottom: 1.25rem;
+      left: 1.25rem;
+      right: 1.25rem;
+      color: #fff;
+    }
+
+    .dest-card-name {
+      font-size: 1.3rem;
+      font-weight: 800;
+      letter-spacing: -0.5px;
+      margin-bottom: 0.2rem;
+    }
+
+    .dest-card-count {
+      font-size: 0.78rem;
+      opacity: 0.85;
+      display: flex;
+      align-items: center;
+      gap: 0.35rem;
+    }
+
+    .dest-card-badge {
+      position: absolute;
+      top: 1rem;
+      left: 1rem;
+      background: rgba(255, 255, 255, 0.2);
+      backdrop-filter: blur(8px);
+      border: 1px solid rgba(255, 255, 255, 0.3);
+      color: #fff;
+      font-size: 0.7rem;
+      font-weight: 700;
+      letter-spacing: 0.5px;
+      padding: 0.2rem 0.6rem;
+      border-radius: 999px;
+      text-transform: uppercase;
+    }
+
+    .dest-nav-btn {
+      position: absolute;
+      top: 50%;
+      transform: translateY(-50%);
+      width: 44px;
+      height: 44px;
+      border-radius: 50%;
+      background: #fff;
+      border: none;
+      cursor: pointer;
+      z-index: 4;
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.15);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1rem;
+      color: #333;
+      transition: all 0.25s ease;
+    }
+
+    .dest-nav-btn:hover {
+      background: #fd7e14;
+      color: #fff;
+      transform: translateY(-50%) scale(1.1);
+    }
+
+    .dest-nav-btn.prev {
+      left: 8px;
+    }
+
+    .dest-nav-btn.next {
+      right: 8px;
+    }
+
+    /* ===== SPECIAL DEALS SECTION ===== */
+    .deals-section {
+      padding: 3.5rem 0;
+      background: linear-gradient(135deg, #fff9f0 0%, #fff 100%);
+    }
+
+    .deals-scroll {
+      display: flex;
+      gap: 1.25rem;
+      overflow-x: auto;
+      padding: 1rem 2rem 1.5rem;
+      scrollbar-width: none;
+      scroll-snap-type: x mandatory;
+    }
+
+    .deals-scroll::-webkit-scrollbar {
+      display: none;
+    }
+
+    .deal-card {
+      flex: 0 0 280px;
+      border-radius: 20px;
+      padding: 1.75rem;
+      position: relative;
+      overflow: hidden;
+      scroll-snap-align: start;
+      cursor: pointer;
+      transition: transform 0.35s ease, box-shadow 0.35s ease;
+    }
+
+    .deal-card:hover {
+      transform: translateY(-6px);
+      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
+    }
+
+    .deal-card::before {
+      content: '';
+      position: absolute;
+      top: -40px;
+      right: -40px;
+      width: 130px;
+      height: 130px;
+      border-radius: 50%;
+      background: rgba(255, 255, 255, 0.15);
+    }
+
+    .deal-card-1 {
+      background: linear-gradient(135deg, #fd7e14, #ff9a5c);
+      color: #fff;
+    }
+
+    .deal-card-2 {
+      background: linear-gradient(135deg, #4f46e5, #7c3aed);
+      color: #fff;
+    }
+
+    .deal-card-3 {
+      background: linear-gradient(135deg, #059669, #34d399);
+      color: #fff;
+    }
+
+    .deal-card-4 {
+      background: linear-gradient(135deg, #db2777, #f472b6);
+      color: #fff;
+    }
+
+    .deal-card-5 {
+      background: linear-gradient(135deg, #0284c7, #38bdf8);
+      color: #fff;
+    }
+
+    .deal-icon {
+      font-size: 2.2rem;
+      margin-bottom: 0.75rem;
+    }
+
+    .deal-badge {
+      display: inline-block;
+      background: rgba(255, 255, 255, 0.25);
+      padding: 0.2rem 0.7rem;
+      border-radius: 999px;
+      font-size: 0.72rem;
+      font-weight: 700;
+      letter-spacing: 0.5px;
+      text-transform: uppercase;
+      margin-bottom: 0.75rem;
+    }
+
+    .deal-title {
+      font-size: 1.35rem;
+      font-weight: 800;
+      margin-bottom: 0.4rem;
+      line-height: 1.2;
+    }
+
+    .deal-desc {
+      font-size: 0.85rem;
+      opacity: 0.9;
+      margin-bottom: 1.25rem;
+      line-height: 1.5;
+    }
+
+    .deal-cta {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      background: rgba(255, 255, 255, 0.2);
+      border: 1.5px solid rgba(255, 255, 255, 0.5);
+      color: #fff;
+      padding: 0.55rem 1.25rem;
+      border-radius: 999px;
+      font-weight: 700;
+      font-size: 0.85rem;
+      text-decoration: none;
+      transition: all 0.25s ease;
+    }
+
+    .deal-cta:hover {
+      background: rgba(255, 255, 255, 0.35);
+      color: #fff;
+    }
+
+    .deal-timer {
+      position: absolute;
+      top: 1.25rem;
+      right: 1.25rem;
+      background: rgba(0, 0, 0, 0.2);
+      backdrop-filter: blur(4px);
+      padding: 0.25rem 0.65rem;
+      border-radius: 8px;
+      font-size: 0.75rem;
+      font-weight: 700;
+      letter-spacing: 0.5px;
+    }
+
+
+
+
+
+    /* ===== SCROLL PROGRESS BAR ===== */
+    #scroll-progress {
+      position: fixed;
+      top: 0;
+      left: 0;
+      height: 3px;
+      z-index: 9999;
+      background: linear-gradient(90deg, #fd7e14, #ff9a5c, #fa5252);
+      width: 0%;
+      transition: width 0.1s linear;
+    }
+
+    /* ===== VIEW ALL LINK ===== */
+    .view-all-link {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+      color: #fd7e14;
+      font-weight: 700;
+      font-size: 0.9rem;
+      text-decoration: none;
+      transition: gap 0.25s ease;
+    }
+
+    .view-all-link:hover {
+      gap: 0.7rem;
+      color: #e8690b;
+    }
+  </style>
+
   <!-- ===== PREMIUM PAGE PRELOADER ===== -->
   <div class="page-preloader" id="pagePreloader">
     <div class="preloader-logo">
@@ -1655,6 +2026,9 @@
     </div>
   </div>
 
+  <!-- Scroll Progress Bar -->
+  <div id="scroll-progress"></div>
+
   <!-- Hero Section -->
   <section class="hero-section">
     <!-- Cinematic Video Background -->
@@ -1662,6 +2036,9 @@
       <source src="https://assets.mixkit.co/videos/preview/mixkit-aerial-view-of-a-mountain-river-1574-large.mp4"
         type="video/mp4">
     </video>
+
+    <!-- Floating Particles -->
+    <div id="hero-particles"></div>
 
     <div class="hero-overlay"></div>
     <div class="hero-content" data-aos="fade-up">
@@ -1782,6 +2159,187 @@
       </div>
     </div>
   </div>
+
+  <!-- ===== TRENDING DESTINATIONS CAROUSEL ===== -->
+  <section class="destinations-section" data-aos="fade-up">
+    <div class="container">
+      <div class="destinations-section" style="padding:0">
+        <div class="section-header">
+          <div>
+            <p
+              style="color:#fd7e14;font-weight:700;font-size:0.85rem;letter-spacing:1px;text-transform:uppercase;margin-bottom:0.4rem;">
+              ✈️ Where to Next?</p>
+            <h2 class="premium-section-title" style="margin-bottom:0.25rem">Trending Destinations</h2>
+            <p class="premium-section-subtitle" style="margin-bottom:0">India's most loved travel spots — all on
+              WanderLust.</p>
+          </div>
+          <a href="/listings" class="view-all-link">View all <i class="fas fa-arrow-right"></i></a>
+        </div>
+      </div>
+    </div>
+    <div class="destinations-track-wrap">
+      <button class="dest-nav-btn prev" onclick="scrollDests(-1)" aria-label="Previous"><i
+          class="fas fa-chevron-left"></i></button>
+      <button class="dest-nav-btn next" onclick="scrollDests(1)" aria-label="Next"><i
+          class="fas fa-chevron-right"></i></button>
+      <div class="destinations-scroll" id="destScroll">
+
+        <a href="/listings?q=Goa" class="dest-card">
+          <span class="dest-card-badge">🔥 Trending</span>
+          <img src="https://images.unsplash.com/photo-1512343879784-a960bf40e7f2?w=400&fit=crop&q=80" alt="Goa"
+            loading="lazy">
+          <div class="dest-card-overlay"></div>
+          <div class="dest-card-body">
+            <div class="dest-card-name">Goa</div>
+            <div class="dest-card-count"><i class="fas fa-home"></i> 48 stays available</div>
+          </div>
+        </a>
+
+        <a href="/listings?q=Manali" class="dest-card">
+          <span class="dest-card-badge">⛰️ Mountains</span>
+          <img src="https://images.unsplash.com/photo-1626621341517-bbf3d9990a23?w=400&fit=crop&q=80" alt="Manali"
+            loading="lazy">
+          <div class="dest-card-overlay"></div>
+          <div class="dest-card-body">
+            <div class="dest-card-name">Manali</div>
+            <div class="dest-card-count"><i class="fas fa-home"></i> 32 stays available</div>
+          </div>
+        </a>
+
+        <a href="/listings?q=Jaipur" class="dest-card">
+          <span class="dest-card-badge">🏰 Heritage</span>
+          <img src="https://images.unsplash.com/photo-1477587458883-47145ed94245?w=400&fit=crop&q=80" alt="Jaipur"
+            loading="lazy">
+          <div class="dest-card-overlay"></div>
+          <div class="dest-card-body">
+            <div class="dest-card-name">Jaipur</div>
+            <div class="dest-card-count"><i class="fas fa-home"></i> 27 stays available</div>
+          </div>
+        </a>
+
+        <a href="/listings?q=Kerala" class="dest-card">
+          <span class="dest-card-badge">🌿 Nature</span>
+          <img src="https://images.unsplash.com/photo-1602216056096-3b40cc0c9944?w=400&fit=crop&q=80" alt="Kerala"
+            loading="lazy">
+          <div class="dest-card-overlay"></div>
+          <div class="dest-card-body">
+            <div class="dest-card-name">Kerala</div>
+            <div class="dest-card-count"><i class="fas fa-home"></i> 41 stays available</div>
+          </div>
+        </a>
+
+        <a href="/listings?q=Udaipur" class="dest-card">
+          <span class="dest-card-badge">💎 Royal</span>
+          <img src="https://images.unsplash.com/photo-1599661046289-e31897846e41?w=400&fit=crop&q=80" alt="Udaipur"
+            loading="lazy">
+          <div class="dest-card-overlay"></div>
+          <div class="dest-card-body">
+            <div class="dest-card-name">Udaipur</div>
+            <div class="dest-card-count"><i class="fas fa-home"></i> 19 stays available</div>
+          </div>
+        </a>
+
+        <a href="/listings?q=Leh" class="dest-card">
+          <span class="dest-card-badge">🏔️ Adventure</span>
+          <img src="https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=400&fit=crop&q=80" alt="Leh Ladakh"
+            loading="lazy">
+          <div class="dest-card-overlay"></div>
+          <div class="dest-card-body">
+            <div class="dest-card-name">Leh‑Ladakh</div>
+            <div class="dest-card-count"><i class="fas fa-home"></i> 15 stays available</div>
+          </div>
+        </a>
+
+        <a href="/listings?q=Rishikesh" class="dest-card">
+          <span class="dest-card-badge">🌊 Spiritual</span>
+          <img src="https://images.unsplash.com/photo-1591017403286-fd8493524e1e?w=400&fit=crop&q=80" alt="Rishikesh"
+            loading="lazy">
+          <div class="dest-card-overlay"></div>
+          <div class="dest-card-body">
+            <div class="dest-card-name">Rishikesh</div>
+            <div class="dest-card-count"><i class="fas fa-home"></i> 22 stays available</div>
+          </div>
+        </a>
+
+        <a href="/listings?q=Coorg" class="dest-card">
+          <span class="dest-card-badge">☕ Cozy</span>
+          <img src="https://images.unsplash.com/photo-1564507592333-c60657eea523?w=400&fit=crop&q=80" alt="Coorg"
+            loading="lazy">
+          <div class="dest-card-overlay"></div>
+          <div class="dest-card-body">
+            <div class="dest-card-name">Coorg</div>
+            <div class="dest-card-count"><i class="fas fa-home"></i> 18 stays available</div>
+          </div>
+        </a>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== SPECIAL DEALS SECTION ===== -->
+  <section class="deals-section">
+    <div class="container">
+      <div class="d-flex align-items-end justify-content-between mb-3 flex-wrap gap-3">
+        <div data-aos="fade-right">
+          <p
+            style="color:#fd7e14;font-weight:700;font-size:0.85rem;letter-spacing:1px;text-transform:uppercase;margin-bottom:0.4rem;">
+            🏷️ Limited Time</p>
+          <h2 class="premium-section-title mb-0">Hot Deals & Offers</h2>
+        </div>
+        <a href="/listings" class="view-all-link" data-aos="fade-left">All deals <i class="fas fa-arrow-right"></i></a>
+      </div>
+    </div>
+    <div class="deals-scroll" id="dealsScroll">
+
+      <div class="deal-card deal-card-1" onclick="window.location.href='/listings'" data-aos="zoom-in"
+        data-aos-delay="100">
+        <div class="deal-timer" id="deal-timer-1">23:47:12</div>
+        <div class="deal-icon">🏖️</div>
+        <div class="deal-badge">Stays</div>
+        <div class="deal-title">First Booking 20% Off</div>
+        <div class="deal-desc">New to WanderLust? Get 20% off your first stay booking anywhere in India.</div>
+        <a href="/listings" class="deal-cta">Claim Now <i class="fas fa-arrow-right"></i></a>
+      </div>
+
+      <div class="deal-card deal-card-2" onclick="window.location.href='/vehicles'" data-aos="zoom-in"
+        data-aos-delay="150">
+        <div class="deal-timer" id="deal-timer-2">11:22:05</div>
+        <div class="deal-icon">🚗</div>
+        <div class="deal-badge">Wheels</div>
+        <div class="deal-title">Weekend Wheels Deal</div>
+        <div class="deal-desc">Rent a vehicle for the weekend and get Sunday free. Road trip, sorted!</div>
+        <a href="/vehicles" class="deal-cta">Book Now <i class="fas fa-arrow-right"></i></a>
+      </div>
+
+      <div class="deal-card deal-card-3" onclick="window.location.href='/listings'" data-aos="zoom-in"
+        data-aos-delay="200">
+        <div class="deal-icon">✈️</div>
+        <div class="deal-badge">Free Cancel</div>
+        <div class="deal-title">Free Cancellation</div>
+        <div class="deal-desc">Book with confidence. Cancel any stay up to 48 hours before check-in, 100% free.</div>
+        <a href="/listings" class="deal-cta">Explore <i class="fas fa-arrow-right"></i></a>
+      </div>
+
+      <div class="deal-card deal-card-4" onclick="window.location.href='/dhabas'" data-aos="zoom-in"
+        data-aos-delay="250">
+        <div class="deal-icon">🍛</div>
+        <div class="deal-badge">Food</div>
+        <div class="deal-title">Dhaba Discovery Pass</div>
+        <div class="deal-desc">Discover authentic roadside dhabas along your route. Book your table in advance.</div>
+        <a href="/dhabas" class="deal-cta">Find Dhabas <i class="fas fa-arrow-right"></i></a>
+      </div>
+
+      <div class="deal-card deal-card-5" onclick="window.location.href='/ai/trip-planner'" data-aos="zoom-in"
+        data-aos-delay="300">
+        <div class="deal-icon">🤖</div>
+        <div class="deal-badge">AI Powered</div>
+        <div class="deal-title">AI Plans Your Trip Free</div>
+        <div class="deal-desc">Let our AI build a full 5-day itinerary with stays, wheels & dhabas in seconds.</div>
+        <a href="/ai/trip-planner" class="deal-cta">Try AI Planner <i class="fas fa-arrow-right"></i></a>
+      </div>
+
+    </div>
+  </section>
 
   <!-- ===== ANIMATED STATS COUNTER SECTION ===== -->
   <section class="stats-section">
@@ -1962,9 +2520,8 @@
 
           <div class="story-grid">
             <!-- Column 1: Stays -->
-            <div class="story-card" data-aos="fade-up" data-aos-delay="200">
-              <img src="https://images.unsplash.com/photo-1499793983690-e29da59ef1c2?w=800&fit=crop" alt="Stays"
-                class="story-img">
+            <div class="story-card" data-aos="fade-up" data-aos-delay="200" onclick="window.location.href='/listings'">
+              <img src="/images/stays-card.png" alt="Stays" class="story-img">
               <div class="story-overlay">
                 <div class="story-category">Stays</div>
                 <h3 class="story-title">Cozy Retreats</h3>
@@ -1973,9 +2530,8 @@
             </div>
 
             <!-- Column 2: Vehicles -->
-            <div class="story-card" data-aos="fade-up" data-aos-delay="300">
-              <img src="https://images.unsplash.com/photo-1533473359331-0135ef1b58bf?w=800&fit=crop" alt="Vehicles"
-                class="story-img">
+            <div class="story-card" data-aos="fade-up" data-aos-delay="300" onclick="window.location.href='/vehicles'">
+              <img src="/images/vehicles-card.png" alt="Vehicles" class="story-img">
               <div class="story-overlay">
                 <div class="story-category">Wheels</div>
                 <h3 class="story-title">Freedom to Roam</h3>
@@ -1984,8 +2540,8 @@
             </div>
 
             <!-- Column 3: Food -->
-            <div class="story-card" data-aos="fade-up" data-aos-delay="400">
-              <img src="/images/dhaba-food.png" alt="Food" class="story-img">
+            <div class="story-card" data-aos="fade-up" data-aos-delay="400" onclick="window.location.href='/dhabas'">
+              <img src="/images/dhaba-card.png" alt="Food" class="story-img">
               <div class="story-overlay">
                 <div class="story-category">Food</div>
                 <h3 class="story-title">Authentic Flavors</h3>
@@ -2354,6 +2910,10 @@
         </div>
       </section>
 
+
+
+
+
       <!-- Final Call to Action -->
       <% if (!currUser) { %>
         <section class="py-5 text-center">
@@ -2627,7 +3187,92 @@
               if (track) {
                 track.innerHTML = track.innerHTML + track.innerHTML;
               }
+
+              // ========================================
+              // 8. HERO FLOATING PARTICLES
+              // ========================================
+              const particleContainer = document.getElementById('hero-particles');
+              if (particleContainer) {
+                const colors = ['rgba(253,126,20,0.7)', 'rgba(255,154,92,0.6)', 'rgba(255,255,255,0.5)', 'rgba(250,82,82,0.5)'];
+                for (let i = 0; i < 25; i++) {
+                  const p = document.createElement('div');
+                  p.className = 'hero-particle';
+                  const size = Math.random() * 6 + 2;
+                  p.style.cssText = `
+                    width:${size}px; height:${size}px;
+                    left:${Math.random() * 100}%;
+                    background:${colors[Math.floor(Math.random() * colors.length)]};
+                    animation-duration:${Math.random() * 12 + 8}s;
+                    animation-delay:${Math.random() * 10}s;
+                    box-shadow: 0 0 ${size * 2}px ${colors[0]};
+                  `;
+                  particleContainer.appendChild(p);
+                }
+              }
+
+              // ========================================
+              // 9. SCROLL PROGRESS BAR
+              // ========================================
+              const progressBar = document.getElementById('scroll-progress');
+              if (progressBar) {
+                window.addEventListener('scroll', () => {
+                  const scrollTop = window.scrollY;
+                  const docHeight = document.body.scrollHeight - window.innerHeight;
+                  progressBar.style.width = (scrollTop / docHeight * 100) + '%';
+                }, { passive: true });
+              }
+
+              // ========================================
+              // 10. DEAL COUNTDOWN TIMERS
+              // ========================================
+              function startDealTimer(id, totalSeconds) {
+                const el = document.getElementById(id);
+                if (!el) return;
+                let secs = totalSeconds;
+                setInterval(() => {
+                  secs = secs > 0 ? secs - 1 : 86399;
+                  const h = String(Math.floor(secs / 3600)).padStart(2, '0');
+                  const m = String(Math.floor((secs % 3600) / 60)).padStart(2, '0');
+                  const s = String(secs % 60).padStart(2, '0');
+                  el.textContent = `${h}:${m}:${s}`;
+                }, 1000);
+              }
+              startDealTimer('deal-timer-1', 85632);
+              startDealTimer('deal-timer-2', 40925);
+
+              // ========================================
+              // 11. DESTINATION CAROUSEL DRAG SCROLL
+              // ========================================
+              const destScroll = document.getElementById('destScroll');
+              if (destScroll) {
+                let isDown = false, startX, scrollLeftStart;
+                destScroll.addEventListener('mousedown', e => {
+                  isDown = true;
+                  destScroll.style.cursor = 'grabbing';
+                  startX = e.pageX - destScroll.offsetLeft;
+                  scrollLeftStart = destScroll.scrollLeft;
+                });
+                destScroll.addEventListener('mouseleave', () => { isDown = false; destScroll.style.cursor = 'grab'; });
+                destScroll.addEventListener('mouseup', () => { isDown = false; destScroll.style.cursor = 'grab'; });
+                destScroll.addEventListener('mousemove', e => {
+                  if (!isDown) return;
+                  e.preventDefault();
+                  const x = e.pageX - destScroll.offsetLeft;
+                  destScroll.scrollLeft = scrollLeftStart - (x - startX) * 1.5;
+                });
+              }
+
             });
+          </script>
+
+          <script>
+            // DESTINATION CAROUSEL NAV BUTTONS
+            function scrollDests(dir) {
+              const el = document.getElementById('destScroll');
+              if (el) el.scrollBy({ left: dir * 250, behavior: 'smooth' });
+            }
+
+
           </script>
 
           <script>
