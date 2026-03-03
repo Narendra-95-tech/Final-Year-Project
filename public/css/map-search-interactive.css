@@ -118,9 +118,11 @@ body {
 }
 
 .type-toggle.active {
-    background: #fff0f0;
+    background: #fffafa;
     border-color: var(--primary-color);
     color: var(--primary-color);
+    box-shadow: 0 4px 15px rgba(254, 66, 77, 0.2);
+    transform: translateY(-2px);
 }
 
 .type-toggle i {
@@ -130,6 +132,18 @@ body {
 .type-toggle span {
     font-size: 0.85rem;
     font-weight: 600;
+}
+
+@keyframes fadeInSlideUp {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
 }
 
 /* Range Slider */
@@ -150,8 +164,19 @@ body {
 .sidebar-results-list {
     flex: 1;
     overflow-y: auto;
-    padding: 1rem;
+    padding: 1.5rem;
     background: #f8f9fa;
+    display: flex;
+    flex-direction: column;
+}
+
+.sidebar-loader {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 100%;
+    text-align: center;
 }
 
 .list-item-card {
@@ -162,8 +187,9 @@ body {
     display: flex;
     gap: 12px;
     cursor: pointer;
-    transition: transform 0.2s ease, box-shadow 0.2s ease;
-    border: 1px solid transparent;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    border: 2px solid transparent;
+    animation: fadeInSlideUp 0.5s ease backwards;
 }
 
 .list-item-card:hover {

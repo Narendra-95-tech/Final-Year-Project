@@ -30,28 +30,28 @@ async function generateTripPlan(query, user = {}) {
         });
 
         const tripDetails = JSON.parse(extractionResponse.choices[0].message.content);
-        
+
         // Get coordinates for the destination
         const destinationCoords = await geocodeLocation(tripDetails.destination);
-        
+
         // Calculate date range for the trip
         const startDate = new Date();
         const endDate = new Date();
         endDate.setDate(startDate.getDate() + (parseInt(tripDetails.duration) || 3));
-        
+
         // Format dates for display
         const formatDate = (date) => {
-            return date.toLocaleDateString('en-IN', { 
-                day: '2-digit', 
-                month: 'short', 
-                year: 'numeric' 
+            return date.toLocaleDateString('en-IN', {
+                day: '2-digit',
+                month: 'short',
+                year: 'numeric'
             });
         };
 
         // Step 2: Find relevant listings, vehicles, and dhabas near the destination
         const [listings, vehicles, dhabas] = await Promise.all([
-            Listing.find({ 
-                location: { 
+            Listing.find({
+                location: {
                     $near: {
                         $geometry: {
                             type: 'Point',
@@ -61,12 +61,12 @@ async function generateTripPlan(query, user = {}) {
                     }
                 }
             })
-            .limit(10)
-            .populate('reviews')
-            .lean(),
-            
-            Vehicle.find({ 
-                location: { 
+                .limit(10)
+                .populate('reviews')
+                .lean(),
+
+            Vehicle.find({
+                location: {
                     $near: {
                         $geometry: {
                             type: 'Point',
@@ -77,12 +77,12 @@ async function generateTripPlan(query, user = {}) {
                 },
                 available: true
             })
-            .limit(5)
-            .populate('reviews')
-            .lean(),
-            
-            Dhaba.find({ 
-                location: { 
+                .limit(5)
+                .populate('reviews')
+                .lean(),
+
+            Dhaba.find({
+                location: {
                     $near: {
                         $geometry: {
                             type: 'Point',
@@ -93,9 +93,9 @@ async function generateTripPlan(query, user = {}) {
                 },
                 'openingHours.openNow': true
             })
-            .limit(15)
-            .populate('reviews')
-            .lean()
+                .limit(15)
+                .populate('reviews')
+                .lean()
         ]);
 
         // Step 3: Generate a detailed itinerary using AI
@@ -109,13 +109,13 @@ async function generateTripPlan(query, user = {}) {
         - Interests: ${tripDetails.interests ? tripDetails.interests.join(', ') : 'Not specified'}
         
         Available Accommodations (${listings.length}):
-        ${listings.slice(0, 5).map((l, i) => `${i+1}. ${l.title} - ₹${l.price}/night (${l.rating || 'No'} reviews)`).join('\n')}
+        ${listings.slice(0, 5).map((l, i) => `${i + 1}. ${l.title} - ₹${l.price}/night (${l.rating || 'No'} reviews)`).join('\n')}
         
         Available Vehicles (${vehicles.length}):
-        ${vehicles.slice(0, 5).map((v, i) => `${i+1}. ${v.name} - ₹${v.pricePerDay}/day (${v.type})`).join('\n')}
+        ${vehicles.slice(0, 5).map((v, i) => `${i + 1}. ${v.name} - ₹${v.pricePerDay}/day (${v.type})`).join('\n')}
         
         Available Restaurants (${dhabas.length}):
-        ${dhabas.slice(0, 5).map((d, i) => `${i+1}. ${d.name} - ${d.cuisineType || 'Multi-cuisine'} (${d.averageRating ? d.averageRating + '★' : 'No ratings'})`).join('\n')}
+        ${dhabas.slice(0, 5).map((d, i) => `${i + 1}. ${d.name} - ${d.cuisineType || 'Multi-cuisine'} (${d.averageRating ? d.averageRating + '★' : 'No ratings'})`).join('\n')}
         
         Create a detailed itinerary with the following structure for each day:
         - Morning activities
@@ -203,7 +203,7 @@ async function generateTripPlan(query, user = {}) {
                 .replace(/([{\s*])\s*'/g, '$1"')  // Replace single quotes with double quotes
                 .replace(/\'/g, "'")  // Un-escape single quotes in text
                 .replace(/,\s*([}\]])/g, '$1');  // Remove trailing commas
-                
+
             itinerary = JSON.parse(cleanJson);
         } catch (e) {
             console.error('Error parsing AI response:', e);
@@ -217,7 +217,7 @@ async function generateTripPlan(query, user = {}) {
             query,
             userId: user._id
         };
-        
+
         // Add real data references if not already included
         if (!itinerary.accommodationRecommendations?.length && listings.length) {
             itinerary.accommodationRecommendations = listings.slice(0, 3).map(l => ({
@@ -230,7 +230,7 @@ async function generateTripPlan(query, user = {}) {
                 image: l.images?.[0] || ''
             }));
         }
-        
+
         if (!itinerary.transportationRecommendations?.length && vehicles.length) {
             itinerary.transportationRecommendations = vehicles.slice(0, 3).map(v => ({
                 id: v._id,
@@ -241,7 +241,7 @@ async function generateTripPlan(query, user = {}) {
                 image: v.images?.[0] || ''
             }));
         }
-        
+
         if (!itinerary.diningRecommendations?.length && dhabas.length) {
             itinerary.diningRecommendations = dhabas.slice(0, 5).map(d => ({
                 id: d._id,
@@ -253,7 +253,7 @@ async function generateTripPlan(query, user = {}) {
                 image: d.images?.[0] || ''
             }));
         }
-        
+
         // Ensure dates are properly formatted
         if (!itinerary.startDate) {
             itinerary.startDate = formatDate(startDate);
@@ -261,33 +261,42 @@ async function generateTripPlan(query, user = {}) {
         if (!itinerary.endDate) {
             itinerary.endDate = formatDate(endDate);
         }
-        
+
         // Add travel time estimates between activities
+        // FIX: Geocode each activity's actual location instead of using destination coords for both points
         if (itinerary.days?.length) {
             for (const day of itinerary.days) {
                 if (day.activities?.length > 1) {
                     for (let i = 0; i < day.activities.length - 1; i++) {
                         const currentActivity = day.activities[i];
                         const nextActivity = day.activities[i + 1];
-                        
+
                         // Only calculate if locations are different
-                        if (currentActivity.location && nextActivity.location && 
+                        if (currentActivity.location && nextActivity.location &&
                             currentActivity.location !== nextActivity.location) {
                             try {
-                                const travelInfo = await getTravelTime(
-                                    { lat: destinationCoords.lat, lng: destinationCoords.lng },
-                                    { lat: destinationCoords.lat, lng: destinationCoords.lng },
-                                    'driving'
-                                );
-                                
-                                // Add travel time to the next activity
-                                currentActivity.transportToNext = {
-                                    mode: 'Car',
-                                    duration: travelInfo.duration,
-                                    distance: travelInfo.distance.toFixed(1) + ' km'
-                                };
+                                // Geocode each individual place so we get real travel time
+                                const [fromCoords, toCoords] = await Promise.all([
+                                    geocodeLocation(currentActivity.location + ', ' + (tripDetails.destination || '')),
+                                    geocodeLocation(nextActivity.location + ', ' + (tripDetails.destination || ''))
+                                ]);
+
+                                if (fromCoords && toCoords) {
+                                    const travelInfo = await getTravelTime(
+                                        { lat: fromCoords.lat, lng: fromCoords.lng },
+                                        { lat: toCoords.lat, lng: toCoords.lng },
+                                        'driving'
+                                    );
+
+                                    currentActivity.transportToNext = {
+                                        mode: 'Car',
+                                        duration: travelInfo.duration,
+                                        distance: travelInfo.distance.toFixed(1) + ' km'
+                                    };
+                                }
                             } catch (e) {
-                                console.error('Error calculating travel time:', e);
+                                // Non-critical — skip if geocoding fails for an individual stop
+                                console.warn('Travel time estimation skipped for', currentActivity.location, '→', nextActivity.location, ':', e.message);
                             }
                         }
                     }

@@ -98,4 +98,43 @@ router.get("/data", wrapAsync(async (req, res) => {
     });
 }));
 
+// POST /api/map/insight - Generate AI description of visible area
+router.post("/insight", wrapAsync(async (req, res) => {
+    const { features } = req.body;
+    if (!features || features.length === 0) {
+        return res.json({ insight: "Zoom in to discover the soul of this neighborhood." });
+    }
+
+    // Aggregate data for the AI
+    const types = features.reduce((acc, f) => {
+        acc[f.properties.type] = (acc[f.properties.type] || 0) + 1;
+        return acc;
+    }, {});
+
+    const avgPrice = Math.round(features.reduce((acc, f) => acc + f.properties.price, 0) / features.length);
+    const locations = [...new Set(features.map(f => f.properties.location))].slice(0, 3);
+
+    const prompt = `As the WanderLust AI Guide, provide a sensory 2-3 sentence 'Neighborhood Vibe' description for this area:
+    - Visible items: ${types.listing || 0} stays, ${types.vehicle || 0} vehicles, ${types.dhaba || 0} dhabas.
+    - Average Price: ₹${avgPrice}
+    - Top spots near: ${locations.join(', ')}
+    
+    Focus on the atmosphere, value, and what makes it unique. Be evocative and premium.`;
+
+    const response = await require("../openai").chat.completions.create({
+        model: "gpt-4o-mini",
+        messages: [
+            { role: "system", content: "You are the WanderLust AI Guide. Provide soul-stirring travel insights. Keep it under 250 characters." },
+            { role: "user", content: prompt }
+        ],
+        temperature: 0.8,
+        max_tokens: 150
+    });
+
+    res.json({
+        insight: response.choices[0].message.content,
+        stats: { avgPrice, count: features.length }
+    });
+}));
+
 module.exports = router;

@@ -1,107 +1,1470 @@
-<%- include('partials/header') %>
+<% layout("/layouts/boilerplate") -%>
 
-<div class="container my-5">
-    <div class="row justify-content-center">
-        <div class="col-lg-8">
-            <div class="card shadow-sm">
-                <div class="card-header bg-primary text-white">
-                    <h2 class="h4 mb-0">AI Trip Planner</h2>
-                    <p class="mb-0">Let's plan your perfect trip with AI</p>
-                </div>
-                
-                <div class="card-body">
-                    <form id="trip-planner-form">
-                        <div class="mb-3">
-                            <label for="destination" class="form-label">Destination</label>
-                            <input type="text" class="form-control" id="destination" name="destination" 
-                                   placeholder="Where do you want to go?" required>
+    <!-- Toast Container -->
+    <div id="toast-container" class="position-fixed top-0 end-0 p-3" style="z-index: 9999;"></div>
+
+    <div class="tp-hero">
+        <div class="tp-hero-bg"></div>
+        <div class="container tp-hero-content">
+            <div class="tp-badge mb-3">
+                <span class="tp-badge-icon">✨</span> AI-Powered Planning
+            </div>
+            <h1 class="tp-hero-title">Plan Your <span class="tp-gradient-text">Perfect Trip</span></h1>
+            <p class="tp-hero-subtitle">Tell us where & our AI crafts a full personalized itinerary in seconds — stays,
+                wheels & food included.</p>
+
+            <!-- Quick Chips -->
+            <div class="tp-chips" id="quickChips">
+                <button class="tp-chip" data-dest="Goa" data-dur="3" data-bgt="15000"
+                    data-pref="beach, party, seafood">🏖️ Goa Weekend</button>
+                <button class="tp-chip" data-dest="Manali" data-dur="5" data-bgt="20000"
+                    data-pref="snow, adventure, mountains">🏔️ Manali Adventure</button>
+                <button class="tp-chip" data-dest="Rishikesh" data-dur="3" data-bgt="12000"
+                    data-pref="yoga, rafting, camping">🛶 Rishikesh Vibes</button>
+                <button class="tp-chip" data-dest="Kerala" data-dur="7" data-bgt="35000"
+                    data-pref="houseboat, backwaters, family">🌴 Kerala Bliss</button>
+                <button class="tp-chip" data-dest="Rajasthan" data-dur="6" data-bgt="25000"
+                    data-pref="heritage, desert, culture">🏰 Rajasthan Royal</button>
+                <button class="tp-chip" data-dest="Leh Ladakh" data-dur="7" data-bgt="40000"
+                    data-pref="road trip, lakes, monasteries">🏕️ Leh-Ladakh</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="container tp-main-container">
+        <div class="row g-4">
+            <!-- ─── Left: Form Panel ─────────────────────────────────────── -->
+            <div class="col-lg-4">
+                <div class="tp-form-card" id="formCard">
+                    <div class="tp-form-header">
+                        <div class="tp-ai-icon">🤖</div>
+                        <div>
+                            <h4 class="mb-0">WanderLust AI</h4>
+                            <span class="tp-online-badge">● Online</span>
                         </div>
-                        
-                        <div class="row">
-                            <div class="col-md-6 mb-3">
-                                <label for="duration" class="form-label">Duration (days)</label>
-                                <input type="number" class="form-control" id="duration" name="duration" 
-                                       min="1" max="30" value="3" required>
+                    </div>
+
+                    <form id="trip-planner-form" autocomplete="off">
+                        <!-- Destination -->
+                        <div class="tp-field-group">
+                            <label class="tp-label">📍 Destination</label>
+                            <div class="tp-input-wrap">
+                                <input type="text" class="tp-input" id="destination" name="destination"
+                                    placeholder="e.g., Manali, Himachal Pradesh" required>
+                                <span class="tp-input-icon">🗺️</span>
                             </div>
-                            <div class="col-md-6 mb-3">
-                                <label for="budget" class="form-label">Total Budget (₹)</label>
-                                <div class="input-group">
-                                    <span class="input-group-text">₹</span>
-                                    <input type="number" class="form-control" id="budget" name="budget" 
-                                           min="1000" value="15000" required>
+                        </div>
+
+                        <!-- Duration + Travelers -->
+                        <div class="row g-2">
+                            <div class="col-6">
+                                <div class="tp-field-group">
+                                    <label class="tp-label">📆 Days</label>
+                                    <input type="number" class="tp-input" id="duration" name="duration" min="1" max="30"
+                                        value="3" required>
+                                </div>
+                            </div>
+                            <div class="col-6">
+                                <div class="tp-field-group">
+                                    <label class="tp-label">👥 Travelers</label>
+                                    <input type="number" class="tp-input" id="travelers" name="travelers" min="1"
+                                        max="20" value="2" required>
                                 </div>
                             </div>
                         </div>
-                        
-                        <div class="mb-3">
-                            <label for="preferences" class="form-label">Preferences (optional)</label>
-                            <textarea class="form-control" id="preferences" name="preferences" 
-                                     rows="3" placeholder="E.g., Family trip, Adventure activities, Luxury stays, etc."></textarea>
+
+                        <!-- Budget -->
+                        <div class="tp-field-group">
+                            <label class="tp-label">💰 Total Budget (₹)</label>
+                            <div class="tp-input-wrap">
+                                <input type="number" class="tp-input tp-input-budget" id="budget" name="budget"
+                                    min="1000" value="15000" required>
+                                <span class="tp-input-icon">₹</span>
+                            </div>
+                            <div class="tp-budget-slider-wrap mt-2">
+                                <input type="range" class="tp-slider" id="budgetSlider" min="1000" max="200000"
+                                    step="1000" value="15000">
+                                <div class="tp-slider-labels">
+                                    <span>₹1K</span><span>₹50K</span><span>₹2L</span>
+                                </div>
+                            </div>
                         </div>
-                        
-                        <button type="submit" class="btn btn-primary w-100">
-                            <i class="fas fa-magic me-2"></i> Generate Trip Plan
+
+                        <!-- Preferences -->
+                        <div class="tp-field-group">
+                            <label class="tp-label">🎯 Preferences (optional)</label>
+                            <textarea class="tp-input tp-textarea" id="preferences" name="preferences"
+                                placeholder="Family trip, adventure activities, luxury stays, vegetarian food…"></textarea>
+                        </div>
+
+                        <!-- Voice Input -->
+                        <div class="tp-voice-row mb-3">
+                            <button type="button" class="tp-voice-btn" id="voiceInputBtn"
+                                title="Speak your preferences">
+                                <span id="voiceIcon">🎙️</span> <span id="voiceText">Voice Input</span>
+                            </button>
+                        </div>
+
+                        <button type="submit" class="tp-submit-btn" id="planTripBtn">
+                            <span class="tp-submit-icon">✨</span>
+                            <span id="planBtnText">Generate My Itinerary</span>
                         </button>
                     </form>
-                    
-                    <div id="trip-loading" class="text-center my-4" style="display: none;">
-                        <div class="spinner-border text-primary" role="status">
-                            <span class="visually-hidden">Loading...</span>
+
+                    <!-- Follow-up Chat -->
+                    <div class="tp-followup-wrap mt-3" id="followupWrap" style="display:none;">
+                        <div class="tp-followup-label">💬 Ask follow-up questions</div>
+                        <div class="tp-followup-row">
+                            <input type="text" class="tp-followup-input" id="followupInput"
+                                placeholder="e.g., Add a spa day on Day 2">
+                            <button class="tp-followup-btn" id="followupBtn">➤</button>
                         </div>
-                        <p class="mt-2">Crafting your perfect trip plan...</p>
-                    </div>
-                    
-                    <div id="trip-error" class="alert alert-danger mt-3" style="display: none;"></div>
-                    
-                    <div id="trip-results" class="mt-4" style="display: none;">
-                        <!-- Results will be inserted here by JavaScript -->
+                        <div class="tp-followup-suggestions mt-2" id="followupSuggestions">
+                            <button class="tp-suggestion-chip">Make it budget-friendly</button>
+                            <button class="tp-suggestion-chip">Add more adventure</button>
+                            <button class="tp-suggestion-chip">Add vegetarian food options</button>
+                            <button class="tp-suggestion-chip">Extend by 1 day</button>
+                        </div>
                     </div>
                 </div>
+
+                <!-- My Trips shortcut (only if logged in) -->
+                <% if (typeof currUser !=='undefined' && currUser) { %>
+                    <a href="/api/trip/my-trips" class="tp-my-trips-card mt-3 d-block text-decoration-none">
+                        <span class="tp-my-trips-icon">📚</span>
+                        <div>
+                            <div class="tp-my-trips-title">My Saved Trips</div>
+                            <div class="tp-my-trips-sub">View & manage your itineraries</div>
+                        </div>
+                        <span class="tp-my-trips-arrow">→</span>
+                    </a>
+                    <% } %>
             </div>
-            
-            <div class="card mt-4 shadow-sm">
-                <div class="card-header bg-light">
-                    <h3 class="h5 mb-0">How It Works</h3>
+
+            <!-- ─── Right: Output Panel ──────────────────────────────────── -->
+            <div class="col-lg-8">
+                <!-- Empty State -->
+                <div class="tp-empty-state" id="emptyState">
+                    <div class="tp-empty-animation">
+                        <div class="tp-plane">✈️</div>
+                        <div class="tp-cloud tp-cloud-1">☁️</div>
+                        <div class="tp-cloud tp-cloud-2">☁️</div>
+                    </div>
+                    <h3>Ready to explore?</h3>
+                    <p>Fill in your trip details on the left, or pick a quick destination above — our AI will craft a
+                        full itinerary in seconds!</p>
+                    <div class="tp-features-row">
+                        <div class="tp-feature"><span>📋</span> Day-by-day plan</div>
+                        <div class="tp-feature"><span>💰</span> Budget breakdown</div>
+                        <div class="tp-feature"><span>🍽️</span> Restaurant picks</div>
+                        <div class="tp-feature"><span>💡</span> Money-saving tips</div>
+                        <div class="tp-feature"><span>🎒</span> Packing list</div>
+                        <div class="tp-feature"><span>🆘</span> Emergency contacts</div>
+                    </div>
                 </div>
-                <div class="card-body">
-                    <div class="row">
-                        <div class="col-md-4 text-center mb-3 mb-md-0">
-                            <div class="bg-primary bg-opacity-10 p-3 rounded-circle d-inline-block mb-2">
-                                <i class="fas fa-map-marked-alt text-primary fa-2x"></i>
-                            </div>
-                            <h5>1. Enter Details</h5>
-                            <p class="text-muted">Tell us where you want to go and your budget.</p>
+
+                <!-- Loading / Streaming State -->
+                <div class="tp-streaming-card" id="streamingCard" style="display:none;">
+                    <div class="tp-streaming-header">
+                        <div class="tp-ai-typing">
+                            <span class="tp-ai-dot"></span><span class="tp-ai-dot"></span><span
+                                class="tp-ai-dot"></span>
                         </div>
-                        <div class="col-md-4 text-center mb-3 mb-md-0">
-                            <div class="bg-primary bg-opacity-10 p-3 rounded-circle d-inline-block mb-2">
-                                <i class="fas fa-robot text-primary fa-2x"></i>
+                        <span class="tp-streaming-label">WanderLust AI is crafting your itinerary…</span>
+                    </div>
+                    <div class="tp-streaming-content" id="streamingContent"></div>
+                </div>
+
+                <!-- Result Card -->
+                <div class="tp-result-card" id="resultCard" style="display:none;">
+                    <!-- Result Toolbar -->
+                    <div class="tp-result-toolbar">
+                        <div class="tp-result-meta">
+                            <span class="tp-result-emoji" id="resultEmoji">✈️</span>
+                            <div>
+                                <div class="tp-result-title" id="resultTitle">Your Trip Plan</div>
+                                <div class="tp-result-sub" id="resultSub"></div>
                             </div>
-                            <h5>2. AI Magic</h5>
-                            <p class="text-muted">Our AI creates a personalized itinerary.</p>
                         </div>
-                        <div class="col-md-4 text-center">
-                            <div class="bg-primary bg-opacity-10 p-3 rounded-circle d-inline-block mb-2">
-                                <i class="fas fa-plane-departure text-primary fa-2x"></i>
-                            </div>
-                            <h5>3. Enjoy Your Trip</h5>
-                            <p class="text-muted">Save, share, and enjoy your perfect trip!</p>
+                        <div class="tp-result-actions">
+                            <button class="tp-action-btn tp-save-btn" id="saveTripBtn" title="Save Trip">
+                                💾 Save
+                            </button>
+                            <button class="tp-action-btn" id="copyBtn" title="Copy to clipboard">
+                                📋 Copy
+                            </button>
+                            <button class="tp-action-btn" id="printBtn" title="Print itinerary">
+                                🖨️ Print
+                            </button>
+                            <button class="tp-action-btn tp-share-btn" id="shareBtn" title="Share">
+                                📤 Share
+                            </button>
                         </div>
                     </div>
+
+                    <!-- Rendered Itinerary -->
+                    <div class="tp-result-body" id="resultBody"></div>
                 </div>
             </div>
         </div>
     </div>
-</div>
 
-<%- include('partials/footer') %>
 
-<!-- Add trip planner JavaScript -->
-<script src="/js/tripPlanner.js"></script>
 
-<!-- Add any additional scripts needed for the trip planner -->
-<script>
-    document.addEventListener('DOMContentLoaded', function() {
-        // Initialize any additional trip planner functionality here
-        console.log('Trip planner page loaded');
-    });
-</script>
+    <!-- Marked.js for markdown rendering -->
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+
+    <script>
+        /* ─────────────────────────────────────────────
+           WanderLust AI Trip Planner — Client Script
+           ───────────────────────────────────────────── */
+        (function () {
+            const form = document.getElementById('trip-planner-form');
+            const emptyState = document.getElementById('emptyState');
+            const streamCard = document.getElementById('streamingCard');
+            const streamBody = document.getElementById('streamingContent');
+            const resultCard = document.getElementById('resultCard');
+            const resultBody = document.getElementById('resultBody');
+            const resultTitle = document.getElementById('resultTitle');
+            const resultSub = document.getElementById('resultSub');
+            const resultEmoji = document.getElementById('resultEmoji');
+            const followupWrap = document.getElementById('followupWrap');
+            const planBtn = document.getElementById('planTripBtn');
+            const planBtnText = document.getElementById('planBtnText');
+            const saveTripBtn = document.getElementById('saveTripBtn');
+            const copies = document.getElementById('copyBtn');
+            const printBtn = document.getElementById('printBtn');
+            const shareBtn = document.getElementById('shareBtn');
+            const voiceBtn = document.getElementById('voiceInputBtn');
+            const voiceIcon = document.getElementById('voiceIcon');
+            const voiceText = document.getElementById('voiceText');
+            const budgetInput = document.getElementById('budget');
+            const budgetSlider = document.getElementById('budgetSlider');
+
+            let currentConversationId = null;
+            let currentPlanContent = '';
+            let currentDest = '';
+
+            // ─── Budget Slider Sync ───────────────────────────────────────────────
+            budgetSlider.addEventListener('input', () => {
+                budgetInput.value = budgetSlider.value;
+            });
+            budgetInput.addEventListener('input', () => {
+                budgetSlider.value = budgetInput.value;
+            });
+
+            // ─── Quick Chips ─────────────────────────────────────────────────────
+            document.getElementById('quickChips').addEventListener('click', (e) => {
+                const chip = e.target.closest('.tp-chip');
+                if (!chip) return;
+                document.getElementById('destination').value = chip.dataset.dest;
+                document.getElementById('duration').value = chip.dataset.dur;
+                document.getElementById('budget').value = chip.dataset.bgt;
+                budgetSlider.value = chip.dataset.bgt;
+                document.getElementById('preferences').value = chip.dataset.pref;
+                // Highlight active chip
+                document.querySelectorAll('.tp-chip').forEach(c => c.classList.remove('active'));
+                chip.classList.add('active');
+                // Auto-submit
+                form.dispatchEvent(new Event('submit', { cancelable: true }));
+            });
+
+            // ─── Main Form Submit ─────────────────────────────────────────────────
+            form.addEventListener('submit', async (e) => {
+                e.preventDefault();
+                const dest = document.getElementById('destination').value.trim();
+                const duration = document.getElementById('duration').value;
+                const travelers = document.getElementById('travelers').value;
+                const budget = document.getElementById('budget').value;
+                const prefs = document.getElementById('preferences').value.trim();
+
+                if (!dest) { showToast('Please enter a destination!', 'warning'); return; }
+
+                currentDest = dest;
+                currentConversationId = Date.now().toString();
+                await runStreaming({ dest, duration, travelers, budget, prefs });
+            });
+
+            // ─── Follow-up ───────────────────────────────────────────────────────
+            document.getElementById('followupBtn').addEventListener('click', sendFollowup);
+            document.getElementById('followupInput').addEventListener('keydown', (e) => {
+                if (e.key === 'Enter') sendFollowup();
+            });
+
+            document.getElementById('followupSuggestions').addEventListener('click', (e) => {
+                const chip = e.target.closest('.tp-suggestion-chip');
+                if (!chip) return;
+                document.getElementById('followupInput').value = chip.textContent;
+                sendFollowup();
+            });
+
+            async function sendFollowup() {
+                const msg = document.getElementById('followupInput').value.trim();
+                if (!msg) return;
+                document.getElementById('followupInput').value = '';
+                await runStreaming({ message: msg });
+            }
+
+            // ─── Core Streaming Function ─────────────────────────────────────────
+            async function runStreaming({ dest, duration, travelers, budget, prefs, message }) {
+                // UI: show streaming state
+                emptyState.style.display = 'none';
+                resultCard.style.display = 'none';
+                streamCard.style.display = 'block';
+                streamBody.innerHTML = '';
+
+                planBtn.disabled = true;
+                planBtnText.textContent = 'Generating…';
+                planBtn.classList.add('loading');
+
+                let accumulated = '';
+
+                try {
+                    const payload = {
+                        stream: true,
+                        conversationId: currentConversationId
+                    };
+
+                    if (message) {
+                        payload.message = message;
+                    } else {
+                        payload.destination = dest;
+                        payload.duration = duration;
+                        payload.travelers = travelers;
+                        payload.budget = budget;
+                        payload.preferences = prefs;
+                    }
+
+                    const res = await fetch('/api/trip/plan', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-CSRF-Token': document.querySelector('meta[name="csrf-token"]')?.content || ''
+                        },
+                        credentials: 'include',
+                        body: JSON.stringify(payload)
+                    });
+
+                    if (!res.ok) {
+                        const err = await res.json().catch(() => ({}));
+                        throw new Error(err.message || `Server error (${res.status})`);
+                    }
+
+                    const reader = res.body.getReader();
+                    const decoder = new TextDecoder();
+
+                    while (true) {
+                        const { done, value } = await reader.read();
+                        if (done) break;
+
+                        const text = decoder.decode(value, { stream: true });
+                        const lines = text.split('\n');
+
+                        for (const line of lines) {
+                            if (!line.startsWith('data: ')) continue;
+                            try {
+                                const parsed = JSON.parse(line.slice(6));
+                                if (parsed.delta) {
+                                    accumulated += parsed.delta;
+                                    // Live render with marked
+                                    streamBody.innerHTML = marked.parse(accumulated);
+                                    streamCard.scrollTop = streamCard.scrollHeight;
+                                }
+                                if (parsed.done) {
+                                    currentPlanContent = parsed.fullContent || accumulated;
+                                    currentConversationId = parsed.conversationId;
+                                }
+                            } catch (_) { }
+                        }
+                    }
+
+                    // Transition to result view
+                    showResult(dest, duration, travelers, budget, currentPlanContent);
+                    followupWrap.style.display = 'block';
+
+                } catch (err) {
+                    console.error('Streaming error:', err);
+                    streamCard.style.display = 'none';
+                    emptyState.style.display = 'block';
+                    showToast(err.message || 'Failed to generate trip plan. Please try again.', 'error');
+                } finally {
+                    planBtn.disabled = false;
+                    planBtnText.textContent = 'Generate My Itinerary';
+                    planBtn.classList.remove('loading');
+                }
+            }
+
+            // ─── Show Rendered Result ─────────────────────────────────────────────
+            function showResult(dest, duration, travelers, budget, content) {
+                streamCard.style.display = 'none';
+
+                // Parse markdown
+                resultBody.innerHTML = marked.parse(content || '');
+
+                // Meta bar
+                if (dest) {
+                    resultTitle.textContent = `${duration || ''}${duration ? '-Day ' : ''}Trip to ${dest}`;
+                    resultSub.textContent = `${travelers || 2} traveler${(travelers || 2) > 1 ? 's' : ''} · Budget ₹${Number(budget || 0).toLocaleString('en-IN')}`;
+                    resultEmoji.textContent = pickEmoji(dest);
+                }
+
+                resultCard.style.display = 'block';
+                resultCard.scrollIntoView({ behavior: 'smooth', block: 'start' });
+
+                // Style tables
+                resultBody.querySelectorAll('table').forEach(t => {
+                    t.classList.add('tp-table');
+                });
+            }
+
+            // ─── Save Trip ────────────────────────────────────────────────────────
+            saveTripBtn.addEventListener('click', async () => {
+                const dest = document.getElementById('destination').value.trim();
+                const duration = document.getElementById('duration').value;
+                const travelers = document.getElementById('travelers').value;
+                const budget = document.getElementById('budget').value;
+                const prefs = document.getElementById('preferences').value.trim();
+
+                if (!currentPlanContent) { showToast('No plan to save yet!', 'warning'); return; }
+
+                saveTripBtn.textContent = '⏳ Saving…';
+                saveTripBtn.disabled = true;
+
+                try {
+                    const res = await fetch('/api/trip/save', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-CSRF-Token': document.querySelector('meta[name="csrf-token"]')?.content || ''
+                        },
+                        credentials: 'include',
+                        body: JSON.stringify({
+                            destination: dest,
+                            duration, travelers, budget,
+                            preferences: prefs,
+                            content: currentPlanContent,
+                            title: `${duration}-Day Trip to ${dest}`
+                        })
+                    });
+
+                    const data = await res.json();
+                    if (res.status === 401) {
+                        showToast('Please log in to save trips!', 'warning');
+                        setTimeout(() => window.location.href = '/login', 1500);
+                        return;
+                    }
+                    if (data.success) {
+                        showToast('Trip saved! 🎉 View it in My Trips.', 'success');
+                        saveTripBtn.textContent = '✅ Saved!';
+                    } else {
+                        throw new Error(data.message);
+                    }
+                } catch (err) {
+                    console.error(err);
+                    showToast(err.message || 'Failed to save trip.', 'error');
+                    saveTripBtn.textContent = '💾 Save';
+                } finally {
+                    saveTripBtn.disabled = false;
+                }
+            });
+
+            // ─── Copy ─────────────────────────────────────────────────────────────
+            copies.addEventListener('click', async () => {
+                try {
+                    await navigator.clipboard.writeText(currentPlanContent);
+                    copies.textContent = '✅ Copied!';
+                    showToast('Itinerary copied to clipboard!', 'success');
+                    setTimeout(() => copies.textContent = '📋 Copy', 2000);
+                } catch {
+                    showToast('Could not copy — select and copy manually.', 'warning');
+                }
+            });
+
+            // ─── Print ────────────────────────────────────────────────────────────
+            printBtn.addEventListener('click', () => {
+                const dest = document.getElementById('destination').value || 'Trip';
+                const win = window.open('', '_blank');
+                win.document.write(`
+            <html><head><title>${dest} Itinerary — WanderLust</title>
+            <style>
+                body { font-family: Georgia, serif; max-width: 800px; margin: 40px auto; color: #222; }
+                h1,h2,h3 { color: #4f46e5; }
+                table { width: 100%; border-collapse: collapse; margin: 16px 0; }
+                th { background: #4f46e5; color: white; padding: 8px 12px; }
+                td { border: 1px solid #ddd; padding: 8px 12px; }
+                @media print { body { margin: 0; } }
+            </style></head>
+            <body>${resultBody.innerHTML}</body></html>`);
+                win.document.close();
+                win.print();
+            });
+
+            // ─── Share ────────────────────────────────────────────────────────────
+            shareBtn.addEventListener('click', async () => {
+                const dest = document.getElementById('destination').value || 'My Trip';
+                const duration = document.getElementById('duration').value;
+                if (navigator.share) {
+                    try {
+                        await navigator.share({
+                            title: `${duration}-Day Trip to ${dest} | WanderLust`,
+                            text: `Check out this AI-generated trip plan for ${dest}!`,
+                            url: window.location.href
+                        });
+                    } catch (_) { }
+                } else {
+                    await navigator.clipboard.writeText(window.location.href).catch(() => { });
+                    showToast('Link copied to clipboard!', 'success');
+                }
+            });
+
+            // ─── Voice Input ──────────────────────────────────────────────────────
+            const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+            if (SpeechRecognition) {
+                const recognition = new SpeechRecognition();
+                recognition.lang = 'en-IN';
+                recognition.interimResults = true;
+
+                recognition.onresult = (e) => {
+                    const transcript = Array.from(e.results).map(r => r[0].transcript).join('');
+                    document.getElementById('preferences').value = transcript;
+                };
+                recognition.onend = () => {
+                    voiceIcon.textContent = '🎙️';
+                    voiceText.textContent = 'Voice Input';
+                    voiceBtn.classList.remove('active');
+                };
+                recognition.onerror = (e) => {
+                    showToast('Voice error: ' + e.error, 'warning');
+                };
+
+                voiceBtn.addEventListener('click', () => {
+                    if (voiceBtn.classList.contains('active')) {
+                        recognition.stop();
+                    } else {
+                        recognition.start();
+                        voiceIcon.textContent = '🔴';
+                        voiceText.textContent = 'Listening…';
+                        voiceBtn.classList.add('active');
+                    }
+                });
+            } else {
+                voiceBtn.disabled = true;
+                voiceBtn.title = 'Speech recognition not supported';
+            }
+
+            // ─── Helpers ──────────────────────────────────────────────────────────
+            function pickEmoji(dest = '') {
+                const d = dest.toLowerCase();
+                if (d.includes('goa') || d.includes('beach') || d.includes('kerala')) return '🏖️';
+                if (d.includes('manali') || d.includes('shimla') || d.includes('leh')) return '🏔️';
+                if (d.includes('rishikesh')) return '🛶';
+                if (d.includes('rajasthan') || d.includes('jaipur')) return '🏰';
+                if (d.includes('mumbai') || d.includes('delhi')) return '🏙️';
+                return '✈️';
+            }
+
+            function showToast(msg, type = 'info') {
+                const colors = {
+                    success: '#10b981',
+                    error: '#ef4444',
+                    warning: '#f59e0b',
+                    info: '#6366f1'
+                };
+                const icons = { success: '✅', error: '❌', warning: '⚠️', info: 'ℹ️' };
+                const id = 'toast-' + Date.now();
+
+                const el = document.createElement('div');
+                el.id = id;
+                el.className = 'tp-toast';
+                el.style.cssText = `--toast-color:${colors[type] || colors.info}`;
+                el.innerHTML = `<span class="tp-toast-icon">${icons[type] || 'ℹ️'}</span><span class="tp-toast-msg">${msg}</span><button class="tp-toast-close" onclick="document.getElementById('${id}').remove()">×</button>`;
+
+                document.getElementById('toast-container').appendChild(el);
+
+                // Animate in
+                requestAnimationFrame(() => el.classList.add('show'));
+
+                // Auto remove
+                setTimeout(() => {
+                    el.classList.remove('show');
+                    setTimeout(() => el.remove(), 400);
+                }, 4000);
+            }
+
+            // Expose for inline usage
+            window._showToast = showToast;
+        })();
+    </script>
+
+    <style>
+        /* ═══════════════════════════════════════════════════
+   TRIP PLANNER — PREMIUM DESIGN SYSTEM
+   ═══════════════════════════════════════════════════ */
+
+        /* Google Font */
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+
+        :root {
+            --tp-primary: #6366f1;
+            --tp-primary2: #818cf8;
+            --tp-dark: #0f0e1a;
+            --tp-surface: #1a1830;
+            --tp-surface2: #221f3a;
+            --tp-border: rgba(99, 102, 241, .25);
+            --tp-text: #e2e2f0;
+            --tp-muted: #9ca3af;
+            --tp-success: #10b981;
+            --tp-warning: #f59e0b;
+            --tp-radius: 14px;
+            --tp-shadow: 0 20px 60px rgba(0, 0, 0, .4);
+        }
+
+        *,
+        *::before,
+        *::after {
+            box-sizing: border-box;
+        }
+
+        /* ─── Hero ─────────────────────────────────────────────────────── */
+        .tp-hero {
+            position: relative;
+            background: linear-gradient(135deg, #0f0e1a 0%, #1a1245 50%, #0f0e1a 100%);
+            padding: 5rem 0 4rem;
+            overflow: hidden;
+        }
+
+        .tp-hero-bg {
+            position: absolute;
+            inset: 0;
+            background: radial-gradient(ellipse 70% 60% at 50% -10%, rgba(99, 102, 241, .35) 0%, transparent 70%);
+            pointer-events: none;
+        }
+
+        .tp-hero-content {
+            position: relative;
+            z-index: 1;
+            text-align: center;
+            color: #fff;
+        }
+
+        .tp-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            background: rgba(99, 102, 241, .2);
+            border: 1px solid rgba(99, 102, 241, .4);
+            border-radius: 100px;
+            padding: 6px 16px;
+            font-size: .8rem;
+            font-weight: 600;
+            letter-spacing: .04em;
+            color: var(--tp-primary2);
+            backdrop-filter: blur(8px);
+        }
+
+        .tp-hero-title {
+            font-size: clamp(2.2rem, 5vw, 3.5rem);
+            font-weight: 800;
+            line-height: 1.15;
+            margin: 1rem 0 1rem;
+            font-family: 'Inter', sans-serif;
+        }
+
+        .tp-gradient-text {
+            background: linear-gradient(90deg, #818cf8, #c084fc, #f472b6);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .tp-hero-subtitle {
+            max-width: 600px;
+            margin: 0 auto 2rem;
+            font-size: 1.08rem;
+            line-height: 1.7;
+            color: rgba(255, 255, 255, .75);
+        }
+
+        /* ─── Quick Chips ───────────────────────────────────────────────── */
+        .tp-chips {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 10px;
+        }
+
+        .tp-chip {
+            background: rgba(255, 255, 255, .08);
+            border: 1px solid rgba(255, 255, 255, .15);
+            color: #fff;
+            border-radius: 100px;
+            padding: 8px 18px;
+            font-size: .85rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all .2s;
+            backdrop-filter: blur(8px);
+        }
+
+        .tp-chip:hover,
+        .tp-chip.active {
+            background: var(--tp-primary);
+            border-color: var(--tp-primary);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(99, 102, 241, .4);
+        }
+
+        /* ─── Main Container ───────────────────────────────────────────── */
+        .tp-main-container {
+            padding: 2.5rem 1rem 4rem;
+            font-family: 'Inter', sans-serif;
+        }
+
+        /* ─── Form Card ────────────────────────────────────────────────── */
+        .tp-form-card {
+            background: #1a1830;
+            border: 1px solid var(--tp-border);
+            border-radius: 20px;
+            padding: 1.75rem;
+            box-shadow: var(--tp-shadow);
+            position: sticky;
+            top: 80px;
+        }
+
+        .tp-form-header {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 1.5rem;
+            padding-bottom: 1rem;
+            border-bottom: 1px solid var(--tp-border);
+        }
+
+        .tp-ai-icon {
+            width: 44px;
+            height: 44px;
+            background: linear-gradient(135deg, var(--tp-primary), #c084fc);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.4rem;
+        }
+
+        .tp-form-header h4 {
+            color: var(--tp-text);
+            font-weight: 700;
+            font-size: 1rem;
+            margin: 0;
+        }
+
+        .tp-online-badge {
+            font-size: .7rem;
+            color: var(--tp-success);
+            font-weight: 600;
+        }
+
+        /* ─── Fields ───────────────────────────────────────────────────── */
+        .tp-field-group {
+            margin-bottom: 1rem;
+        }
+
+        .tp-label {
+            display: block;
+            font-size: .78rem;
+            font-weight: 600;
+            color: var(--tp-muted);
+            margin-bottom: 6px;
+            letter-spacing: .04em;
+        }
+
+        .tp-input-wrap {
+            position: relative;
+        }
+
+        .tp-input,
+        .tp-textarea {
+            width: 100%;
+            background: #221f3a;
+            border: 1.5px solid rgba(99, 102, 241, .2);
+            border-radius: 10px;
+            padding: 10px 14px;
+            color: var(--tp-text);
+            font-size: .9rem;
+            transition: border-color .2s, box-shadow .2s;
+            outline: none;
+            font-family: 'Inter', sans-serif;
+        }
+
+        .tp-input-wrap .tp-input {
+            padding-right: 38px;
+        }
+
+        .tp-input-icon {
+            position: absolute;
+            right: 12px;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 1rem;
+            pointer-events: none;
+        }
+
+        .tp-input:focus,
+        .tp-textarea:focus {
+            border-color: var(--tp-primary);
+            box-shadow: 0 0 0 3px rgba(99, 102, 241, .2);
+        }
+
+        .tp-textarea {
+            resize: vertical;
+            min-height: 70px;
+        }
+
+        /* Budget slider */
+        .tp-slider {
+            width: 100%;
+            appearance: none;
+            height: 4px;
+            border-radius: 4px;
+            background: linear-gradient(to right, var(--tp-primary) 0%, rgba(99, 102, 241, .2) 0%);
+            outline: none;
+            cursor: pointer;
+        }
+
+        .tp-slider::-webkit-slider-thumb {
+            appearance: none;
+            width: 18px;
+            height: 18px;
+            background: var(--tp-primary);
+            border-radius: 50%;
+            cursor: pointer;
+            box-shadow: 0 0 6px rgba(99, 102, 241, .6);
+        }
+
+        .tp-slider-labels {
+            display: flex;
+            justify-content: space-between;
+            font-size: .7rem;
+            color: var(--tp-muted);
+            margin-top: 4px;
+        }
+
+        /* Voice */
+        .tp-voice-row {
+            display: flex;
+        }
+
+        .tp-voice-btn {
+            background: rgba(99, 102, 241, .1);
+            border: 1.5px solid var(--tp-border);
+            color: var(--tp-text);
+            border-radius: 10px;
+            padding: 8px 16px;
+            font-size: .82rem;
+            cursor: pointer;
+            transition: all .2s;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .tp-voice-btn:hover {
+            background: rgba(99, 102, 241, .2);
+        }
+
+        .tp-voice-btn.active {
+            background: rgba(239, 68, 68, .2);
+            border-color: #ef4444;
+            color: #ef4444;
+        }
+
+        /* Submit button */
+        .tp-submit-btn {
+            width: 100%;
+            background: linear-gradient(135deg, var(--tp-primary), #8b5cf6);
+            border: none;
+            border-radius: 12px;
+            color: #fff;
+            padding: 13px;
+            font-size: .95rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all .3s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            letter-spacing: .02em;
+        }
+
+        .tp-submit-btn:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 30px rgba(99, 102, 241, .5);
+        }
+
+        .tp-submit-btn:disabled {
+            opacity: .6;
+            cursor: not-allowed;
+        }
+
+        .tp-submit-btn.loading .tp-submit-icon {
+            animation: spin 1s linear infinite;
+            display: inline-block;
+        }
+
+        @keyframes spin {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+        /* Follow-up */
+        .tp-followup-wrap {
+            border-top: 1px solid var(--tp-border);
+            padding-top: 1rem;
+        }
+
+        .tp-followup-label {
+            font-size: .75rem;
+            color: var(--tp-muted);
+            font-weight: 600;
+            margin-bottom: 8px;
+        }
+
+        .tp-followup-row {
+            display: flex;
+            gap: 8px;
+        }
+
+        .tp-followup-input {
+            flex: 1;
+            background: #221f3a;
+            border: 1.5px solid var(--tp-border);
+            border-radius: 10px;
+            padding: 9px 12px;
+            color: var(--tp-text);
+            font-size: .85rem;
+            outline: none;
+        }
+
+        .tp-followup-input:focus {
+            border-color: var(--tp-primary);
+        }
+
+        .tp-followup-btn {
+            background: var(--tp-primary);
+            border: none;
+            border-radius: 10px;
+            color: #fff;
+            padding: 0 14px;
+            cursor: pointer;
+            font-size: 1rem;
+            transition: background .2s;
+        }
+
+        .tp-followup-btn:hover {
+            background: #4f46e5;
+        }
+
+        .tp-followup-suggestions {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+        }
+
+        .tp-suggestion-chip {
+            background: rgba(99, 102, 241, .1);
+            border: 1px solid var(--tp-border);
+            color: var(--tp-primary2);
+            border-radius: 100px;
+            padding: 4px 12px;
+            font-size: .75rem;
+            cursor: pointer;
+            transition: all .2s;
+        }
+
+        .tp-suggestion-chip:hover {
+            background: var(--tp-primary);
+            color: #fff;
+            border-color: var(--tp-primary);
+        }
+
+        /* My Trips Card */
+        .tp-my-trips-card {
+            background: linear-gradient(135deg, #1e1b4b, #312e81);
+            border: 1px solid rgba(99, 102, 241, .3);
+            border-radius: 14px;
+            padding: 1rem 1.2rem;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            transition: transform .2s, box-shadow .2s;
+        }
+
+        .tp-my-trips-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 24px rgba(99, 102, 241, .3);
+        }
+
+        .tp-my-trips-icon {
+            font-size: 1.8rem;
+        }
+
+        .tp-my-trips-title {
+            color: #fff;
+            font-weight: 700;
+            font-size: .9rem;
+        }
+
+        .tp-my-trips-sub {
+            color: rgba(255, 255, 255, .6);
+            font-size: .75rem;
+        }
+
+        .tp-my-trips-arrow {
+            margin-left: auto;
+            color: var(--tp-primary2);
+            font-size: 1.2rem;
+        }
+
+        /* ─── Empty State ──────────────────────────────────────────────── */
+        .tp-empty-state {
+            background: #1a1830;
+            border: 1px solid var(--tp-border);
+            border-radius: 20px;
+            padding: 4rem 2rem;
+            text-align: center;
+            color: var(--tp-text);
+            min-height: 400px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .tp-empty-animation {
+            position: relative;
+            height: 80px;
+            width: 200px;
+            margin-bottom: 1.5rem;
+        }
+
+        .tp-plane {
+            font-size: 2.5rem;
+            animation: flyPlane 3s ease-in-out infinite;
+            position: absolute;
+            left: 0;
+        }
+
+        @keyframes flyPlane {
+
+            0%,
+            100% {
+                transform: translateX(0) translateY(0) rotate(-5deg);
+            }
+
+            50% {
+                transform: translateX(140px) translateY(-20px) rotate(5deg);
+            }
+        }
+
+        .tp-cloud {
+            font-size: 1.5rem;
+            position: absolute;
+            opacity: .6;
+            animation: floatCloud 4s ease-in-out infinite;
+        }
+
+        .tp-cloud-1 {
+            top: 10px;
+            left: 50px;
+            animation-delay: 0s;
+        }
+
+        .tp-cloud-2 {
+            top: 30px;
+            right: 20px;
+            animation-delay: 1.5s;
+        }
+
+        @keyframes floatCloud {
+
+            0%,
+            100% {
+                transform: translateX(0);
+            }
+
+            50% {
+                transform: translateX(-8px);
+            }
+        }
+
+        .tp-empty-state h3 {
+            font-size: 1.4rem;
+            font-weight: 700;
+            margin-bottom: .5rem;
+        }
+
+        .tp-empty-state p {
+            color: var(--tp-muted);
+            max-width: 400px;
+            line-height: 1.6;
+            margin-bottom: 1.5rem;
+        }
+
+        .tp-features-row {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 10px;
+        }
+
+        .tp-feature {
+            background: rgba(99, 102, 241, .1);
+            border: 1px solid var(--tp-border);
+            border-radius: 100px;
+            padding: 6px 14px;
+            font-size: .8rem;
+            color: var(--tp-primary2);
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        /* ─── Streaming Card ───────────────────────────────────────────── */
+        .tp-streaming-card {
+            background: #1a1830;
+            border: 1px solid var(--tp-border);
+            border-radius: 20px;
+            overflow: hidden;
+            box-shadow: var(--tp-shadow);
+        }
+
+        .tp-streaming-header {
+            background: rgba(99, 102, 241, .1);
+            padding: 1rem 1.5rem;
+            border-bottom: 1px solid var(--tp-border);
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .tp-ai-typing {
+            display: flex;
+            gap: 4px;
+            align-items: center;
+        }
+
+        .tp-ai-dot {
+            width: 7px;
+            height: 7px;
+            background: var(--tp-primary);
+            border-radius: 50%;
+            animation: bounce 1s ease-in-out infinite;
+        }
+
+        .tp-ai-dot:nth-child(2) {
+            animation-delay: .15s;
+        }
+
+        .tp-ai-dot:nth-child(3) {
+            animation-delay: .3s;
+        }
+
+        @keyframes bounce {
+
+            0%,
+            100% {
+                transform: translateY(0);
+                opacity: .6;
+            }
+
+            50% {
+                transform: translateY(-5px);
+                opacity: 1;
+            }
+        }
+
+        .tp-streaming-label {
+            color: var(--tp-muted);
+            font-size: .85rem;
+        }
+
+        .tp-streaming-content {
+            padding: 1.5rem 2rem;
+            color: var(--tp-text);
+            max-height: 70vh;
+            overflow-y: auto;
+            line-height: 1.8;
+            font-size: .93rem;
+        }
+
+        /* ─── Result Card ──────────────────────────────────────────────── */
+        .tp-result-card {
+            background: #1a1830;
+            border: 1px solid var(--tp-border);
+            border-radius: 20px;
+            overflow: hidden;
+            box-shadow: var(--tp-shadow);
+        }
+
+        .tp-result-toolbar {
+            background: rgba(99, 102, 241, .08);
+            padding: 1.2rem 1.5rem;
+            border-bottom: 1px solid var(--tp-border);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 12px;
+        }
+
+        .tp-result-meta {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .tp-result-emoji {
+            font-size: 2rem;
+        }
+
+        .tp-result-title {
+            color: #fff;
+            font-weight: 700;
+            font-size: 1.05rem;
+        }
+
+        .tp-result-sub {
+            color: var(--tp-muted);
+            font-size: .8rem;
+            margin-top: 2px;
+        }
+
+        .tp-result-actions {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+
+        .tp-action-btn {
+            background: rgba(99, 102, 241, .15);
+            border: 1px solid var(--tp-border);
+            color: var(--tp-text);
+            border-radius: 10px;
+            padding: 7px 14px;
+            font-size: .8rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all .2s;
+        }
+
+        .tp-action-btn:hover {
+            background: rgba(99, 102, 241, .3);
+            transform: translateY(-1px);
+        }
+
+        .tp-save-btn {
+            background: rgba(16, 185, 129, .15);
+            border-color: rgba(16, 185, 129, .3);
+            color: #10b981;
+        }
+
+        .tp-save-btn:hover {
+            background: rgba(16, 185, 129, .3);
+        }
+
+        .tp-result-body {
+            padding: 1.75rem 2rem;
+            color: var(--tp-text);
+            max-height: 75vh;
+            overflow-y: auto;
+            line-height: 1.85;
+        }
+
+        /* Markdown Content Styles */
+        .tp-result-body h1,
+        .tp-streaming-content h1 {
+            font-size: 1.4rem;
+            color: #fff;
+            margin-top: 1.5rem;
+        }
+
+        .tp-result-body h2,
+        .tp-streaming-content h2 {
+            font-size: 1.15rem;
+            color: var(--tp-primary2);
+            padding-bottom: 6px;
+            border-bottom: 1px solid var(--tp-border);
+            margin-top: 1.8rem;
+        }
+
+        .tp-result-body h3,
+        .tp-streaming-content h3 {
+            font-size: 1rem;
+            color: #c4b5fd;
+            margin-top: 1.4rem;
+        }
+
+        .tp-result-body p,
+        .tp-streaming-content p {
+            color: var(--tp-text);
+            margin-bottom: .7rem;
+        }
+
+        .tp-result-body em,
+        .tp-streaming-content em {
+            color: var(--tp-muted);
+            font-style: normal;
+            font-size: .9rem;
+        }
+
+        .tp-result-body strong,
+        .tp-streaming-content strong {
+            color: #fff;
+        }
+
+        .tp-result-body ul,
+        .tp-streaming-content ul {
+            padding-left: 1.4rem;
+            margin-bottom: .8rem;
+        }
+
+        .tp-result-body li,
+        .tp-streaming-content li {
+            margin-bottom: .35rem;
+            color: var(--tp-text);
+        }
+
+        .tp-result-body hr,
+        .tp-streaming-content hr {
+            border: none;
+            border-top: 1px solid var(--tp-border);
+            margin: 1.5rem 0;
+        }
+
+        .tp-result-body blockquote,
+        .tp-streaming-content blockquote {
+            border-left: 3px solid var(--tp-primary);
+            padding: .5rem 1rem;
+            margin: 1rem 0;
+            background: rgba(99, 102, 241, .08);
+            border-radius: 0 8px 8px 0;
+        }
+
+        .tp-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 1rem 0;
+            font-size: .87rem;
+        }
+
+        .tp-table th {
+            background: rgba(99, 102, 241, .25);
+            color: var(--tp-primary2);
+            padding: 10px 14px;
+            text-align: left;
+            font-weight: 600;
+            font-size: .82rem;
+        }
+
+        .tp-table td {
+            border-bottom: 1px solid rgba(99, 102, 241, .1);
+            padding: 9px 14px;
+            color: var(--tp-text);
+        }
+
+        .tp-table tr:last-child td {
+            border-bottom: none;
+        }
+
+        .tp-table tr:hover td {
+            background: rgba(99, 102, 241, .06);
+        }
+
+        /* ─── Toast ─────────────────────────────────────────────────────── */
+        .tp-toast {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            background: #1e1c35;
+            border: 1px solid rgba(255, 255, 255, .15);
+            border-left: 4px solid var(--toast-color, #6366f1);
+            border-radius: 12px;
+            padding: 12px 16px;
+            min-width: 280px;
+            max-width: 380px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, .4);
+            margin-bottom: 10px;
+            opacity: 0;
+            transform: translateX(100%);
+            transition: all .35s cubic-bezier(.34, 1.56, .64, 1);
+        }
+
+        .tp-toast.show {
+            opacity: 1;
+            transform: translateX(0);
+        }
+
+        .tp-toast-icon {
+            font-size: 1.1rem;
+            flex-shrink: 0;
+        }
+
+        .tp-toast-msg {
+            color: #e2e2f0;
+            font-size: .85rem;
+            flex: 1;
+            font-family: 'Inter', sans-serif;
+        }
+
+        .tp-toast-close {
+            background: none;
+            border: none;
+            color: #9ca3af;
+            font-size: 1.1rem;
+            cursor: pointer;
+            flex-shrink: 0;
+            line-height: 1;
+        }
+
+        .tp-toast-close:hover {
+            color: #fff;
+        }
+
+        /* ─── Scrollbar ─────────────────────────────────────────────────── */
+        .tp-streaming-content::-webkit-scrollbar,
+        .tp-result-body::-webkit-scrollbar {
+            width: 5px;
+        }
+
+        .tp-streaming-content::-webkit-scrollbar-track,
+        .tp-result-body::-webkit-scrollbar-track {
+            background: transparent;
+        }
+
+        .tp-streaming-content::-webkit-scrollbar-thumb,
+        .tp-result-body::-webkit-scrollbar-thumb {
+            background: rgba(99, 102, 241, .3);
+            border-radius: 5px;
+        }
+
+        /* ─── Responsive ───────────────────────────────────────────────── */
+        @media (max-width: 768px) {
+            .tp-form-card {
+                position: static;
+            }
+
+            .tp-result-toolbar {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+
+            .tp-result-body {
+                padding: 1.2rem;
+            }
+
+            .tp-hero {
+                padding: 3rem 0 2.5rem;
+            }
+        }
+    </style>

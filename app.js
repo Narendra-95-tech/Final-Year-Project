@@ -26,6 +26,7 @@ const cors = require('cors');
 
 const ExpressError = require("./utils/ExpressError");
 const User = require("./models/user");
+require("./models/savedTrip"); // Register SavedTrip schema & indexes at startup
 const logger = require("./config/logger");
 const { initSentry, Sentry } = require("./config/sentry");
 const requestLogger = require("./middleware/requestLogger");
@@ -597,8 +598,14 @@ app.get("/map", (req, res) => {
 app.get("/trip-planner", (req, res) => {
   res.render("trip-planner", {
     title: "AI Trip Planner | WanderLust",
-    description: "Plan your perfect trip with our AI-powered trip planner. Get personalized travel itineraries, budget estimates, and local recommendations."
+    description: "Plan your perfect trip with our AI-powered trip planner. Get personalized travel itineraries, budget estimates, and local recommendations.",
+    currUser: req.user || null
   });
+});
+
+// My Trips shortcut (redirects to the router-handled route)
+app.get("/my-trips", (req, res) => {
+  res.redirect("/api/trip/my-trips");
 });
 
 // Legal pages

@@ -251,6 +251,7 @@ async function processAssistantMessage(message, userId, location = null, context
 }
 
 // Export the router
+
 module.exports = router;
 
 // Recommendations endpoints

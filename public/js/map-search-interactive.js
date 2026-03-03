@@ -30,7 +30,7 @@ document.addEventListener('DOMContentLoaded', () => {
         vehicles: true,
         dhabas: true,
         minPrice: 0,
-        maxPrice: 100000
+        maxPrice: 50000
     };
 
     let allFeatures = [];
@@ -38,6 +38,8 @@ document.addEventListener('DOMContentLoaded', () => {
     let isWeatherEnabled = false;
     let arePoisEnabled = false;
     let isHeatmapEnabled = false;
+    let currentUserPosition = null; // Track user for distance pills
+    const markerMap = new Map(); // Store active HTML markers
 
     // --- CONTROLS ---
 
@@ -49,36 +51,72 @@ document.addEventListener('DOMContentLoaded', () => {
     const geolocate = new mapboxgl.GeolocateControl({
         positionOptions: {
             enableHighAccuracy: true,
-            timeout: 6000,
-            maximumAge: 0 // Force fresh location
+            timeout: 10000, // Increased to 10s for better GPS fix
+            maximumAge: 0 // Always fetch fresh
         },
         trackUserLocation: true,
         showUserHeading: true,
         showAccuracyCircle: true,
-        fitBoundsOptions: { maxZoom: 16 } // Zoom in tight on the user
+        fitBoundsOptions: { maxZoom: 17 } // Very tight zoom
     });
     map.addControl(geolocate);
 
-    // Logic for "Exact" location feedback
     geolocate.on('geolocate', async (e) => {
-        const { longitude, latitude } = e.coords;
-        console.log('Exact location fix:', longitude, latitude);
+        // Handle wrapped Mapbox events or raw GeolocationPosition
+        const pos = e.coords || (e.detail && e.detail.coords) || (e.target && e.target._lastKnownPosition ? e.target._lastKnownPosition.coords : null);
 
-        // Reverse Geocode to get exact address
+        if (!pos) {
+            // Some events might just be notifications without data
+            return;
+        }
+
+        const { longitude, latitude, accuracy } = pos;
+        currentUserPosition = [longitude, latitude];
+
+        // Perfection Filter: If accuracy is low (IP-based), tell user to check GPS
+        const accuracyInMeters = accuracy || 1000;
+        if (accuracyInMeters > 300) {
+            console.warn('Low precision location detected:', accuracyInMeters, 'm');
+            showMapToast(`📍 Approximate Location Found (${Math.round(accuracyInMeters / 1000)}km range). Enable GPS for exact pin.`, "info");
+        }
+
+        console.log('Precise GPS Fix (Accuracy:', accuracyInMeters, 'm):', currentUserPosition);
+
+        // Force Fly-To on live update if significant movement
+        if (geolocate._watchId) { // If currently tracking
+            map.flyTo({ center: currentUserPosition, zoom: 18, speed: 1.2 });
+        }
+
+        syncListWithMap();
+
+        // Reverse Geocode
         try {
             const query = `https://api.mapbox.com/geocoding/v5/mapbox.places/${longitude},${latitude}.json?access_token=${mapboxgl.accessToken}`;
             const response = await fetch(query);
             const data = await response.json();
             const address = data.features[0]?.place_name || "Unknown Location";
+            const neighborhood = data.features[0]?.text || address.split(',')[0];
 
-            // Show address in search bar as feedback
-            geocoder.setInput(address.split(',')[0]); // Just the neighborhood/street for clean UI
+            geocoder.setInput(neighborhood);
+            document.getElementById('result-count').innerHTML = `Searching in <b>${neighborhood}</b>...`;
 
-            // Update Stats or Show Toast
-            updateStats(`Pinned to: ${address.split(',')[0]}`);
+            if (accuracyInMeters < 100) {
+                showMapToast(`📍 Hyper-Precise Location Locked: ${neighborhood}!`, "success");
+            }
         } catch (err) {
             console.error("Reverse geocoding error:", err);
         }
+    });
+
+    // Error Feedback: If geolocation fails
+    geolocate.on('error', (e) => {
+        let msg = "Check your browser location permissions.";
+        if (e.code === 1) msg = "Locating you was denied. Grant permission in browser.";
+        if (e.code === 2) msg = "Position unavailable. Are you in a tunnel?";
+        if (e.code === 3) msg = "Location lookup timed out. Try again!";
+
+        showMapToast(`📍 GPS Error: ${msg}`, "error");
+        radarBtn.classList.remove('active');
     });
 
     geolocate.on('trackuserlocationstart', () => {
@@ -176,6 +214,158 @@ document.addEventListener('DOMContentLoaded', () => {
     };
     overlaysContainer.appendChild(resetBtn);
 
+    // 3D Cinematic Tour Button
+    const tourBtn = document.createElement('button');
+    tourBtn.className = 'map-control-btn';
+    tourBtn.title = 'Start Cinematic 3D Tour';
+    tourBtn.innerHTML = '<i class="fas fa-play"></i>';
+    let isTouring = false;
+    let tourId;
+
+    tourBtn.onclick = () => {
+        isTouring = !isTouring;
+        tourBtn.classList.toggle('active');
+        tourBtn.innerHTML = isTouring ? '<i class="fas fa-stop"></i>' : '<i class="fas fa-play"></i>';
+
+        if (isTouring) {
+            // cinematic angle
+            map.easeTo({ pitch: 60, bearing: -20, duration: 2000 });
+            rotateCamera(0);
+        } else {
+            cancelAnimationFrame(tourId);
+            map.easeTo({ pitch: 0, bearing: 0, duration: 2000 });
+        }
+    };
+
+    function rotateCamera(timestamp) {
+        if (!isTouring) return;
+        map.rotateTo((map.getBearing() + 0.1) % 360, { duration: 0 });
+        tourId = requestAnimationFrame(rotateCamera);
+    }
+    overlaysContainer.appendChild(tourBtn);
+
+    // Radar Button
+    const radarBtn = document.createElement('button');
+    radarBtn.className = 'map-control-btn';
+    radarBtn.title = 'Around Me Radar';
+    radarBtn.innerHTML = '<i class="fas fa-satellite-dish"></i>';
+    radarBtn.onclick = runRadar;
+    overlaysContainer.appendChild(radarBtn);
+
+    // AI Insight Button
+    const aiInsightBtn = document.createElement('button');
+    aiInsightBtn.className = 'map-control-btn ai-magic-btn';
+    aiInsightBtn.title = 'AI Neighborhood Insight';
+    aiInsightBtn.innerHTML = '<i class="fas fa-brain"></i>';
+    aiInsightBtn.onclick = generateAIInsight;
+    overlaysContainer.appendChild(aiInsightBtn);
+
+    // AI Insight Panel UI
+    const aiPanel = document.createElement('div');
+    aiPanel.className = 'ai-insight-panel';
+    aiPanel.innerHTML = `
+        <div class="ai-insight-header">
+            <span class="ai-badge">AI Neighborhood Tracker</span>
+            <i class="fas fa-times ai-close"></i>
+        </div>
+        <div class="ai-text">Analyzing the vibe of this area...</div>
+        <div class="ai-stats"></div>
+    `;
+    document.querySelector('.map-container').appendChild(aiPanel);
+    aiPanel.querySelector('.ai-close').onclick = () => aiPanel.classList.remove('visible');
+
+    // RADAR LOGIC
+    function runRadar() {
+        showMapToast("📡 Initializing Radar & GPS...", "info");
+        geolocate.trigger();
+        radarBtn.classList.add('active');
+
+        // Force time-out if moveend never fires (e.g. they are already there)
+        const radarFallback = setTimeout(() => {
+            if (radarBtn.classList.contains('active')) {
+                finishRadar();
+            }
+        }, 5000);
+
+        map.once('moveend', () => {
+            clearTimeout(radarFallback);
+            finishRadar();
+        });
+    }
+
+    function finishRadar() {
+        // Use the absolute latest GPS fix if available, fallback to center
+        const radarLocation = currentUserPosition || [map.getCenter().lng, map.getCenter().lat];
+
+        // Ensure map is actually centered on the location for accuracy
+        if (currentUserPosition) {
+            map.flyTo({ center: currentUserPosition, zoom: 17, speed: 1.5 });
+        }
+
+        // Create Pulse Element
+        const pulse = document.createElement('div');
+        pulse.className = 'radar-pulse';
+        pulse.style.left = '50%';
+        pulse.style.top = '50%';
+        document.querySelector('.map-container').appendChild(pulse);
+
+        setTimeout(() => pulse.classList.add('animate'), 10);
+        setTimeout(() => {
+            pulse.remove();
+            radarBtn.classList.remove('active');
+
+            // Highlight top 3 nearest
+            const bounds = map.getBounds();
+            const visible = allFeatures.filter(f => bounds.contains(f.geometry.coordinates));
+
+            // EXACT Sorting: Distance to user's real GPS position
+            if (currentUserPosition) {
+                visible.sort((a, b) => {
+                    const distA = turf.distance(currentUserPosition, a.geometry.coordinates);
+                    const distB = turf.distance(currentUserPosition, b.geometry.coordinates);
+                    return distA - distB;
+                });
+            }
+
+            updateSidebarList(visible.slice(0, 3));
+            updateStats(`Radar found ${Math.min(visible.length, 3)} top picks nearby!`);
+            showMapToast(`📡 Radar Complete!`, "success");
+        }, 1500);
+    }
+
+    // AI INSIGHT LOGIC
+    async function generateAIInsight() {
+        aiInsightBtn.classList.add('active');
+        aiPanel.classList.add('visible');
+        aiPanel.querySelector('.ai-text').innerHTML = '<i class="fas fa-spinner fa-spin"></i> WanderAssistant is analyzing neighborhood vibes...';
+        aiPanel.querySelector('.ai-stats').innerHTML = '';
+
+        const bounds = map.getBounds();
+        const visibleFeatures = allFeatures.filter(f => bounds.contains(f.geometry.coordinates));
+
+        try {
+            const response = await fetch('/api/map/insight', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    features: visibleFeatures.slice(0, 15), // Sample features
+                    bounds: bounds
+                })
+            });
+            const data = await response.json();
+
+            aiPanel.querySelector('.ai-text').innerText = data.insight;
+            aiPanel.querySelector('.ai-stats').innerHTML = `
+                <span><i class="fas fa-tag"></i> Avg: ₹${data.stats.avgPrice}</span>
+                <span><i class="fas fa-map-marker-alt"></i> ${data.stats.count} Spots</span>
+            `;
+        } catch (err) {
+            aiPanel.querySelector('.ai-text').innerText = "Looks like the vibe is too unique to capture right now. Try zooming in!";
+        } finally {
+            aiInsightBtn.classList.remove('active');
+        }
+    }
+
     // Create Weather Widget (Hidden)
     const weatherWidget = document.createElement('div');
     weatherWidget.className = 'weather-widget hidden';
@@ -192,6 +382,15 @@ document.addEventListener('DOMContentLoaded', () => {
     // --- DATA LOADING ---
     const loadMapData = async () => {
         try {
+            const listContainer = document.getElementById('sidebar-results-list');
+            if (listContainer) {
+                listContainer.innerHTML = `
+                    <div class="sidebar-loader">
+                        <div class="spinner-border text-danger" role="status"></div>
+                        <p class="mt-2 text-muted">Searching the map...</p>
+                    </div>
+                `;
+            }
             document.querySelector('.search-area-btn')?.classList.remove('visible');
             const response = await fetch('/api/map/data');
             const data = await response.json();
@@ -262,28 +461,66 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         });
 
-        // Unclustered Points
+        // Unclustered Points - using custom HTML markers for Price Tags
         map.addLayer({
             id: 'unclustered-point',
             type: 'circle',
             source: 'mapped-items',
             filter: ['!', ['has', 'point_count']],
             paint: {
-                'circle-color': [
-                    'match',
-                    ['get', 'type'],
-                    'listing', '#F4A261',
-                    'vehicle', '#2A9D8F',
-                    'dhaba', '#E76F51',
-                    '#ccc'
-                ],
-                'circle-radius': 8,
-                'circle-stroke-width': 2,
-                'circle-stroke-color': '#fff'
+                'circle-radius': 20, // Hit area for popup
+                'circle-opacity': 0
             }
         });
 
+        // Add custom HTML markers
+        // renderPriceTags(filtered); -> Moved to syncListWithMap for better performance
+
         syncListWithMap();
+    };
+
+    const renderPriceTags = (filtered) => {
+        // Clear old markers from map
+        markerMap.forEach(m => m.remove());
+        markerMap.clear();
+
+        filtered.forEach(f => {
+            const { id, price, type, title } = f.properties;
+            const coords = f.geometry.coordinates;
+
+            // Calculate distance/time pill
+            let timePill = "";
+            if (currentUserPosition) {
+                const distance = turf.distance(currentUserPosition, coords, { units: 'kilometers' });
+                const mins = Math.round(distance * 3); // Rough estimate for city driving (20km/h)
+                timePill = `<span class="time-pill">| ${mins}m</span>`;
+            }
+
+            const el = document.createElement('div');
+            el.className = `price-tag-wrapper type-${type}`;
+            el.innerHTML = `
+                <div class="price-tag" id="marker-${id}">
+                    ₹${Number(price).toLocaleString('en-IN', { notation: 'compact' })}
+                    ${timePill}
+                </div>
+            `;
+
+            const marker = new mapboxgl.Marker(el)
+                .setLngLat(f.geometry.coordinates)
+                .addTo(map);
+
+            markerMap.set(id, marker);
+
+            // Link marker to click event
+            el.addEventListener('click', () => {
+                const card = document.querySelector(`[data-id="${id}"]`);
+                if (card) {
+                    document.querySelectorAll('.list-item-card').forEach(c => c.classList.remove('highlighted'));
+                    card.classList.add('highlighted');
+                    card.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                }
+            });
+        });
     };
 
 
@@ -542,6 +779,48 @@ document.addEventListener('DOMContentLoaded', () => {
 
 
     // --- EXISTING LISTENERS ---
+
+    // Type Toggles
+    document.querySelectorAll('.type-toggle').forEach(btn => {
+        btn.addEventListener('click', () => {
+            const type = btn.dataset.type;
+            activeFilters[type] = !activeFilters[type];
+            btn.classList.toggle('active');
+            renderMarkers(); // Filter on map
+            syncListWithMap(); // Sync sidebar
+        });
+    });
+
+    // Price Slider
+    const priceSlider = document.getElementById('priceRange');
+    if (priceSlider) {
+        priceSlider.addEventListener('input', (e) => {
+            const val = parseInt(e.target.value);
+            activeFilters.maxPrice = val;
+
+            // Update label
+            const labels = document.querySelectorAll('.range-inputs span');
+            if (labels.length > 1) {
+                labels[1].innerText = `₹${val.toLocaleString('en-IN')}${val >= 50000 ? '+' : ''}`;
+            }
+
+            renderMarkers();
+        });
+    }
+
+    // Search Area Interaction
+    const searchAreaBtn = document.querySelector('.search-area-btn');
+    if (searchAreaBtn) {
+        searchAreaBtn.addEventListener('click', () => {
+            searchAreaBtn.classList.remove('visible');
+            syncListWithMap();
+        });
+    }
+
+    map.on('dragstart', () => {
+        searchAreaBtn?.classList.add('visible');
+    });
+
     map.on('load', () => {
         loadMapData();
         // ... cluster clicks from prev file ...
@@ -585,15 +864,28 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function syncListWithMap() {
         if (!map.getSource('mapped-items')) return;
-        const features = map.querySourceFeatures('mapped-items', { layers: ['unclustered-point'] });
+
+        // Use queryRenderedFeatures to get exactly what's on screen and NOT clustered
+        const renderedUnclustered = map.queryRenderedFeatures({ layers: ['unclustered-point'] });
+        renderPriceTags(renderedUnclustered);
+
         const bounds = map.getBounds();
-        const visibleFeatures = allFeatures.filter(f => {
+        let visibleFeatures = allFeatures.filter(f => {
             const typeMatch = activeFilters[f.properties.type + 's'];
             const priceMatch = f.properties.price >= activeFilters.minPrice && f.properties.price <= activeFilters.maxPrice;
             if (!typeMatch || !priceMatch) return false;
-            const [lng, lat] = f.geometry.coordinates;
-            return bounds.contains([lng, lat]);
+            return bounds.contains(f.geometry.coordinates);
         });
+
+        // Exact Location Enhancement: Sort by proximity if position is known
+        if (currentUserPosition) {
+            visibleFeatures.sort((a, b) => {
+                const distA = turf.distance(currentUserPosition, a.geometry.coordinates);
+                const distB = turf.distance(currentUserPosition, b.geometry.coordinates);
+                return distA - distB;
+            });
+        }
+
         updateSidebarList(visibleFeatures.slice(0, 50));
         updateStats(visibleFeatures.length);
     }
@@ -606,20 +898,56 @@ document.addEventListener('DOMContentLoaded', () => {
             listContainer.innerHTML = '<div class="text-muted text-center mt-4">No results in this area.<br>Try moving the map or changing filters.</div>';
             return;
         }
-        features.forEach(f => {
+        features.forEach((f, index) => {
             const { title, price, image, type, id, location } = f.properties;
+
+            let distBadge = "";
+            if (currentUserPosition) {
+                const d = turf.distance(currentUserPosition, f.geometry.coordinates);
+                distBadge = `<div class="distance-badge"><i class="fas fa-location-arrow"></i> ${d.toFixed(1)}km</div>`;
+            }
+
             const item = document.createElement('div');
             item.className = 'list-item-card';
+            item.setAttribute('data-id', id);
+            item.style.animationDelay = `${index * 0.05}s`;
             item.innerHTML = `
-                <img src="${image || '/images/default.jpg'}" class="list-item-img" alt="${title}">
+                <img src="${image || '/images/default-listing.png'}" class="list-item-img" alt="${title}">
                 <div class="list-item-content">
-                    <div class="list-item-title">${title}</div>
+                    <div class="list-item-title">${title} ${distBadge}</div>
                     <div class="list-item-meta">${location || ''} • ${type}</div>
                     <div class="list-item-price">₹${price.toLocaleString('en-IN')}</div>
                 </div>
             `;
+
+            // Hover effects for Sidebar Sync
+            item.addEventListener('mouseenter', () => {
+                const marker = markerMap.get(id);
+                if (marker) {
+                    const el = marker.getElement().querySelector('.price-tag');
+                    if (el) el.classList.add('pulse', 'active');
+                }
+            });
+
+            item.addEventListener('mouseleave', () => {
+                const marker = markerMap.get(id);
+                if (marker) {
+                    const el = marker.getElement().querySelector('.price-tag');
+                    if (el) el.classList.remove('pulse', 'active');
+                }
+            });
+
             item.addEventListener('click', () => {
-                map.flyTo({ center: f.geometry.coordinates, zoom: 15 });
+                map.flyTo({ center: f.geometry.coordinates, zoom: 15, duration: 1000 });
+                // Briefly flash the marker
+                const marker = markerMap.get(id);
+                if (marker) {
+                    const el = marker.getElement().querySelector('.price-tag');
+                    if (el) {
+                        el.classList.add('active');
+                        setTimeout(() => el.classList.remove('active'), 2000);
+                    }
+                }
             });
             listContainer.appendChild(item);
         });
@@ -644,6 +972,22 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     function updateStats(count) {
-        document.getElementById('result-count').innerText = `${count} results found`;
+        if (typeof count === 'number') {
+            document.getElementById('result-count').innerText = `${count} results found`;
+        } else {
+            document.getElementById('result-count').innerHTML = count;
+        }
+    }
+
+    function showMapToast(msg) {
+        let toast = document.querySelector('.map-toast');
+        if (!toast) {
+            toast = document.createElement('div');
+            toast.className = 'map-toast';
+            document.querySelector('.map-container').appendChild(toast);
+        }
+        toast.innerHTML = `<i class="fas fa-check-circle"></i> ${msg}`;
+        toast.classList.add('visible');
+        setTimeout(() => toast.classList.remove('visible'), 3000);
     }
 });

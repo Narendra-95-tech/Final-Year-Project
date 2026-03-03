@@ -1,0 +1,604 @@
+<% layout("/layouts/boilerplate") -%>
+
+    <!-- Toast Container -->
+    <div id="toast-container" class="position-fixed top-0 end-0 p-3" style="z-index: 9999;"></div>
+
+    <div class="mt-page" style="background: #0f0e1a; min-height: 100vh; padding-bottom: 5rem;">
+
+        <!-- Page Header -->
+        <div class="mt-page-header">
+            <div class="mt-header-glow"></div>
+            <div class="container mt-header-content">
+                <div class="d-flex align-items-center justify-content-between flex-wrap gap-3">
+                    <div>
+                        <div class="mt-back-link">
+                            <a href="/trip-planner" class="text-decoration-none">← Back to AI Planner</a>
+                        </div>
+                        <h1 class="mt-page-title">📚 My Saved Trips</h1>
+                        <p class="mt-page-sub">
+                            <%= trips.length %> itinerar<%= trips.length===1 ? 'y' : 'ies' %> saved
+                        </p>
+                    </div>
+                    <a href="/trip-planner" class="mt-new-btn">
+                        <span>✨</span> Plan New Trip
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <div class="container mt-4">
+
+            <% if (trips.length===0) { %>
+                <!-- ─── Empty State ─────────────────────────────────────────── -->
+                <div class="mt-empty">
+                    <div class="mt-empty-emoji">🗺️</div>
+                    <h3>No saved trips yet!</h3>
+                    <p>Generate your first AI-powered itinerary and save it here for easy access.</p>
+                    <a href="/trip-planner" class="mt-new-btn">✨ Plan My First Trip</a>
+                </div>
+
+                <% } else { %>
+
+                    <!-- ─── Stats Bar ───────────────────────────────────────────── -->
+                    <div class="mt-stats-bar mb-4">
+                        <div class="mt-stat">
+                            <span class="mt-stat-value">
+                                <%= trips.length %>
+                            </span>
+                            <span class="mt-stat-label">Total Trips</span>
+                        </div>
+                        <div class="mt-stat-divider"></div>
+                        <div class="mt-stat">
+                            <span class="mt-stat-value">
+                                <%= trips.reduce((s,t)=> s + (t.duration||0), 0) %>
+                            </span>
+                            <span class="mt-stat-label">Days Planned</span>
+                        </div>
+                        <div class="mt-stat-divider"></div>
+                        <div class="mt-stat">
+                            <span class="mt-stat-value">₹<%= (trips.reduce((s,t)=> s + (t.budget||0),
+                                    0)).toLocaleString('en-IN') %></span>
+                            <span class="mt-stat-label">Budget Allocated</span>
+                        </div>
+                    </div>
+
+                    <!-- ─── Search / Filter ────────────────────────────────────── -->
+                    <div class="mt-search-bar mb-4">
+                        <input type="text" id="tripSearch" class="mt-search-input"
+                            placeholder="🔍  Search by destination…" oninput="filterTrips(this.value)">
+                    </div>
+
+                    <!-- ─── Trip Grid ──────────────────────────────────────────── -->
+                    <div class="row g-4" id="tripsGrid">
+                        <% trips.forEach((trip, i)=> { %>
+                            <div class="col-md-6 col-lg-4 mt-trip-item"
+                                data-dest="<%= (trip.destination || '').toLowerCase() %>">
+                                <div class="mt-trip-card">
+                                    <!-- Card Header -->
+                                    <div class="mt-trip-card-header">
+                                        <span class="mt-trip-emoji">
+                                            <%= trip.emoji || '✈️' %>
+                                        </span>
+                                        <div class="mt-trip-actions-top">
+                                            <a href="/api/trip/my-trips/<%= trip._id %>" class="mt-icon-btn mt-view-btn"
+                                                title="View Full Itinerary">👁️</a>
+                                            <button class="mt-icon-btn mt-delete-btn" data-id="<%= trip._id %>"
+                                                title="Delete Trip">🗑️</button>
+                                        </div>
+                                    </div>
+
+                                    <!-- Card Body -->
+                                    <div class="mt-trip-card-body">
+                                        <h4 class="mt-trip-title">
+                                            <%= trip.title || trip.destination %>
+                                        </h4>
+                                        <div class="mt-trip-dest">📍 <%= trip.destination %>
+                                        </div>
+
+                                        <div class="mt-trip-meta">
+                                            <div class="mt-trip-meta-item">
+                                                <span class="mt-trip-meta-icon">📅</span>
+                                                <span>
+                                                    <%= trip.duration %> day<%= trip.duration> 1 ? 's' : '' %>
+                                                </span>
+                                            </div>
+                                            <div class="mt-trip-meta-item">
+                                                <span class="mt-trip-meta-icon">👥</span>
+                                                <span>
+                                                    <%= trip.travelers || 2 %> traveler<%= (trip.travelers||2)> 1 ? 's'
+                                                            : '' %>
+                                                </span>
+                                            </div>
+                                            <div class="mt-trip-meta-item">
+                                                <span class="mt-trip-meta-icon">💰</span>
+                                                <span>₹<%= (trip.budget || 0).toLocaleString('en-IN') %></span>
+                                            </div>
+                                        </div>
+
+                                        <% if (trip.preferences) { %>
+                                            <div class="mt-trip-prefs">
+                                                <% trip.preferences.split(',').slice(0,3).forEach(pref=> { %>
+                                                    <span class="mt-pref-chip">
+                                                        <%= pref.trim() %>
+                                                    </span>
+                                                    <% }) %>
+                                            </div>
+                                            <% } %>
+
+                                                <!-- Content Preview -->
+                                                <p class="mt-trip-preview">
+                                                    <%= (trip.content || '' ).replace(/[#*`\[\]]/g, '' ).slice(0, 110)
+                                                        %>…
+                                                </p>
+                                    </div>
+
+                                    <!-- Card Footer -->
+                                    <div class="mt-trip-card-footer">
+                                        <span class="mt-trip-date">
+                                            🕐 Saved <%= new Date(trip.createdAt).toLocaleDateString('en-IN', {
+                                                day:'numeric', month:'short', year:'numeric' }) %>
+                                        </span>
+                                        <a href="/api/trip/my-trips/<%= trip._id %>" class="mt-view-full-btn">View Full
+                                            →</a>
+                                    </div>
+                                </div>
+                            </div>
+                            <% }) %>
+                    </div>
+
+                    <!-- No results on search -->
+                    <div class="mt-empty mt-4" id="noSearchResult" style="display:none;">
+                        <div class="mt-empty-emoji">🔍</div>
+                        <h3>No trips match your search</h3>
+                        <p>Try a different destination name.</p>
+                    </div>
+
+                    <% } %>
+        </div>
+    </div>
+
+
+
+    <script>
+        // ─── Search Filter ────────────────────────────────────────────────────────
+        function filterTrips(q) {
+            const query = q.toLowerCase().trim();
+            const items = document.querySelectorAll('.mt-trip-item');
+            let visible = 0;
+
+            items.forEach(item => {
+                const dest = item.dataset.dest || '';
+                const show = !query || dest.includes(query);
+                item.style.display = show ? '' : 'none';
+                if (show) visible++;
+            });
+
+            document.getElementById('noSearchResult').style.display = visible === 0 ? 'block' : 'none';
+        }
+
+        // ─── Delete Trip ──────────────────────────────────────────────────────────
+        document.querySelectorAll('.mt-delete-btn').forEach(btn => {
+            btn.addEventListener('click', async () => {
+                const tripId = btn.dataset.id;
+                if (!confirm('Delete this trip? This cannot be undone.')) return;
+
+                btn.textContent = '⏳';
+                try {
+                    const res = await fetch(`/api/trip/my-trips/${tripId}`, {
+                        method: 'DELETE',
+                        headers: { 'X-CSRF-Token': document.querySelector('meta[name="csrf-token"]')?.content || '' },
+                        credentials: 'include'
+                    });
+                    const data = await res.json();
+                    if (data.success) {
+                        // Fade out and remove card
+                        const card = btn.closest('.mt-trip-item');
+                        card.style.transition = 'all .4s ease';
+                        card.style.opacity = '0';
+                        card.style.transform = 'scale(.9)';
+                        setTimeout(() => {
+                            card.remove();
+                            showToast('Trip deleted successfully.', 'success');
+                        }, 400);
+                    } else {
+                        throw new Error(data.message);
+                    }
+                } catch (err) {
+                    showToast(err.message || 'Failed to delete trip.', 'error');
+                    btn.textContent = '🗑️';
+                }
+            });
+        });
+
+        // ─── Toast ────────────────────────────────────────────────────────────────
+        function showToast(msg, type = 'info') {
+            const colors = { success: '#10b981', error: '#ef4444', warning: '#f59e0b', info: '#6366f1' };
+            const icons = { success: '✅', error: '❌', warning: '⚠️', info: 'ℹ️' };
+            const id = 'toast-' + Date.now();
+
+            const el = document.createElement('div');
+            el.id = id;
+            el.className = 'tp-toast';
+            el.style.cssText = `--toast-color:${colors[type] || colors.info}`;
+            el.innerHTML = `<span class="tp-toast-icon">${icons[type] || 'ℹ️'}</span><span class="tp-toast-msg">${msg}</span><button class="tp-toast-close" onclick="document.getElementById('${id}').remove()">×</button>`;
+            document.getElementById('toast-container').appendChild(el);
+            requestAnimationFrame(() => el.classList.add('show'));
+            setTimeout(() => { el.classList.remove('show'); setTimeout(() => el.remove(), 400); }, 4000);
+        }
+    </script>
+
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+
+        :root {
+            --mt-primary: #6366f1;
+            --mt-primary2: #818cf8;
+            --mt-surface: #1a1830;
+            --mt-border: rgba(99, 102, 241, .2);
+            --mt-text: #e2e2f0;
+            --mt-muted: #9ca3af;
+            --mt-success: #10b981;
+            --mt-danger: #ef4444;
+        }
+
+        /* ─── Page Header ─────────────────────────────────────────── */
+        .mt-page-header {
+            position: relative;
+            background: linear-gradient(135deg, #0f0e1a 0%, #1a1245 100%);
+            padding: 3rem 0 2rem;
+            overflow: hidden;
+            border-bottom: 1px solid var(--mt-border);
+        }
+
+        .mt-header-glow {
+            position: absolute;
+            inset: 0;
+            background: radial-gradient(ellipse 60% 80% at 20% 50%, rgba(99, 102, 241, .2) 0%, transparent 70%);
+        }
+
+        .mt-header-content {
+            position: relative;
+            z-index: 1;
+        }
+
+        .mt-back-link a {
+            color: var(--mt-primary2);
+            font-size: .83rem;
+            font-weight: 500;
+            font-family: 'Inter', sans-serif;
+        }
+
+        .mt-back-link a:hover {
+            color: #fff;
+        }
+
+        .mt-page-title {
+            font-family: 'Inter', sans-serif;
+            font-weight: 800;
+            font-size: 2rem;
+            color: #fff;
+            margin: .4rem 0 .3rem;
+        }
+
+        .mt-page-sub {
+            color: var(--mt-muted);
+            font-family: 'Inter', sans-serif;
+            font-size: .9rem;
+        }
+
+        .mt-new-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            background: linear-gradient(135deg, var(--mt-primary), #8b5cf6);
+            color: #fff;
+            border-radius: 12px;
+            padding: 11px 22px;
+            font-weight: 700;
+            font-size: .88rem;
+            font-family: 'Inter', sans-serif;
+            text-decoration: none;
+            transition: all .25s;
+            border: none;
+            cursor: pointer;
+        }
+
+        .mt-new-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 30px rgba(99, 102, 241, .45);
+            color: #fff;
+        }
+
+        /* ─── Stats Bar ───────────────────────────────────────────── */
+        .mt-stats-bar {
+            display: flex;
+            align-items: center;
+            background: var(--mt-surface);
+            border: 1px solid var(--mt-border);
+            border-radius: 16px;
+            padding: 1.2rem 2rem;
+            gap: 2rem;
+            font-family: 'Inter', sans-serif;
+            flex-wrap: wrap;
+        }
+
+        .mt-stat {
+            text-align: center;
+        }
+
+        .mt-stat-value {
+            display: block;
+            font-size: 1.5rem;
+            font-weight: 800;
+            color: #fff;
+        }
+
+        .mt-stat-label {
+            font-size: .75rem;
+            color: var(--mt-muted);
+            text-transform: uppercase;
+            letter-spacing: .06em;
+            font-weight: 600;
+        }
+
+        .mt-stat-divider {
+            width: 1px;
+            height: 40px;
+            background: var(--mt-border);
+            flex-shrink: 0;
+        }
+
+        /* ─── Search ─────────────────────────────────────────────── */
+        .mt-search-bar {
+            max-width: 420px;
+        }
+
+        .mt-search-input {
+            width: 100%;
+            background: var(--mt-surface);
+            border: 1.5px solid var(--mt-border);
+            border-radius: 12px;
+            padding: 11px 16px;
+            color: var(--mt-text);
+            font-size: .9rem;
+            font-family: 'Inter', sans-serif;
+            outline: none;
+            transition: border-color .2s;
+        }
+
+        .mt-search-input:focus {
+            border-color: var(--mt-primary);
+            box-shadow: 0 0 0 3px rgba(99, 102, 241, .2);
+        }
+
+        .mt-search-input::placeholder {
+            color: var(--mt-muted);
+        }
+
+        /* ─── Trip Card ──────────────────────────────────────────── */
+        .mt-trip-card {
+            background: var(--mt-surface);
+            border: 1px solid var(--mt-border);
+            border-radius: 18px;
+            overflow: hidden;
+            transition: transform .25s, box-shadow .25s, border-color .25s;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            font-family: 'Inter', sans-serif;
+        }
+
+        .mt-trip-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 20px 50px rgba(0, 0, 0, .35);
+            border-color: rgba(99, 102, 241, .45);
+        }
+
+        .mt-trip-card-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 1.2rem 1.3rem .8rem;
+        }
+
+        .mt-trip-emoji {
+            font-size: 2.2rem;
+        }
+
+        .mt-trip-actions-top {
+            display: flex;
+            gap: 8px;
+        }
+
+        .mt-icon-btn {
+            background: rgba(255, 255, 255, .06);
+            border: 1px solid rgba(255, 255, 255, .1);
+            border-radius: 9px;
+            width: 34px;
+            height: 34px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: .9rem;
+            cursor: pointer;
+            transition: all .2s;
+            text-decoration: none;
+        }
+
+        .mt-view-btn:hover {
+            background: rgba(99, 102, 241, .25);
+            border-color: var(--mt-primary);
+        }
+
+        .mt-delete-btn:hover {
+            background: rgba(239, 68, 68, .2);
+            border-color: var(--mt-danger);
+        }
+
+        .mt-trip-card-body {
+            padding: .2rem 1.3rem 1rem;
+            flex: 1;
+        }
+
+        .mt-trip-title {
+            font-size: 1.02rem;
+            font-weight: 700;
+            color: #fff;
+            margin-bottom: .3rem;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+
+        .mt-trip-dest {
+            color: var(--mt-primary2);
+            font-size: .82rem;
+            font-weight: 500;
+            margin-bottom: .8rem;
+        }
+
+        .mt-trip-meta {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-bottom: .8rem;
+        }
+
+        .mt-trip-meta-item {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            font-size: .78rem;
+            color: var(--mt-muted);
+        }
+
+        .mt-trip-meta-icon {
+            font-size: .85rem;
+        }
+
+        .mt-trip-prefs {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 5px;
+            margin-bottom: .8rem;
+        }
+
+        .mt-pref-chip {
+            background: rgba(99, 102, 241, .12);
+            border: 1px solid rgba(99, 102, 241, .2);
+            color: var(--mt-primary2);
+            border-radius: 100px;
+            padding: 2px 10px;
+            font-size: .7rem;
+            font-weight: 500;
+        }
+
+        .mt-trip-preview {
+            font-size: .78rem;
+            color: #6b7280;
+            line-height: 1.6;
+            display: -webkit-box;
+            -webkit-line-clamp: 3;
+            line-clamp: 3;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+            margin-bottom: 0;
+        }
+
+        .mt-trip-card-footer {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: .9rem 1.3rem;
+            border-top: 1px solid var(--mt-border);
+        }
+
+        .mt-trip-date {
+            font-size: .73rem;
+            color: var(--mt-muted);
+        }
+
+        .mt-view-full-btn {
+            font-size: .78rem;
+            color: var(--mt-primary2);
+            font-weight: 600;
+            text-decoration: none;
+            transition: color .2s;
+        }
+
+        .mt-view-full-btn:hover {
+            color: #fff;
+        }
+
+        /* ─── Empty State ─────────────────────────────────────────── */
+        .mt-empty {
+            text-align: center;
+            padding: 5rem 2rem;
+            background: var(--mt-surface);
+            border: 1px dashed var(--mt-border);
+            border-radius: 20px;
+            font-family: 'Inter', sans-serif;
+        }
+
+        .mt-empty-emoji {
+            font-size: 4rem;
+            margin-bottom: 1rem;
+        }
+
+        .mt-empty h3 {
+            font-size: 1.4rem;
+            font-weight: 700;
+            color: #fff;
+            margin-bottom: .5rem;
+        }
+
+        .mt-empty p {
+            color: var(--mt-muted);
+            margin-bottom: 1.5rem;
+        }
+
+        /* ─── Toast (same as trip planner) ────────────────────────── */
+        .tp-toast {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            background: #1e1c35;
+            border: 1px solid rgba(255, 255, 255, .15);
+            border-left: 4px solid var(--toast-color, #6366f1);
+            border-radius: 12px;
+            padding: 12px 16px;
+            min-width: 280px;
+            max-width: 380px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, .4);
+            margin-bottom: 10px;
+            opacity: 0;
+            transform: translateX(100%);
+            transition: all .35s cubic-bezier(.34, 1.56, .64, 1);
+        }
+
+        .tp-toast.show {
+            opacity: 1;
+            transform: translateX(0);
+        }
+
+        .tp-toast-icon {
+            font-size: 1.1rem;
+        }
+
+        .tp-toast-msg {
+            color: #e2e2f0;
+            font-size: .85rem;
+            flex: 1;
+            font-family: 'Inter', sans-serif;
+        }
+
+        .tp-toast-close {
+            background: none;
+            border: none;
+            color: #9ca3af;
+            font-size: 1.1rem;
+            cursor: pointer;
+        }
+    </style>

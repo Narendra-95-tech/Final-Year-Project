@@ -655,7 +655,8 @@
                             <% if(totalHostedItems> 0) { %>
                                 <div class="badge-item">
                                     <div class="badge-circle" style="background:#f0fdf4; border:2px solid #bbf7d0;">
-                                        <span style="font-size:1.5rem;">🏠</span></div>
+                                        <span style="font-size:1.5rem;">🏠</span>
+                                    </div>
                                     <div class="badge-name">Host</div>
                                 </div>
                                 <% } %>
@@ -715,7 +716,7 @@
                                             class="fas fa-wallet text-warning"></i></div>
                                     My Wallet
                                     <span class="ql-badge">₹<%= (user.walletBalance||0).toLocaleString('en-IN') %>
-                                            </span>
+                                    </span>
                                 </a>
                             </div>
                             <div class="col-md-6">

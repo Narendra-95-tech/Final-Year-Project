@@ -184,3 +184,225 @@
         max-width: 100%;
     }
 }
+
+/* --- Price Tag Markers (Airbnb Style) --- */
+.price-tag {
+    background: white;
+    border-radius: 28px;
+    padding: 6px 12px;
+    box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.04), 0 2px 4px rgba(0, 0, 0, 0.18);
+    cursor: pointer;
+    font-size: 14px;
+    font-weight: 800;
+    color: #222;
+    transition: all 0.2s cubic-bezier(0.2, 0, 0, 1);
+    white-space: nowrap;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    border: 1px solid transparent;
+}
+
+.price-tag:hover {
+    transform: scale(1.1);
+    z-index: 1000;
+}
+
+.price-tag.active {
+    background-color: #222;
+    color: white;
+    transform: scale(1.1);
+    box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.1), 0 8px 16px rgba(0, 0, 0, 0.15);
+}
+
+.time-pill {
+    font-size: 11px;
+    opacity: 0.7;
+    font-weight: 500;
+    margin-left: 2px;
+}
+
+.price-tag::before {
+    content: '';
+    display: inline-block;
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+}
+
+.type-listing .price-tag::before {
+    background-color: var(--listing-color, #F4A261);
+}
+
+.type-vehicle .price-tag::before {
+    background-color: var(--vehicle-color, #2A9D8F);
+}
+
+.type-dhaba .price-tag::before {
+    background-color: var(--dhaba-color, #E76F51);
+}
+
+/* --- Sidebar Sync Highlighting --- */
+.list-item-card {
+    transition: all 0.3s ease;
+}
+
+.list-item-card.highlighted {
+    border-color: #222 !important;
+    background: white !important;
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1) !important;
+    transform: scale(1.02);
+}
+
+.price-tag.pulse {
+    animation: marker-pulse 0.6s infinite alternate;
+}
+
+@keyframes marker-pulse {
+    from {
+        transform: scale(1.1);
+        box-shadow: 0 0 0 0px rgba(0, 0, 0, 0.2);
+    }
+
+    to {
+        transform: scale(1.25);
+        box-shadow: 0 0 0 10px rgba(0, 0, 0, 0);
+    }
+}
+
+/* --- Radar Pulse Animation --- */
+.radar-active .mapboxgl-user-location-dot {
+    background-color: var(--primary-color) !important;
+}
+
+.radar-pulse {
+    position: absolute;
+    width: 200px;
+    height: 200px;
+    border: 2px solid var(--primary-color);
+    border-radius: 50%;
+    transform: translate(-50%, -50%) scale(0);
+    pointer-events: none;
+    opacity: 1;
+    z-index: 100;
+}
+
+.radar-pulse.animate {
+    animation: radar-expand 1.5s ease-out forwards;
+}
+
+@keyframes radar-expand {
+    0% {
+        transform: translate(-50%, -50%) scale(0);
+        opacity: 0.8;
+    }
+
+    100% {
+        transform: translate(-50%, -50%) scale(5);
+        opacity: 0;
+    }
+}
+
+/* --- AI Insight Card --- */
+.ai-insight-panel {
+    position: absolute;
+    bottom: 90px;
+    left: 50%;
+    transform: translateX(-50%) translateY(20px);
+    width: 90%;
+    max-width: 450px;
+    background: white;
+    padding: 18px;
+    border-radius: 20px;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+    z-index: 1000;
+    opacity: 0;
+    visibility: hidden;
+    transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    border: 1px solid rgba(0, 0, 0, 0.05);
+}
+
+.ai-insight-panel.visible {
+    opacity: 1;
+    visibility: visible;
+    transform: translateX(-50%) translateY(0);
+}
+
+.ai-insight-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 10px;
+}
+
+.ai-badge {
+    background: linear-gradient(135deg, #FE424D, #FF8C00);
+    color: white;
+    padding: 4px 12px;
+    border-radius: 30px;
+    font-size: 11px;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+.ai-close {
+    cursor: pointer;
+    color: #999;
+}
+
+.ai-text {
+    font-size: 14px;
+    line-height: 1.6;
+    color: #444;
+    font-style: italic;
+}
+
+.map-toast {
+    position: absolute;
+    bottom: 30px;
+    left: 20px;
+    background: #222;
+    color: white;
+    padding: 12px 20px;
+    border-radius: 50px;
+    font-size: 13px;
+    font-weight: 600;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+    z-index: 2000;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    transform: translateY(100px);
+    opacity: 0;
+    transition: all 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+.map-toast.visible {
+    transform: translateY(0);
+    opacity: 1;
+}
+
+.distance-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    background: #f0f0f0;
+    color: #555;
+    padding: 2px 8px;
+    border-radius: 4px;
+    font-size: 10px;
+    font-weight: 800;
+    margin-left: 8px;
+}
+
+.ai-stats {
+    display: flex;
+    gap: 15px;
+    margin-top: 12px;
+    padding-top: 10px;
+    border-top: 1px solid #f0f0f0;
+    font-size: 12px;
+    font-weight: 700;
+    color: #666;
+}

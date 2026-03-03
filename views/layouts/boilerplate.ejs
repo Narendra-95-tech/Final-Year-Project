@@ -787,10 +787,10 @@
                   const query = aiTripQuery.value.trim();
                   if (query) {
                     // Redirect to the trip planner page with the query
-                    window.location.href = `/ai/trip-planner?q=${encodeURIComponent(query)}`;
+                    window.location.href = `/trip-planner?q=${encodeURIComponent(query)}`;
                   } else {
                     // If no query, just go to the trip planner page
-                    window.location.href = '/ai/trip-planner';
+                    window.location.href = '/trip-planner';
                   }
                 };
 
